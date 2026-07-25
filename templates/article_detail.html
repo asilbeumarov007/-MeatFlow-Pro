@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}📖 {{ article.title }} — Baxmal Meat{% endblock title %}
+
+{% block content %}
+<style>
+    .article-detail-wrapper {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 48px 15px 20px;
+    }
+
+    .article-detail-title {
+        font-family: var(--font-serif);
+        font-size: 2.5rem;
+        color: var(--text-main);
+        line-height: 1.2;
+        margin-bottom: 20px;
+    }
+
+    .article-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        padding-bottom: 20px;
+        margin-bottom: 28px;
+        border-bottom: 2px solid var(--border-color);
+    }
+    .article-meta i {
+        color: var(--accent);
+        margin-right: 6px;
+    }
+
+    .article-featured-img {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        margin-bottom: 32px;
+    }
+
+    .article-body-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: var(--text-main);
+        margin-bottom: 40px;
+    }
+
+    .gallery-heading {
+        font-family: var(--font-serif);
+        font-size: 1.5rem;
+        color: var(--text-main);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .gallery-heading::before {
+        content: '';
+        width: 4px;
+        height: 24px;
+        background: var(--accent);
+        border-radius: 4px;
+    }
+
+    .gallery-img {
+        width: 100%;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .gallery-img:hover {
+        box-shadow: var(--shadow-md);
+        transform: scale(1.02);
+    }
+
+    .article-actions {
+        display: flex;
+        gap: 12px;
+        margin: 32px 0 48px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-color);
+    }
+    .btn-article-edit {
+        background: var(--primary-gradient);
+        color: #fff;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-article-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(27,107,74,0.3);
+        color: #fff;
+    }
+    .btn-article-delete {
+        background: var(--bg-surface);
+        color: var(--danger);
+        border: 1px solid rgba(220,53,69,0.3);
+        padding: 10px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-article-delete:hover {
+        background: rgba(220,53,69,0.06);
+        color: var(--danger);
+        transform: translateY(-2px);
+    }
+
+    /* Comments Section */
+    .comments-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .comments-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .comments-card-header h4 {
+        font-family: var(--font-serif);
+        font-size: 1.3rem;
+        color: var(--primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .comments-card-body {
+        padding: 20px 24px;
+    }
+
+    .comment-item {
+        background: var(--bg-surface-2);
+        border-radius: var(--radius-sm);
+        padding: 16px;
+        margin-bottom: 12px;
+        border-left: 4px solid var(--primary);
+    }
+    .comment-item p {
+        margin-bottom: 6px;
+        color: var(--text-main);
+        line-height: 1.6;
+    }
+    .comment-item small {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+    }
+    .comment-item small strong {
+        color: var(--primary);
+    }
+
+    .empty-comments {
+        text-align: center;
+        padding: 24px;
+        color: var(--text-muted);
+    }
+
+    /* Comment Form */
+    .comment-form-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        margin-bottom: 48px;
+    }
+    .comment-form-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .comment-form-header h5 {
+        font-family: var(--font-serif);
+        font-size: 1.2rem;
+        color: var(--primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .comment-form-body {
+        padding: 20px 24px 24px;
+    }
+
+    .btn-submit-comment {
+        background: var(--primary-gradient);
+        color: #fff;
+        border: none;
+        padding: 10px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-submit-comment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(27,107,74,0.3);
+        color: #fff;
+    }
+
+    .login-prompt {
+        text-align: center;
+        padding: 24px;
+        color: var(--text-muted);
+    }
+    .login-prompt a {
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .login-prompt a:hover {
+        color: var(--primary-light);
+    }
+</style>
+
+<div class="article-detail-wrapper">
+    <article>
+        <h1 class="article-detail-title">{{ article.title }}</h1>
+
+        <div class="article-meta">
+            <span>
+                <i class="fas fa-user-circle"></i> {{ article.author|title }}
+            </span>
+            <span>
+                <i class="fas fa-calendar-alt"></i> {{ article.date|date:"d-M, Y" }}
+            </span>
+        </div>
+
+        {% if article.photo %}
+        <div class="mb-4">
+            <img src="{{ article.photo.url }}" class="article-featured-img" alt="{{ article.title }}">
+        </div>
+        {% endif %}
+
+        <div class="article-body-content">
+            {{ article.body|safe|linebreaks }}
+        </div>
+
+        <h2 class="gallery-heading">Foto Lavhalar</h2>
+        <div class="row g-3 mt-1 mb-4">
+            {% for img in article.images.all %}
+            <div class="col-md-4">
+                <img src="{{ img.image.url }}" class="gallery-img" alt="galereya">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="article-actions">
+            <a href="{% url 'article_edit' article.pk %}" class="btn-article-edit">
+                <i class="fas fa-edit"></i> Tahrirlash
+            </a>
+            <a href="{% url 'article_delete' article.pk %}" class="btn-article-delete">
+                <i class="fas fa-trash-alt"></i> O'chirish
+            </a>
+        </div>
+    </article>
+
+    <!-- Comments -->
+    <div class="comments-card">
+        <div class="comments-card-header">
+            <h4><i class="fas fa-comments"></i> Izohlar</h4>
+        </div>
+        <div class="comments-card-body">
+            {% for comment in comments %}
+                <div class="comment-item">
+                    <p>{{ comment.comment }}</p>
+                    <small><strong>{{ comment.author.username }}</strong> • {{ comment.date_posted|date:"d-M, H:i" }}</small>
+                </div>
+            {% empty %}
+                <p class="empty-comments">Hozircha izohlar yo'q. Birinchi bo'lib yozing!</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Comment Form -->
+    <div class="comment-form-card">
+        <div class="comment-form-header">
+            <h5><i class="fas fa-pen-nib"></i> Izoh qoldirish</h5>
+        </div>
+        <div class="comment-form-body">
+            {% if user.is_authenticated %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn-submit-comment">
+                        <i class="fas fa-paper-plane"></i> Yuborish
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <p class="login-prompt">Izoh yozish uchun <a href="{% url 'login' %}">tizimga kiring</a>.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

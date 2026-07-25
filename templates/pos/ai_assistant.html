@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+{% block title %}🤖 AI Maslahatchi — Baxmal Meat{% endblock %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !important; }
+
+.ai-page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+/* Header */
+.ai-page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.ai-page-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 8px 24px rgba(27, 107, 74, 0.2);
+  color: #fff;
+}
+.ai-page-title-group {
+  flex: 1;
+}
+.ai-page-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1A1A2E;
+  margin: 0 0 2px 0;
+}
+.ai-page-subtitle {
+  font-size: 13.5px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* Click style Advice Cards */
+.ai-advice-section-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6B7280;
+  margin-bottom: 16px;
+}
+.ai-advice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.ai-advice-card {
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.06);
+  border-radius: 18px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+.ai-advice-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-light);
+  box-shadow: 0 8px 25px rgba(27, 107, 74, 0.08);
+}
+.ai-advice-icon {
+  font-size: 24px;
+}
+.ai-advice-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1A1A2E;
+  line-height: 1.4;
+}
+.ai-advice-arrow {
+  align-self: flex-end;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* Main Chat Area */
+.ai-chat-card {
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 24px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+.ai-chat-body {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--bg-surface-2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ai-chat-bubble {
+  max-width: 80%;
+  padding: 12px 18px;
+  border-radius: 16px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.ai-chat-bubble.user {
+  background: var(--primary);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+.ai-chat-bubble.bot {
+  background: #fff;
+  color: var(--text-main);
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+  border: 1px solid var(--border-color);
+  white-space: pre-wrap;
+}
+
+/* Typing Indicator */
+.typing-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 0;
+}
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  background: #999;
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out both;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Chat Input */
+.ai-chat-input-bar {
+  padding: 16px 24px;
+  background: #fff;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.ai-chat-input-field {
+  flex: 1;
+  height: 46px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  padding: 0 16px;
+  font-size: 14.5px;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.ai-chat-input-field:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(27,107,74,0.08);
+}
+.ai-chat-send-btn {
+  height: 46px;
+  width: 46px;
+  border-radius: 14px;
+  border: none;
+  background: var(--primary-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(27, 107, 74, 0.15);
+  transition: all 0.2s;
+}
+.ai-chat-send-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+@media (max-width: 600px) {
+  .ai-page-container {
+    padding: 16px 12px 60px !important;
+  }
+  .ai-advice-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .ai-advice-card {
+    padding: 14px !important;
+    border-radius: 14px !important;
+  }
+  .ai-advice-text {
+    font-size: 12px !important;
+  }
+  .ai-chat-card {
+    height: 450px !important;
+    border-radius: 18px !important;
+  }
+  .ai-chat-body {
+    padding: 16px !important;
+  }
+  .ai-chat-input-bar {
+    padding: 12px 16px !important;
+  }
+}
+</style>
+
+<div class="ai-page-container">
+  <!-- Header -->
+  <div class="ai-page-header">
+    <div class="ai-page-icon">🤖</div>
+    <div class="ai-page-title-group">
+      <h1 class="ai-page-title">Baxmal Meat AI Maslahatchi</h1>
+      <p class="ai-page-subtitle">Real-vaqtda savdo, qarzlar va ombor ko'rsatkichlari tahlili</p>
+    </div>
+  </div>
+
+  <!-- Click App style Advice Cards -->
+  <div class="ai-advice-section-title">💡 Maslahat va Savollar (Click uslubida)</div>
+  <div class="ai-advice-grid">
+    <div class="ai-advice-card" onclick="fireAdvice('📊 Bugungi Z-Report tahlilini ber')">
+      <div class="ai-advice-icon">📊</div>
+      <div class="ai-advice-text">Bugungi Savdolar Tahlili</div>
+      <div class="ai-advice-arrow">Tahlil qilish →</div>
+    </div>
+    <div class="ai-advice-card" onclick="fireAdvice('🥩 Go\'sht zaxiralari yetarlimi? Kam qolgan zaxiralarni aniqla')">
+      <div class="ai-advice-icon">🥩</div>
+      <div class="ai-advice-text">Kam Qolgan Go'shtlar</div>
+      <div class="ai-advice-arrow">Tekshirish →</div>
+    </div>
+    <div class="ai-advice-card" onclick="fireAdvice('💸 Kimning qarzi ko\'p va qarzlar xavfi qanday?')">
+      <div class="ai-advice-icon">💸</div>
+      <div class="ai-advice-text">Qarzdorlik Tahlili</div>
+      <div class="ai-advice-arrow">Aniqlash →</div>
+    </div>
+    <div class="ai-advice-card" onclick="fireAdvice('📈 Savdoni oshirish va aylanmani ko\'paytirish bo\'yicha maslahat ber')">
+      <div class="ai-advice-icon">📈</div>
+      <div class="ai-advice-text">Savdoni Oshirish</div>
+      <div class="ai-advice-arrow">Tavsiyalar →</div>
+    </div>
+  </div>
+
+  <!-- Chat Component -->
+  <div class="ai-chat-card">
+    <div style="background: var(--bg-surface-2); padding: 12px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <span class="small fw-bold text-muted"><i class="bi bi-chat-left-text me-1"></i> Suhbat oynasi</span>
+      <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 py-1 px-3" style="font-size: 11px; font-weight: 700; border-radius: 30px;" onclick="clearChatHistory()">
+        <i class="bi bi-trash3-fill"></i> Tarixni tozalash
+      </button>
+    </div>
+    <div class="ai-chat-body" id="fullAiChatBody">
+      {% if chat_history %}
+        {% for chat in chat_history %}
+          <div class="ai-chat-bubble {{ chat.sender }}">{{ chat.message }}</div>
+        {% endfor %}
+      {% else %}
+        <div class="ai-chat-bubble bot">Assalomu alaykum! Men do'konda savdolar, qarzdorliklar, chegirmalar va zaxiralar balansini tahlil qila oladigan AI maslahatchiman. Sizga qaysi masala bo'yicha maslahat bera olaman?</div>
+      {% endif %}
+    </div>
+    <form class="ai-chat-input-bar" onsubmit="handleFullChatSend(event)">
+      <input type="text" id="fullAiInput" class="ai-chat-input-field" placeholder="Savolingizni yozing..." required autocomplete="off">
+      <button type="submit" class="ai-chat-send-btn">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+let fullAiTyping = false;
+
+function appendFullChatMessage(sender, text) {
+  const container = document.getElementById('fullAiChatBody');
+  if (!container) return;
+  
+  const bubble = document.createElement('div');
+  bubble.className = `ai-chat-bubble ${sender}`;
+  bubble.innerText = text;
+  container.appendChild(bubble);
+  container.scrollTop = container.scrollHeight;
+}
+
+function fireAdvice(promptText) {
+  if (fullAiTyping) return;
+  
+  const input = document.getElementById('fullAiInput');
+  if (input) {
+    input.value = promptText;
+    const form = input.closest('form');
+    if (form) {
+      const event = new Event('submit', { cancelable: true });
+      form.dispatchEvent(event);
+    }
+  }
+}
+
+function handleFullChatSend(event) {
+  event.preventDefault();
+  const input = document.getElementById('fullAiInput');
+  if (!input || !input.value.trim() || fullAiTyping) return;
+  
+  const text = input.value.trim();
+  appendFullChatMessage('user', text);
+  input.value = '';
+  
+  fullAiTyping = true;
+  
+  // Show typing loader
+  const container = document.getElementById('fullAiChatBody');
+  const loader = document.createElement('div');
+  loader.className = 'ai-chat-bubble bot';
+  loader.id = 'fullAiLoader';
+  loader.innerHTML = `
+    <div class="typing-dots">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+  `;
+  container.appendChild(loader);
+  container.scrollTop = container.scrollHeight;
+  
+  fetch('/pos/api/ai/copilot/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      question: text
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    loader.remove();
+    fullAiTyping = false;
+    if (data.advice) {
+      appendFullChatMessage('bot', data.advice);
+    } else {
+      appendFullChatMessage('bot', "Xatolik yuz berdi: " + (data.error || 'Noma\'lum xato'));
+    }
+  })
+  .catch(err => {
+    loader.remove();
+    fullAiTyping = false;
+    console.error(err);
+    appendFullChatMessage('bot', "Tarmoq xatosi yuz berdi. Iltimos, qayta urinib ko'ring.");
+  });
+}
+
+function clearChatHistory() {
+  if (!confirm("Suhbatlar tarixini o'chirmoqchimisiz?")) return;
+  
+  fetch('/pos/api/ai/clear-history/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+      const container = document.getElementById('fullAiChatBody');
+      if (container) {
+        container.innerHTML = '<div class="ai-chat-bubble bot">Suhbatlar tarixi tozalandi. Yangi suhbat boshlash uchun savolingizni yozing.</div>';
+      }
+    } else {
+      alert("Xatolik: " + data.message);
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Tarixni tozalashda tarmoq xatoligi yuz berdi.");
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const container = document.getElementById('fullAiChatBody');
+  if (container) {
+    container.scrollTop = container.scrollHeight;
+  }
+});
+</script>
+{% endblock %}

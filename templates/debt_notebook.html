@@ -1,0 +1,959 @@
+{% extends 'base.html' %}
+{% block title %}📋 Daftardan Qarz Ko'chirish | Baxmal Meat{% endblock %}
+
+{% block extrahead %}
+<style>
+    .nb-page { max-width: 1200px; margin: 0 auto; padding: 20px 12px 40px; }
+
+    /* ── HEADER ── */
+    .nb-header {
+        background: linear-gradient(135deg, #1B6B4A 0%, #2D9B6E 60%, #D4A853 100%);
+        border-radius: 22px;
+        padding: 32px 28px;
+        color: #fff;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .nb-header::before {
+        content: '📋';
+        position: absolute;
+        right: 24px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 72px;
+        opacity: 0.15;
+    }
+    .nb-header h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.75rem;
+        margin: 0 0 6px;
+    }
+    .nb-header p {
+        font-size: 0.9rem;
+        opacity: 0.85;
+        margin: 0;
+    }
+    .nb-header .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.18);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 12px;
+        padding: 8px 18px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        margin-top: 12px;
+    }
+    .nb-header .btn-back:hover {
+        background: rgba(255,255,255,0.3);
+        color: #fff;
+    }
+
+    /* ── STAT CARDS ── */
+    .nb-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+    .nb-stat-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 18px 20px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nb-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    .nb-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+    .nb-stat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .nb-stat-value {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* ── SECTION CARDS ── */
+    .nb-card {
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+    .nb-card-title {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.15rem;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+    .nb-card-desc {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        margin-bottom: 18px;
+    }
+
+    /* ── NOTEBOOK GRID ── */
+    .nb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .nb-item {
+        background: var(--bg-surface-2);
+        border: 2px solid transparent;
+        border-radius: 14px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.25s;
+        position: relative;
+    }
+    .nb-item:hover {
+        border-color: var(--primary-light);
+        box-shadow: 0 4px 16px rgba(27,107,74,0.12);
+        transform: translateY(-2px);
+    }
+    .nb-item.active {
+        border-color: var(--primary);
+        background: rgba(27,107,74,0.06);
+        box-shadow: 0 4px 20px rgba(27,107,74,0.15);
+    }
+    .nb-item-icon {
+        font-size: 1.5rem;
+        margin-bottom: 6px;
+    }
+    .nb-item-name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--text-main);
+        margin-bottom: 4px;
+        word-break: break-word;
+    }
+    .nb-item-meta {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+    }
+    .nb-item-count-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 20px;
+        color: #fff;
+    }
+    .nb-item-delete {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(220,53,69,0.08);
+        color: var(--danger);
+        border: none;
+        border-radius: 8px;
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .nb-item:hover .nb-item-delete { opacity: 1; }
+    .nb-item-delete:hover { background: rgba(220,53,69,0.18); }
+
+    /* ── TYPE TOGGLE SWITCH ── */
+    .nb-type-toggle {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 8px;
+        margin-bottom: 20px;
+    }
+    .nb-type-toggle .btn-toggle {
+        background: transparent;
+        border: none;
+        padding: 10px 20px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .nb-type-toggle .btn-toggle.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+
+    /* ── CREATE NOTEBOOK ── */
+    .nb-create-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .nb-create-row input {
+        flex: 1;
+        min-width: 200px;
+        height: 44px;
+        border-radius: 12px;
+        border: 1.5px solid var(--border-color);
+        padding: 0 16px;
+        font-size: 0.9rem;
+        font-family: var(--font-sans);
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .nb-create-row input:focus { border-color: var(--primary); }
+    .nb-btn {
+        height: 44px;
+        padding: 0 24px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        font-family: var(--font-sans);
+    }
+    .nb-btn-primary {
+        background: var(--primary-gradient);
+        color: #fff;
+    }
+    .nb-btn-primary:hover {
+        box-shadow: 0 4px 16px rgba(27,107,74,0.3);
+        transform: translateY(-1px);
+    }
+    .nb-btn-outline {
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+    }
+    .nb-btn-outline:hover {
+        background: rgba(27,107,74,0.06);
+    }
+    .nb-btn-danger {
+        background: var(--danger);
+        color: #fff;
+    }
+
+    /* ── MIGRATION FORM ── */
+    .nb-form-section {
+        display: none;
+        border-top: 1.5px solid var(--border-color);
+        padding-top: 22px;
+        margin-top: 18px;
+        animation: fadeInUp 0.3s ease;
+    }
+    .nb-form-section.visible { display: block; }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .nb-form-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    .nb-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .nb-form-grid input, .nb-form-grid select {
+        width: 100%;
+        height: 44px;
+        border-radius: 12px;
+        border: 1.5px solid var(--border-color);
+        padding: 0 14px;
+        font-size: 0.9rem;
+        font-family: var(--font-sans);
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: #fff;
+    }
+    .nb-form-grid input:focus, .nb-form-grid select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(27,107,74,0.1);
+    }
+    .nb-form-grid input.debt-input {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: var(--danger);
+        border-color: rgba(220,53,69,0.3);
+    }
+    .nb-form-grid input.debt-input:focus {
+        border-color: var(--danger);
+        box-shadow: 0 0 0 3px rgba(220,53,69,0.1);
+    }
+    .nb-form-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .nb-status-msg {
+        font-size: 0.85rem;
+        font-weight: 600;
+        min-height: 22px;
+        padding: 6px 0;
+        transition: all 0.3s;
+    }
+    .nb-status-msg.success { color: var(--primary); }
+    .nb-status-msg.error { color: var(--danger); }
+
+    /* ── CUSTOMERS TABLE ── */
+    .nb-table-section {
+        display: none;
+        border-top: 1.5px solid var(--border-color);
+        padding-top: 20px;
+        margin-top: 18px;
+        animation: fadeInUp 0.3s ease;
+    }
+    .nb-table-section.visible { display: block; }
+    .nb-table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .nb-table-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+    }
+    .nb-table-total {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--danger);
+        background: rgba(220,53,69,0.08);
+        padding: 4px 14px;
+        border-radius: 20px;
+    }
+    .nb-table-wrap {
+        max-height: 400px;
+        overflow-y: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+    .nb-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .nb-table thead th {
+        background: var(--bg-surface-2);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border-color);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    .nb-table tbody td {
+        padding: 10px 14px;
+        font-size: 0.88rem;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        vertical-align: middle;
+    }
+    .nb-table tbody tr:hover {
+        background: rgba(27,107,74,0.03);
+    }
+    .nb-table .debt-cell {
+        font-weight: 800;
+        color: var(--danger);
+    }
+    .nb-table .name-cell {
+        font-weight: 600;
+        color: var(--text-main);
+    }
+    .nb-table .empty-row td {
+        text-align: center;
+        padding: 28px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    /* ── ALL NOTEBOOKS SUMMARY TABLE ── */
+    .nb-summary-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .nb-summary-table thead th {
+        background: var(--bg-surface-2);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .nb-summary-table tbody td {
+        padding: 10px 14px;
+        font-size: 0.88rem;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .nb-summary-table tbody tr:hover {
+        background: rgba(27,107,74,0.03);
+        cursor: pointer;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+        .nb-page { padding: 12px 6px 30px; }
+        .nb-header { padding: 22px 18px; border-radius: 16px; }
+        .nb-header h1 { font-size: 1.35rem; }
+        .nb-header::before { font-size: 48px; right: 12px; }
+        .nb-card { padding: 16px; border-radius: 14px; }
+        .nb-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .nb-stat-card { padding: 12px 14px; }
+        .nb-stat-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+        .nb-stat-value { font-size: 0.95rem; }
+        .nb-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        .nb-form-grid { grid-template-columns: 1fr 1fr; }
+        .nb-table-wrap { max-height: 300px; }
+    }
+    @media (max-width: 480px) {
+        .nb-stats { grid-template-columns: 1fr; }
+        .nb-form-grid { grid-template-columns: 1fr; }
+        .nb-grid { grid-template-columns: 1fr; }
+        .nb-create-row { flex-direction: column; }
+        .nb-create-row input { width: 100%; min-width: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nb-page">
+
+    <!-- HEADER -->
+    <div class="nb-header">
+        <h1>Daftardan Qarzlarni Ko'chirish</h1>
+        <p>Eski qog'oz daftarlardagi mijozlar va ta'minotchilar qarzlarini tizimga tezkor va xavfsiz import qiling</p>
+        <a href="{% url 'customers' %}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Mijozlarga qaytish
+        </a>
+    </div>
+
+    <!-- STATISTICS -->
+    <div class="nb-stats">
+        <div class="nb-stat-card">
+            <div class="nb-stat-icon" style="background: rgba(27,107,74,0.1); color: var(--primary);">
+                <i class="bi bi-journals"></i>
+            </div>
+            <div>
+                <div class="nb-stat-label">Jami daftarlar</div>
+                <div class="nb-stat-value" id="statNotebooks">{{ notebooks|length }} ta</div>
+            </div>
+        </div>
+        <div class="nb-stat-card">
+            <div class="nb-stat-icon" style="background: rgba(220,53,69,0.08); color: var(--danger);">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div>
+                <div class="nb-stat-label">Xaridorlar</div>
+                <div class="nb-stat-value" id="statMigrated">{{ total_migrated }} kishi</div>
+            </div>
+        </div>
+        <div class="nb-stat-card">
+            <div class="nb-stat-icon" style="background: rgba(212,168,83,0.15); color: var(--accent);">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+            <div>
+                <div class="nb-stat-label">Mijozlar qarzi</div>
+                <div class="nb-stat-value" id="statTotalDebt">{{ total_debt_display }}</div>
+            </div>
+        </div>
+        <div class="nb-stat-card">
+            <div class="nb-stat-icon" style="background: rgba(13,110,253,0.1); color: #0d6efd;">
+                <i class="bi bi-truck"></i>
+            </div>
+            <div>
+                <div class="nb-stat-label">Ta'minotchilar</div>
+                <div class="nb-stat-value" id="statMigratedSuppliers">{{ total_migrated_suppliers }} ta</div>
+            </div>
+        </div>
+        <div class="nb-stat-card">
+            <div class="nb-stat-icon" style="background: rgba(220,53,69,0.08); color: var(--danger);">
+                <i class="bi bi-cash-coin"></i>
+            </div>
+            <div>
+                <div class="nb-stat-label">Bizning qarzimiz</div>
+                <div class="nb-stat-value" id="statTotalSupplierDebt">{{ total_supplier_debt_display }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALL NOTEBOOKS SUMMARY TABLE -->
+    {% if notebooks %}
+    <div class="nb-card">
+        <div class="nb-card-title">
+            <i class="bi bi-list-columns-reverse"></i> Barcha daftarlar ro'yxati
+        </div>
+        <div class="nb-card-desc">Daftarni tanlash va ishlash uchun ustiga bosing</div>
+        <div style="overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color);">
+            <table class="nb-summary-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Daftar nomi</th>
+                        <th>Mijozlar (Qarz)</th>
+                        <th>Ta'minotchilar (Bizning qarzimiz)</th>
+                        <th>Yaratilgan</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for nb in notebook_data %}
+                    <tr onclick="selectNotebook({{ nb.id }}, '{{ nb.name }}')" id="nb-row-{{ nb.id }}">
+                        <td style="font-weight: 600; color: var(--text-muted);">{{ forloop.counter }}</td>
+                        <td>
+                            <span style="font-weight: 700; color: var(--text-main);">📒 {{ nb.name }}</span>
+                        </td>
+                        <td>
+                            <span style="background: rgba(27,107,74,0.08); color: var(--primary); padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;">
+                                {{ nb.customer_count }} kishi
+                            </span>
+                            <span style="font-weight: 700; color: var(--danger); margin-left: 6px; font-size: 0.85rem;">
+                                {{ nb.total_debt_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="background: rgba(13,110,253,0.08); color: #0d6efd; padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;">
+                                {{ nb.supplier_count }} ta
+                            </span>
+                            <span style="font-weight: 700; color: var(--danger); margin-left: 6px; font-size: 0.85rem;">
+                                {{ nb.total_supplier_debt_display }}
+                            </span>
+                        </td>
+                        <td style="font-size: 0.8rem; color: var(--text-muted);">
+                            {{ nb.created_at|date:"d.m.Y" }}
+                        </td>
+                        <td>
+                            <button class="nb-item-delete" style="opacity:1; position:static;" onclick="event.stopPropagation(); deleteNotebook({{ nb.id }}, '{{ nb.name }}');" title="O'chirish">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- NOTEBOOK MANAGEMENT -->
+    <div class="nb-card">
+        <div class="nb-card-title">
+            <i class="bi bi-plus-circle-fill"></i> Yangi daftar yaratish
+        </div>
+        <div class="nb-card-desc">Har bir eski qog'oz daftar uchun alohida nom bering (masalan: "Asosiy daftar", "Ta'minotchilar daftari")</div>
+        <div class="nb-create-row">
+            <input type="text" id="newNotebookName" placeholder="Yangi daftar nomi kiriting..." onkeydown="if(event.key==='Enter') createNotebook()">
+            <button class="nb-btn nb-btn-primary" onclick="createNotebook()">
+                <i class="bi bi-journal-plus"></i> Daftar yaratish
+            </button>
+        </div>
+    </div>
+
+    <!-- NOTEBOOKS GRID -->
+    {% if notebooks %}
+    <div class="nb-card">
+        <div class="nb-card-title">
+            <i class="bi bi-grid-3x3-gap-fill"></i> Daftarlarni tanlang
+        </div>
+        <div class="nb-card-desc">Qarz kiritish uchun daftarni tanlang</div>
+        <div class="nb-grid" id="notebooksGrid">
+            {% for nb in notebook_data %}
+            <div class="nb-item" id="nb-card-{{ nb.id }}" onclick="selectNotebook({{ nb.id }}, '{{ nb.name }}')">
+                <div class="nb-item-count-badge" style="background: var(--primary); top:12px; right:12px;" title="Xaridorlar soni">{{ nb.customer_count }}</div>
+                <div class="nb-item-count-badge" style="background: #0d6efd; top:32px; right:12px;" title="Ta'minotchilar soni">{{ nb.supplier_count }}</div>
+                <div class="nb-item-icon">📒</div>
+                <div class="nb-item-name">{{ nb.name }}</div>
+                <div class="nb-item-meta">Mijozlar: {{ nb.customer_count }} / Ta'min: {{ nb.supplier_count }}</div>
+                <button class="nb-item-delete" onclick="event.stopPropagation(); deleteNotebook({{ nb.id }}, '{{ nb.name }}');" title="O'chirish">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- MIGRATION FORM (hidden until notebook selected) -->
+        <div class="nb-form-section" id="migFormSection">
+            <div class="nb-form-title">
+                <i class="bi bi-pencil-square"></i>
+                <span id="migNotebookTitle">Daftarga qarz kiritish</span>
+            </div>
+
+            <!-- Segment toggle for type selection -->
+            <div class="nb-type-toggle">
+                <button class="btn-toggle active" id="btnTypeCustomer" onclick="changeRecordType('customer')">
+                    <i class="bi bi-person-fill"></i> Xaridor (Mijoz) qarzi
+                </button>
+                <button class="btn-toggle" id="btnTypeSupplier" onclick="changeRecordType('supplier')">
+                    <i class="bi bi-truck"></i> Ta'minotchi qarzi (Bizning qarzimiz)
+                </button>
+            </div>
+
+            <div class="nb-form-grid">
+                <input type="text" id="migFirstname" placeholder="Ismi (yoki tashkilot nomi) *" autofocus>
+                <input type="text" id="migLastname" placeholder="Familiyasi">
+                <input type="text" id="migPhone" placeholder="Telefon raqami">
+                <input type="text" id="migCustomId" placeholder="ID (avto)">
+            </div>
+            <div class="nb-form-grid" style="grid-template-columns: 1fr auto;">
+                <input type="number" id="migDebt" class="debt-input" placeholder="Qarz summasi (so'm) *" onkeydown="if(event.key==='Enter') saveMigCustomer()">
+                <div class="nb-form-actions">
+                    <button class="nb-btn nb-btn-primary" onclick="saveMigCustomer()" style="height: 44px;">
+                        <i class="bi bi-person-plus-fill" id="saveIcon"></i> Saqlash
+                    </button>
+                </div>
+            </div>
+            <div class="nb-status-msg" id="migStatusMsg"></div>
+        </div>
+
+        <!-- MIGRATED CUSTOMERS TABLE (hidden until notebook selected) -->
+        <div class="nb-table-section" id="migTableSection">
+            <div class="nb-table-header">
+                <div class="nb-table-title" id="migTableTitle">Ushbu daftardagi xaridorlar</div>
+                <div class="nb-table-total" id="migTotalDebt">Jami: 0 so'm</div>
+            </div>
+            <div class="nb-table-wrap">
+                <table class="nb-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th id="thNameCol">Mijoz</th>
+                            <th>Telefon</th>
+                            <th id="thIdCol">Mijoz ID</th>
+                            <th>Qarz summasi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="migCustomersTableBody">
+                        <tr class="empty-row"><td colspan="5">Daftar tanlanmagan</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+let currentNotebookId = null;
+let currentNotebookName = "";
+let currentRecordType = "customer"; // 'customer' or 'supplier'
+
+// ── SELECT NOTEBOOK ──
+function selectNotebook(id, name) {
+    currentNotebookId = id;
+    currentNotebookName = name;
+
+    // Highlight active card
+    document.querySelectorAll('.nb-item').forEach(el => el.classList.remove('active'));
+    const card = document.getElementById('nb-card-' + id);
+    if (card) card.classList.add('active');
+
+    // Highlight active table row
+    document.querySelectorAll('.nb-summary-table tbody tr').forEach(el => el.style.background = '');
+    const row = document.getElementById('nb-row-' + id);
+    if (row) row.style.background = 'rgba(27,107,74,0.06)';
+
+    // Show form + table
+    const formSection = document.getElementById('migFormSection');
+    const tableSection = document.getElementById('migTableSection');
+    formSection.classList.add('visible');
+    tableSection.classList.add('visible');
+
+    updateFormLabels();
+    loadMigCustomers();
+
+    // Scroll to form
+    setTimeout(() => {
+        formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('migFirstname').focus();
+    }, 150);
+}
+
+// ── CHANGE RECORD TYPE ──
+function changeRecordType(type) {
+    currentRecordType = type;
+    
+    // Toggle active classes on buttons
+    document.getElementById('btnTypeCustomer').classList.toggle('active', type === 'customer');
+    document.getElementById('btnTypeSupplier').classList.toggle('active', type === 'supplier');
+    
+    updateFormLabels();
+    loadMigCustomers();
+    document.getElementById('migFirstname').focus();
+}
+
+// ── UPDATE LABELS BASED ON TYPE ──
+function updateFormLabels() {
+    if (!currentNotebookName) return;
+    
+    const titleEl = document.getElementById('migNotebookTitle');
+    const nameInput = document.getElementById('migFirstname');
+    const idInput = document.getElementById('migCustomId');
+    const thName = document.getElementById('thNameCol');
+    const thId = document.getElementById('thIdCol');
+    const tableTitle = document.getElementById('migTableTitle');
+    const saveIcon = document.getElementById('saveIcon');
+    
+    // Auto generate custom_id prefix
+    const prefix = currentRecordType === 'supplier' ? 'S-' : 'M-';
+    idInput.value = prefix + Math.floor(1000 + Math.random() * 9000);
+    
+    // Clear inputs
+    nameInput.value = '';
+    document.getElementById('migLastname').value = '';
+    document.getElementById('migPhone').value = '';
+    document.getElementById('migDebt').value = '';
+    document.getElementById('migStatusMsg').innerText = '';
+    
+    if (currentRecordType === 'supplier') {
+        titleEl.innerText = '📖 ' + currentNotebookName + ' — Ta\'minotchi qarzini kiritish';
+        nameInput.placeholder = "Ta'minotchi ismi / Tashkilot nomi *";
+        idInput.placeholder = "Ta'minotchi ID (avto)";
+        thName.innerText = "Ta'minotchi";
+        thId.innerText = "Ta'minotchi ID";
+        tableTitle.innerText = "Ushbu daftardagi ta'minotchilar";
+        saveIcon.className = "bi bi-truck";
+    } else {
+        titleEl.innerText = '📖 ' + currentNotebookName + ' — Xaridor qarzini kiritish';
+        nameInput.placeholder = "Mijoz ismi *";
+        idInput.placeholder = "Mijoz ID (avto)";
+        thName.innerText = "Xaridor";
+        thId.innerText = "Xaridor ID";
+        tableTitle.innerText = "Ushbu daftardagi xaridorlar";
+        saveIcon.className = "bi bi-person-plus-fill";
+    }
+}
+
+// ── CREATE NOTEBOOK ──
+function createNotebook() {
+    const nameInput = document.getElementById('newNotebookName');
+    const name = nameInput.value.trim();
+    if (!name) {
+        alert("Daftar nomini kiriting!");
+        nameInput.focus();
+        return;
+    }
+
+    fetch('/pos/api/create-notebook/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ name: name })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            window.location.reload();
+        } else {
+            alert("Xatolik: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Serverga ulanib bo'lmadi.");
+    });
+}
+
+// ── DELETE NOTEBOOK ──
+function deleteNotebook(id, name) {
+    if (!confirm(`"${name}" daftarini o'chirishni xohlaysizmi?\n\nEslatma: Mijozlar va Ta'minotchilar o'chirilmaydi, faqat daftar nomi o'chadi.`)) return;
+    window.location.href = `/pos/notebooks/delete/${id}/`;
+}
+
+// ── LOAD MIGRATED RECORDS ──
+function loadMigCustomers() {
+    if (!currentNotebookId) return;
+    const tbody = document.getElementById('migCustomersTableBody');
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5"><div style="display:flex;align-items:center;justify-content:center;gap:8px;"><div class="spinner-border spinner-border-sm text-muted"></div> Yuklanmoqda...</div></td></tr>';
+
+    fetch(`/pos/api/get-notebook-customers/${currentNotebookId}/?type=${currentRecordType}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Bu daftarga hali ${currentRecordType === 'supplier' ? 'ta\'minotchi' : 'xaridor'} qarzi ko'chirilmagan. Yuqoridagi formadan boshlang!</td></tr>`;
+            document.getElementById('migTotalDebt').innerText = 'Jami: 0 so\'m';
+            return;
+        }
+
+        let html = '';
+        let totalDebt = 0;
+        data.forEach((c, idx) => {
+            totalDebt += c.debt_balance;
+            html += `
+                <tr>
+                    <td style="font-weight:600; color: var(--text-muted);">${idx + 1}</td>
+                    <td class="name-cell">${c.first_name} ${c.last_name || ''}</td>
+                    <td style="color: var(--text-muted);">${c.phone || '—'}</td>
+                    <td><span style="background:rgba(27,107,74,0.08);color:var(--primary);padding:2px 8px;border-radius:8px;font-size:0.8rem;font-weight:600;">${c.custom_id}</span></td>
+                    <td class="debt-cell">${Math.round(c.debt_balance).toLocaleString('fr-FR')} so'm</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+        document.getElementById('migTotalDebt').innerText = `Jami: ${Math.round(totalDebt).toLocaleString('fr-FR')} so'm`;
+    })
+    .catch(err => {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="color:var(--danger);">Server xatosi!</td></tr>';
+    });
+}
+
+// ── SAVE MIGRATED RECORD ──
+function saveMigCustomer() {
+    const name = document.getElementById('migFirstname').value.trim();
+    const lastname = document.getElementById('migLastname').value.trim();
+    let phone = document.getElementById('migPhone').value.trim();
+    const customId = document.getElementById('migCustomId').value.trim();
+    const debt = parseFloat(document.getElementById('migDebt').value) || 0;
+    const statusMsg = document.getElementById('migStatusMsg');
+
+    if (!name) {
+        statusMsg.className = 'nb-status-msg error';
+        statusMsg.innerText = '⚠️ Ism/Tashkilot nomini kiriting!';
+        document.getElementById('migFirstname').focus();
+        return;
+    }
+    if (debt <= 0) {
+        statusMsg.className = 'nb-status-msg error';
+        statusMsg.innerText = '⚠️ Qarz summasini kiriting!';
+        document.getElementById('migDebt').focus();
+        return;
+    }
+
+    if (!phone) {
+        phone = (currentRecordType === 'supplier' ? 'No-Phone-S-' : 'No-Phone-M-') + Math.floor(100000 + Math.random() * 900000);
+    }
+
+    // Disable button
+    const saveBtn = document.querySelector('#migFormSection .nb-btn-primary');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Saqlanmoqda...';
+
+    fetch('/pos/api/save-migrated-debt/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            type: currentRecordType,
+            first_name: name,
+            last_name: lastname,
+            phone: phone,
+            custom_id: customId,
+            debt_balance: debt,
+            notebook_name: currentNotebookName
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        saveBtn.disabled = false;
+        const iconClass = currentRecordType === 'supplier' ? 'bi bi-truck' : 'bi bi-person-plus-fill';
+        saveBtn.innerHTML = `<i class="${iconClass}"></i> Saqlash`;
+
+        if (data.status === 'success') {
+            statusMsg.className = 'nb-status-msg success';
+            statusMsg.innerText = `✅ ${name} — ${Math.round(debt).toLocaleString('fr-FR')} so'm muvaffaqiyatli saqlandi!`;
+
+            // Clear inputs
+            document.getElementById('migFirstname').value = '';
+            document.getElementById('migLastname').value = '';
+            document.getElementById('migPhone').value = '';
+            document.getElementById('migDebt').value = '';
+            
+            const prefix = currentRecordType === 'supplier' ? 'S-' : 'M-';
+            document.getElementById('migCustomId').value = prefix + Math.floor(1000 + Math.random() * 9000);
+
+            document.getElementById('migFirstname').focus();
+            loadMigCustomers();
+
+            // Update stats
+            if (currentRecordType === 'supplier') {
+                const statMigratedSuppliers = document.getElementById('statMigratedSuppliers');
+                statMigratedSuppliers.innerText = (parseInt(statMigratedSuppliers.innerText) || 0) + 1 + ' ta';
+            } else {
+                const statMigrated = document.getElementById('statMigrated');
+                statMigrated.innerText = (parseInt(statMigrated.innerText) || 0) + 1 + ' kishi';
+            }
+
+            setTimeout(() => { statusMsg.innerText = ''; }, 4000);
+        } else {
+            statusMsg.className = 'nb-status-msg error';
+            statusMsg.innerText = `❌ Xatolik: ${data.message}`;
+        }
+    })
+    .catch(err => {
+        saveBtn.disabled = false;
+        const iconClass = currentRecordType === 'supplier' ? 'bi bi-truck' : 'bi bi-person-plus-fill';
+        saveBtn.innerHTML = `<i class="${iconClass}"></i> Saqlash`;
+        console.error(err);
+        statusMsg.className = 'nb-status-msg error';
+        statusMsg.innerText = '❌ Server bilan aloqa uzildi!';
+    });
+}
+</script>
+{% endblock %}

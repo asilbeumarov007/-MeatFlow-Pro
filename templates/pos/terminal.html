@@ -1,0 +1,1967 @@
+{% extends 'base.html' %}
+{% block title %}💻 Savdo Terminali — Baxmal Meat{% endblock %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', sans-serif !important; }
+
+.pos-shell {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: 100vh;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  background: linear-gradient(180deg, #1B6B4A 0%, #145438 100%);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+  overflow: hidden;
+}
+.app-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-label::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #81EFBB;
+  box-shadow: 0 0 8px #81EFBB;
+  flex-shrink: 0;
+}
+.scale-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+.scale-tab {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.scale-tab.on { background: #81EFBB; border-color: #81EFBB; color: #0D3F2B; }
+
+.weight-block {
+  background: rgba(0,0,0,0.2);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 20px 20px 16px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+.weight-block:hover { border-color: rgba(255,255,255,0.25); }
+.weight-block.manual-on { border-color: #D4A853; }
+.weight-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.weight-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.weight-status { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: #81EFBB; text-transform: uppercase; }
+.weight-status.manual { color: #D4A853; }
+.weight-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 52px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.weight-val small { font-size: 18px; color: rgba(255,255,255,0.35); font-weight: 400; }
+.numpad-hint {
+  position: absolute;
+  bottom: 10px; right: 14px;
+  font-size: 10px; color: rgba(255,255,255,0.2);
+  font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; transition: color 0.2s;
+}
+.weight-block:hover .numpad-hint { color: rgba(255,255,255,0.4); }
+.weight-block.manual-on .numpad-hint { color: #D4A853; }
+
+.prod-strip {
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+.prod-strip-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
+.prod-strip-val { font-size: 16px; font-weight: 700; color: #fff; }
+.prod-strip-val.none { color: rgba(255,255,255,0.3); font-weight: 400; }
+
+.step-dots { display: flex; gap: 6px; margin-top: auto; padding-top: 20px; }
+.step-dot { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.12); flex: 1; transition: background 0.2s; }
+.step-dot.done { background: #81EFBB; }
+.step-dot.active { background: #fff; }
+
+/* ── NUMPAD ── */
+.numpad-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.18s;
+}
+.numpad-overlay.open { opacity: 1; pointer-events: all; }
+.numpad-box {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 24px;
+  padding: 24px; width: 280px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.22s cubic-bezier(0.34,1.5,0.64,1);
+}
+.numpad-overlay.open .numpad-box { transform: scale(1) translateY(0); }
+.numpad-screen {
+  background: #F5F1EB; border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 12px 16px; margin-bottom: 16px; text-align: right;
+}
+.numpad-screen-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 42px; font-weight: 700; color: #1A1A2E;
+  line-height: 1; min-height: 1em; letter-spacing: -0.02em;
+}
+.numpad-screen-unit { font-size: 13px; color: #6B7280; margin-top: 4px; }
+.numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.nk {
+  padding: 0; height: 60px; border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08); background: #F8F6F2; color: #1A1A2E;
+  font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 700;
+  cursor: pointer; transition: all 0.1s;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.nk:active { background: #E8E4DE; transform: scale(0.95); }
+.nk.nk-dot { background: #F0EDE8; color: #6B7280; }
+.nk.nk-del { background: #FEF2F2; color: #DC3545; font-size: 18px; border-color: rgba(220,53,69,0.15); }
+.nk.nk-ok {
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff; border-color: transparent;
+  grid-column: span 3; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.nk.nk-ok:active { opacity: 0.9; }
+.nk.nk-cancel { background: #F5F1EB; color: #6B7280; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; grid-column: span 3; border-color: rgba(0,0,0,0.06); }
+
+/* ── RIGHT PANEL ── */
+.right-panel { padding: 32px 28px 60px; background: var(--bg-main, #F5F1EB); min-height: 100vh; }
+.step-title { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: #1A1A2E; margin-bottom: 6px; line-height: 1.15; }
+.step-sub { font-size: 14px; color: #6B7280; margin-bottom: 24px; font-weight: 400; }
+
+.prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.prod-btn {
+  background: #fff; border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 16px; padding: 10px;
+  cursor: pointer; text-align: left;
+  transition: all 0.15s; display: flex; flex-direction: column; gap: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.prod-btn:hover { border-color: #1B6B4A; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,107,74,0.1); }
+.prod-btn:active { transform: translateY(0); }
+.prod-btn-name { font-size: 16px; font-weight: 800; color: #1A1A2E; text-transform: uppercase; letter-spacing: 0.02em; }
+.prod-btn-price { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6B7280; }
+.prod-empty { grid-column: span 2; background: #fff; border: 1.5px solid rgba(220,53,69,0.2); border-radius: 16px; padding: 20px; color: #DC3545; font-size: 15px; font-weight: 600; text-align: center; }
+
+.search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.search-field {
+  flex: 1; background: #fff; border: 1.5px solid rgba(0,0,0,0.08);
+  border-radius: 14px; padding: 14px 18px;
+  font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500;
+  color: #1A1A2E; outline: none; transition: border-color 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.search-field::placeholder { color: #9CA3AF; }
+.search-field:focus { border-color: #1B6B4A; box-shadow: 0 0 0 3px rgba(27,107,74,0.08); }
+.btn-new-cust {
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff; border: none;
+  border-radius: 14px; padding: 14px 20px;
+  font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(27,107,74,0.25);
+  transition: all 0.15s;
+}
+.btn-new-cust:hover { box-shadow: 0 6px 16px rgba(27,107,74,0.35); transform: translateY(-1px); }
+
+.cust-result {
+  background: #fff; border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 14px; padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; margin-bottom: 6px; transition: all 0.15s;
+  width: 100%; text-align: left;
+}
+.cust-result:hover { border-color: #1B6B4A; background: #FAFAF8; }
+.cust-avatar { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; margin-right: 12px; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.06); }
+.cust-name { font-size: 15px; font-weight: 700; color: #1A1A2E; }
+.cust-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+.debt-pill { background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 4px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #DC3545; flex-shrink: 0; }
+.no-results { padding: 16px; text-align: center; color: #9CA3AF; font-size: 14px; }
+
+.btn-cash {
+  width: 100%; padding: 16px; background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff;
+  border: none; border-radius: 14px;
+  font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(27,107,74,0.25);
+  transition: all 0.15s;
+}
+.btn-cash:hover { box-shadow: 0 6px 18px rgba(27,107,74,0.35); transform: translateY(-1px); }
+.btn-back {
+  width: 100%; padding: 12px; background: transparent;
+  border: 1.5px solid rgba(0,0,0,0.1); border-radius: 14px;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #9CA3AF;
+  cursor: pointer; margin-bottom: 8px;
+}
+.btn-back:hover { border-color: #6B7280; color: #6B7280; }
+
+.confirm-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.confirm-card {
+  background: #fff; border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 16px; padding: 16px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.confirm-card-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; }
+.confirm-card-val { font-size: 22px; font-weight: 800; color: #1A1A2E; }
+.confirm-card-val.mono { font-family: 'JetBrains Mono', monospace; font-size: 34px; }
+
+.quick-amounts-wrap { margin-bottom: 18px; }
+.quick-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9CA3AF; margin-bottom: 10px; display: block; }
+.quick-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.quick-btn {
+  padding: 10px 16px; border-radius: 12px;
+  border: 1.5px solid rgba(0,0,0,0.08); background: #fff;
+  color: #1A1A2E; font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.quick-btn:hover { border-color: #1B6B4A; }
+.quick-btn.selected { background: #1B6B4A; border-color: #1B6B4A; color: #fff; }
+.quick-btn.exact { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); border-color: transparent; color: #fff; box-shadow: 0 4px 12px rgba(27,107,74,0.25); }
+
+.pay-select-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9CA3AF; margin-bottom: 10px; display: block; }
+.pay-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.pay-opt {
+  background: #fff; border: 1.5px solid rgba(0,0,0,0.07); border-radius: 12px;
+  padding: 12px 16px; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+  color: #6B7280; text-align: center; transition: all 0.15s;
+}
+.pay-opt:hover { border-color: #1B6B4A; color: #1B6B4A; }
+.pay-opt.selected { background: #1B6B4A; border-color: #1B6B4A; color: #fff; }
+
+.btn-confirm {
+  width: 100%; padding: 20px; background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff;
+  border: none; border-radius: 16px;
+  font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  transition: all 0.15s; margin-bottom: 10px;
+  box-shadow: 0 6px 20px rgba(27,107,74,0.25);
+}
+.btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(27,107,74,0.35); }
+.btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── MODAL ── */
+.modal-content { background: #fff !important; border: 1px solid rgba(0,0,0,0.06) !important; border-radius: 20px !important; box-shadow: 0 24px 60px rgba(0,0,0,0.12) !important; }
+.modal-header { background: #F8F6F2 !important; border-bottom: 1px solid rgba(0,0,0,0.06) !important; border-radius: 20px 20px 0 0 !important; padding: 18px 24px !important; }
+.modal-title { font-family: 'Inter', sans-serif !important; font-size: 16px !important; font-weight: 800 !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; color: #1A1A2E !important; }
+.modal-body { padding: 24px !important; }
+.mf-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9CA3AF; margin-bottom: 6px; display: block; }
+.mf-input { width: 100%; background: #F8F6F2; border: 1.5px solid rgba(0,0,0,0.07); border-radius: 12px; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500; color: #1A1A2E; outline: none; transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 4px; }
+.mf-input:focus { border-color: #1B6B4A; background: #fff; box-shadow: 0 0 0 3px rgba(27,107,74,0.08); }
+.mf-hint { font-size: 11px; color: #9CA3AF; }
+.mf-row { display: flex; gap: 8px; }
+.mf-row .mf-input { margin-bottom: 0; }
+.btn-auto { background: #F5F1EB; border: 1.5px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800; color: #6B7280; cursor: pointer; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.06em; transition: all 0.15s; }
+.btn-auto:hover { border-color: #1B6B4A; color: #1B6B4A; }
+.modal-err { font-size: 13px; color: #DC3545; font-weight: 600; min-height: 16px; margin-bottom: 10px; }
+.btn-save-cust { width: 100%; padding: 14px; background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff; border: none; border-radius: 14px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 12px rgba(27,107,74,0.25); transition: all 0.15s; }
+.btn-save-cust:hover { box-shadow: 0 6px 18px rgba(27,107,74,0.35); transform: translateY(-1px); }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.fade-up { animation: fadeUp 0.24s ease forwards; }
+
+@media (max-width: 768px) {
+  /* ── LAYOUT: Single column, left panel becomes sticky top bar ── */
+  .pos-shell {
+    grid-template-columns: 1fr !important;
+    max-width: 100% !important;
+    min-height: auto;
+  }
+  .left-panel {
+    position: sticky !important;
+    top: 0;
+    z-index: 100;
+    height: auto !important;
+    padding: 12px 14px 10px !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .app-label {
+    font-size: 9px !important;
+    margin-bottom: 0 !important;
+    order: -1;
+    width: 100%;
+  }
+
+  /* ── SCALE TABS: Compact row ── */
+  .scale-tabs {
+    width: 100%;
+    gap: 4px !important;
+    margin-bottom: 0 !important;
+    order: 0;
+  }
+  .scale-tab {
+    padding: 7px 0 !important;
+    font-size: 11px !important;
+    border-radius: 8px !important;
+  }
+
+  /* ── WEIGHT BLOCK: Compact inline ── */
+  .weight-block {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 14px 8px !important;
+    margin-bottom: 0 !important;
+    border-radius: 12px !important;
+  }
+  .weight-val {
+    font-size: 32px !important;
+  }
+  .weight-val small {
+    font-size: 14px !important;
+  }
+  .numpad-hint {
+    font-size: 8px !important;
+    bottom: 4px !important;
+    right: 8px !important;
+  }
+
+  /* ── PRODUCT STRIP: Compact inline ── */
+  .prod-strip {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px !important;
+    margin-bottom: 0 !important;
+    border-radius: 12px !important;
+  }
+  .prod-strip-lbl {
+    font-size: 8px !important;
+    margin-bottom: 2px !important;
+  }
+  .prod-strip-val {
+    font-size: 13px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── STEP DOTS: Hide on mobile (space saver) ── */
+  .step-dots { display: none !important; }
+
+  /* ── RIGHT PANEL: Full-width, comfortable padding ── */
+  .right-panel {
+    padding: 16px 12px 100px !important;
+    min-height: auto !important;
+  }
+  .step-title {
+    font-size: 22px !important;
+    margin-bottom: 4px !important;
+  }
+  .step-sub {
+    font-size: 13px !important;
+    margin-bottom: 14px !important;
+  }
+
+  /* ── PRODUCT GRID: Larger cards for touch ── */
+  .prod-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+  .prod-btn {
+    padding: 8px !important;
+    border-radius: 14px !important;
+    min-height: 60px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .prod-btn > div:first-child {
+    height: 110px !important;
+  }
+  .prod-btn-name {
+    font-size: 14px !important;
+  }
+  .prod-btn-price {
+    font-size: 11px !important;
+  }
+
+  /* ── SEARCH & CUSTOMER: Touch-friendly ── */
+  .search-row {
+    gap: 6px !important;
+    margin-bottom: 10px !important;
+  }
+  .search-field {
+    padding: 14px 16px !important;
+    font-size: 16px !important; /* Prevents iOS zoom */
+    border-radius: 12px !important;
+  }
+  .btn-new-cust {
+    padding: 14px 18px !important;
+    border-radius: 12px !important;
+    font-size: 22px !important;
+    min-width: 52px;
+  }
+  .cust-result {
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+    margin-bottom: 8px !important;
+    min-height: 64px;
+  }
+  .cust-avatar {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+  }
+  .cust-name {
+    font-size: 15px !important;
+  }
+  .cust-meta {
+    font-size: 11px !important;
+  }
+  .debt-pill {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+
+  /* ── ACTION BUTTONS: Large, full-width, easy to tap ── */
+  .btn-cash {
+    padding: 18px !important;
+    font-size: 16px !important;
+    border-radius: 14px !important;
+    min-height: 56px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-back {
+    padding: 14px !important;
+    font-size: 13px !important;
+    border-radius: 14px !important;
+    min-height: 48px;
+  }
+
+  /* ── CONFIRM STEP: Cards + buttons ── */
+  .confirm-cards {
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+  }
+  .confirm-card {
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+  }
+  .confirm-card-val {
+    font-size: 18px !important;
+  }
+  .confirm-card-val.mono {
+    font-size: 26px !important;
+  }
+
+  /* ── QUICK AMOUNTS: Scrollable grid ── */
+  .quick-grid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .quick-btn {
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    min-height: 44px;
+    flex: 1 0 auto;
+    min-width: calc(33% - 4px);
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── PAYMENT OPTIONS: 2x2 with bigger targets ── */
+  .pay-options {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    margin-bottom: 14px !important;
+  }
+  .pay-opt {
+    padding: 14px 12px !important;
+    font-size: 14px !important;
+    border-radius: 12px !important;
+    min-height: 50px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-confirm {
+    padding: 20px !important;
+    font-size: 17px !important;
+    border-radius: 16px !important;
+    min-height: 60px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── NUMPAD: Full-width on mobile ── */
+  .numpad-box {
+    width: calc(100% - 24px) !important;
+    max-width: 360px;
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+  .numpad-screen {
+    padding: 10px 14px !important;
+    margin-bottom: 12px !important;
+  }
+  .numpad-screen-val {
+    font-size: 36px !important;
+  }
+  .numpad-grid {
+    gap: 6px !important;
+  }
+  .nk {
+    height: 54px !important;
+    border-radius: 12px !important;
+    font-size: 20px !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nk.nk-ok {
+    font-size: 15px !important;
+    height: 52px !important;
+  }
+  .nk.nk-cancel {
+    height: 44px !important;
+    font-size: 12px !important;
+  }
+
+  /* ── MODALS: Full-width on mobile ── */
+  .modal-dialog {
+    margin: 8px !important;
+    max-width: calc(100% - 16px) !important;
+  }
+  .modal-content {
+    border-radius: 18px !important;
+  }
+  .modal-header {
+    padding: 14px 18px !important;
+    border-radius: 18px 18px 0 0 !important;
+  }
+  .modal-body {
+    padding: 16px 18px !important;
+  }
+  .mf-input {
+    padding: 14px 16px !important;
+    font-size: 16px !important; /* Prevents iOS zoom */
+    border-radius: 12px !important;
+  }
+  .mf-label {
+    font-size: 11px !important;
+    margin-bottom: 5px !important;
+  }
+  .btn-auto {
+    padding: 14px 16px !important;
+    font-size: 12px !important;
+  }
+  .btn-save-cust {
+    padding: 16px !important;
+    font-size: 15px !important;
+    border-radius: 14px !important;
+    min-height: 52px;
+  }
+
+  /* ── EDIT MODAL improvements ── */
+  .modal .form-control,
+  .modal .form-select {
+    font-size: 16px !important;
+    padding: 12px 14px !important;
+  }
+
+  /* ── Kredit limit input ── */
+  #new-cust-limit, #edit-limit {
+    font-size: 16px !important;
+  }
+
+  /* ── Scroll smooth on iOS ── */
+  .right-panel {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+
+  /* ── Prevent text-selection on buttons ── */
+  button, .prod-btn, .pay-opt, .quick-btn, .cust-result {
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+}
+</style>
+
+<div class="pos-shell">
+
+  <!-- ════ LEFT PANEL ════ -->
+  <div class="left-panel">
+    <div class="app-label">POS Terminal</div>
+
+    <!-- Shift Control panel -->
+    <div style="margin: -6px 0 16px 0; display: flex; gap: 8px; align-items: center;">
+      <span id="shift-status-badge" style="background:#EF4444; color:#fff; padding:4px 10px; border-radius:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">YOPILGAN SHIFT</span>
+      <button id="shift-action-btn" onclick="toggleShiftAction()" style="background:var(--primary); color:#fff; border:none; padding:5px 12px; border-radius:8px; font-size:11px; cursor:pointer; font-weight:700; box-shadow:var(--shadow-sm); transition:all 0.2s;">Shiftni ochish</button>
+    </div>
+
+    <div class="scale-tabs">
+      <button id="scale-btn-1" class="scale-tab on" onclick="changeActiveScale('1')">⚡ Kassa</button>
+      <button id="scale-btn-2" class="scale-tab" onclick="changeActiveScale('2')" ondblclick="configureWifiScale(event)" title="Sozlash uchun ikki marta bosing">📶 Wi-Fi</button>
+      <button id="btn-usb-connect" class="scale-tab" onclick="connectUSBScale()">🔌 USB Ulanish</button>
+    </div>
+
+    <div class="weight-block" id="weightBlock" onclick="openNumpad()">
+      <div class="weight-label-row">
+        <span class="weight-lbl">Vazn</span>
+        <span class="weight-status" id="weight-mode-badge">AUTO</span>
+      </div>
+      <div class="weight-val">
+        <span id="vazn">0.000</span>
+        <small>kg</small>
+      </div>
+      <div class="numpad-hint" id="numpadHint">▤ kiritish</div>
+    </div>
+
+    <div class="prod-strip">
+      <div class="prod-strip-lbl">Mahsulot</div>
+      <div class="prod-strip-val none" id="current-prod-name">Tanlanmagan</div>
+    </div>
+
+    <input type="number" id="vazn-input" style="display:none" step="0.001" value="0.000">
+
+    <div class="step-dots">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+
+    <!-- Offline Sync Status Panel -->
+    <div id="offlineSyncPanel" style="display:none; margin-top:20px; background:rgba(212,168,83,0.1); border:1px solid rgba(212,168,83,0.3); border-radius:10px; padding:12px; font-size:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; color:#D4A853; font-weight:700; margin-bottom:6px;">
+        <span>🔄 Offlayn Savdolar</span>
+        <span id="offlineSyncCount" style="background:#D4A853; color:#1A1A2E; padding:1px 6px; border-radius:10px; font-size:10px;">0</span>
+      </div>
+      <div style="color:rgba(255,255,255,0.7); font-size:11px;">
+        Aloqa tiklanganda savdolar avtomatik sinxronizatsiya qilinadi.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ RIGHT PANEL ════ -->
+  <div class="right-panel">
+
+    <!-- STEP 1: Mahsulot -->
+    <div id="step-1" class="fade-up">
+      <div class="step-title">Mahsulot</div>
+      <div class="step-sub">Sotish uchun mahsulotni tanlang</div>
+      <div class="prod-grid">
+        {% for product in products %}
+        {% with p_stock=product.stock.quantity|default:0 %}
+        <button class="prod-btn" {% if p_stock <= 0 %}style="opacity: 0.55; filter: grayscale(0.8); cursor: not-allowed; border: 1.5px dashed #DC3545;"{% endif %} onclick="selectProduct('{{ product.id }}', '{{ product.name }}', {{ p_stock|stringformat:'.3f' }})">
+          {% if product.image %}
+          <div style="position:relative;width:100%;height:140px;border-radius:10px;overflow:hidden;">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.65) 0%,rgba(0,0,0,0.05) 55%,transparent 100%);"></div>
+            
+            <!-- Stock Badge -->
+            <div style="position:absolute; top:8px; right:8px; background: {% if p_stock > 0 %}rgba(40,167,69,0.95){% else %}rgba(220,53,69,0.95){% endif %}; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; z-index: 10;">
+              {% if p_stock > 0 %}{{ p_stock|floatformat:1 }} kg{% else %}Sotuvda yo'q{% endif %}
+            </div>
+
+            <div style="position:absolute;bottom:10px;left:12px;right:12px;">
+              <div class="prod-btn-name" style="color:#fff;">{{ product.name }}</div>
+              <div class="prod-btn-price" style="color:rgba(255,255,255,0.7);">{{ product.price_per_kg }} so'm / kg</div>
+            </div>
+          </div>
+          {% else %}
+          <div style="position:relative;width:100%;height:140px;border-radius:10px;background:#F0EDE8;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+            <svg width="32" height="32" fill="none" stroke="#bbb" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            
+            <!-- Stock Badge -->
+            <div style="position:absolute; top:8px; right:8px; background: {% if p_stock > 0 %}rgba(40,167,69,0.95){% else %}rgba(220,53,69,0.95){% endif %}; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; z-index: 10;">
+              {% if p_stock > 0 %}{{ p_stock|floatformat:1 }} kg{% else %}Sotuvda yo'q{% endif %}
+            </div>
+          </div>
+          <div class="prod-btn-name">{{ product.name }}</div>
+          <div class="prod-btn-price">{{ product.price_per_kg }} so'm / kg</div>
+          {% endif %}
+        </button>
+        {% empty %}
+        <div class="prod-empty">Faol mahsulotlar topilmadi</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- STEP 2: Mijoz -->
+    <div id="step-2" class="d-none">
+      <div class="step-title">Mijoz</div>
+      <div class="step-sub">Mijozni qidiring yoki yangi qo'shing</div>
+      <div class="search-row">
+        <input type="text" id="searchInput" class="search-field"
+               placeholder="Ism yoki telefon..." oninput="doSearch(this.value)" autocomplete="off">
+        <button class="btn-new-cust" data-bs-toggle="modal" data-bs-target="#addCustomerModal">+</button>
+      </div>
+      <div id="results" class="mb-3"></div>
+      <button class="btn-cash" onclick="confirmSale(null, 'Nomalum xaridor')">Mijozsiz — Naqd pul</button>
+      <button class="btn-back" onclick="showStep(1)">← Orqaga</button>
+    </div>
+
+    <!-- STEP 3: Tasdiqlash -->
+    <div id="step-confirm" class="d-none">
+      <div class="step-title">Tasdiqlash</div>
+      <div class="step-sub">Savdo ma'lumotlarini tekshiring</div>
+
+      <div class="confirm-cards">
+        <div class="confirm-card">
+          <div>
+            <div class="confirm-card-lbl">Xaridor</div>
+            <div class="confirm-card-val" id="confirmName"></div>
+          </div>
+          <svg width="20" height="20" fill="none" stroke="#9CA3AF" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="confirm-card">
+          <div>
+            <div class="confirm-card-lbl">Vazn</div>
+            <div class="confirm-card-val mono" id="confirmWeight"></div>
+          </div>
+          <svg width="20" height="20" fill="none" stroke="#9CA3AF" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/><path d="M6.5 9h11l2 12h-15z"/></svg>
+        </div>
+      </div>
+      
+      <!-- Barter specific info box -->
+      <div id="barterInfoBox" class="d-none mt-2 p-3" style="background:#FFFBF0; border: 1.5px dashed #D4A853; border-radius:16px; margin-bottom: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:12px; font-weight:700; color:#856404; text-transform:uppercase;">🤝 Barter: Bizning ta'minotchidan qarzimiz</div>
+          <div id="barterDebtVal" style="font-size:16px; font-weight:800; color:#856404;">0 so'm</div>
+        </div>
+        <div style="font-size:11px; color:#856404; margin-top:4px;">Nasiya tanlansa, savdo summasi bizning ushbu ta'minotchidan qarzimizdan ayiriladi.</div>
+      </div>
+
+      <!-- Tez summa tugmalari -->
+      <div class="quick-amounts-wrap">
+        <span class="quick-label">Summa tanlang</span>
+        <div class="quick-grid" id="quick-grid"></div>
+      </div>
+
+      <span class="pay-select-label">To'lov turi</span>
+      <div class="pay-options">
+        <button class="pay-opt selected" data-val="naqd" onclick="selectPayment(this)">💵 Naqd</button>
+        <button class="pay-opt" data-val="karta" onclick="selectPayment(this)">💳 Karta</button>
+        <button class="pay-opt" data-val="qr" onclick="selectPayment(this)">📱 QR</button>
+        <button class="pay-opt" data-val="nasiya" onclick="selectPayment(this)">📋 Nasiya</button>
+      </div>
+      <input type="hidden" id="paymentMethod" value="naqd">
+
+      <button id="saveSaleBtn" class="btn-confirm" onclick="submitSaleBackend()">Savdoni tasdiqlash</button>
+      <button class="btn-back" onclick="showStep(2)">← Orqaga</button>
+    </div>
+
+  </div>
+</div>
+<!-- ════════════ VAZN NUMPAD ════════════ -->
+<div class="numpad-overlay" id="numpadOverlay" onclick="handleNumpadOutsideClick(event)">
+  <div class="numpad-box">
+
+    <!-- Rejim tanlash -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button type="button" id="mode-kg" onclick="setNumpadMode('kg')"
+        style="flex:1;padding:10px;border-radius:12px;border:1.5px solid #1B6B4A;
+               background:linear-gradient(135deg,#1B6B4A,#2D9B6E);color:#fff;font-family:'Inter',sans-serif;
+               font-size:14px;font-weight:800;cursor:pointer;">
+        ⚖️ kg
+      </button>
+      <button type="button" id="mode-sum" onclick="setNumpadMode('sum')"
+        style="flex:1;padding:10px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.1);
+               background:transparent;color:#6B7280;font-family:'Inter',sans-serif;
+               font-size:14px;font-weight:800;cursor:pointer;">
+        💵 so'm
+      </button>
+    </div>
+
+    <div class="numpad-screen">
+      <div class="numpad-screen-val" id="numpadDisplay">0</div>
+      <div class="numpad-screen-unit" id="numpadUnit">kilogramm</div>
+    </div>
+    <div class="numpad-grid">
+      <button class="nk" onclick="numpadKey('7')">7</button>
+      <button class="nk" onclick="numpadKey('8')">8</button>
+      <button class="nk" onclick="numpadKey('9')">9</button>
+      <button class="nk" onclick="numpadKey('4')">4</button>
+      <button class="nk" onclick="numpadKey('5')">5</button>
+      <button class="nk" onclick="numpadKey('6')">6</button>
+      <button class="nk" onclick="numpadKey('1')">1</button>
+      <button class="nk" onclick="numpadKey('2')">2</button>
+      <button class="nk" onclick="numpadKey('3')">3</button>
+      <button class="nk" style="grid-column:span 2;" onclick="numpadKey('0')">0</button>
+      <button class="nk nk-dot" id="numpadDotBtn" onclick="numpadKey('.')">.</button>
+      <button class="nk nk-del" onclick="numpadKey('del')">⌫</button>
+      <button class="nk nk-ok" onclick="numpadConfirm()">Tasdiqlash</button>
+      <button class="nk nk-cancel" onclick="closeNumpad()">Bekor</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ADD CUSTOMER MODAL ════ -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-title">Yangi mijoz</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="mf-label">Ismi *</label>
+          <input type="text" id="new-cust-firstname" class="mf-input" placeholder="Asliddin">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label">Familiyasi</label>
+          <input type="text" id="new-cust-lastname" class="mf-input" placeholder="Karimov">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label">Telefon *</label>
+          <input type="text" id="new-cust-phone" class="mf-input" placeholder="991234567" oninput="suggestCustomerID(this.value)">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label">Mijoz ID *</label>
+          <div class="mf-row">
+            <input type="text" id="new-cust-id" class="mf-input" placeholder="Masalan: 01">
+            <button class="btn-auto" onclick="generateAutoID()">Avto</button>
+          </div>
+          <p class="mf-hint">Telefon oxirgi 4 raqami yoki qo'lda kiriting</p>
+        </div>
+        <div class="mb-4">
+          <label class="mf-label">Rasm (ixtiyoriy)</label>
+          <input type="file" id="new-cust-image" class="mf-input" accept="image/*" style="padding:10px 14px;cursor:pointer;">
+        </div>
+        <div class="modal-err" id="modal-error-msg"></div>
+        <button class="btn-save-cust" onclick="submitNewCustomer()">Saqlash va Tanlash</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ TAHRIRLASH MODALI ════════════ -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-title">Mijozni tahrirlash</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-cust-id">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+          <img id="edit-cust-avatar"
+               src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+               style="width:60px;height:60px;border-radius:12px;object-fit:cover;
+                      border:1.5px solid rgba(0,0,0,0.06);flex-shrink:0;">
+          <div>
+            <div id="edit-cust-fullname" style="font-size:17px;font-weight:800;color:#1A1A2E;"></div>
+            <div id="edit-cust-idnum" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9CA3AF;margin-top:2px;"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="mf-label">Ismi *</label>
+          <input type="text" id="edit-firstname" class="mf-input" placeholder="Asliddin">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label">Familiyasi</label>
+          <input type="text" id="edit-lastname" class="mf-input" placeholder="Karimov">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label">Telefon</label>
+          <input type="text" id="edit-phone" class="mf-input" placeholder="991234567">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label">Izoh</label>
+          <textarea id="edit-note" class="mf-input" rows="3"
+                    placeholder="Masalan: VIP mijoz..."
+                    style="resize:vertical;"></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="mf-label">Yangi rasm (ixtiyoriy)</label>
+          <input type="file" id="edit-image" class="mf-input"
+                 accept="image/*" style="padding:10px 14px;cursor:pointer;">
+        </div>
+        <div class="modal-err" id="edit-error-msg"></div>
+        <button class="btn-save-cust" onclick="submitEditCustomer()">Saqlash</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Kassa Shifti Lock Overlay -->
+<div id="shift-lock-overlay" style="display:none; position:fixed; inset:0; background:rgba(26,26,46,0.95); backdrop-filter:blur(8px); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#fff; font-family:var(--font-sans);">
+  <div style="background:#FFFFFF; border-radius:24px; padding:40px 30px; width:100%; max-width:420px; text-align:center; box-shadow:var(--shadow-md); border:1px solid rgba(0,0,0,0.05); color:#1A1A2E;">
+    <div style="font-size:48px; margin-bottom:16px;">🔒</div>
+    <h3 style="font-family:var(--font-serif); color:var(--primary); margin-bottom:8px; font-size:24px;">Kassa Shifti Yopiq</h3>
+    <p style="color:#6B7280; font-size:14px; margin-bottom:24px; line-height:1.5;">Savdo va to'lovlarni amalga oshirish uchun avval kassa shiftini (ochilish balansini kiritib) oching.</p>
+    
+    <div style="text-align:left; margin-bottom:24px;">
+      <label style="display:block; font-size:12.5px; font-weight:700; color:#1A1A2E; margin-bottom:6px;">Boshlang'ich naqd pul (so'm)</label>
+      <input type="number" id="opening-cash-input" value="0" class="form-control" style="font-size:18px; padding:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1); width:100%; text-align:center; font-weight:700; color:var(--primary);" placeholder="Masalan: 500,000">
+    </div>
+    
+    <button onclick="submitOpenShift()" style="background:var(--primary-gradient); color:#fff; border:none; padding:14px 20px; border-radius:14px; font-size:15px; font-weight:700; width:100%; cursor:pointer; box-shadow:var(--shadow-md); transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      Shiftni ochish &rarr;
+    </button>
+  </div>
+</div>
+
+<!-- Z-Report (Shiftni Yopish) Modal -->
+<div id="z-report-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99999; justify-content:center; align-items:center;">
+  <div style="background:#FFFFFF; border-radius:24px; width:100%; max-width:480px; box-shadow:var(--shadow-lg); overflow:hidden; border:1px solid rgba(0,0,0,0.05); color:#1A1A2E;">
+    <div style="background:var(--primary-gradient); padding:20px 24px; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+      <h4 style="margin:0; font-family:var(--font-serif); font-size:18px;">Shiftni Yopish & Z-Report</h4>
+      <button onclick="closeZReportModal()" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer; line-height:1;">&times;</button>
+    </div>
+    
+    <div style="padding:24px; font-size:13.5px;">
+      <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; background:#F8F6F2; padding:16px; border-radius:14px; border:1px solid rgba(0,0,0,0.03);">
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,0.04); padding-bottom:6px;">
+          <span style="color:#6B7280;">Ochilgan vaqt:</span>
+          <span id="zr-opened-at" style="font-weight:600;">-</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,0.04); padding-bottom:6px;">
+          <span style="color:#6B7280;">Boshlang'ich naqd:</span>
+          <span id="zr-opening-cash" style="font-weight:600;">0 so'm</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,0.04); padding-bottom:6px; color:#1B6B4A; font-weight:700;">
+          <span>Kutilayotgan naqd pul:</span>
+          <span id="zr-expected-cash">0 so'm</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,0.04); padding-bottom:6px;">
+          <span style="color:#6B7280;">Karta / QR tushum:</span>
+          <span id="zr-expected-card" style="font-weight:600;">0 so'm</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#6B7280;">Nasiya savdolar:</span>
+          <span id="zr-expected-debt" style="font-weight:600;">0 so'm</span>
+        </div>
+      </div>
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block; font-weight:700; color:#1A1A2E; margin-bottom:6px;">G'alaydondagi joriy naqd pul (so'm)</label>
+        <input type="number" id="zr-actual-cash" class="form-control" style="font-size:18px; padding:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1); width:100%; text-align:center; font-weight:700; color:var(--primary);" placeholder="Kassa naqd pulini sanab kiriting">
+      </div>
+      
+      <div style="margin-bottom:24px;">
+        <label style="display:block; font-weight:700; color:#1A1A2E; margin-bottom:6px;">Izoh / Eslatma (Kamomad yoki sababi)</label>
+        <textarea id="zr-notes" class="form-control" rows="2" style="border-radius:12px; border:1px solid rgba(0,0,0,0.1); width:100%; padding:10px;" placeholder="Ixtiyoriy izoh..."></textarea>
+      </div>
+      
+      <button onclick="submitCloseShift()" style="background:#DC3545; color:#fff; border:none; padding:14px; border-radius:14px; font-size:15px; font-weight:700; width:100%; cursor:pointer; box-shadow:var(--shadow-md); transition:all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+        🛑 Shiftni yopish (Z-Report yuborish)
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── O'ZGARUVCHILAR ──
+let activeScaleId    = "1";
+let selectedProductId   = null;
+let selectedProductName = null;
+let selectedCustomerId  = null;
+let selectedAmount   = 0;
+let isManualMode     = false;
+let weightInterval   = null;
+let numpadBuffer     = "";
+let numpadMode       = "kg"; // "kg" yoki "sum"
+
+// ── SHIFT VA Z-REPORT FUNKSIYALARI ──
+let currentShift = null;
+
+function checkShiftStatus() {
+  fetch('/pos/api/shift/status/')
+    .then(r => r.json())
+    .then(data => {
+      const badge = document.getElementById('shift-status-badge');
+      const btn = document.getElementById('shift-action-btn');
+      const overlay = document.getElementById('shift-lock-overlay');
+      
+      if (data.is_open) {
+        currentShift = data;
+        badge.innerText = "OCHIQ SHIFT";
+        badge.style.background = "#28A745"; // Green
+        btn.innerText = "Shiftni yopish";
+        btn.style.background = "#DC3545"; // Red
+        overlay.style.display = "none";
+      } else {
+        currentShift = null;
+        badge.innerText = "YOPILGAN SHIFT";
+        badge.style.background = "#EF4444"; // Red
+        btn.innerText = "Shiftni ochish";
+        btn.style.background = "var(--primary)"; // Primary Green
+        overlay.style.display = "flex";
+      }
+    })
+    .catch(err => console.error("Shift holatini tekshirishda xato:", err));
+}
+
+function toggleShiftAction() {
+  if (currentShift && currentShift.is_open) {
+    // Open close shift modal
+    document.getElementById('zr-opened-at').innerText = currentShift.opened_at;
+    document.getElementById('zr-opening-cash').innerText = Math.round(currentShift.opening_cash).toLocaleString() + " so'm";
+    document.getElementById('zr-expected-cash').innerText = Math.round(currentShift.expected_cash).toLocaleString() + " so'm";
+    document.getElementById('zr-expected-card').innerText = Math.round(currentShift.expected_card).toLocaleString() + " so'm";
+    document.getElementById('zr-expected-debt').innerText = Math.round(currentShift.expected_debt).toLocaleString() + " so'm";
+    
+    document.getElementById('zr-actual-cash').value = "";
+    document.getElementById('zr-notes').value = "";
+    
+    document.getElementById('z-report-modal').style.display = "flex";
+  } else {
+    // Show opening overlay
+    document.getElementById('shift-lock-overlay').style.display = "flex";
+  }
+}
+
+function closeZReportModal() {
+  document.getElementById('z-report-modal').style.display = "none";
+}
+
+function submitOpenShift() {
+  const cashInput = document.getElementById('opening-cash-input');
+  const val = parseFloat(cashInput.value) || 0;
+  
+  fetch('/pos/api/shift/open/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify({ opening_cash: val })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      alert(data.message);
+      checkShiftStatus();
+    } else {
+      alert("Xatolik: " + data.message);
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Shiftni ochishda tarmoq xatoligi yuz berdi!");
+  });
+}
+
+function submitCloseShift() {
+  const actualInput = document.getElementById('zr-actual-cash');
+  const actualVal = parseFloat(actualInput.value);
+  if (isNaN(actualVal) || actualVal < 0) {
+    alert("Iltimos, g'alaydondagi joriy naqd pul miqdorini kiriting!");
+    return;
+  }
+  
+  const notes = document.getElementById('zr-notes').value;
+  
+  fetch('/pos/api/shift/close/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify({ closed_cash_actual: actualVal, notes: notes })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      alert(data.message + "\nFarq: " + Math.round(data.difference).toLocaleString() + " so'm");
+      closeZReportModal();
+      checkShiftStatus();
+    } else {
+      alert("Xatolik: " + data.message);
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Shiftni yopishda tarmoq xatoligi yuz berdi!");
+  });
+}
+
+// ── SCALE ──
+function changeActiveScale(id) {
+  activeScaleId = id.toString();
+  document.querySelectorAll('.scale-tab').forEach(b => b.classList.remove('on'));
+  document.getElementById('scale-btn-' + id).classList.add('on');
+  
+  disconnectUSBScale();
+  isManualMode = false;
+  
+  if (activeScaleId === "2") {
+    let ip = localStorage.getItem('wifi_scale_ip');
+    if (!ip) {
+      ip = prompt("Iltimos, Wi-Fi tarozi IP manzilini kiriting (masalan, 192.168.137.44):", "192.168.137.44");
+      if (ip) {
+        ip = ip.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+        localStorage.setItem('wifi_scale_ip', ip);
+      }
+    }
+  }
+  
+  startWeightPolling();
+}
+
+function configureWifiScale(event) {
+  if (event) event.stopPropagation();
+  let currentIp = localStorage.getItem('wifi_scale_ip') || "192.168.137.44";
+  let ip = prompt("Wi-Fi tarozi IP manzilini kiriting:", currentIp);
+  if (ip) {
+    ip = ip.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    localStorage.setItem('wifi_scale_ip', ip);
+    alert("Wi-Fi tarozi IP manzili saqlandi: " + ip);
+    if (activeScaleId === "2") {
+      startWeightPolling();
+    }
+  }
+}
+
+// ── STEP ──
+function showStep(s) {
+  ['step-1','step-2','step-confirm'].forEach(id =>
+    document.getElementById(id).classList.add('d-none'));
+  const key = s === 'confirm' ? 'step-confirm' : 'step-' + s;
+  const el = document.getElementById(key);
+  el.classList.remove('d-none', 'fade-up');
+  void el.offsetWidth;
+  el.classList.add('fade-up');
+  const num = s === 'confirm' ? 3 : parseInt(s);
+  ['dot-1','dot-2','dot-3'].forEach((d,i) => {
+    document.getElementById(d).className =
+      'step-dot' + (i+1 < num ? ' done' : i+1 === num ? ' active' : '');
+  });
+  if (s === 2) {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('results').innerHTML = '';
+    setTimeout(() => document.getElementById('searchInput').focus(), 100);
+  }
+}
+
+let selectedProductStock = 0;
+
+// ── MAHSULOT ──
+function selectProduct(id, name, stock) {
+  if (parseFloat(stock) <= 0) {
+    alert("Xatolik: Ushbu mahsulot do'konda qolmagan (sotuvda yo'q)!");
+    return;
+  }
+  selectedProductId   = id;
+  selectedProductName = name;
+  selectedProductStock = parseFloat(stock) || 0;
+  const el = document.getElementById('current-prod-name');
+  el.innerText = name;
+  el.classList.remove('none');
+  showStep(2);
+}
+
+// ── NARXNI OLISH ──
+function getPrice() {
+  if (!selectedProductId) return 0;
+  const el = document.querySelector(
+    `.prod-btn[onclick*="'${selectedProductId}'"] .prod-btn-price`
+  );
+  if (!el) return 0;
+  const cleaned = el.innerText
+    .replace(/[^0-9.,]/g, '')
+    .replace(',', '.');
+  return parseFloat(cleaned) || 0;
+}
+
+// ── VAZN NUMPAD ──
+function openNumpad() {
+  numpadMode   = "kg";
+  numpadBuffer = document.getElementById('vazn').innerText || "0";
+  if (numpadBuffer === "0.000") numpadBuffer = "";
+
+  updateNumpadUI();
+  document.getElementById('numpadDisplay').innerText = numpadBuffer || "0";
+  document.getElementById('numpadOverlay').classList.add('open');
+
+  isManualMode = true;
+  document.getElementById('weight-mode-badge').innerText = "MANUAL";
+  document.getElementById('weight-mode-badge').classList.add('manual');
+  document.getElementById('weightBlock').classList.add('manual-on');
+  document.getElementById('numpadHint').innerText = "✎ kiritilmoqda";
+  clearInterval(weightInterval);
+}
+
+function closeNumpad() {
+  document.getElementById('numpadOverlay').classList.remove('open');
+}
+
+function handleNumpadOutsideClick(e) {
+  if (e.target === document.getElementById('numpadOverlay')) closeNumpad();
+}
+
+// ── REJIM TANLASH ──
+function setNumpadMode(mode) {
+  numpadMode   = mode;
+  numpadBuffer = "";
+  document.getElementById('numpadDisplay').innerText = "0";
+  updateNumpadUI();
+}
+
+function updateNumpadUI() {
+  const isKg   = numpadMode === 'kg';
+  const kgBtn  = document.getElementById('mode-kg');
+  const sumBtn = document.getElementById('mode-sum');
+  const dotBtn = document.getElementById('numpadDotBtn');
+
+  if (kgBtn && sumBtn) {
+    kgBtn.style.background  = isKg ? 'linear-gradient(135deg,#1B6B4A,#2D9B6E)' : 'transparent';
+    kgBtn.style.borderColor = isKg ? '#1B6B4A' : 'rgba(0,0,0,0.1)';
+    kgBtn.style.color       = isKg ? '#fff'    : '#6B7280';
+
+    sumBtn.style.background  = !isKg ? 'linear-gradient(135deg,#1B6B4A,#2D9B6E)' : 'transparent';
+    sumBtn.style.borderColor = !isKg ? '#1B6B4A' : 'rgba(0,0,0,0.1)';
+    sumBtn.style.color       = !isKg ? '#fff'    : '#6B7280';
+  }
+
+  const unitEl = document.getElementById('numpadUnit');
+  if (unitEl) unitEl.innerText = isKg ? 'kilogramm' : "so'm";
+
+  if (dotBtn) {
+    dotBtn.style.opacity = isKg ? '1' : '0.3';
+    dotBtn.disabled      = !isKg;
+  }
+}
+
+// ── RAQAM TUGMALARI ──
+function numpadKey(k) {
+  const isKg = numpadMode === 'kg';
+
+  if (k === 'del') {
+    numpadBuffer = numpadBuffer.slice(0, -1);
+  } else if (k === '.') {
+    if (isKg && !numpadBuffer.includes('.')) numpadBuffer += '.';
+  } else {
+    if (isKg) {
+      if (numpadBuffer === "0") numpadBuffer = k;
+      else numpadBuffer += k;
+      if (numpadBuffer.replace('.','').length > 7) {
+        numpadBuffer = numpadBuffer.slice(0, -1); return;
+      }
+    } else {
+      if (numpadBuffer === "" || numpadBuffer === "0") numpadBuffer = k;
+      else numpadBuffer += k;
+      if (numpadBuffer.length > 9) { numpadBuffer = numpadBuffer.slice(0, 9); return; }
+    }
+  }
+
+  if (isKg) {
+    document.getElementById('numpadDisplay').innerText = numpadBuffer || "0";
+  } else {
+    const num = parseInt(numpadBuffer) || 0;
+    document.getElementById('numpadDisplay').innerText =
+      num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+}
+
+// ── TASDIQLASH ──
+function numpadConfirm() {
+  if (numpadMode === 'kg') {
+    // KG kiritilgan
+    const val = parseFloat(numpadBuffer);
+    if (!isNaN(val) && val >= 0) {
+      document.getElementById('vazn').innerText   = val.toFixed(3);
+      document.getElementById('vazn-input').value = val.toFixed(3);
+    }
+  } else {
+    // SO'M kiritilgan → kg ga aylantiramiz
+    const sumVal = parseInt(numpadBuffer) || 0;
+    const price  = getPrice();
+    if (sumVal > 0 && price > 0) {
+      const kg = (sumVal / price).toFixed(3);
+      document.getElementById('vazn').innerText   = kg;
+      document.getElementById('vazn-input').value = kg;
+      // Summani ham saqlaymiz
+      selectedAmount = sumVal;
+    }
+  }
+  closeNumpad();
+}
+
+// ── WEB SERIAL SCALE (USB) ──
+let usbPort = null;
+let usbReader = null;
+let isUsbConnected = false;
+
+async function connectUSBScale() {
+  if (!("serial" in navigator)) {
+    alert("Kechirasiz, brauzeringiz Web Serial API-ni qo'llab-quvvatlamaydi. Iltimos, Google Chrome yoki Microsoft Edge brauzerini ishlating!");
+    return;
+  }
+
+  try {
+    usbPort = await navigator.serial.requestPort();
+    await usbPort.open({ baudRate: 115200 });
+    
+    isUsbConnected = true;
+    isManualMode = false;
+    
+    // Pollingni to'xtatish
+    clearInterval(weightInterval);
+    
+    // UI holatini yangilash
+    document.querySelectorAll('.scale-tab').forEach(b => b.classList.remove('on'));
+    const connBtn = document.getElementById('btn-usb-connect');
+    if (connBtn) {
+      connBtn.classList.add('on');
+      connBtn.innerText = "✅ USB Ulandi";
+    }
+    
+    const badge = document.getElementById('weight-mode-badge');
+    if (badge) {
+      badge.innerText = "USB VAZN";
+      badge.classList.remove('manual');
+      badge.style.color = '#81EFBB';
+    }
+
+    readSerialStream(usbPort);
+  } catch (err) {
+    console.error("USB taroziga ulanishda xato:", err);
+    alert("Tarozi ulana olmadi: " + err.message);
+    disconnectUSBScale();
+  }
+}
+
+async function readSerialStream(port) {
+  const textDecoder = new TextDecoderStream();
+  const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+  usbReader = textDecoder.readable.getReader();
+  
+  let buffer = '';
+  try {
+    while (isUsbConnected) {
+      const { value, done } = await usbReader.read();
+      if (done) break;
+      
+      buffer += value;
+      let lines = buffer.split('\n');
+      buffer = lines.pop(); // keep last incomplete line in buffer
+      
+      for (let line of lines) {
+        line = line.trim();
+        if (line.includes('VAZN:')) {
+          const match = line.match(/VAZN:([\d\.-]+)/);
+          if (match) {
+            const wVal = parseFloat(match[1]);
+            if (!isNaN(wVal)) {
+              const f = wVal.toFixed(3);
+              document.getElementById('vazn').innerText = f;
+              document.getElementById('vazn-input').value = f;
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Serial oqimni o'qishda xato:", err);
+  } finally {
+    try {
+      usbReader.releaseLock();
+    } catch(e) {}
+  }
+}
+
+async function disconnectUSBScale() {
+  isUsbConnected = false;
+  
+  if (usbReader) {
+    try {
+      await usbReader.cancel();
+    } catch(e) {}
+    usbReader = null;
+  }
+  
+  if (usbPort) {
+    try {
+      await usbPort.close();
+    } catch(e) {}
+    usbPort = null;
+  }
+  
+  const connBtn = document.getElementById('btn-usb-connect');
+  if (connBtn) {
+    connBtn.classList.remove('on');
+    connBtn.innerText = "🔌 USB Ulanish";
+  }
+}
+
+// ── AUTO WEIGHT ──
+function startWeightPolling() {
+  clearInterval(weightInterval);
+  weightInterval = setInterval(() => {
+    if (isManualMode) return;
+    
+    let url = `/pos/api/get-weight/?scale_id=${activeScaleId}`;
+    if (activeScaleId === "2") {
+      const ip = localStorage.getItem('wifi_scale_ip');
+      if (ip) {
+        if (window.location.protocol === "http:") {
+          url = `http://${ip}/pos/api/get-weight/`;
+        } else {
+          url = `/pos/api/get-weight/?scale_id=2&scale_ip=${ip}`;
+        }
+      }
+    }
+
+    fetch(url)
+      .then(r => { if (!r.ok) throw 0; return r.json(); })
+      .then(d => {
+        const v = d.vazn !== undefined ? d.vazn : d.weight;
+        if (v !== undefined) {
+          const f = parseFloat(v).toFixed(3);
+          document.getElementById('vazn').innerText   = f;
+          document.getElementById('vazn-input').value = f;
+        }
+        if (d.button_pressed && parseFloat(v||0) > 0 && selectedProductId) {
+          if (typeof addToCartWithWeight === "function") addToCartWithWeight(v);
+        }
+      })
+      .catch(() => {
+        if (activeScaleId === "2") {
+          const ip = localStorage.getItem('wifi_scale_ip');
+          if (window.location.protocol === "http:" && ip) {
+            // Fallback to proxy on local HTTP if direct call fails
+            fetch(`/pos/api/get-weight/?scale_id=2&scale_ip=${ip}`)
+              .then(r => r.json())
+              .then(d => {
+                const v = d.vazn !== undefined ? d.vazn : d.weight;
+                if (v !== undefined) {
+                  const f = parseFloat(v).toFixed(3);
+                  document.getElementById('vazn').innerText   = f;
+                  document.getElementById('vazn-input').value = f;
+                }
+              })
+              .catch(() => {
+                document.getElementById('vazn').innerText = "OFFLINE";
+              });
+          } else {
+            document.getElementById('vazn').innerText = "OFFLINE";
+          }
+        }
+      });
+  }, 1000);
+}
+document.addEventListener("DOMContentLoaded", startWeightPolling);
+
+// ── TEZ SUMMA TUGMALARI ──
+function generateQuickAmounts() {
+  const vazn  = parseFloat(document.getElementById('vazn').innerText) || 0;
+  const price = getPrice();
+  if (!selectedProductId || vazn <= 0 || price <= 0) return;
+
+  const exact   = Math.round((vazn * price) / 100) * 100;
+  const amounts = new Set();
+  amounts.add(exact);
+
+  [5000, 10000].forEach(step => {
+    const down  = Math.floor(exact / step) * step;
+    const down2 = down - step;
+    if (down  > 0 && down  !== exact) amounts.add(down);
+    if (down2 > 0 && down2 !== exact) amounts.add(down2);
+  });
+
+  const sorted = [...amounts].sort((a, b) => a - b);
+  selectedAmount = exact;
+
+  document.getElementById('quick-grid').innerHTML = sorted.map(amt => {
+    const isExact = amt === exact;
+    return `<button class="quick-btn ${isExact ? 'exact' : ''}"
+      onclick="setQuickAmount(${amt}, this)">
+      ${amt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} so'm
+    </button>`;
+  }).join('');
+}
+
+function setQuickAmount(amt, btn) {
+  document.querySelectorAll('.quick-btn').forEach(b =>
+    b.classList.remove('selected', 'exact'));
+  btn.classList.add('selected');
+  selectedAmount = amt;
+}
+// ── MIJOZ QIDIRUV ──
+function doSearch(val) {
+  const div = document.getElementById('results');
+  if (!val) { div.innerHTML = ''; return; }
+  fetch(`/pos/search-customers/?q=${val}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.length) {
+        div.innerHTML = '<div class="no-results">Mijoz topilmadi</div>'; return;
+      }
+      div.innerHTML = data.map(c => {
+        const debt = (c.debt && c.debt > 0)
+          ? `<span class="debt-pill">Qarz: ${c.debt.toLocaleString('uz-UZ')} so'm</span>` : '';
+        const noteTag = c.note
+          ? `<div style="margin-top:4px;">
+               <span style="font-size:11px;color:#D4A853;font-weight:600;
+                            background:#FFFBF0;border:1px solid #F5E6C0;
+                            border-radius:6px;padding:2px 8px;">
+                 📝 ${c.note.length > 30 ? c.note.slice(0,30)+'...' : c.note}
+               </span>
+             </div>` : '';
+
+        const scoreColor = {
+          'A (Ishonchli)': { bg: 'rgba(40,167,69,0.08)', border: 'rgba(40,167,69,0.2)', text: '#28A745' },
+          'B (Yaxshi)': { bg: 'rgba(27,107,74,0.08)', border: 'rgba(27,107,74,0.2)', text: '#1B6B4A' },
+          'C (Tavakkalli)': { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)', text: '#F59E0B' },
+          'D (Qora ro\'yxat)': { bg: 'rgba(220,53,69,0.08)', border: 'rgba(220,53,69,0.2)', text: '#DC3545' },
+          'D (Limit oshgan)': { bg: 'rgba(220,53,69,0.08)', border: 'rgba(220,53,69,0.2)', text: '#DC3545' },
+          'D (Xavfli)': { bg: 'rgba(220,53,69,0.08)', border: 'rgba(220,53,69,0.2)', text: '#DC3545' }
+        }[c.credit_score] || { bg: '#F3F4F6', border: '#E5E7EB', text: '#4B5563' };
+
+        const scorePill = `<span style="background:${scoreColor.bg};border:1px solid ${scoreColor.border};color:${scoreColor.text};border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">Score: ${c.credit_score}</span>`;
+        const limitPill = `<span style="background:#F8F6F2;border:1px solid rgba(0,0,0,0.07);color:#6B7280;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">Limit: ${c.debt_limit.toLocaleString('uz-UZ')} so'm</span>`;
+
+        return `
+          <div style="background:#fff;border:1.5px solid rgba(0,0,0,0.07);border-radius:14px;
+                      padding:12px 14px;margin-bottom:6px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <button class="cust-result"
+                style="flex:1;background:transparent;border:none;padding:0;text-align:left;"
+                onclick="confirmSale('${c.id}','${c.name.replace(/'/g, "\\'")}',${c.debt},${c.debt_limit},'${c.credit_score}',${c.is_blacklisted},${c.is_barter||false},${c.supplier_debt||0})">
+                <div style="display:flex;align-items:center;">
+                  <img src="${c.image}" class="cust-avatar" alt="">
+                  <div>
+                    <div class="cust-name">${c.name}</div>
+                    <div class="cust-meta" style="margin-bottom:6px;">ID: ${c.id_num}${c.phone?' · '+c.phone:''}</div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
+                      ${scorePill}
+                      ${limitPill}
+                    </div>
+                    ${noteTag}
+                  </div>
+                </div>
+              </button>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px;">
+                ${debt}
+                <button onclick="openEditModal(${c.id},'${c.name}','${c.id_num}','${c.phone||''}','${c.image}','${(c.note||'').replace(/'/g,"\\'")}',event)"
+                  style="width:34px;height:34px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.07);
+                         background:#F8F6F2;cursor:pointer;display:flex;align-items:center;
+                         justify-content:center;font-size:16px;"
+                  title="Tahrirlash">✏️
+                </button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    })
+    .catch(() => {});
+}
+
+let selectedCustomerDebt = 0;
+let selectedCustomerDebtLimit = 0;
+let selectedCustomerCreditScore = '';
+let selectedCustomerIsBlacklisted = false;
+let selectedCustomerIsBarter = false;
+let selectedCustomerSupplierDebt = 0;
+
+// ── CONFIRM ──
+function confirmSale(id, name, debt=0, debtLimit=0, creditScore='', isBlacklisted=false, isBarter=false, supplierDebt=0) {
+  selectedCustomerId = id;
+  selectedCustomerDebt = debt;
+  selectedCustomerDebtLimit = debtLimit;
+  selectedCustomerCreditScore = creditScore;
+  selectedCustomerIsBlacklisted = isBlacklisted;
+  selectedCustomerIsBarter = isBarter;
+  selectedCustomerSupplierDebt = supplierDebt;
+
+  document.getElementById('confirmName').innerText    = name;
+  document.getElementById('confirmWeight').innerText  =
+    document.getElementById('vazn').innerText + " kg";
+    
+  // Handle barter display in confirm screen
+  const barterInfoEl = document.getElementById('barterInfoBox');
+  if (barterInfoEl) {
+    if (isBarter) {
+      barterInfoEl.classList.remove('d-none');
+      document.getElementById('barterDebtVal').innerText = supplierDebt.toLocaleString('uz-UZ') + " so'm";
+      // Update Nasiya button to say Barter
+      const nasiyaBtn = document.querySelector('.pay-opt[data-val="nasiya"]');
+      if (nasiyaBtn) nasiyaBtn.innerText = "📋 Barter";
+    } else {
+      barterInfoEl.classList.add('d-none');
+      const nasiyaBtn = document.querySelector('.pay-opt[data-val="nasiya"]');
+      if (nasiyaBtn) nasiyaBtn.innerText = "📋 Nasiya";
+    }
+  }
+
+  showStep('confirm');
+  generateQuickAmounts();
+
+  // Reset payment method: default to Barter (nasiya) for suppliers, else Naqd (cash)
+  document.querySelectorAll('.pay-opt').forEach(b => b.classList.remove('selected'));
+  if (isBarter) {
+    const barterBtn = document.querySelector('.pay-opt[data-val="nasiya"]');
+    if (barterBtn) {
+      barterBtn.classList.add('selected');
+      document.getElementById('paymentMethod').value = 'nasiya';
+    }
+  } else {
+    const naqdBtn = document.querySelector('.pay-opt[data-val="naqd"]');
+    if (naqdBtn) {
+      naqdBtn.classList.add('selected');
+      document.getElementById('paymentMethod').value = 'naqd';
+    }
+  }
+}
+
+function selectPayment(btn) {
+  const method = btn.dataset.val;
+  if (method === 'nasiya') {
+    if (!selectedCustomerId) {
+      alert("Nasiyaga faqat ro'yxatdan o'tgan mijozlarga sotish mumkin!");
+      return;
+    }
+    if (selectedCustomerIsBarter) {
+      // Bypassed for supplier barter
+    } else {
+      if (selectedCustomerIsBlacklisted) {
+        alert("Xatolik: Ushbu mijoz qora ro'yxatda! Nasiya tanlab bo'lmaydi.");
+        return;
+      }
+      const w = parseFloat(document.getElementById('vazn').innerText.replace(/[^0-9.]/g,''));
+      const summa = selectedAmount > 0 ? selectedAmount : Math.round((w * getPrice()) / 100) * 100;
+      if (selectedCustomerDebt + summa > selectedCustomerDebtLimit) {
+        alert(`Taqiq: Kredit limiti yetarli emas!\nLimit: ${selectedCustomerDebtLimit.toLocaleString()} so'm\nJoriy qarz: ${selectedCustomerDebt.toLocaleString()} so'm\nYangi savdo summasi: ${summa.toLocaleString()} so'm`);
+        return;
+      }
+    }
+  }
+  document.querySelectorAll('.pay-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('paymentMethod').value = method;
+}
+
+// ── SAVE SALE ──
+function submitSaleBackend() {
+  const w     = parseFloat(document.getElementById('vazn').innerText.replace(/[^0-9.]/g,''));
+  const pay   = document.getElementById('paymentMethod').value;
+  const btn   = document.getElementById('saveSaleBtn');
+  const summa = selectedAmount > 0 ? selectedAmount : Math.round((w * getPrice()) / 100) * 100;
+
+  if (!selectedProductId) { alert("Mahsulot tanlanmagan!"); return; }
+  if (isNaN(w) || w <= 0) { alert("Vazn noto'g'ri!"); return; }
+  if (w > selectedProductStock) {
+    alert(`Xatolik: Zaxira yetarli emas! Omborda: ${selectedProductStock.toFixed(3)} kg. Siz kiritganingiz: ${w.toFixed(3)} kg.`);
+    return;
+  }
+  if (summa <= 0)         { alert("Summa hisoblanmadi!"); return; }
+
+  if (pay === 'nasiya') {
+    if (selectedCustomerIsBarter) {
+      if (summa > selectedCustomerSupplierDebt) {
+        if (!confirm(`Ogohlantirish: Xarid summasi (${summa.toLocaleString()} so'm) ta'minotchiga bo'lgan qarzimizdan (${selectedCustomerSupplierDebt.toLocaleString()} so'm) ko'proq. Farq ta'minotchi balansini minusga tushiradi. Davom etishni xohlaysizmi?`)) {
+          return;
+        }
+      }
+    } else {
+      if (selectedCustomerIsBlacklisted) {
+        alert("Xatolik: Ushbu mijoz qora ro'yxatga olingan! Nasiya savdo qilish taqiqlanadi.");
+        return;
+      }
+      if (selectedCustomerDebt + summa > selectedCustomerDebtLimit) {
+        alert(`Xatolik: Kredit limiti yetarli emas!\nMaksimal limit: ${selectedCustomerDebtLimit.toLocaleString()} so'm\nJoriy qarz: ${selectedCustomerDebt.toLocaleString()} so'm\nYangi savdo summasi: ${summa.toLocaleString()} so'm`);
+        return;
+      }
+    }
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Saqlanmoqda...";
+
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n+'=')) v = decodeURIComponent(c.slice(n.length+1));
+    });
+    return v;
+  }
+
+  const saleData = {
+    customer_id:    selectedCustomerId,
+    payment_method: pay,
+    total_amount:   summa,
+    use_bonus:      true,
+    items: [{ product_id: parseInt(selectedProductId), weight: w }]
+  };
+
+  fetch('/pos/save-sale/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify(saleData)
+  })
+  .then(r => { if (!r.ok) throw new Error('Server ' + r.status); return r.json(); })
+  .then(d => {
+    if (d.status === 'success') {
+      let msg = `Saqlandi!\nChek: #${d.sale_id}\nSumma: ${Math.round(d.total_amount).toLocaleString()} so'm`;
+      if (d.bonus_used > 0) msg += `\nBonus: ${Math.round(d.bonus_used).toLocaleString()} so'm ishlatildi`;
+      if (d.debt_added > 0) msg += `\nQarzga yozildi: ${Math.round(d.debt_added).toLocaleString()} so'm`;
+      alert(msg);
+      location.reload();
+    } else {
+      alert("Xatolik: " + d.message);
+      btn.disabled  = false;
+      btn.innerText = "Savdoni tasdiqlash";
+    }
+  })
+  .catch(e => {
+    // Aloqa xatosi yuz berganda LocalStorage-ga saqlash
+    const offlineSales = JSON.parse(localStorage.getItem('offline_sales') || "[]");
+    const custName = document.getElementById('confirmName').innerText || "Noma'lum mijoz";
+    offlineSales.push({
+      id: 'OFF-' + Date.now(),
+      data: saleData,
+      customer_name: custName,
+      product_name: selectedProductName,
+      weight: w,
+      total: summa
+    });
+    localStorage.setItem('offline_sales', JSON.stringify(offlineSales));
+    
+    alert(`Aloqa uzilgan! Savdo kassa xotirasiga (offlayn) yozildi.\nInternet tiklanganda avtomatik sinxronizatsiya qilinadi.`);
+    location.reload();
+  });
+}
+
+// ── YANGI MIJOZ ──
+function submitNewCustomer() {
+  const fn  = document.getElementById('new-cust-firstname').value.trim();
+  const ln  = document.getElementById('new-cust-lastname').value.trim();
+  const ph  = document.getElementById('new-cust-phone').value.trim();
+  const ci  = document.getElementById('new-cust-id').value.trim();
+  const img = document.getElementById('new-cust-image');
+  const err = document.getElementById('modal-error-msg');
+
+  if (!fn || !ph || !ci) { err.innerText = "Ism, telefon va ID majburiy!"; return; }
+  err.innerText = "Saqlanmoqda...";
+
+  const fd = new FormData();
+  fd.append('first_name', fn); fd.append('last_name', ln);
+  fd.append('phone', ph);      fd.append('custom_id', ci);
+  if (img && img.files.length) fd.append('image', img.files[0]);
+
+  fetch('/pos/quick-customer/', { method:'POST', body:fd })
+    .then(r => r.json())
+    .then(d => {
+      if (d.status === 'success') {
+        alert(d.message);
+        confirmSale(d.customer.id, `${d.customer.name} (ID: ${d.customer.id_num})`);
+        bootstrap.Modal.getInstance(
+          document.getElementById('addCustomerModal')).hide();
+        ['new-cust-firstname','new-cust-lastname','new-cust-phone','new-cust-id']
+          .forEach(id => document.getElementById(id).value = '');
+        if (img) img.value = '';
+        err.innerText = '';
+      } else { err.innerText = d.message; }
+    })
+    .catch(() => { err.innerText = "Tizim xatosi!"; });
+}
+
+function suggestCustomerID(v) {
+  const c = v.replace(/\D/g,'');
+  const f = document.getElementById('new-cust-id');
+  if (f && c.length >= 4) f.value = c.slice(-4);
+}
+
+function generateAutoID() {
+  const p = document.getElementById('new-cust-phone').value.replace(/\D/g,'');
+  const f = document.getElementById('new-cust-id');
+  if (!f) return;
+  f.value = p.length >= 4 ? p.slice(-4) : Math.floor(1000 + Math.random()*9000);
+}
+function openEditModal(id, name, idNum, phone, image, note, event) {
+  event.stopPropagation();
+  const parts     = name.trim().split(' ');
+  const firstName = parts[0] || '';
+  const lastName  = parts.slice(1).join(' ') || '';
+
+  document.getElementById('edit-cust-id').value           = id;
+  document.getElementById('edit-firstname').value         = firstName;
+  document.getElementById('edit-lastname').value          = lastName;
+  document.getElementById('edit-phone').value             = phone;
+  document.getElementById('edit-note').value              = note;
+  document.getElementById('edit-cust-avatar').src         = image;
+  document.getElementById('edit-cust-fullname').innerText = name;
+  document.getElementById('edit-cust-idnum').innerText    = 'ID: ' + idNum;
+  document.getElementById('edit-error-msg').innerText     = '';
+  document.getElementById('edit-image').value             = '';
+
+  new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
+}
+
+function submitEditCustomer() {
+  const id        = document.getElementById('edit-cust-id').value;
+  const firstName = document.getElementById('edit-firstname').value.trim();
+  const lastName  = document.getElementById('edit-lastname').value.trim();
+  const phone     = document.getElementById('edit-phone').value.trim();
+  const note      = document.getElementById('edit-note').value.trim();
+  const image     = document.getElementById('edit-image');
+  const err       = document.getElementById('edit-error-msg');
+
+  if (!firstName) { err.innerText = "Ism majburiy!"; return; }
+  err.innerText = "Saqlanmoqda...";
+
+  const fd = new FormData();
+  fd.append('first_name', firstName);
+  fd.append('last_name',  lastName);
+  fd.append('phone',      phone);
+  fd.append('note',       note);
+  if (image && image.files.length) fd.append('image', image.files[0]);
+
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n+'=')) v = decodeURIComponent(c.slice(n.length+1));
+    });
+    return v;
+  }
+
+  fetch(`/pos/customer/update/${id}/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    body: fd
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.status === 'success') {
+      bootstrap.Modal.getInstance(
+        document.getElementById('editCustomerModal')).hide();
+      const searchVal = document.getElementById('searchInput').value;
+      if (searchVal) doSearch(searchVal);
+      err.innerText = '';
+    } else {
+      err.innerText = d.message;
+    }
+  })
+  .catch(() => { err.innerText = "Tizim xatosi!"; });
+}
+
+// ── OFFLAYN SAVDOLAR SINXRONIZATSIYASI ──
+function updateOfflineSyncUI() {
+  const offlineSales = JSON.parse(localStorage.getItem('offline_sales') || "[]");
+  const panel = document.getElementById('offlineSyncPanel');
+  const count = document.getElementById('offlineSyncCount');
+  if (panel && count) {
+    if (offlineSales.length > 0) {
+      panel.style.display = 'block';
+      count.innerText = offlineSales.length;
+    } else {
+      panel.style.display = 'none';
+    }
+  }
+}
+
+let isSyncingOfflineSales = false;
+function syncOfflineSales() {
+  if (isSyncingOfflineSales) return;
+  
+  const offlineSales = JSON.parse(localStorage.getItem('offline_sales') || "[]");
+  if (offlineSales.length === 0) {
+    updateOfflineSyncUI();
+    return;
+  }
+
+  isSyncingOfflineSales = true;
+  const sale = offlineSales[0];
+
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n+'=')) v = decodeURIComponent(c.slice(n.length+1));
+    });
+    return v;
+  }
+
+  fetch('/pos/save-sale/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify(sale.data)
+  })
+  .then(r => {
+    if (!r.ok) throw new Error('Offline sync failed: ' + r.status);
+    return r.json();
+  })
+  .then(d => {
+    isSyncingOfflineSales = false;
+    if (d.status === 'success') {
+      console.log(`Offlayn savdo muvaffaqiyatli saqlandi: ${sale.customer_name}, Chek: #${d.sale_id}`);
+      // Muallif: Savdoni navbatdan o'chirish
+      offlineSales.shift();
+      localStorage.setItem('offline_sales', JSON.stringify(offlineSales));
+      updateOfflineSyncUI();
+      
+      // Keyingi offlayn savdoni jo'natish
+      setTimeout(syncOfflineSales, 1000);
+    } else {
+      console.error(`Offlayn savdoda biznes xatolik: ${d.message}`);
+      // Agar kiritilgan ma'lumot noto'g'ri bo'lsa (masalan qora ro'yxatga kirgan bo'lsa),
+      // navbat tiqilib qolmasligi uchun uni boshqa joyga saqlab navbatdan olib tashlaymiz.
+      const failed = JSON.parse(localStorage.getItem('failed_offline_sales') || "[]");
+      sale.error = d.message;
+      failed.push(sale);
+      localStorage.setItem('failed_offline_sales', JSON.stringify(failed));
+      
+      offlineSales.shift();
+      localStorage.setItem('offline_sales', JSON.stringify(offlineSales));
+      updateOfflineSyncUI();
+      
+      setTimeout(syncOfflineSales, 1000);
+    }
+  })
+  .catch(err => {
+    isSyncingOfflineSales = false;
+    console.warn("Offlayn sinxronizatsiya: internet hali ham ulanmadi.", err);
+  });
+}
+
+// 15 soniyada bir marta internetni tekshirib sinxronizatsiya qilish
+setInterval(syncOfflineSales, 15000);
+document.addEventListener("DOMContentLoaded", () => {
+  updateOfflineSyncUI();
+  syncOfflineSales();
+  checkShiftStatus();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,839 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}👥 Mijozlar Bazasi — Baxmal Meat{% endblock %}
+{% block extrahead %}
+<style>
+    :root {
+      --primary: #1B6B4A;
+      --primary-light: #2D9B6E;
+      --primary-gradient: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+      --accent: #D4A853;
+      --border: rgba(0,0,0,0.07);
+      --card2: #F8F6F2;
+      --muted: #6B7280;
+      --text-main: #1A1A2E;
+      --red: #DC3545;
+      --green: #28A745;
+      --card: #FFFFFF;
+    }
+    
+    .card-premium {
+      background: #FFFFFF;
+      border: 1px solid rgba(0,0,0,0.07);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .f-input, .f-select {
+      background: var(--card2) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 11px !important;
+      color: var(--text-main) !important;
+      font-size: 13.5px !important;
+      padding: 9px 14px !important;
+      outline: none !important;
+      transition: border-color 0.18s !important;
+      font-family: 'Inter', sans-serif !important;
+    }
+    .f-input:focus, .f-select:focus {
+      border-color: rgba(27,107,74,0.3) !important;
+      box-shadow: 0 0 0 3px rgba(27,107,74,0.08) !important;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #F5F1EB; color: #1A1A2E; padding: 24px; padding-bottom: 60px; }
+    
+    .cp-wrap { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+    .cp-topbar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 20px 28px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .cp-topbar-title { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: #1A1A2E; font-family: 'DM Serif Display', serif; }
+    .cp-topbar-right { display: flex; align-items: center; gap: 12px; }
+    
+    .btn-add-cust { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff; border: none; padding: 12px 22px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; box-shadow: 0 4px 12px rgba(27,107,74,0.2); }
+    .btn-add-cust:hover { background: linear-gradient(135deg, #155a3e, #248f60); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(27,107,74,0.3); }
+    
+    .cp-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+    .stat-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); padding: 22px; border-radius: 16px; position: relative; overflow: hidden; transition: transform 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .stat-card-label { font-size: 13px; color: #6B7280; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .stat-card-val { font-size: 28px; font-weight: 800; color: #1A1A2E; }
+    .stat-card-val.red { color: #DC3545; }
+    .stat-card-val.green { color: #28A745; }
+    .stat-card-val.orange { color: #D4A853; }
+    .stat-card-sub { font-size: 11px; color: #6B7280; margin-top: 4px; font-weight: 500; }
+    
+    .cp-main { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
+    .left-sidebar { display: flex; flex-direction: column; gap: 20px; }
+    
+    .nb-card, .debtors-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .nb-card-header, .debtors-header { font-size: 14px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-nb-add { background: #F8F6F2; color: #6B7280; border: 1px solid rgba(0,0,0,0.07); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+    .btn-nb-add:hover { background: #1B6B4A; color: #fff; border-color: #1B6B4A; }
+    
+    .nb-list-inner { display: flex; flex-direction: column; gap: 4px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+    .nb-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 10px; background: #F8F6F2; border: 1px solid transparent; cursor: pointer; transition: all 0.15s; }
+    .nb-item-row:hover { background: #F0EDE6; border-color: rgba(27,107,74,0.12); }
+    .nb-item-row.active { background: linear-gradient(135deg, #1B6B4A, #2D9B6E) !important; color: #fff !important; font-weight: 700; }
+    .nb-item-row.active .nb-item-ct { background: rgba(255,255,255,0.2) !important; color: #fff !important; }
+    .nb-item-row.active .nb-item-nm { color: #fff !important; }
+    .nb-item-nm { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: #1A1A2E; }
+    .nb-item-ct { font-size: 11px; font-weight: 700; background: rgba(27,107,74,0.08); color: #1B6B4A; padding: 3px 8px; border-radius: 6px; min-width: 24px; text-align: center; }
+    
+    .nb-input-row { display: flex; gap: 8px; margin-top: 10px; animation: slideDown 0.2s ease-out; }
+    .nb-input-field { flex: 1; background: #F8F6F2; border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px 12px; color: #1A1A2E; font-size: 13px; }
+    .nb-input-field:focus { border-color: #1B6B4A; outline: none; background: #FFFFFF; }
+    .nb-add-btn { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff; border: none; padding: 0 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    
+    .debtor-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.07); }
+    .debtor-row:last-child { border-bottom: none; }
+    .debtor-name { font-size: 13.5px; font-weight: 600; color: #1A1A2E; }
+    .debtor-meta { font-size: 11px; color: #6B7280; margin-top: 2px; }
+    .debtor-debt { font-size: 13.5px; font-weight: 700; color: #DC3545; }
+    
+    .cust-table-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); border-radius: 16px; padding: 24px; min-height: 500px; display: flex; flex-direction: column; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .cust-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+    .cust-table-title { font-size: 16px; font-weight: 700; color: #1A1A2E; font-family: 'DM Serif Display', serif; }
+    
+    .cust-search { background: #F8F6F2; border: 1px solid rgba(0,0,0,0.07); padding: 12px 18px; border-radius: 12px; color: #1A1A2E; font-size: 13.5px; width: 280px; transition: all 0.15s; }
+    .cust-search:focus { width: 340px; border-color: #1B6B4A; outline: none; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(27,107,74,0.1); }
+    
+    .filter-tabs { display: flex; background: #F8F6F2; padding: 4px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.07); }
+    .filter-tab { background: transparent; border: none; color: #6B7280; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+    .filter-tab:hover { color: #1A1A2E; }
+    .filter-tab.active { background: #FFFFFF; color: #1B6B4A; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .filter-tab.red.active { background: #DC3545; color: #fff; }
+    
+    .cust-row { display: grid; grid-template-columns: 48px 1fr 140px 140px 110px 90px; gap: 16px; align-items: center; padding: 14px 16px; border-radius: 12px; transition: background 0.15s; }
+    .cust-row.head { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #FFFFFF; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding: 10px 16px; border-radius: 12px; }
+    .cust-data-row { border-bottom: 1px solid rgba(0,0,0,0.04); margin-bottom: 4px; }
+    .cust-data-row:hover { background: #F8F6F2; border-bottom-color: transparent; }
+    
+    .cust-avatar-sm { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; background: #F8F6F2; border: 1px solid rgba(0,0,0,0.07); }
+    .cust-name-col .name { font-size: 14.5px; font-weight: 700; color: #1A1A2E; }
+    .cust-name-col .meta { font-size: 11px; color: #6B7280; margin-top: 2px; display: flex; align-items: center; gap: 8px; }
+    .note-tag { background: rgba(212,168,83,0.12); color: #D4A853; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-top: 4px; display: inline-block; }
+    .phone-val { font-size: 13.5px; color: #1A1A2E; font-weight: 500; }
+    .debt-val { font-size: 14px; font-weight: 700; color: #DC3545; }
+    .debt-val.zero { color: #28A745; font-weight: 600; font-size: 13px; }
+    .bonus-val { font-size: 13.5px; color: #D4A853; font-weight: 600; }
+    
+    .action-btns { display: flex; gap: 6px; justify-content: flex-end; }
+    .act-btn { background: #F8F6F2; border: 1px solid rgba(0,0,0,0.07); color: #6B7280; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; font-size: 13px; transition: all 0.12s; }
+    .act-btn:hover { background: #1B6B4A; color: #fff; border-color: #1B6B4A; transform: translateY(-1px); }
+    
+    .cust-pagination { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.07); display: flex; justify-content: space-between; align-items: center; color: #6B7280; font-size: 13px; font-weight: 500; }
+    .cust-empty { padding: 60px; text-align: center; color: #6B7280; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .cust-empty i { font-size: 32px; color: #1B6B4A; }
+    
+    /* MODAL TIZIMI - YANGILANDI */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.2s ease; }
+    .modal-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); width: 460px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.15); animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .modal-header { padding: 20px 24px; background: linear-gradient(135deg, #1B6B4A, #2D9B6E); border-bottom: none; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 15px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+    .modal-close { background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 20px; cursor: pointer; transition: all 0.12s; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
+    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+    
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-input { background: #F8F6F2; border: 1px solid rgba(0,0,0,0.07); border-radius: 10px; padding: 11px 14px; color: #1A1A2E; font-size: 13.5px; transition: border-color 0.15s; width: 100%; }
+    .form-input:focus { border-color: #1B6B4A; outline: none; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(27,107,74,0.1); }
+    .form-input.edit-mode:focus { border-color: #D4A853; box-shadow: 0 0 0 3px rgba(212,168,83,0.15); }
+    
+    .modal-footer { padding: 16px 24px; background: #F8F6F2; border-top: 1px solid rgba(0,0,0,0.07); display: flex; justify-content: flex-end; gap: 10px; }
+    .btn-cancel { background: transparent; border: 1px solid rgba(0,0,0,0.12); color: #6B7280; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-cancel:hover { background: #F0EDE6; color: #1A1A2E; }
+    .btn-submit { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(27,107,74,0.15); }
+    .btn-submit:hover { box-shadow: 0 6px 16px rgba(27,107,74,0.25); }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(27,107,74,0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(27,107,74,0.4); }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleUp { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes slideDown { from { transform: translateY(-8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* ── Action Pill Buttons (Mijozlar sahifasidagi tugmalar) ── */
+    .action-pill-group {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .action-pill-btn {
+      display: inline-flex;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #FFFFFF;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .action-pill-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+      border-color: rgba(0,0,0,0.15);
+    }
+    .action-pill-btn:active {
+      transform: translateY(0);
+    }
+    .action-pill-btn.btn-chat { color: #1B6B4A; background-color: rgba(27,107,74,0.05); }
+    .action-pill-btn.btn-chat:hover { background-color: #1B6B4A; color: #FFFFFF; }
+
+    .action-pill-btn.btn-cabinet { color: #4B5563; background-color: rgba(75,85,99,0.05); }
+    .action-pill-btn.btn-cabinet:hover { background-color: #4B5563; color: #FFFFFF; }
+
+    .action-pill-btn.btn-edit { color: #B06000; background-color: rgba(212,168,83,0.08); }
+    .action-pill-btn.btn-edit:hover { background-color: #D4A853; color: #FFFFFF; }
+
+    .action-pill-btn.btn-send { color: #188F60; background-color: rgba(24,143,96,0.05); }
+    .action-pill-btn.btn-send:hover:not(:disabled) { background-color: #188F60; color: #FFFFFF; }
+    .action-pill-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      background-color: rgba(0,0,0,0.02);
+      color: #9CA3AF;
+    }
+
+    /* ═══════════════════════════════════════
+       MOBILE RESPONSIVE (APP-LIKE)
+    ═══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      body { padding: 10px !important; padding-bottom: 40px !important; }
+      .cp-wrap { gap: 12px !important; }
+
+      /* ── Topbar: Compact ── */
+      .cp-topbar {
+        padding: 12px 14px !important;
+        border-radius: 14px !important;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .cp-topbar-title { font-size: 16px !important; }
+      .cp-topbar-right { width: 100%; justify-content: space-between; }
+      .btn-add-cust {
+        padding: 12px 16px !important;
+        font-size: 13px !important;
+        border-radius: 12px !important;
+        flex: 1;
+        justify-content: center;
+      }
+
+      /* ── Stats: 2 columns ── */
+      .cp-stats {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+      }
+      .stat-card {
+        padding: 14px !important;
+        border-radius: 12px !important;
+      }
+      .stat-card-val { font-size: 20px !important; }
+      .stat-card-label { font-size: 11px !important; }
+
+      /* ── Main layout: Stack ── */
+      .cp-main {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      .left-sidebar { order: 2; }
+
+      /* ── Customer Table: Horizontal scroll ── */
+      .cust-table-card {
+        padding: 12px !important;
+        border-radius: 14px !important;
+        min-height: auto !important;
+        overflow-x: auto;
+      }
+      .cust-table-header {
+        margin-bottom: 12px !important;
+        gap: 8px !important;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .cust-search {
+        width: 100% !important;
+        font-size: 16px !important; /* Prevents iOS zoom */
+        padding: 14px 16px !important;
+      }
+      .cust-search:focus { width: 100% !important; }
+      .filter-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex-wrap: nowrap;
+      }
+      .filter-tabs::-webkit-scrollbar { display: none; }
+      .filter-tab {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-height: 38px;
+      }
+
+      /* ── Table rows: Compact ── */
+      .cust-row {
+        grid-template-columns: 36px 1fr 80px 60px !important;
+        gap: 8px !important;
+        padding: 10px 8px !important;
+        border-radius: 10px !important;
+      }
+      .cust-row.head {
+        display: none !important; /* Hide header on mobile, data speaks for itself */
+      }
+      .cust-avatar-sm { width: 32px !important; height: 32px !important; }
+      .cust-name-col .name { font-size: 13px !important; }
+      .cust-name-col .meta { font-size: 10px !important; }
+      .phone-val { display: none !important; } /* Save space */
+      .bonus-val { display: none !important; } /* Save space */
+      .debt-val { font-size: 13px !important; }
+      .act-btn { width: 28px !important; height: 28px !important; font-size: 12px !important; }
+
+      /* ── Sidebar cards ── */
+      .nb-card, .debtors-card {
+        padding: 14px !important;
+        border-radius: 14px !important;
+      }
+
+      /* ── Modal: Full-width ── */
+      .modal-card {
+        width: calc(100% - 20px) !important;
+        max-width: 100% !important;
+        border-radius: 18px !important;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .modal-body { padding: 16px !important; }
+      .form-input {
+        font-size: 16px !important; /* Prevents iOS zoom */
+        padding: 14px !important;
+        border-radius: 12px !important;
+      }
+      .modal-footer {
+        padding: 12px 16px !important;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .btn-submit, .btn-cancel {
+        width: 100%;
+        text-align: center;
+        padding: 14px !important;
+        border-radius: 12px !important;
+        min-height: 48px;
+      }
+
+      /* ── Touch improvements ── */
+      button, .filter-tab, .nb-item-row, .cust-data-row, .act-btn {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+        touch-action: manipulation;
+      }
+    }
+    
+    .cust-row-hidden {
+      display: none !important;
+    }
+
+    /* ── Extra small phones ── */
+    @media (max-width: 400px) {
+      .cp-stats { grid-template-columns: 1fr !important; }
+      .stat-card { padding: 12px !important; }
+      .cust-row { grid-template-columns: 1fr 70px !important; }
+    }
+  </style>
+{% endblock %}
+{% block content %}
+<div class="cp-wrap">
+  <div class="cp-topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:#1B6B4A;box-shadow:0 0 8px rgba(27,107,74,0.4);"></div>
+      <span class="cp-topbar-title">Mijozlar Boshqaruvi</span>
+    </div>
+    <div class="cp-topbar-right">
+      <a href="/pos/terminal/" style="display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:12px;border:1px solid rgba(0,0,0,0.07);color:#6B7280;text-decoration:none;font-size:13px;font-weight:700;transition:all 0.15s;background:#F8F6F2;"
+         onmouseover="this.style.borderColor='#1B6B4A';this.style.color='#1B6B4A';this.style.background='rgba(27,107,74,0.05)'"
+         onmouseout="this.style.borderColor='rgba(0,0,0,0.07)';this.style.color='#6B7280';this.style.background='#F8F6F2'">
+        <i class="bi bi-terminal"></i> Terminal
+      </a>
+      <button class="btn-add-cust" onclick="openAddModal()">
+        <i class="bi bi-person-plus-fill"></i> Yangi Mijoz
+      </button>
+    </div>
+  </div>
+
+  <div class="cp-stats">
+    <div class="stat-card">
+      <div class="stat-card-label"><i class="bi bi-people-fill" style="color:#1B6B4A;"></i> Jami mijozlar</div>
+      <div class="stat-card-val">{{ total_customers }}</div>
+      <div class="stat-card-sub">ro'yxatdagi</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label"><i class="bi bi-exclamation-triangle-fill" style="color:#DC3545;"></i> Qarzli mijozlar</div>
+      <div class="stat-card-val red">{{ debt_customers_count }}</div>
+      <div class="stat-card-sub">ta mijozda qarz bor</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label"><i class="bi bi-cash-stack" style="color:#DC3545;"></i> Jami qarz</div>
+      <div class="stat-card-val red" style="font-size:22px;">{{ total_debt|floatformat:0 }}</div>
+      <div class="stat-card-sub">so'm</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label"><i class="bi bi-arrow-down-circle-fill" style="color:#28A745;"></i> Bizdan haqdorlar</div>
+      <div class="stat-card-val green" style="font-size:22px;">{{ total_our_debt|floatformat:0 }}</div>
+      <div class="stat-card-sub">so'm (bizning qarz)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label"><i class="bi bi-star-fill" style="color:#D4A853;"></i> Jami bonus</div>
+      <div class="stat-card-val orange" style="font-size:22px;">{{ total_bonus }}</div>
+      <div class="stat-card-sub">ball</div>
+    </div>
+  </div>
+
+  <div class="cp-main">
+    
+    <div class="left-sidebar">
+      
+      <div class="nb-card" style="margin-bottom: 5px;">
+        <div class="nb-card-header"><span class="nb-card-title">⚙️ Tizimli Filtrlar</span></div>
+        <div class="nb-list-inner">
+          <div class="nb-item-row {% if current_filter == 'all' or not current_filter %}active{% endif %}" onclick="window.location.href='?filter_type=all'">
+            <span class="nb-item-nm"><i class="bi bi-people-fill"></i> Barcha Mijozlar</span>
+          </div>
+          <div class="nb-item-row {% if current_filter == 'long_term' %}active{% endif %}" onclick="window.location.href='?filter_type=long_term'">
+            <span class="nb-item-nm"><i class="bi bi-exclamation-triangle-fill"></i> Muddati o'tganlar</span>
+          </div>
+          <div class="nb-item-row {% if current_filter == 'our_debt' %}active{% endif %}" onclick="window.location.href='?filter_type=our_debt'">
+            <span class="nb-item-nm"><i class="bi bi-arrow-down-circle-fill" style="color:#28A745;"></i> Bizdan haqdorlar</span>
+          </div>
+          <div class="nb-item-row {% if current_filter == 'vip' %}active{% endif %}" onclick="window.location.href='?filter_type=vip'">
+            <span class="nb-item-nm"><i class="bi bi-star-fill"></i> VIP (Bonus ko'p)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nb-card">
+        <div class="nb-card-header">
+          <span class="nb-card-title">📒 Daftarlar</span>
+          <button class="btn-nb-add" onclick="toggleNbInput()" title="Yangi daftar">+</button>
+        </div>
+        <div class="nb-list-inner" id="nbList">
+          {% for nb in notebooks %}
+
+          <div class="nb-item-row {% if current_notebook == nb.id|stringformat:'i' %}active{% endif %}" id="nb-{{ nb.id }}" onclick="filterByNotebook({{ nb.id }})">
+            <span class="nb-item-nm"><i class="bi bi-book"></i> {{ nb.name }}</span>
+            <button onclick="deleteNotebook('{{ nb.id }}', '{{ nb.name }}')" class="btn btn-sm btn-outline-danger" style="border:none; padding: 2px 5px;">
+            <i class="bi bi-trash3"></i>
+          </button>
+            <span class="nb-item-ct">—</span>
+          </div>
+          {% empty %}
+          <div style="padding:16px;text-align:center;color:#6B7280;font-size:13px;">Hali daftar yo'q</div>
+          {% endfor %}
+        </div>
+        <div class="nb-input-row" id="nbInputRow" style="display:none;">
+          <input type="text" class="nb-input-field" id="nbNameInput" placeholder="Daftar nomi..." onkeydown="if(event.key==='Enter') addNb()">
+          <button class="nb-add-btn" onclick="createNotebook()">Qo'sh</button>
+        </div>
+      </div>
+
+      <div class="debtors-card">
+        <div class="debtors-header">🔴 Eng ko'p qarzlilar</div>
+        {% for c in top_debtors %}
+        <div class="debtor-row">
+          <div>
+            <div class="debtor-name">{{ c.first_name }} {{ c.last_name|default:"" }}</div>
+            <div class="debtor-meta">ID: {{ c.custom_id }}</div>
+          </div>
+          <div class="debtor-debt">{{ c.debt_amount|floatformat:0 }} so'm</div>
+        </div>
+        {% empty %}
+        <div style="padding:16px;text-align:center;color:#6B7280;font-size:13px;">Qarzli mijoz yo'q 🎉</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="cust-table-card">
+      <div class="cust-table-header">
+        <span class="cust-table-title">Mijozlar ro'yxati</span>
+        <input type="text" class="cust-search" id="custSearch" value="{{ request.GET.search|default:'' }}" placeholder="Ism, telefon, ID..." onkeypress="if(event.key==='Enter') doSearch(this.value)">
+        <div class="filter-tabs">
+          <button class="filter-tab {% if current_filter == 'all' or not current_filter %}active{% endif %}" onclick="window.location.href='?filter_type=all'">Barchasi</button>
+          <button class="filter-tab red {% if current_filter == 'debt' %}active{% endif %}" onclick="window.location.href='?filter_type=debt'">Qarzlilar ({{ debt_customers_count }})</button>
+          <button class="filter-tab green {% if current_filter == 'our_debt' %}active{% endif %}" onclick="window.location.href='?filter_type=our_debt'">Bizdan haqdorlar ({{ our_debt_customers_count }})</button>
+          <button class="filter-tab {% if current_filter == 'clean' %}active{% endif %}" onclick="window.location.href='?filter_type=clean'">Qarzsilar</button>
+        </div>
+      </div>
+
+      <div class="cust-row head">
+        <span></span><span>Mijoz</span><span>Telefon</span><span>Qarz</span><span>Bonus</span><span></span>
+      </div>
+
+      <div id="custTableBody">
+        {% for c in customers %}
+        <div class="cust-row cust-data-row">
+          <img src="{% if c.image %}{{ c.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}" class="cust-avatar-sm" alt="">
+          <div class="cust-name-col">
+            <div class="name">{{ c.first_name }} {{ c.last_name|default:"" }}</div>
+            <div class="meta">ID: {{ c.custom_id }}</div>
+            {% if c.note %}<span class="note-tag">📝 {{ c.note|truncatechars:25 }}</span>{% endif %}
+          </div>
+          <div class="phone-val">{{ c.phone|default:"—" }}</div>
+          <div class="debt-val {% if c.debt_amount == 0 %}zero{% elif c.debt_amount < 0 %}negative{% endif %}">
+            {% if c.debt_amount == 0 %}
+              ✓ Yo'q
+            {% elif c.debt_amount < 0 %}
+              <span style="color:#28A745; font-weight:700;">Haqdor: {{ c.debt_amount_abs|floatformat:0 }} so'm</span>
+            {% else %}
+              {{ c.debt_amount|floatformat:0 }} so'm
+            {% endif %}
+          </div>
+          <div class="bonus-val">{{ c.bonus_points }} ball</div>
+          <div class="action-pill-group">
+            <button class="action-pill-btn btn-edit" title="Tahrirlash" onclick="openEditModal({{ c.id }},'{{ c.first_name }}','{{ c.last_name|default:'' }}','{{ c.phone|default:'' }}','{% if c.image %}{{ c.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}','{{ c.custom_id }}','{{ c.note|default:''|escapejs }}')"><i class="bi bi-pencil-fill"></i></button>
+          </div>
+        </div>
+        {% empty %}
+        <div class="cust-empty"><i class="bi bi-people"></i>Hali mijoz qo'shilmagan</div>
+        {% endfor %}
+      </div>
+      
+      <div style="text-align: center; margin: 15px 0;" id="loadMoreContainer">
+        <button class="btn btn-sm btn-outline-success" id="loadMoreCustomersBtn" onclick="loadMoreCustomers()" style="padding: 10px 24px; border-radius: 12px; font-weight: 700; border: 1.5px solid #1B6B4A; background: transparent; color: #1B6B4A; cursor: pointer; transition: all 0.2s;">
+            <i class="bi bi-arrow-down-short fs-5"></i> Yana ko'rish
+        </button>
+      </div>
+
+      <div class="cust-pagination">
+        <span id="custCount">{{ customers|length }} ta mijoz filtrlandi</span>
+      </div>
+    </div>
+
+    <!-- DEBT MIGRATION — Link to dedicated page -->
+    <div class="card-premium mt-4" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); border-radius: 18px; padding: 20px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h4 style="font-family: 'DM Serif Display', serif; color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 1.15rem; margin: 0 0 4px;">
+          <i class="bi bi-journal-bookmark-fill" style="color: var(--accent);"></i> Daftardan Qarzlarni Ko'chirish
+        </h4>
+        <p style="font-size: 0.82rem; color: var(--muted); margin: 0;">Eski qog'oz daftardagi qarzlarni kassa tizimiga tezkor o'tkazish</p>
+      </div>
+      <a href="{% url 'debt-migration' %}" class="btn-submit" style="height: 42px; padding: 0 24px; font-weight: 700; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 0.9rem;">
+        <i class="bi bi-box-arrow-up-right"></i> Sahifaga o'tish
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="custModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">👤 Yangi Xaridor Qo'shish</span>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <form method="POST" enctype="multipart/form-data" id="modalForm">
+        {% csrf_token %}
+      <div class="modal-body">
+        <div id="modalCustomerHeader" style="display: none; align-items: center; gap: 16px; margin-bottom: 15px; background: #F8F6F2; padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+          <img id="modal_cust_img" src="" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(0,0,0,0.08);">
+          <div style="flex: 1;">
+            <h5 id="modal_cust_name" style="margin: 0; font-weight: 700; color: var(--text-main); font-size: 15px;">Mijoz Nomi</h5>
+            <span id="modal_cust_id" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">ID: ---</span>
+          </div>
+          <div class="action-pill-group" style="margin-left: auto;">
+            <a id="modalChatLink" href="#" class="action-pill-btn btn-chat" title="Chatga o'tish" style="width: 36px; height: 36px; border-radius: 10px;"><i class="bi bi-chat-dots-fill"></i></a>
+            <a id="modalCabinetLink" href="/pos/my-cabinet/" class="action-pill-btn btn-cabinet" title="Mijoz kabineti/tarixi" style="width: 36px; height: 36px; border-radius: 10px;"><i class="bi bi-person-lines-fill"></i></a>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Mijoz Ismi *</label>
+          <input type="text" name="first_name" id="f_first_name" class="form-input" required placeholder="Masalan: Asilbek">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Mijoz Familiyasi</label>
+          <input type="text" name="last_name" id="f_last_name" class="form-input" placeholder="Masalan: Umarov (ixtiyoriy)">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Telefon Raqami (Ixtiyoriy)</label>
+          <input type="text" name="phone" id="f_phone" class="form-input" placeholder="Yo'q bo'lsa, o'tkazib yuboring">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Daftardagi Umumiy Qarz Summasi (So'm)</label>
+          <input type="number" name="debt_amount" id="f_debt_amount" class="form-input" placeholder="Masalan: 450000" value="0">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mijoz ID raqami (Avto yoki qo'lda)</label>
+          <input type="text" name="customer_id" id="f_customer_id" class="form-input" placeholder="Masalan: 01">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Qaysi Daftarga Tegishli?</label>
+          <select name="notebook_id" id="f_notebook_id" class="form-input">
+            <option value="">-- Daftardan tashqari --</option>
+            {% for nb in notebooks %}
+              <option value="{{ nb.id }}">{{ nb.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Izoh / Eslatma</label>
+          <input type="text" name="note" id="f_note" class="form-input" placeholder="Eski daftardan ko'chirildi...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mijoz Rasmi (Ixtiyoriy)</label>
+          <input type="file" name="image" id="f_image" class="form-input">
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeModal()">Bekor qilish</button>
+        <button type="submit" class="btn-submit" id="btnSubmit">Saqlash (Enter)</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+let visibleCount = 10;
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateVisibility();
+
+    // Auto-open edit modal if query search yields exactly 1 customer
+    const searchParams = new URLSearchParams(window.location.search);
+    const searchVal = searchParams.get('search');
+    const rows = document.querySelectorAll('#custTableBody .cust-data-row');
+    if (searchVal && rows.length === 1) {
+        const editBtn = rows[0].querySelector('.btn-edit');
+        if (editBtn) {
+            editBtn.click();
+        }
+    }
+
+    // Intercept form submission for AJAX editing
+    const form = document.getElementById('modalForm');
+    form.addEventListener('submit', function(e) {
+        const action = this.action || window.location.href;
+        if (action.includes('/customer/update/')) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch(action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert("Xatolik: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error updating customer:", err);
+                alert("O'zgarishlarni saqlashda xatolik yuz berdi.");
+            });
+        }
+    });
+});
+
+function updateVisibility() {
+    const rows = document.querySelectorAll('#custTableBody .cust-data-row');
+    rows.forEach((row, index) => {
+        if (index < visibleCount) {
+            row.classList.remove('cust-row-hidden');
+        } else {
+            row.classList.add('cust-row-hidden');
+        }
+    });
+    
+    const loadMoreBtn = document.getElementById('loadMoreCustomersBtn');
+    if (loadMoreBtn) {
+        if (visibleCount >= rows.length) {
+            loadMoreBtn.style.display = 'none';
+        } else {
+            loadMoreBtn.style.display = 'inline-block';
+        }
+    }
+}
+
+function loadMoreCustomers() {
+    visibleCount += 10;
+    updateVisibility();
+}
+
+// Qidiruv tizimi
+function doSearch(val) {
+    let url = new URL(window.location.href);
+    if(val.trim()) {
+        url.searchParams.set('search', val.trim());
+    } else {
+        url.searchParams.delete('search');
+    }
+    window.location.href = url.toString();
+}
+
+// Daftarni bosganda filtrlash (100% Backend integratsiya)
+function filterByNotebook(id) {
+    window.location.href = `?filter_type=notebook&notebook_id=${id}`;
+}
+
+// Modallarni boshqarish
+function openAddModal() {
+    document.getElementById('modalForm').reset();
+    document.getElementById('modalForm').action = "/pos/customers/";
+    document.getElementById('modalCustomerHeader').style.display = 'none';
+    document.getElementById('modalTitle').innerText = "👤 Yangi Xaridor Qo'shish";
+    document.getElementById('btnSubmit').innerText = "Saqlash va Keyingisi";
+    document.getElementById('btnSubmit').style.background = "linear-gradient(135deg, #1B6B4A, #2D9B6E)";
+    
+    // Avtomatik random ID generatsiya (Terminalingiz formatida)
+    document.getElementById('f_customer_id').value = Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('f_note').value = "Eski daftardan ko'chirildi";
+    
+    document.getElementById('custModal').style.display = 'flex';
+}
+
+function openEditModal(id, firstName, lastName, phone, imageUrl, custId, note) {
+    document.getElementById('modalTitle').innerText = "✏️ Mijozni Tahrirlash";
+    const form = document.getElementById('modalForm');
+    form.action = `/pos/customer/update/${id}/`;
+    
+    // Header binding
+    document.getElementById('modalCustomerHeader').style.display = 'flex';
+    document.getElementById('modal_cust_img').src = imageUrl;
+    document.getElementById('modal_cust_name').innerText = firstName + ' ' + (lastName || '');
+    document.getElementById('modal_cust_id').innerText = `ID: ${custId}`;
+    document.getElementById('modalChatLink').href = `/pos/chats/?selected_customer=${id}`;
+    
+    document.getElementById('f_first_name').value = firstName;
+    document.getElementById('f_last_name').value = lastName;
+    document.getElementById('f_phone').value = phone;
+    document.getElementById('f_customer_id').value = custId;
+    document.getElementById('f_note').value = note;
+    
+    document.getElementById('btnSubmit').innerText = "O'zgarishlarni Saqlash";
+    document.getElementById('btnSubmit').style.background = "linear-gradient(135deg, #D4A853, #c49a40)";
+    
+    document.getElementById('custModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('custModal').style.display = 'none';
+}
+
+// Yangi daftar yaratish tezkor funksiyasi
+function toggleNbInput() {
+    let row = document.getElementById('nbInputRow');
+    row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+    if(row.style.display === 'flex') document.getElementById('nbNameInput').focus();
+}
+
+function addNb() {
+    let name = document.getElementById('nbNameInput').value.trim();
+    if(!name) return;
+    
+    fetch('/pos/api/add-notebook/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ name: name })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.status === 'success') {
+            location.reload();
+        } else {
+            alert("Xatolik: " + data.message);
+        }
+    });
+}
+
+function createNotebook() {
+    let nameInput = document.getElementById('nbNameInput');
+    let name = nameInput.value.trim();
+
+    if (!name) {
+        alert("Iltimos, daftar nomini kiriting!");
+        return;
+    }
+
+    // URL oxirida mantiqiy "/" bo'lishi shart!
+    fetch('/pos/api/create-notebook/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // Django xavfsizligi uchun CSRF token yuboramiz
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ name: name })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Daftar muvaffaqiyatli qo'shildi!");
+            location.reload(); // Yangi daftarni ko'rish uchun sahifani yangilaymiz
+        } else {
+            alert("Xatolik: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error("Xatolik yuz berdi:", err);
+        alert("Server bilan aloqa o'rnatib bo'lmadi.");
+    });
+}
+
+function deleteNotebook(id, name) {
+    event.stopPropagation(); // Daftarni o'zi bosilib ketishidan asraydi
+    if (confirm(`Diqqat! [${name}] daftarini va uning ichidagi barcha ma'lumotlarni butunlay o'chirmoqchimisiz?`)) {
+        window.location.href = `/pos/notebooks/delete/${id}/`;
+    }
+}
+
+function sendTelegramReminder(id, name, debt) {
+    const formattedDebt = parseInt(debt).toLocaleString();
+    const message = `Assalomu alaykum, hurmatli ${name}. Do'konimizdan olingan ${formattedDebt} so'mlik nasiya muddati o'tdi. Iloji bo'lsa, to'lovni amalga oshirishingizni so'raymiz. Rahmat!`;
+    
+    if (confirm(`Quyidagi eslatmani mijozga yuborasizmi?\n\n"${message}"`)) {
+        fetch(`/pos/customer-chat/send/${id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(`Telegram eslatma muvaffaqiyatli yuborildi!\n(Mijoz chat logida saqlandi)`);
+            } else {
+                alert("Xatolik yuz berdi: " + data.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Serverga ulanib bo'lmadi.");
+        });
+    }
+}
+
+</script>
+{% endblock %}

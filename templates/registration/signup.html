@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Ro'yxatdan o'tish{% endblock title %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card shadow-lg">
+        <div class="auth-header">
+            <i class="fas fa-user-plus fa-3x mb-3 text-primary"></i>
+            <h2>Ro'yxatdan o'tish</h2>
+            <p class="text-muted">ASU Blog hamjamiyatiga qo'shiling</p>
+        </div>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                    <i class="fas fa-check-circle me-2"></i>Hisob yaratish
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer mt-4 text-center">
+            <p>Profilingiz bormi? <a href="{% url 'login' %}" class="text-primary fw-bold">Kirish</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

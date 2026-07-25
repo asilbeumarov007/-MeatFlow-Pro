@@ -1,0 +1,888 @@
+{% extends 'base.html' %}
+{% block title %}💸 Kirim-Chiqim — Baxmal Meat{% endblock %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !important; }
+
+.cf-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.cf-header {
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.cf-title-group {
+  flex: 1;
+}
+
+.cf-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1A1A2E;
+  margin-bottom: 4px;
+  font-family: 'DM Serif Display', serif;
+}
+
+.cf-sub {
+  font-size: 14px;
+  color: #6B7280;
+}
+
+/* Widgets Grid */
+.cf-widgets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.cf-card {
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cf-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+
+.cf-card-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.cf-icon-cash {
+  background: rgba(27, 107, 74, 0.08);
+  color: #1B6B4A;
+}
+
+.cf-icon-card {
+  background: rgba(212, 168, 83, 0.08);
+  color: #D4A853;
+}
+
+.cf-card-info {
+  flex: 1;
+}
+
+.cf-card-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.cf-card-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1A1A2E;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Split Area */
+.cf-split-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+@media (max-width: 800px) {
+  .cf-split-area {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cf-form-box {
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.cf-form-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1A1A2E;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'DM Serif Display', serif;
+}
+
+.cf-form-title.in { color: #1B6B4A; }
+.cf-form-title.out { color: #DC3545; }
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1A1A2E;
+  margin-bottom: 8px;
+}
+
+.input-style {
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1A1A2E;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-style:focus {
+  border-color: #1B6B4A;
+  box-shadow: 0 0 0 3px rgba(27,107,74,0.08);
+}
+
+/* Pay method switcher */
+.pm-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.pm-switch-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  background: transparent;
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s;
+}
+
+.pm-switch-btn.selected {
+  border-color: #1B6B4A;
+  background: rgba(27,107,74,0.06);
+  color: #1B6B4A;
+}
+
+/* Pills for quick amount selection */
+.amount-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.amount-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  background: #F8F6F2;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 8px;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.amount-pill:hover {
+  background: #1B6B4A;
+  color: #fff;
+  border-color: #1B6B4A;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.btn-submit.in-btn {
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+  box-shadow: 0 4px 12px rgba(27,107,74,0.15);
+}
+
+.btn-submit.in-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.btn-submit.out-btn {
+  background: linear-gradient(135deg, #DC3545, #E45B6B);
+  box-shadow: 0 4px 12px rgba(220,53,69,0.15);
+}
+
+.btn-submit.out-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+/* History Box */
+.cf-history-box {
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.cf-history-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1A1A2E;
+  margin-bottom: 22px;
+  font-family: 'DM Serif Display', serif;
+}
+
+.cf-table-wrapper {
+  overflow-x: auto;
+}
+
+.cf-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.cf-table th {
+  padding: 14px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B7280;
+  border-bottom: 1.5px solid rgba(0,0,0,0.05);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cf-table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #1A1A2E;
+  border-bottom: 1.5px solid rgba(0,0,0,0.05);
+}
+
+.cf-table tr:last-child td {
+  border-bottom: none;
+}
+
+.cf-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cf-badge-in {
+  background: rgba(40,167,69,0.08);
+  color: #28A745;
+  border: 1.5px solid rgba(40,167,69,0.15);
+}
+
+.cf-badge-out {
+  background: rgba(220,53,69,0.08);
+  color: #DC3545;
+  border: 1.5px solid rgba(220,53,69,0.15);
+}
+
+.cat-pill {
+  background: #F8F6F2;
+  color: #6B7280;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 600;
+}
+
+.tx-amount {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+
+.tx-amount.in { color: #28A745; }
+.tx-amount.out { color: #DC3545; }
+
+.tx-desc {
+  color: #6B7280;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tx-user {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1B6B4A;
+}
+
+.tx-date {
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+/* ── LINK PILL FOR CUSTOMERS/SUPPLIERS ── */
+.associated-link {
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE (APP-LIKE UX)
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .cf-shell {
+    padding: 12px 10px 60px !important;
+  }
+  .cf-header {
+    margin-bottom: 16px !important;
+    gap: 8px !important;
+  }
+  .cf-title {
+    font-size: 20px !important;
+  }
+  .cf-sub {
+    font-size: 12px !important;
+  }
+
+  /* Widgets: 1 column */
+  .cf-widgets {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .cf-card {
+    padding: 14px 16px !important;
+    gap: 12px !important;
+  }
+  .cf-card-icon {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 20px !important;
+  }
+  .cf-card-val {
+    font-size: 18px !important;
+  }
+
+  .cf-form-box {
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+  .cf-form-title {
+    font-size: 15px !important;
+    margin-bottom: 14px !important;
+  }
+  .input-style {
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+    border-radius: 10px !important;
+  }
+  .btn-submit {
+    padding: 12px !important;
+    font-size: 14px !important;
+    border-radius: 10px !important;
+  }
+
+  .cf-history-box {
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+  .cf-history-title {
+    font-size: 16px !important;
+    margin-bottom: 14px !important;
+  }
+  .cf-table th, .cf-table td {
+    padding: 10px 8px !important;
+    font-size: 12px !important;
+  }
+  .tx-desc {
+    max-width: 140px !important;
+  }
+  .cf-badge {
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+  }
+
+  /* Prevent tap highlight */
+  button, .pm-switch-btn, .amount-pill, .btn-submit {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+}
+</style>
+
+<div class="cf-shell">
+  <!-- Header -->
+  <div class="cf-header">
+    <div class="cf-title-group">
+      <h1 class="cf-title">Kassa Kirim-Chiqim Tizimi</h1>
+      <p class="cf-sub">Kassadagi naqd pullar, chiqimlar va joriy tranzaksiyalarni boshqarish</p>
+    </div>
+  </div>
+
+  <!-- Summary Widgets -->
+  <div class="cf-widgets">
+    <div class="cf-card">
+      <div class="cf-card-icon cf-icon-cash">💵</div>
+      <div class="cf-card-info">
+        <div class="cf-card-lbl">Kassadagi Naqd Pul</div>
+        <div class="cf-card-val" id="naqd-drawer-bal">{{ cash_in_hand|floatformat:0 }} so'm</div>
+      </div>
+    </div>
+    <div class="cf-card">
+      <div class="cf-card-icon cf-icon-card">💳</div>
+      <div class="cf-card-info">
+        <div class="cf-card-lbl">Karta Hisobidagi Qoldiq</div>
+        <div class="cf-card-val" id="card-drawer-bal">{{ card_in_hand|floatformat:0 }} so'm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forms Section -->
+  <div class="cf-split-area">
+    <!-- CASH IN FORM -->
+    <div class="cf-form-box">
+      <h2 class="cf-form-title in">📥 Kassaga Kirim (Cash In)</h2>
+      <form id="cashInForm" onsubmit="handleTransactionSubmit(event, 'in')">
+        <input type="hidden" id="in-payment-method" value="naqd">
+        
+        <div class="form-group">
+          <label class="form-label">To'lov Usuli</label>
+          <div class="pm-switch">
+            <button type="button" class="pm-switch-btn selected" id="in-pm-naqd" onclick="setFormPaymentMethod('in', 'naqd')">
+              💵 Naqd
+            </button>
+            <button type="button" class="pm-switch-btn" id="in-pm-karta" onclick="setFormPaymentMethod('in', 'karta')">
+              💳 Karta
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="in-amount">Summa (so'm)</label>
+          <input type="number" id="in-amount" class="input-style" placeholder="Summani kiriting..." required min="1">
+          <div class="amount-pills">
+            <button type="button" class="amount-pill" onclick="quickFill('in', 50000)">50k</button>
+            <button type="button" class="amount-pill" onclick="quickFill('in', 100000)">100k</button>
+            <button type="button" class="amount-pill" onclick="quickFill('in', 500000)">500k</button>
+            <button type="button" class="amount-pill" onclick="quickFill('in', 1000000)">1M</button>
+            <button type="button" class="amount-pill" onclick="quickFill('in', 5000000)">5M</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="in-customer">Mijoz (Xaridor) — Ixtiyoriy</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="in-customer" class="input-style" style="flex: 1;">
+              <option value="">-- Tanlanmagan --</option>
+              {% for cust in customers %}
+                <option value="{{ cust.id }}">{{ cust.first_name }} {{ cust.last_name|default:"" }} (ID: {{ cust.custom_id }})</option>
+              {% endfor %}
+            </select>
+            <button type="button" class="btn-submit" style="width: auto; padding: 0 14px; margin: 0; background: var(--primary); border-radius: 12px; height: 44px; font-weight: 700; color: #fff; display: inline-flex; align-items: center; justify-content: center;" onclick="openNewCustomerModal('in')">
+              ➕ Yangi
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="in-category">Kategoriya</label>
+          <select id="in-category" class="input-style">
+            {% for cat_val, cat_lbl in categories %}
+              {% if cat_val != 'expense' and cat_val != 'supplier_pay' and cat_val != 'salary' %}
+                <option value="{{ cat_val }}">{{ cat_lbl }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="in-desc">Izoh (Maqsad)</label>
+          <input type="text" id="in-desc" class="input-style" placeholder="Masalan: Kassa boshlang'ich qoldig'i...">
+        </div>
+
+        <button type="submit" class="btn-submit in-btn" id="in-submit-btn">Kirimni Saqlash</button>
+      </form>
+    </div>
+
+    <!-- CASH OUT FORM -->
+    <div class="cf-form-box">
+      <h2 class="cf-form-title out">📤 Kassadan Chiqim (Cash Out)</h2>
+      <form id="cashOutForm" onsubmit="handleTransactionSubmit(event, 'out')">
+        <input type="hidden" id="out-payment-method" value="naqd">
+
+        <div class="form-group">
+          <label class="form-label">To'lov Usuli</label>
+          <div class="pm-switch">
+            <button type="button" class="pm-switch-btn selected" id="out-pm-naqd" onclick="setFormPaymentMethod('out', 'naqd')">
+              💵 Naqd
+            </button>
+            <button type="button" class="pm-switch-btn" id="out-pm-karta" onclick="setFormPaymentMethod('out', 'karta')">
+              💳 Karta
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="out-amount">Summa (so'm)</label>
+          <input type="number" id="out-amount" class="input-style" placeholder="Summani kiriting..." required min="1">
+          <div class="amount-pills">
+            <button type="button" class="amount-pill" onclick="quickFill('out', 50000)">50k</button>
+            <button type="button" class="amount-pill" onclick="quickFill('out', 100000)">100k</button>
+            <button type="button" class="amount-pill" onclick="quickFill('out', 500000)">500k</button>
+            <button type="button" class="amount-pill" onclick="quickFill('out', 1000000)">1M</button>
+            <button type="button" class="amount-pill" onclick="quickFill('out', 5000000)">5M</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="out-customer">Mijoz (Xaridor) — Ixtiyoriy</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="out-customer" class="input-style" style="flex: 1;" onchange="if(this.value) document.getElementById('out-supplier').value=''">
+              <option value="">-- Tanlanmagan --</option>
+              {% for cust in customers %}
+                <option value="{{ cust.id }}">{{ cust.first_name }} {{ cust.last_name|default:"" }} (ID: {{ cust.custom_id }})</option>
+              {% endfor %}
+            </select>
+            <button type="button" class="btn-submit" style="width: auto; padding: 0 14px; margin: 0; background: var(--primary); border-radius: 12px; height: 44px; font-weight: 700; color: #fff; display: inline-flex; align-items: center; justify-content: center;" onclick="openNewCustomerModal('out')">
+              ➕ Yangi
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="out-supplier">Ta'minotchi — Ixtiyoriy</label>
+          <select id="out-supplier" class="input-style" onchange="if(this.value) document.getElementById('out-customer').value=''">
+            <option value="">-- Tanlanmagan --</option>
+            {% for sup in suppliers %}
+              <option value="{{ sup.id }}">{{ sup.first_name }} {{ sup.last_name|default:"" }} (ID: {{ sup.custom_id }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="out-category">Kategoriya</label>
+          <select id="out-category" class="input-style">
+            {% for cat_val, cat_lbl in categories %}
+              {% if cat_val != 'kassa_float' and cat_val != 'debt_pay' %}
+                <option value="{{ cat_val }}">{{ cat_lbl }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="out-desc">Izoh (Chiqim Maqsadi)</label>
+          <input type="text" id="out-desc" class="input-style" placeholder="Masalan: Go'sht sotib olish uchun, ish haqi..." required>
+        </div>
+
+        <button type="submit" class="btn-submit out-btn" id="out-submit-btn">Chiqimni Saqlash</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- History Area -->
+  <div class="cf-history-box">
+    <h2 class="cf-history-title">🕰️ Oxirgi Tranzaksiyalar (Kirim-Chiqim tarixi)</h2>
+    <div class="cf-table-wrapper">
+      <table class="cf-table">
+        <thead>
+          <tr>
+            <th>Turi</th>
+            <th>Kategoriya</th>
+            <th>Bog'langan shaxs</th>
+            <th>To'lov Turi</th>
+            <th>Summa</th>
+            <th>Izoh / Maqsad</th>
+            <th>Mas'ul</th>
+            <th>Vaqti</th>
+          </tr>
+        </thead>
+        <tbody id="transaction-history-body">
+          {% for tx in transactions %}
+          <tr>
+            <td>
+              {% if tx.transaction_type == 'in' %}
+                <span class="cf-badge cf-badge-in">Kirim</span>
+              {% else %}
+                <span class="cf-badge cf-badge-out">Chiqim</span>
+              {% endif %}
+            </td>
+            <td><span class="cat-pill">{{ tx.get_category_display }}</span></td>
+            <td>
+              {% if tx.customer %}
+                <span class="associated-link" style="background: rgba(27,107,74,0.08); color: var(--primary);">👤 {{ tx.customer.first_name }} (Mijoz)</span>
+              {% elif tx.supplier %}
+                <span class="associated-link" style="background: rgba(13,110,253,0.08); color: #0d6efd;">🚜 {{ tx.supplier.first_name }} (Ta'minotchi)</span>
+              {% else %}
+                <span style="color: var(--text-light); font-size: 0.85rem;">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="pm-pill">
+                {% if tx.payment_method == 'naqd' %}💵 Naqd{% else %}💳 Karta{% endif %}
+              </span>
+            </td>
+            <td class="tx-amount {% if tx.transaction_type == 'in' %}in{% else %}out{% endif %}">
+              {% if tx.transaction_type == 'in' %}+{% else %}-{% endif %}{{ tx.amount|floatformat:0 }} so'm
+            </td>
+            <td><div class="tx-desc" title="{{ tx.description }}">{{ tx.description|default:"-" }}</div></td>
+            <td><span class="tx-user">{% if tx.created_by %}{{ tx.created_by.get_full_name|default:tx.created_by.username }}{% else %}Tizim (Avto){% endif %}</span></td>
+            <td><span class="tx-date">{{ tx.created_at|date:"d-m-Y H:i" }}</span></td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 24px; color: #6B7280;">Hozircha hech qanday tranzaksiyalar kiritilmagan.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap 5 Modal for creating a new customer inline -->
+<div class="modal fade" id="newCustomerModal" tabindex="-1" aria-labelledby="newCustomerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 18px; border: 1px solid rgba(0,0,0,0.07); box-shadow: var(--shadow-lg);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(0,0,0,0.07); background: #F8F6F2;">
+        <h5 class="modal-title" id="newCustomerModalLabel" style="font-family: 'DM Serif Display', serif; color: var(--primary); font-size: 1.3rem; font-weight: 700;">👤 Yangi Mijoz Qo'shish</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
+      </div>
+      <div class="modal-body" style="padding: 24px;">
+        <form id="quickCustomerForm" onsubmit="saveQuickCustomer(event)">
+          <div class="mb-3">
+            <label class="form-label" style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: #1A1A2E;">Ismi *</label>
+            <input type="text" id="cust-first-name" class="form-control" style="border-radius: 10px; padding: 10px 14px;" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: #1A1A2E;">Familiyasi</label>
+            <input type="text" id="cust-last-name" class="form-control" style="border-radius: 10px; padding: 10px 14px;">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: #1A1A2E;">Telefon raqami *</label>
+            <input type="text" id="cust-phone" class="form-control" style="border-radius: 10px; padding: 10px 14px;" placeholder="+998901234567" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: #1A1A2E;">Mijoz ID (Avto)</label>
+            <input type="text" id="cust-custom-id" class="form-control" style="border-radius: 10px; padding: 10px 14px;" readonly>
+          </div>
+          <div class="text-end" style="border-top: 1px solid rgba(0,0,0,0.07); padding-top: 18px; margin-top: 18px;">
+            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal" style="border-radius: 10px; padding: 8px 18px;">Bekor qilish</button>
+            <button type="submit" class="btn btn-success" style="background: var(--primary); border: none; border-radius: 10px; padding: 8px 18px; font-weight: 700;">Mijozni Saqlash</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap 5 JavaScript Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+let activeFormTypeForCustomerSelect = 'in';
+
+function openNewCustomerModal(formType) {
+  activeFormTypeForCustomerSelect = formType;
+  // Generate random custom id
+  document.getElementById('cust-custom-id').value = 'M-' + Math.floor(1000 + Math.random() * 9000);
+  document.getElementById('cust-first-name').value = '';
+  document.getElementById('cust-last-name').value = '';
+  document.getElementById('cust-phone').value = '';
+  
+  // Show modal
+  const modalEl = document.getElementById('newCustomerModal');
+  const myModal = new bootstrap.Modal(modalEl);
+  myModal.show();
+}
+
+function saveQuickCustomer(event) {
+  event.preventDefault();
+  
+  const firstName = document.getElementById('cust-first-name').value.trim();
+  const lastName = document.getElementById('cust-last-name').value.trim();
+  const phone = document.getElementById('cust-phone').value.trim();
+  const customId = document.getElementById('cust-custom-id').value.trim();
+  
+  const formData = new FormData();
+  formData.append('first_name', firstName);
+  formData.append('last_name', lastName);
+  formData.append('phone', phone);
+  formData.append('custom_id', customId);
+  
+  fetch('/pos/quick-customer/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+      const optVal = data.customer.id;
+      const optText = `${data.customer.name} (ID: ${data.customer.id_num})`;
+      
+      const inSelect = document.getElementById('in-customer');
+      const outSelect = document.getElementById('out-customer');
+      
+      const newOptIn = new Option(optText, optVal);
+      const newOptOut = new Option(optText, optVal);
+      
+      inSelect.add(newOptIn);
+      outSelect.add(newOptOut);
+      
+      // Select the newly created customer
+      document.getElementById(activeFormTypeForCustomerSelect + '-customer').value = optVal;
+      
+      // Hide modal
+      const modalEl = document.getElementById('newCustomerModal');
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide();
+    } else {
+      alert("Xatolik: " + data.message);
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Mijozni saqlashda xatolik yuz berdi.");
+  });
+}
+
+function setFormPaymentMethod(formType, pm) {
+  document.getElementById(formType + '-payment-method').value = pm;
+  
+  // Highlight chosen button
+  const naqdBtn = document.getElementById(formType + '-pm-naqd');
+  const kartaBtn = document.getElementById(formType + '-pm-karta');
+  
+  if (pm === 'naqd') {
+    naqdBtn.classList.add('selected');
+    kartaBtn.classList.remove('selected');
+  } else {
+    kartaBtn.classList.add('selected');
+    naqdBtn.classList.remove('selected');
+  }
+}
+
+function quickFill(formType, amount) {
+  document.getElementById(formType + '-amount').value = amount;
+}
+
+function handleTransactionSubmit(event, formType) {
+  event.preventDefault();
+  
+  const amountVal = parseFloat(document.getElementById(formType + '-amount').value) || 0;
+  const categoryVal = document.getElementById(formType + '-category').value;
+  const pmVal = document.getElementById(formType + '-payment-method').value;
+  const descVal = document.getElementById(formType + '-desc').value;
+  const btn = document.getElementById(formType + '-submit-btn');
+
+  const customerSelect = document.getElementById(formType + '-customer');
+  const customerId = customerSelect ? customerSelect.value : null;
+  
+  const supplierSelect = document.getElementById(formType + '-supplier');
+  const supplierId = supplierSelect ? supplierSelect.value : null;
+
+  if (amountVal <= 0) {
+    alert("Iltimos, noldan katta summa kiriting!");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Saqlanmoqda...";
+
+  fetch('/pos/api/process-cash-transaction/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      transaction_type: formType,
+      amount: amountVal,
+      category: categoryVal,
+      payment_method: pmVal,
+      description: descVal,
+      customer_id: customerId || null,
+      supplier_id: supplierId || null
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+      window.location.reload();
+    } else {
+      alert("Xatolik: " + data.message);
+      btn.disabled = false;
+      btn.innerText = formType === 'in' ? "Kirimni Saqlash" : "Chiqimni Saqlash";
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Tarmoq xatosi yuz berdi!");
+    btn.disabled = false;
+    btn.innerText = formType === 'in' ? "Kirimni Saqlash" : "Chiqimni Saqlash";
+  });
+}
+</script>
+{% endblock %}

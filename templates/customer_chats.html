@@ -1,0 +1,888 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mijozlar CRM & Chat | Baxmal Meat Enterprise{% endblock %}
+
+{% block extrahead %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+    body { font-family: 'Inter', sans-serif; background: #F0F4F8; margin: 0; overflow: hidden; }
+    * { box-sizing: border-box; }
+
+    .crm-layout {
+        display: flex;
+        height: calc(100vh - 56px);
+        overflow: hidden;
+    }
+
+    /* ─── LEFT PANEL ─── */
+    .panel-left {
+        width: 300px;
+        min-width: 280px;
+        background: #fff;
+        border-right: 1px solid #E5E7EB;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+    }
+    .panel-left-header {
+        padding: 14px 16px 10px;
+        border-bottom: 1px solid #F0F0F0;
+        background: #FAFBFC;
+    }
+    .crm-brand { font-family:'Outfit',sans-serif; color:#1B6B4A; font-weight:700; font-size:16px; }
+    .search-wrap { position:relative; margin-top:8px; }
+    .crm-search {
+        width:100%; padding:8px 12px 8px 34px;
+        border:1.5px solid #E5E7EB; border-radius:8px;
+        font-size:13px; outline:none; background:#fff;
+        transition: border-color .2s;
+    }
+    .crm-search:focus { border-color:#1B6B4A; }
+    .search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#9CA3AF; font-size:13px; }
+
+    .tab-row {
+        display:flex; gap:4px; padding:8px 12px;
+        border-bottom:1px solid #F0F0F0;
+        overflow-x:auto; background:#fff;
+    }
+    .tab-btn {
+        font-size:11px; font-weight:600; padding:4px 10px;
+        border-radius:20px; border:1.5px solid #E5E7EB;
+        background:#fff; color:#6B7280; cursor:pointer;
+        white-space:nowrap; transition:all .18s;
+    }
+    .tab-btn:hover, .tab-btn.active { background:#1B6B4A; color:#fff; border-color:#1B6B4A; }
+
+    .cust-list { flex:1; overflow-y:auto; }
+    .cust-item {
+        display:flex; align-items:center; gap:10px;
+        padding:12px 16px; border-bottom:1px solid #F3F4F6;
+        cursor:pointer; transition:background .15s;
+    }
+    .cust-item:hover { background:#F9FAF8; }
+    .cust-item.active { background:#EDFAF4; border-left:3px solid #1B6B4A; }
+
+    .cust-avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #E5E7EB; flex-shrink:0; }
+    .cust-name { font-size:13px; font-weight:600; color:#111827; }
+    .cust-sub  { font-size:11px; color:#9CA3AF; margin-top:1px; }
+    .cust-debt { font-size:11px; font-weight:700; margin-top:2px; }
+    .cust-debt.red { color:#EF4444; }
+    .cust-debt.green { color:#10B981; }
+
+    .score-pill {
+        font-size:9px; font-weight:800; padding:2px 6px;
+        border-radius:4px; margin-left:4px; vertical-align:middle;
+    }
+    .sA{background:#DCFCE7;color:#14532D;}
+    .sB{background:#DBEAFE;color:#1E3A8A;}
+    .sC{background:#FEF9C3;color:#78350F;}
+    .sD{background:#FEE2E2;color:#7F1D1D;}
+
+    /* ─── CENTER CHAT PANEL ─── */
+    .panel-center {
+        flex:1; display:flex; flex-direction:column;
+        background:#F4F6F8; overflow:hidden;
+    }
+
+    .chat-empty {
+        flex:1; display:flex; flex-direction:column;
+        align-items:center; justify-content:center;
+        color:#9CA3AF; text-align:center; padding:40px;
+    }
+
+    .chat-main {
+        display:none; flex-direction:column; height:100%; overflow:hidden;
+    }
+
+    .chat-header {
+        padding:12px 18px;
+        background:#fff; border-bottom:1px solid #E5E7EB;
+        display:flex; align-items:center; justify-content:space-between;
+        flex-shrink:0;
+    }
+    .chat-hdr-left { display:flex; align-items:center; gap:12px; }
+    .chat-hdr-avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #1B6B4A; }
+    .chat-hdr-name { font-size:14px; font-weight:700; color:#111827; }
+    .chat-hdr-sub { font-size:11px; color:#6B7280; }
+    .chat-hdr-right { display:flex; align-items:center; gap:8px; }
+    .pill-debt { background:#FEE2E2; color:#B91C1C; border-radius:20px; padding:4px 12px; font-size:11px; font-weight:700; }
+    .pill-bonus { background:#FEF9C3; color:#78350F; border-radius:20px; padding:4px 12px; font-size:11px; font-weight:700; }
+    .btn-edit-hdr { border:1.5px solid #E5E7EB; background:#fff; color:#6B7280; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; text-decoration:none; }
+    .btn-edit-hdr:hover { border-color:#1B6B4A; color:#1B6B4A; }
+
+    /* Auto-refresh indicator */
+    .refresh-indicator {
+        display:flex; align-items:center; gap:5px;
+        font-size:10px; color:#10B981; font-weight:600;
+    }
+    .pulse-dot {
+        width:7px; height:7px; border-radius:50%; background:#10B981;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%,100%{opacity:1;transform:scale(1);}
+        50%{opacity:0.5;transform:scale(0.85);}
+    }
+
+    /* New messages badge */
+    .new-msg-toast {
+        position:absolute; top:12px; left:50%; transform:translateX(-50%);
+        background:#1B6B4A; color:#fff; padding:6px 16px; border-radius:20px;
+        font-size:12px; font-weight:600; cursor:pointer; z-index:100;
+        box-shadow:0 4px 12px rgba(0,0,0,0.15); display:none;
+        animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown { from{top:-10px;opacity:0;} to{top:12px;opacity:1;} }
+
+    .chat-messages-wrap { flex:1; overflow:hidden; position:relative; }
+    .chat-stream {
+        height:100%; overflow-y:auto; padding:16px 18px;
+        display:flex; flex-direction:column; gap:10px;
+        background:#F4F6F8;
+    }
+
+    /* Bubble */
+    .msg-row { display:flex; width:100%; }
+    .msg-row.out { justify-content:flex-end; }
+    .msg-row.in  { justify-content:flex-start; }
+    .msg-row.sys { justify-content:center; }
+
+    .bubble {
+        max-width:72%; padding:10px 14px; border-radius:14px;
+        font-size:13px; line-height:1.55; position:relative;
+    }
+    .bubble.out { background:#1B6B4A; color:#fff; border-bottom-right-radius:3px; }
+    .bubble.in  { background:#fff; color:#1F2937; border:1px solid #E5E7EB; border-bottom-left-radius:3px; }
+    .bubble.sys { background:#E5E7EB; color:#4B5563; border-radius:20px; font-size:11px; max-width:85%; text-align:center; padding:5px 14px; }
+    .bubble.receipt { background:#fff; color:#111; border:1px solid #E5E7EB; font-family:monospace; max-width:340px; border-bottom-left-radius:3px; }
+
+    .bubble-sender { font-size:10px; font-weight:700; opacity:.75; display:block; margin-bottom:4px; }
+    .bubble.out .bubble-sender { color:rgba(255,255,255,0.8); }
+    .bubble.in  .bubble-sender { color:#1B6B4A; }
+    .bubble.receipt .bubble-sender { color:#1B6B4A; }
+    .bubble-time { font-size:10px; opacity:.6; display:block; margin-top:5px; text-align:right; }
+    .bubble.out .bubble-time { color:rgba(255,255,255,.7); }
+
+    .load-more-wrap { text-align:center; padding:10px 0 4px; }
+    .btn-load-more {
+        background:transparent; border:1.5px solid #1B6B4A;
+        color:#1B6B4A; border-radius:20px; padding:5px 20px;
+        font-size:12px; font-weight:700; cursor:pointer;
+        transition:all .15s;
+    }
+    .btn-load-more:hover { background:#1B6B4A; color:#fff; }
+
+    /* Quick presets */
+    .presets-bar {
+        display:flex; gap:6px; padding:7px 14px;
+        background:#fff; border-top:1px solid #F0F0F0;
+        overflow-x:auto; flex-shrink:0;
+    }
+    .preset { font-size:11px; font-weight:500; padding:4px 11px; border-radius:16px; border:1.5px solid #E5E7EB; background:#F9FAFB; color:#374151; cursor:pointer; white-space:nowrap; transition:all .15s; }
+    .preset:hover { background:#1B6B4A; color:#fff; border-color:#1B6B4A; }
+
+    .chat-input-row {
+        display:flex; gap:8px; padding:10px 14px;
+        background:#fff; border-top:1px solid #E5E7EB; flex-shrink:0;
+        align-items:flex-end;
+    }
+    .chat-textarea {
+        flex:1; border:1.5px solid #E5E7EB; border-radius:10px;
+        padding:9px 13px; font-size:13.5px; resize:none; outline:none;
+        line-height:1.4; max-height:100px; overflow-y:auto;
+        transition:border-color .2s; font-family:inherit;
+    }
+    .chat-textarea:focus { border-color:#1B6B4A; }
+    .btn-send {
+        background:#1B6B4A; color:#fff; border:none; border-radius:10px;
+        padding:9px 18px; font-weight:700; font-size:13px; cursor:pointer;
+        display:flex; align-items:center; gap:6px; flex-shrink:0;
+        transition:background .15s; height:42px;
+    }
+    .btn-send:hover { background:#145339; }
+    .btn-send:disabled { background:#9CA3AF; cursor:not-allowed; }
+
+    /* ─── RIGHT PANEL ─── */
+    .panel-right {
+        width:320px; min-width:300px; background:#fff;
+        border-left:1px solid #E5E7EB; display:flex;
+        flex-direction:column; overflow-y:auto;
+    }
+    .right-section { padding:14px 14px 10px; }
+    .right-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:#1B6B4A; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+
+    /* B2B order card in right panel */
+    .b2b-card {
+        border:1px solid #E5E7EB; border-radius:10px; padding:12px;
+        margin-bottom:10px; background:#FAFBFC; border-left:4px solid #1B6B4A;
+        transition:box-shadow .15s;
+    }
+    .b2b-card:hover { box-shadow:0 3px 10px rgba(0,0,0,0.08); }
+    .b2b-card-title { font-size:13px; font-weight:700; color:#111827; display:flex; justify-content:space-between; align-items:center; gap:4px; margin-bottom:4px; }
+    .b2b-card-sub { font-size:11px; color:#6B7280; margin-bottom:6px; }
+    .b2b-card-weight { font-size:14px; font-weight:800; color:#1B6B4A; }
+    .b2b-card-price { font-size:12px; color:#374151; font-weight:600; }
+    .btn-proof {
+        width:100%; margin-top:8px; padding:6px 0; border-radius:7px;
+        border:1.5px solid #3B82F6; background:#EFF6FF; color:#1D4ED8;
+        font-size:11.5px; font-weight:700; cursor:pointer; transition:all .15s;
+        display:flex; align-items:center; justify-content:center; gap:5px;
+    }
+    .btn-proof:hover { background:#3B82F6; color:#fff; }
+
+    .b2b-actions { display:flex; gap:6px; margin-top:8px; }
+    .btn-approve { flex:1; padding:6px 0; border:none; background:#10B981; color:#fff; border-radius:7px; font-size:12px; font-weight:700; cursor:pointer; }
+    .btn-approve:hover { background:#059669; }
+    .btn-reject { width:36px; border:1.5px solid #EF4444; background:transparent; color:#EF4444; border-radius:7px; font-size:14px; cursor:pointer; }
+    .btn-reject:hover { background:#EF4444; color:#fff; }
+    .btn-complete { width:100%; padding:6px 0; border:1.5px solid #1B6B4A; background:transparent; color:#1B6B4A; border-radius:7px; font-size:12px; font-weight:700; cursor:pointer; margin-top:8px; }
+    .btn-complete:hover { background:#1B6B4A; color:#fff; }
+
+    /* Modal / Lightbox */
+    .proof-overlay {
+        display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
+        background:rgba(0,0,0,.85); z-index:999999 !important;
+        align-items:center; justify-content:center; padding:20px;
+    }
+    .proof-overlay.open { display:flex !important; }
+    .proof-modal {
+        background:#111; border-radius:14px; overflow:hidden; max-width:90vw;
+        max-height:90vh; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    }
+    .proof-modal-header { background:#1a1a1a; padding:12px 18px; display:flex; justify-content:space-between; align-items:center; }
+    .proof-modal-title { color:#fff; font-size:14px; font-weight:700; }
+    .proof-close-btn { background:none; border:none; color:#aaa; font-size:24px; cursor:pointer; line-height:1; }
+    .proof-modal img { max-width:100%; max-height:75vh; object-fit:contain; display:block; background:#000; }
+    .proof-modal-footer { background:#222; padding:10px 18px; display:flex; justify-content:space-between; align-items:center; }
+    .proof-open-link { color:#60A5FA; font-size:12px; font-weight:600; text-decoration:none; }
+    .proof-open-link:hover { color:#93C5FD; }
+
+    @media (max-width:1100px) { .panel-right { display:none; } }
+    @media (max-width:767px) {
+        .panel-left  { width:100%; }
+        .panel-center { display:none; }
+        .panel-right  { display:none; }
+        .mobile-chat .panel-left  { display:none; }
+        .mobile-chat .panel-center { display:flex; width:100%; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="crm-layout" id="crm-root">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  LEFT PANEL — Customer list                           -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="panel-left" id="panel-left">
+        <div class="panel-left-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="crm-brand"><i class="bi bi-shield-check me-1"></i>Baxmal CRM</span>
+                <span class="badge bg-success bg-opacity-10 text-success fw-bold" style="font-size:10px;" id="lbl-count">{{ customers|length }} mijoz</span>
+            </div>
+            <div class="search-wrap">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="crm-search" id="crm-search" placeholder="Qidirish: ism, ID yoki tel..." oninput="filterList(this.value)">
+            </div>
+        </div>
+
+        <div class="tab-row">
+            <button class="tab-btn active" onclick="setTab('all',this)">Barchasi</button>
+            <button class="tab-btn" onclick="setTab('debtors',this)">⚠️ Qarzdorlar</button>
+            <button class="tab-btn" onclick="setTab('barter',this)">🌾 Chorvador</button>
+        </div>
+
+        <div class="cust-list" id="cust-list">
+            {% for c in customers %}
+            <div class="cust-item"
+                 id="citem-{{ c.id }}"
+                 data-id="{{ c.id }}"
+                 data-name="{{ c.first_name }} {{ c.last_name|default:'' }}"
+                 data-cid="{{ c.custom_id }}"
+                 data-phone="{{ c.phone|default:'' }}"
+                 data-debt="{{ c.debt_amount }}"
+                 data-barter="{% if c.supplier_profile %}1{% else %}0{% endif %}"
+                 onclick="openCustomer('{{ c.id }}')">
+
+                <img class="cust-avatar"
+                     src="{% if c.image %}{{ c.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}">
+
+                <div style="flex:1;min-width:0;">
+                    <div class="cust-name text-truncate">
+                        {{ c.first_name }} {{ c.last_name|default:'' }}
+                        <span class="score-pill {% if c.debt_amount > 2000000 %}sD{% elif c.debt_amount > 500000 %}sC{% elif c.debt_amount > 0 %}sB{% else %}sA{% endif %}">
+                            {% if c.debt_amount > 2000000 %}D{% elif c.debt_amount > 500000 %}C{% elif c.debt_amount > 0 %}B{% else %}A{% endif %}
+                        </span>
+                    </div>
+                    <div class="cust-sub">ID: {{ c.custom_id }}{% if c.phone %} · {{ c.phone }}{% endif %}</div>
+                    <div class="cust-debt {% if c.debt_amount > 0 %}red{% else %}green{% endif %}">
+                        {% if c.debt_amount > 0 %}<i class="bi bi-exclamation-circle"></i> {{ c.debt_amount|floatformat:0 }} so'm{% else %}<i class="bi bi-check-circle"></i> Qarz yo'q{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="padding:24px;text-align:center;color:#9CA3AF;font-size:13px;">Mijozlar topilmadi.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  CENTER PANEL — Chat stream                           -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="panel-center">
+
+        <!-- Empty placeholder -->
+        <div class="chat-empty" id="chat-empty">
+            <i class="bi bi-chat-left-dots" style="font-size:48px;margin-bottom:14px;color:#D1D5DB;"></i>
+            <h5 style="color:#374151;margin-bottom:8px;">Mijozlar CRM Paneli</h5>
+            <p style="font-size:13px;max-width:260px;color:#9CA3AF;">Chap ro'yxatdan mijozni tanlang va chat tarixi, buyurtmalar, Telegram xabarlari ko'rinadi.</p>
+            <a href="/pos/terminal/" style="margin-top:12px;font-size:13px;color:#1B6B4A;font-weight:600;"><i class="bi bi-arrow-left"></i> POS Terminalga qaytish</a>
+        </div>
+
+        <!-- Active chat UI -->
+        <div class="chat-main" id="chat-main">
+
+            <!-- Header -->
+            <div class="chat-header">
+                <div class="chat-hdr-left">
+                    <button onclick="mobileBack()" style="display:none;" id="btn-mobile-back" class="btn-edit-hdr"><i class="bi bi-arrow-left"></i></button>
+                    <img id="hdr-avatar" class="chat-hdr-avatar" src="">
+                    <div>
+                        <div class="chat-hdr-name" id="hdr-name">---</div>
+                        <div class="chat-hdr-sub" id="hdr-sub">---</div>
+                    </div>
+                </div>
+                <div class="chat-hdr-right">
+                    <span class="pill-debt" id="hdr-debt">Qarz: 0 so'm</span>
+                    <span class="pill-bonus" id="hdr-bonus">Bonus: 0</span>
+                    <a id="hdr-edit-btn" href="#" target="_blank" class="btn-edit-hdr" title="Mijoz kartochkasi"><i class="bi bi-pencil"></i></a>
+                    <div class="refresh-indicator" title="Avtomatik yangilanish yoqilgan"><span class="pulse-dot"></span> Live</div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages-wrap">
+                <div class="new-msg-toast" id="new-msg-toast" onclick="scrollToBottom()">
+                    ↓ Yangi xabarlar bor — ko'rish
+                </div>
+                <div class="chat-stream" id="chat-stream">
+                    <!-- JS rendered -->
+                </div>
+            </div>
+
+            <!-- Quick presets -->
+            <div class="presets-bar">
+                <span class="preset" onclick="usePreset('Qarzingiz haqida eslatma: Iltimos, to\'lovni amalga oshiring. Rahmat! 🙏')">📌 Qarz eslatmasi</span>
+                <span class="preset" onclick="loadAndSendCard()">💳 Karta raqam</span>
+                <span class="preset" onclick="usePreset('Assalomu alaykum! Buyurtmangiz qabul qilindi va tayyorlanmoqda. 🥩')">✅ Buyurtma qabul</span>
+                <span class="preset" onclick="usePreset('To\'lovingiz qabul qilindi va qarzingiz yopildi! Rahmat! 🎉')">🎉 To'lov qabul</span>
+                <span class="preset" onclick="usePreset('Assalomu alaykum! Siz bilan bog\'lanishni xohlardik. Iltimos, do\'konimizga tashrif buyuring.')">👋 Salom</span>
+            </div>
+
+            <!-- Input row -->
+            <div class="chat-input-row">
+                <textarea id="msg-input" class="chat-textarea" rows="1" placeholder="Mijozga Telegram orqali xabar yozing..." onkeydown="onMsgKey(event)" oninput="autoResize(this)"></textarea>
+                <button class="btn-send" id="btn-send" onclick="sendMessage()">
+                    <i class="bi bi-telegram"></i> Yuborish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  RIGHT PANEL — B2B Orders                              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="panel-right" id="panel-right">
+        <div class="right-section" style="flex:1;overflow-y:auto;padding-bottom:20px;">
+            <div class="right-title">
+                <span><i class="bi bi-cart-check-fill me-1"></i>B2B Buyurtmalar</span>
+                <span class="badge bg-primary" id="r-b2b-count" style="border-radius:20px;">0</span>
+            </div>
+            <div id="r-b2b-list">
+                <div style="text-align:center;color:#9CA3AF;font-size:12px;padding:20px 0;">Mijoz tanlanganda ko'rinadi</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Payment Proof Lightbox Modal ─── -->
+<div class="proof-overlay" id="proof-overlay" onclick="closeProofIfBg(event)" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,.85); z-index:999999; align-items:center; justify-content:center; padding:20px;">
+    <div class="proof-modal" style="background:#111; border-radius:14px; overflow:hidden; max-width:90vw; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <div class="proof-modal-header" style="background:#1a1a1a; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
+            <span class="proof-modal-title" id="proof-title" style="color:#fff; font-size:14px; font-weight:700;">📸 To'lov Cheki Fotosi</span>
+            <button class="proof-close-btn" onclick="closeProof()" style="background:none; border:none; color:#aaa; font-size:24px; cursor:pointer; line-height:1;">×</button>
+        </div>
+        <img id="proof-img" src="" alt="To'lov cheki" style="max-width:100%; max-height:75vh; object-fit:contain; display:block; background:#000;">
+        <div class="proof-modal-footer" style="background:#222; padding:10px 18px; display:flex; justify-content:space-between; align-items:center;">
+            <a id="proof-open-link" href="#" target="_blank" class="proof-open-link" style="color:#60A5FA; font-size:12px; font-weight:600; text-decoration:none;"><i class="bi bi-box-arrow-up-right me-1"></i>To'liq o'lchamda ochish</a>
+            <button onclick="closeProof()" style="background:#333;color:#fff;border:none;border-radius:7px;padding:6px 16px;font-size:12px;cursor:pointer;">Yopish</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+// ─── State ────────────────────────────────────────────────────────────────
+let CID       = null;   // active customer id
+let tabFilter = 'all';
+let chatOffset = 0;
+let chatHasMore = false;
+let lastLogId  = 0;
+let autoRefreshTimer = null;
+let isAtBottom = true;
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const sp = new URLSearchParams(window.location.search).get('selected_customer');
+    if (sp) openCustomer(sp);
+
+    // Track scroll position for new-message toast
+    const stream = document.getElementById('chat-stream');
+    if (stream) {
+        stream.addEventListener('scroll', () => {
+            isAtBottom = (stream.scrollTop + stream.clientHeight) >= (stream.scrollHeight - 60);
+            if (isAtBottom) hideNewMsgToast();
+        });
+    }
+});
+
+// ─── Left panel filter ────────────────────────────────────────────────────
+function filterList(q) {
+    q = q.toLowerCase().trim();
+    let n = 0;
+    document.querySelectorAll('.cust-item').forEach(el => {
+        const name  = el.dataset.name.toLowerCase();
+        const cid   = el.dataset.cid.toLowerCase();
+        const phone = el.dataset.phone.toLowerCase();
+        const debt  = parseFloat(el.dataset.debt || 0);
+        const barter= el.dataset.barter === '1';
+        const matchQ  = !q || name.includes(q) || cid.includes(q) || phone.includes(q);
+        const matchTab= tabFilter === 'all'     ? true
+                      : tabFilter === 'debtors' ? debt > 0
+                      : barter;
+        const show = matchQ && matchTab;
+        el.style.display = show ? 'flex' : 'none';
+        if (show) n++;
+    });
+    document.getElementById('lbl-count').textContent = `${n} mijoz`;
+}
+
+function setTab(name, btn) {
+    tabFilter = name;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterList(document.getElementById('crm-search').value);
+}
+
+// ─── Open customer ────────────────────────────────────────────────────────
+function openCustomer(id) {
+    CID = id; chatOffset = 0; lastLogId = 0;
+    document.querySelectorAll('.cust-item').forEach(el => el.classList.remove('active'));
+    const row = document.getElementById(`citem-${id}`);
+    if (row) { row.classList.add('active'); row.scrollIntoView({block:'nearest'}); }
+
+    window.history.pushState({}, '', `?selected_customer=${id}`);
+
+    document.getElementById('chat-empty').style.display = 'none';
+    document.getElementById('chat-main').style.display  = 'flex';
+    if (window.innerWidth < 768) document.getElementById('crm-root').classList.add('mobile-chat');
+
+    loadChat(true);
+    loadB2BOrders();
+    startAutoRefresh();
+}
+
+function mobileBack() {
+    document.getElementById('crm-root').classList.remove('mobile-chat');
+}
+
+// ─── Load chat ────────────────────────────────────────────────────────────
+function loadChat(reset) {
+    if (reset) {
+        chatOffset = 0;
+        const stream = document.getElementById('chat-stream');
+        stream.innerHTML = '<div style="text-align:center;padding:20px;color:#9CA3AF;font-size:13px;"><div class="spinner-border spinner-border-sm text-success"></div></div>';
+    }
+
+    fetch(`/pos/customer-chat/${CID}/?limit=30&offset=${chatOffset}`)
+        .then(r => r.json())
+        .then(d => {
+            if (d.status !== 'success') return;
+            updateHeader(d);
+            renderMessages(d.logs, reset, d.has_more);
+        })
+        .catch(e => console.error('Chat load error:', e));
+}
+
+function updateHeader(d) {
+    document.getElementById('hdr-avatar').src  = d.image;
+    document.getElementById('hdr-name').textContent  = d.customer_name;
+    document.getElementById('hdr-sub').textContent   = `ID: ${d.customer_id_num}`;
+    document.getElementById('hdr-edit-btn').href     = `/pos/customers/?search=${encodeURIComponent(d.customer_id_num)}`;
+    const df = fmt(d.debt_amount);
+    document.getElementById('hdr-debt').textContent  = `Qarz: ${df} so'm`;
+    document.getElementById('hdr-bonus').textContent = `Bonus: ${d.bonus_points} ball`;
+}
+
+function renderMessages(logs, reset, hasMore) {
+    const stream = document.getElementById('chat-stream');
+    const wasAtBottom = isAtBottom;
+
+    if (reset) {
+        stream.innerHTML = '';
+        chatHasMore = hasMore;
+    }
+
+    // Load more button (at top)
+    if (reset && hasMore) {
+        stream.insertAdjacentHTML('afterbegin', `
+            <div class="load-more-wrap">
+                <button class="btn-load-more" onclick="loadMoreChat()">⬆ Eski xabarlarni ko'rish</button>
+            </div>
+        `);
+    }
+
+    let newMaxId = lastLogId;
+    logs.forEach(log => {
+        if (!reset && log.id <= lastLogId) return;
+        if (log.id > newMaxId) newMaxId = log.id;
+        stream.insertAdjacentHTML('beforeend', buildBubble(log));
+    });
+    lastLogId = newMaxId;
+
+    if (reset || wasAtBottom) {
+        scrollToBottom();
+    } else if (logs.some(l => l.id > lastLogId - logs.length)) {
+        showNewMsgToast();
+    }
+}
+
+function buildBubble(log) {
+    let dir = 'out', cls = 'out', sender = "Do'kon Operatori";
+
+    if (log.title === "Mijoz xabari") {
+        dir = 'in'; cls = 'in'; sender = '📱 Mijoz (Telegram)';
+    } else if (log.log_type === 'sale') {
+        dir = 'in'; cls = 'receipt'; sender = "🧾 Kassa Cheki (To'landi)";
+    } else if (log.log_type === 'debt_add') {
+        dir = 'in'; cls = 'receipt'; sender = '🧾 Kassa Cheki (Nasiya)';
+    } else if (log.log_type === 'debt_pay') {
+        dir = 'sys'; cls = 'sys'; sender = '';
+    } else if (log.log_type === 'slaughter') {
+        dir = 'sys'; cls = 'sys'; sender = '';
+    } else if (log.log_type === 'supplier_pay') {
+        dir = 'sys'; cls = 'sys'; sender = '';
+    }
+
+    let body = (log.message || '').replace(/\n/g, '<br>');
+    if (log.details && log.details.items) {
+        body = receiptHtml(log);
+    }
+
+    let imgHtml = '';
+    if (log.details && log.details.image_url) {
+        imgHtml = `
+            <div style="margin-top:6px;">
+                <img src="${log.details.image_url}" style="max-width:240px;max-height:200px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid #E5E7EB;display:block;" onclick="showProof('${log.details.image_url}', '${log.id}')">
+            </div>
+        `;
+    }
+
+    if (dir === 'sys') {
+        return `<div class="msg-row sys"><div class="bubble sys">${body} ${imgHtml} <span style="font-size:9px;opacity:.6;"> · ${log.time}</span></div></div>`;
+    }
+
+    return `
+        <div class="msg-row ${dir}">
+            <div class="bubble ${cls}">
+                <span class="bubble-sender">${sender}</span>
+                <div>${body}</div>
+                ${imgHtml}
+                <span class="bubble-time">${log.date} · ${log.time}</span>
+            </div>
+        </div>
+    `;
+}
+
+function receiptHtml(log) {
+    const d = log.details || {};
+    const items = d.items || [];
+    let rows = items.map(it => {
+        const w = (it.weight || 0).toFixed(2);
+        const p = fmt(it.total || 0);
+        return `<div style="display:flex;justify-content:space-between;font-size:12px;border-bottom:1px dashed #E5E7EB;padding:3px 0;">
+            <span>• ${it.product_name || 'Go\'sht'} (${w} kg)</span>
+            <span style="font-weight:700">${p} so'm</span>
+        </div>`;
+    }).join('');
+    const total = fmt(d.final_paid || d.total || log.amount || 0);
+    const method = {naqd:'Naqd',karta:'Plastik Karta',qr:'QR',nasiya:'Nasiya'}[d.payment_method || 'naqd'] || d.payment_method;
+    return `<div style="font-family:monospace;font-size:12px;">
+        <div style="text-align:center;font-weight:800;font-size:14px;color:#1B6B4A;margin-bottom:6px;">BAXMAL MEAT</div>
+        ${rows}
+        <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;margin-top:5px;">
+            <span>JAMI:</span><span>${total} so'm</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#6B7280;margin-top:3px;">
+            <span>To'lov turi:</span><span>${method}</span>
+        </div>
+    </div>`;
+}
+
+// ─── Auto refresh ─────────────────────────────────────────────────────────
+function startAutoRefresh() {
+    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(refreshNewMessages, 15000);
+}
+
+function refreshNewMessages() {
+    if (!CID) return;
+    fetch(`/pos/customer-chat/${CID}/?limit=30&offset=0`)
+        .then(r => r.json())
+        .then(d => {
+            if (d.status !== 'success') return;
+            const newLogs = d.logs.filter(l => l.id > lastLogId);
+            if (newLogs.length > 0) {
+                const stream = document.getElementById('chat-stream');
+                newLogs.forEach(log => {
+                    stream.insertAdjacentHTML('beforeend', buildBubble(log));
+                    if (log.id > lastLogId) lastLogId = log.id;
+                });
+                if (isAtBottom) scrollToBottom();
+                else showNewMsgToast();
+            }
+            updateHeader(d);
+        })
+        .catch(() => {});
+}
+
+function loadMoreChat() {
+    chatOffset += 30;
+    fetch(`/pos/customer-chat/${CID}/?limit=30&offset=${chatOffset}`)
+        .then(r => r.json())
+        .then(d => {
+            if (d.status !== 'success') return;
+            const stream = document.getElementById('chat-stream');
+            const old = stream.scrollHeight;
+            const lb = stream.querySelector('.load-more-wrap');
+            if (lb) lb.remove();
+            const frag = document.createDocumentFragment();
+            const temp = document.createElement('div');
+            d.logs.forEach(log => {
+                temp.innerHTML = buildBubble(log);
+                frag.appendChild(temp.firstElementChild);
+            });
+            stream.insertBefore(frag, stream.firstChild);
+            if (d.has_more) {
+                stream.insertAdjacentHTML('afterbegin', `<div class="load-more-wrap"><button class="btn-load-more" onclick="loadMoreChat()">⬆ Eski xabarlarni ko'rish</button></div>`);
+            }
+            stream.scrollTop = stream.scrollHeight - old;
+        });
+}
+
+function scrollToBottom() {
+    const s = document.getElementById('chat-stream');
+    s.scrollTop = s.scrollHeight;
+    isAtBottom = true;
+    hideNewMsgToast();
+}
+function showNewMsgToast() {
+    document.getElementById('new-msg-toast').style.display = 'block';
+}
+function hideNewMsgToast() {
+    document.getElementById('new-msg-toast').style.display = 'none';
+}
+
+// ─── B2B Orders ───────────────────────────────────────────────────────────
+function loadB2BOrders() {
+    const box = document.getElementById('r-b2b-list');
+    box.innerHTML = '<div style="text-align:center;padding:16px;color:#9CA3AF;font-size:12px;"><div class="spinner-border spinner-border-sm text-success"></div></div>';
+
+    fetch(`/pos/api/b2b-orders/customer/${CID}/`)
+        .then(r => r.json())
+        .then(orders => {
+            document.getElementById('r-b2b-count').textContent = orders.length;
+            if (!orders.length) {
+                box.innerHTML = '<div style="text-align:center;color:#9CA3AF;font-size:12px;padding:20px 0;">B2B buyurtmalar mavjud emas</div>';
+                return;
+            }
+            box.innerHTML = '';
+            orders.forEach(o => box.insertAdjacentHTML('beforeend', buildB2BCard(o)));
+        })
+        .catch(() => {
+            box.innerHTML = '<div style="color:#EF4444;font-size:12px;text-align:center;padding:16px;">Xatolik yuz berdi</div>';
+        });
+}
+
+function buildB2BCard(o) {
+    const statusMap = {
+        pending:'🕐 Kutilmoqda', payment_uploaded:'📸 Chek yuklandi',
+        approved:'✅ Tasdiqlandi', preparing:'🥩 Qadoqlanmoqda',
+        shipping:'🚚 Yetkazilmoqda', completed:'🎉 Yakunlandi', rejected:'❌ Rad etildi'
+    };
+    const statusColor = {
+        pending:'#F59E0B', payment_uploaded:'#3B82F6', approved:'#10B981',
+        preparing:'#8B5CF6', shipping:'#06B6D4', completed:'#1B6B4A', rejected:'#EF4444'
+    };
+    const color = statusColor[o.status] || '#9CA3AF';
+    const label = statusMap[o.status] || o.status_display;
+
+    const priceHtml = o.total_price
+        ? `<div class="b2b-card-price">${fmt(o.total_price)} so'm (taxminiy)</div>`
+        : '';
+
+    const proofUrl = o.payment_proof_url;
+    let proofHtml = '';
+    if (proofUrl) {
+        proofHtml = `
+            <button class="btn-proof" onclick="showProof('${proofUrl}','${o.id}')">
+                <i class="bi bi-file-earmark-image me-1"></i> 📸 To'lov Chekini Ko'rish
+            </button>
+        `;
+    } else if (o.status === 'payment_uploaded' || o.status === 'pending') {
+        proofHtml = `
+            <button class="btn-proof" style="background:#EFF6FF;border-color:#3B82F6;color:#1D4ED8;" onclick="findAndShowChatProof('${o.id}')">
+                <i class="bi bi-file-earmark-image me-1"></i> 📸 To'lov Chekini Ko'rish
+            </button>
+        `;
+    }
+
+    let actionsHtml = '';
+    if (o.status === 'pending' || o.status === 'payment_uploaded') {
+        actionsHtml = `
+            <div class="b2b-actions">
+                <button class="btn-approve" onclick="b2bAction(${o.id},'approved')"><i class="bi bi-check-circle me-1"></i>Tasdiqlash</button>
+                <button class="btn-reject"  onclick="b2bAction(${o.id},'rejected')"><i class="bi bi-x-lg"></i></button>
+            </div>`;
+    } else if (o.status === 'approved') {
+        actionsHtml = `<button class="btn-complete" onclick="b2bAction(${o.id},'preparing')"><i class="bi bi-box-seam me-1"></i>Qadoqlashga o'tkazish</button>`;
+    } else if (o.status === 'preparing') {
+        actionsHtml = `<button class="btn-complete" onclick="b2bAction(${o.id},'shipping')"><i class="bi bi-truck me-1"></i>Kuryerga berish</button>`;
+    } else if (o.status === 'shipping') {
+        actionsHtml = `<button class="btn-complete" onclick="b2bAction(${o.id},'completed')" style="background:#1B6B4A;color:#fff;border-color:#1B6B4A;"><i class="bi bi-check2-all me-1"></i>Topshirildi</button>`;
+    }
+
+    return `
+        <div class="b2b-card">
+            <div class="b2b-card-title">
+                <span>#${o.id} ${o.product_name}</span>
+                <span style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;">${label}</span>
+            </div>
+            <div class="b2b-card-sub">${o.created_at}</div>
+            <div class="b2b-card-weight">${parseFloat(o.requested_weight).toFixed(1)} kg</div>
+            ${priceHtml}
+            ${proofHtml}
+            ${actionsHtml}
+        </div>
+    `;
+}
+
+function b2bAction(id, status) {
+    if (!confirm("Buyurtma statusini o'zgartirmoqchimisiz?")) return;
+    fetch(`/pos/api/b2b-orders/update/${id}/`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-CSRFToken':'{{ csrf_token }}'},
+        body: JSON.stringify({status})
+    }).then(r=>r.json()).then(d=>{
+        if (d.status==='success') {
+            loadB2BOrders();
+            refreshNewMessages();
+        } else {
+            alert("Xatolik: " + (d.message||''));
+        }
+    });
+}
+
+// ─── Send message ─────────────────────────────────────────────────────────
+function sendMessage() {
+    const input = document.getElementById('msg-input');
+    const msg = input.value.trim();
+    if (!msg || !CID) return;
+
+    const btn = document.getElementById('btn-send');
+    btn.disabled = true;
+    btn.textContent = 'Yuborilmoqda...';
+
+    fetch(`/pos/customer-chat/send/${CID}/`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({message: msg})
+    })
+    .then(r=>r.json())
+    .then(d=>{
+        if (d.status==='success') {
+            input.value = ''; input.style.height = '';
+            refreshNewMessages();
+        } else {
+            alert("Xabar yuborishda xatolik: " + (d.message||''));
+        }
+    })
+    .catch(()=>{})
+    .finally(()=>{
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-telegram"></i> Yuborish';
+    });
+}
+
+function onMsgKey(e) {
+    if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function usePreset(text) {
+    const inp = document.getElementById('msg-input');
+    inp.value = text; inp.focus(); autoResize(inp);
+}
+
+function loadAndSendCard() {
+    fetch('/pos/api/payment-settings/')
+        .then(r=>r.json())
+        .then(d=>{
+            const settings = d.settings || d.payment_settings || [];
+            if (!settings.length) { usePreset("To'lov uchun: 8600 **** **** 1234 (Baxmal Meat)"); return; }
+            const s = settings[0];
+            usePreset(`💳 To'lov Rekvizitlari:\n\nKarta: ${s.card_number}\nEgasi: ${s.card_holder}\n${s.instructions||''}`);
+        }).catch(()=>{ usePreset("To'lov uchun karta: 8600 **** **** 1234 (Baxmal Meat)"); });
+}
+
+// ─── Payment proof lightbox ────────────────────────────────────────────────
+function showProof(url, orderId) {
+    if (!url) {
+        alert("Ushbu buyurtmada to'lov cheki fotosi mavjud emas.");
+        return;
+    }
+    document.getElementById('proof-title').textContent = `📸 Buyurtma #${orderId || ''} — To'lov Cheki`;
+    document.getElementById('proof-img').src = url;
+    document.getElementById('proof-open-link').href = url;
+    const overlay = document.getElementById('proof-overlay');
+    overlay.classList.add('open');
+    overlay.style.display = 'flex'; // Force display flex just in case CSS doesn't load
+}
+
+function findAndShowChatProof(orderId) {
+    const imgs = document.querySelectorAll('#chat-stream img');
+    if (imgs && imgs.length > 0) {
+        const lastImg = imgs[imgs.length - 1];
+        showProof(lastImg.src, orderId);
+        return;
+    }
+    alert(`Buyurtma #${orderId} uchun to'lov cheki fotosi biriktirilmagan.`);
+}
+
+function closeProof() { 
+    const overlay = document.getElementById('proof-overlay');
+    overlay.classList.remove('open'); 
+    overlay.style.display = 'none';
+}
+function closeProofIfBg(e) { if (e.target === document.getElementById('proof-overlay')) closeProof(); }
+
+// ─── Helpers ──────────────────────────────────────────────────────────────
+function fmt(n) { return Math.round(n||0).toLocaleString('fr-FR').replace(/,/g,' '); }
+</script>
+{% endblock %}

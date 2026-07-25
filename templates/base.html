@@ -1,0 +1,859 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Baxmal Meat | Premium{% endblock title %}</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+/* ══════════════════════════════════════
+   YANGI YORUG' PREMIUM DIZAYN
+══════════════════════════════════════ */
+:root {
+  --bg-main:       #F5F1EB;
+  --bg-surface:    #FFFFFF;
+  --bg-surface-2:  #F8F6F2;
+  --primary:       #1B6B4A;
+  --primary-light: #2D9B6E;
+  --primary-dark:  #145438;
+  --primary-gradient: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+  --accent:        #D4A853;
+  --accent-light:  #E8C97A;
+  --accent-glow:   rgba(212, 168, 83, 0.18);
+  --text-main:     #1A1A2E;
+  --text-muted:    #6B7280;
+  --text-light:    #9CA3AF;
+  --danger:        #DC3545;
+  --success:       #28A745;
+  --warning:       #F59E0B;
+  --glass-bg:      rgba(255, 255, 255, 0.88);
+  --glass-border:  rgba(27, 107, 74, 0.10);
+  --border-color:  rgba(0, 0, 0, 0.07);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.05);
+  --shadow-md:     0 4px 20px rgba(0,0,0,0.08);
+  --shadow-lg:     0 8px 40px rgba(0,0,0,0.10);
+  --font-sans:     'Inter', sans-serif;
+  --font-serif:    'DM Serif Display', serif;
+  --radius-sm:     10px;
+  --radius-md:     16px;
+  --radius-lg:     24px;
+  --radius-full:   100px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  background-image: linear-gradient(rgba(245, 241, 235, 0.88), rgba(245, 241, 235, 0.88)), url('/static/images/logo.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Orqa fondagi yumshoq rang effektlari */
+body::before {
+  content: '';
+  position: fixed;
+  top: -15%; right: -10%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(27,107,74,0.06) 0%, transparent 65%);
+  filter: blur(80px);
+  z-index: -1;
+  animation: floatGreen 12s infinite alternate;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -10%; left: -5%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 65%);
+  filter: blur(80px);
+  z-index: -1;
+  animation: floatGold 10s infinite alternate;
+}
+@keyframes floatGreen {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-40px, 40px); }
+}
+@keyframes floatGold {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(30px, -30px); }
+}
+
+/* ── NEW DUAL-ROW HEADER (OpenBudget Style) ── */
+.top-bar-new {
+  background: #FFFFFF;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 8px 24px;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.top-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.top-bar-info a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.top-bar-info a:hover {
+  color: var(--primary);
+}
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.main-navbar-new {
+  background: var(--primary); /* Baxmal Meat green: #1B6B4A */
+  padding: 12px 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.navbar-container-new {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.navbar-brand-new {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.navbar-logo-wrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  padding: 1px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.navbar-logo-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.navbar-brand-name {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: #FFFFFF;
+  line-height: 1;
+}
+.navbar-brand-sub {
+  font-size: 9px;
+  color: var(--accent); /* Baxmal gold: #D4A853 */
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-top: 2px;
+  display: block;
+}
+
+/* Links */
+.navbar-links-new {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.navbar-link-item {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 50px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.navbar-link-item:hover {
+  color: #FFFFFF !important;
+  background: rgba(255,255,255,0.08);
+}
+.navbar-link-item.active {
+  color: var(--accent) !important;
+  background: rgba(255,255,255,0.12);
+  font-weight: 700;
+}
+
+/* Mobile Toggle */
+.navbar-toggle-new {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Mobile dropdown */
+.mobile-dropdown-menu-new {
+  display: none;
+  background: var(--primary);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 12px 24px;
+}
+.mobile-dropdown-menu-new.show {
+  display: block;
+}
+
+@media (max-width: 991px) {
+  .navbar-links-new {
+    display: none !important;
+  }
+  .navbar-toggle-new {
+    display: block !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .top-bar-new {
+    padding: 8px 12px;
+  }
+  .top-bar-info {
+    display: none !important;
+  }
+  .top-bar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .main-navbar-new {
+    padding: 10px 16px;
+  }
+  .navbar-brand-name {
+    font-size: 16px;
+  }
+  .navbar-brand-sub {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .navbar-logo-wrapper {
+    width: 32px;
+    height: 32px;
+  }
+  .mobile-dropdown-menu-new {
+    padding: 12px 16px;
+  }
+}
+
+/* ── TUGMALAR VA O'TKAZGICHLAR ── */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.script-toggle {
+  display: flex;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+  padding: 3px;
+}
+.script-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: 0.3s;
+}
+.script-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(27,107,74,0.25);
+}
+/* Custom Dropdown Styling */
+/* Custom Dropdown Styling */
+.dropdown-menu {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 8px !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.dropdown-item {
+  color: var(--text-main) !important;
+  font-weight: 500;
+  font-size: 14.5px !important;
+  padding: 10px 20px !important;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dropdown-item i {
+  font-size: 16px;
+}
+.dropdown-item:hover {
+  background: rgba(27, 107, 74, 0.06) !important;
+  color: var(--primary) !important;
+}
+.dropdown-item.active {
+  background: rgba(27, 107, 74, 0.08) !important;
+  color: var(--primary) !important;
+  font-weight: 700;
+}
+
+@media (min-width: 992px) {
+  .dropdown:hover .dropdown-menu {
+    display: block !important;
+    margin-top: 0 !important;
+  }
+}
+
+/* ── USER MENU ── */
+.user-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 30px;
+  padding: 5px 14px 5px 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: 0.3s;
+}
+.user-btn:hover, .user-btn[aria-expanded="true"] {
+  background: rgba(27,107,74,0.06);
+  border-color: var(--primary);
+}
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* ── PREMIUM DROPDOWN ── */
+.premium-dropdown {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 12px !important;
+  min-width: 280px;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(27,107,74,0.05) !important;
+  margin-top: 12px !important;
+}
+.pd-header {
+  padding: 10px 15px 15px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 10px;
+}
+.pd-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
+.pd-role { font-size: 11px; color: var(--primary); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px;}
+
+.pd-item {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-muted) !important;
+  text-decoration: none;
+  transition: 0.2s !important;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+.pd-item:hover {
+  background: rgba(27,107,74,0.06) !important;
+  color: var(--primary) !important;
+  transform: translateX(3px);
+}
+.pd-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(27,107,74,0.08);
+  font-size: 15px;
+  color: var(--primary);
+}
+.pd-text { display: flex; flex-direction: column; }
+.pd-title { font-size: 14px; font-weight: 500; color: var(--text-main); }
+.pd-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.pd-divider { height: 1px; background: var(--border-color); margin: 8px 0; }
+.pd-danger:hover { background: rgba(220,53,69,0.08) !important; color: var(--danger) !important; }
+.pd-danger .pd-icon { color: var(--danger); background: rgba(220,53,69,0.08); }
+
+/* ── AUTH TUGMALARI ── */
+.btn-login {
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 16px;
+  transition: 0.3s;
+}
+.btn-login:hover { color: var(--primary); }
+.btn-signup {
+  background: var(--primary-gradient);
+  color: #fff !important;
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: 0.3s;
+  box-shadow: 0 4px 12px rgba(27,107,74,0.25);
+}
+.btn-signup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(27,107,74,0.35);
+  color: #fff !important;
+}
+
+/* ══════════════════════════════════════
+   ASOSIY KONTENT VA FOOTER
+══════════════════════════════════════ */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.modern-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  padding: 30px 0;
+}
+.footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.footer-links a {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-left: 24px;
+  transition: 0.2s;
+}
+.footer-links a:hover {
+  color: var(--primary);
+}
+
+/* ── RESPONSIVE RESPONSIVENESS ── */
+@media (max-width: 768px) {
+  .footer-inner { flex-direction: column; gap: 15px; text-align: center; }
+  .footer-links a { margin: 0 10px; }
+  /* Prevent iOS zoom on inputs globally */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  /* Smooth scrolling everywhere */
+  html {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+/* ── NOTIFICATION STYLES ── */
+.notif-item {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+.notif-item:hover {
+  background: var(--bg-surface-2);
+}
+.notif-item:last-child {
+  border-bottom: none;
+}
+.notif-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.notif-title {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+.notif-body {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+}
+</style>
+
+{% block extrahead %}{% endblock %}
+</head>
+<body>
+
+<!-- Row 1: Utility top-bar -->
+<div class="top-bar-new">
+  <div class="top-bar-info">
+    <span><i class="bi bi-shield-check text-success"></i> 100% Halol Kafolatli Go'sht Mahsulotlari</span>
+    <a href="tel:+998770824477" class="d-none d-md-inline"><i class="bi bi-telephone-fill"></i> +998 77 082 4477</a>
+  </div>
+  
+  <div class="top-bar-actions">
+    <!-- Script Toggle -->
+    <div class="script-toggle">
+      <a href="/pos/switch-script/latin/" class="script-btn {% if request.session.script_mode == 'latin' or not request.session.script_mode %}active{% endif %}">Lotin</a>
+      <a href="/pos/switch-script/cyrillic/" class="script-btn {% if request.session.script_mode == 'cyrillic' %}active{% endif %}">Кирилл</a>
+    </div>
+
+    <!-- Notification Bell -->
+    {% if user.is_authenticated and user.is_superuser %}
+    <div class="dropdown me-2" id="notificationDropdownWrapper">
+      <button class="btn btn-sm btn-link text-decoration-none position-relative p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--text-main); font-size: 15px; display: flex; align-items: center;" onclick="loadNotifications()">
+        <i class="bi bi-bell-fill" style="color: var(--primary);"></i>
+        <span id="notif-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 8px; padding: 2px 4px; display: none; transform: translate(50%, -50%);">0</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-md p-2 mt-2" id="notificationDropdownMenu" style="width: 290px; border-radius: 12px; font-size: 12.5px; border: 1px solid rgba(0,0,0,0.08);">
+        <li class="dropdown-header border-bottom pb-2 fw-bold text-uppercase style-main" style="font-size: 11px; color: var(--primary);">🔔 Bildirishnomalar</li>
+        <div id="notif-list-container" style="max-height: 250px; overflow-y: auto;">
+          <li class="text-center py-3 text-muted">Yuklanmoqda...</li>
+        </div>
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- User profiles -->
+    {% if user.is_authenticated %}
+    <div class="dropdown">
+      <button class="btn btn-sm btn-link text-decoration-none dropdown-toggle p-0 d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" style="color: var(--text-main); font-weight: 600; font-size: 12.5px;">
+        <div class="user-avatar" style="width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">
+          {{ user.username|slice:":1"|upper }}
+        </div>
+        <span>{{ user.username }}</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); padding: 8px;">
+        <div class="px-3 py-2 border-bottom mb-2">
+          <div class="fw-bold style-main" style="font-size: 13px; color: var(--text-main);">{{ user.get_full_name|default:user.username }}</div>
+          <div class="text-muted" style="font-size: 11px;">{% if user.is_superuser %}Administrator{% else %}Mijoz{% endif %}</div>
+        </div>
+        {% if user.is_superuser %}
+        <li><a class="dropdown-item rounded-2" href="/admin/" style="font-size: 12.5px;"><i class="bi bi-database-check me-2"></i> Django Admin</a></li>
+        {% else %}
+        <li><a class="dropdown-item rounded-2" href="/pos/my-cabinet/" style="font-size: 12.5px;"><i class="bi bi-person-vcard me-2"></i> Shaxsiy Kabinet</a></li>
+        {% endif %}
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <form action="{% url 'logout' %}" method="post" class="m-0">
+            {% csrf_token %}
+            <button type="submit" class="dropdown-item text-danger rounded-2" style="font-size: 12.5px;"><i class="bi bi-box-arrow-right me-2"></i> Chiqish</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+    {% else %}
+    <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 600; text-decoration: none; font-size: 12px;">Kirish</a>
+    <a href="{% url 'signup' %}" style="color: #FFFFFF; background: var(--primary); padding: 4px 12px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 12px;">Ro'yxatdan o'tish</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Row 2: Main dark green navbar -->
+<header class="main-navbar-new">
+  <div class="navbar-container-new">
+    <a href="{% url 'home' %}" class="navbar-brand-new">
+      <div class="navbar-logo-wrapper">
+        <img src="{% static 'images/icon.jpg' %}" class="navbar-logo-img" alt="Baxmal">
+      </div>
+      <div>
+        <span class="navbar-brand-name">Baxmal Meat</span>
+        <span class="navbar-brand-sub">Premium Boutique</span>
+      </div>
+    </a>
+
+    <!-- Desktop links (Uzbek) -->
+    {% if user.is_superuser %}
+    <div class="navbar-links-new">
+      <a href="{% url 'terminal' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
+        <i class="bi bi-display"></i> Savdo Terminali
+      </a>
+      <a href="{% url 'ai_assistant_page' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'ai_assistant_page' %}active{% endif %}">
+        <i class="bi bi-cpu"></i> AI Yordamchi
+      </a>
+      <a href="{% url 'customers' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'customers' %}active{% endif %}">
+        <i class="bi bi-people"></i> Mijozlar Bazasi
+      </a>
+      <a href="{% url 'customer_chats_dashboard' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'customer_chats_dashboard' %}active{% endif %}">
+        <i class="bi bi-chat-dots"></i> Mijozlar Chati
+        <span id="pending-b2b-badge" class="badge bg-danger rounded-pill d-none ms-1" style="font-size: 9px; font-weight: 700; padding: 2px 5px;">0</span>
+      </a>
+      <a href="{% url 'article_list' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'article_list' or request.resolver_match.url_name == 'article_edit' or request.resolver_match.url_name == 'article_detail' %}active{% endif %}">
+        <i class="bi bi-box-seam"></i> Mahsulotlar
+      </a>
+
+      <!-- Dropdown button for all other sections -->
+      <div class="dropdown d-inline-block">
+        <button class="navbar-link-item btn btn-link text-decoration-none dropdown-toggle border-0 d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: rgba(255,255,255,0.85); background: transparent; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 50px;">
+          <i class="bi bi-grid-3x3-gap"></i> Boshqa bo'limlar
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-md mt-2">
+          <li>
+            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'daily_report' %}active{% endif %}" href="{% url 'daily_report' %}">
+              <i class="bi bi-calendar-check me-2 text-info"></i> Kunlik Hisobot
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'global_analytics' %}active{% endif %}" href="{% url 'global_analytics' %}">
+              <i class="bi bi-graph-up-arrow me-2 text-primary"></i> Kengaytirilgan Analitika
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'cash_flow' %}active{% endif %}" href="{% url 'cash_flow' %}">
+              <i class="bi bi-cash-coin me-2 text-success"></i> Kirim-Chiqim
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'yield_loss' %}active{% endif %}" href="{% url 'yield_loss' %}">
+              <i class="bi bi-calculator me-2 text-warning"></i> Tannarx
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'debt_payment' %}active{% endif %}" href="{% url 'debt_payment' %}">
+              <i class="bi bi-wallet2 me-2 text-danger"></i> Qarz to'lovi
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'suppliers_dashboard' %}active{% endif %}" href="{% url 'suppliers_dashboard' %}">
+              <i class="bi bi-truck me-2 text-dark"></i> Ta'minotchilar
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'debt-migration' %}active{% endif %}" href="{% url 'debt-migration' %}">
+              <i class="bi bi-journal-arrow-up me-2 text-secondary"></i> Nasiya daftari (Ko'chirish)
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'article_new' %}active{% endif %}" href="{% url 'article_new' %}">
+              <i class="bi bi-plus-circle me-2 text-warning"></i> Yangi Go'sht qo'shish
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Mobile toggle -->
+    <button class="navbar-toggle-new" onclick="toggleMobileNavbar()">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile Dropdown -->
+<div id="mobile-navbar-dropdown" class="mobile-dropdown-menu-new">
+  <div class="d-flex flex-column gap-2">
+    {% if user.is_superuser %}
+    <a href="{% url 'terminal' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
+      <i class="bi bi-display"></i> Savdo Terminali
+    </a>
+    <a href="{% url 'ai_assistant_page' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'ai_assistant_page' %}active{% endif %}">
+      <i class="bi bi-cpu"></i> AI Yordamchi
+    </a>
+    <a href="{% url 'customers' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'customers' %}active{% endif %}">
+      <i class="bi bi-people"></i> Mijozlar Bazasi
+    </a>
+    <a href="{% url 'customer_chats_dashboard' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'customer_chats_dashboard' %}active{% endif %}">
+      <i class="bi bi-chat-dots"></i> Mijozlar Chati <span id="mobile-pending-b2b-badge" class="badge bg-danger rounded-pill d-none ms-2">0</span>
+    </a>
+    <a href="{% url 'article_list' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'article_list' %}active{% endif %}">
+      <i class="bi bi-box-seam"></i> Mahsulotlar
+    </a>
+    <hr class="my-1" style="border-color: rgba(255,255,255,0.15)">
+    <a href="{% url 'daily_report' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'daily_report' %}active{% endif %}">
+      <i class="bi bi-calendar-check"></i> Kunlik Hisobot
+    </a>
+    <a href="{% url 'global_analytics' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'global_analytics' %}active{% endif %}">
+      <i class="bi bi-graph-up-arrow"></i> Kengaytirilgan Analitika
+    </a>
+    <a href="{% url 'cash_flow' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'cash_flow' %}active{% endif %}">
+      <i class="bi bi-cash-coin"></i> Kirim-Chiqim
+    </a>
+    <a href="{% url 'yield_loss' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'yield_loss' %}active{% endif %}">
+      <i class="bi bi-calculator"></i> Tannarx
+    </a>
+    <a href="{% url 'debt_payment' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'debt_payment' %}active{% endif %}">
+      <i class="bi bi-wallet2"></i> Qarz to'lovi
+    </a>
+    <a href="{% url 'suppliers_dashboard' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'suppliers_dashboard' %}active{% endif %}">
+      <i class="bi bi-truck"></i> Ta'minotchilar
+    </a>
+    <a href="{% url 'debt-migration' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'debt-migration' %}active{% endif %}">
+      <i class="bi bi-journal-arrow-up"></i> Nasiya daftari (Ko'chirish)
+    </a>
+    <a href="{% url 'article_new' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'article_new' %}active{% endif %}">
+      <i class="bi bi-plus-circle"></i> Yangi Go'sht qo'shish
+    </a>
+    {% else %}
+    <a href="/pos/my-cabinet/" class="navbar-link-item">
+      <i class="bi bi-person-vcard"></i> Shaxsiy Kabinet
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function toggleMobileNavbar() {
+  const menu = document.getElementById('mobile-navbar-dropdown');
+  if (menu) menu.classList.toggle('show');
+}
+</script>
+
+<div class="main-wrapper">
+  {% if not user.is_superuser %}
+  <!-- PROMOTIONAL ACCORDION/BANNER FOR BEEF -->
+  <div class="promo-banner-wrapper animate__animated animate__fadeInDown" style="background: linear-gradient(135deg, #1B6B4A, #145438); color: #FFFFFF; padding: 12px 20px; font-size: 14px; text-align: center; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 10px; border-bottom: 2px solid #D4A853; position: relative; z-index: 100;">
+    <span style="background: #D4A853; color: #1A1A2E; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 30px; text-transform: uppercase; letter-spacing: 1px;">Katta Aksiya</span>
+    <span>🔥 <strong>Mol go'shtidan buyurtma bering</strong> – Toshkent bo'ylab yetkazib berish mutlaqo bepul!</span>
+    <a href="/pos/my-cabinet/" style="color: #81EFBB; font-weight: 700; text-decoration: underline; margin-left: 10px;">Buyurtma berish <i class="bi bi-arrow-right"></i></a>
+  </div>
+  {% endif %}
+  {% block content %}{% endblock content %}
+</div>
+
+<footer class="modern-footer">
+  <div class="footer-inner">
+    <div class="footer-text">
+      © 2026 <strong>Baxmal Meat</strong>. Barcha huquqlar himoyalangan.
+    </div>
+    <div class="footer-links">
+      <a href="{% url 'home' %}">Bosh Sahifa</a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'terminal' %}">Terminal</a>
+      <a href="{% url 'global_analytics' %}">Analitika</a>
+      {% endif %}
+    </div>
+  </div>
+</footer>
+
+{% if user.is_authenticated and user.is_superuser %}
+<script>
+function loadNotifications() {
+  const container = document.getElementById('notif-list-container');
+  if (!container) return;
+  
+  fetch('/pos/api/notifications/')
+    .then(res => res.json())
+    .then(data => {
+      container.innerHTML = '';
+      if (data.alerts && data.alerts.length > 0) {
+        data.alerts.forEach(alert => {
+          const li = document.createElement('li');
+          li.className = 'notif-item';
+          li.innerHTML = `
+            <div class="notif-icon-box" style="background: ${alert.type === 'low_stock' ? 'rgba(220,53,69,0.08)' : 'rgba(27,107,74,0.08)'};">
+              ${alert.icon}
+            </div>
+            <div style="flex: 1;">
+              <div class="notif-title">${alert.title}</div>
+              <div class="notif-body">${alert.body}</div>
+            </div>
+          `;
+          container.appendChild(li);
+        });
+      } else {
+        container.innerHTML = '<li class="text-center py-4 text-muted"><i class="bi bi-check-circle text-success fs-4 d-block mb-2"></i>Hamma narsa joyida!</li>';
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      container.innerHTML = '<li class="text-center py-3 text-danger">Yuklashda xatolik!</li>';
+    });
+}
+
+function checkNotificationCount() {
+  fetch('/pos/api/notifications/')
+    .then(res => res.json())
+    .then(data => {
+      const badge = document.getElementById('notif-count-badge');
+      if (badge) {
+        if (data.count > 0) {
+          badge.innerText = data.count;
+          badge.style.display = 'block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+      
+      // Update B2B pending badge if exists
+      const b2bBadge = document.getElementById('pending-b2b-badge');
+      if (b2bBadge) {
+        if (data.pending_b2b > 0) {
+          b2bBadge.innerText = data.pending_b2b;
+          b2bBadge.classList.remove('d-none');
+        } else {
+          b2bBadge.classList.add('d-none');
+        }
+      }
+    })
+    .catch(err => console.error("Error checking counts:", err));
+}
+
+// Initial count check and set interval
+document.addEventListener("DOMContentLoaded", function() {
+  checkNotificationCount();
+  setInterval(checkNotificationCount, 30000);
+});
+</script>
+{% endif %}
+
+{% block modals %}{% endblock modals %}
+
+{% include 'b2b_notification_toast.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extrascripts %}{% endblock %}
+</body>
+</html>

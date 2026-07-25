@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}🗑️ Mahsulotni O'chirish — Baxmal Meat{% endblock title %}
+
+{% block content %}
+<style>
+    .delete-wrapper {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 64px 15px 40px;
+    }
+
+    .delete-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .delete-card-header {
+        background: rgba(220, 53, 69, 0.06);
+        border-bottom: 1px solid rgba(220, 53, 69, 0.12);
+        padding: 20px 24px;
+    }
+    .delete-card-header h4 {
+        font-family: var(--font-serif);
+        font-size: 1.3rem;
+        color: var(--danger);
+        margin: 0;
+    }
+
+    .delete-card-body {
+        padding: 36px 32px 32px;
+    }
+
+    .warning-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: rgba(212, 168, 83, 0.12);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .warning-icon i {
+        font-size: 2rem;
+        color: var(--accent);
+    }
+
+    .delete-card-body .lead {
+        font-size: 1.05rem;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+    .delete-card-body .article-name {
+        font-family: var(--font-serif);
+        font-size: 1.2rem;
+        color: var(--text-main);
+        margin: 12px 0;
+    }
+    .delete-card-body .warning-text {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .delete-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 28px;
+    }
+
+    .btn-confirm-delete {
+        background: var(--danger);
+        color: #fff;
+        border: none;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+    }
+    .btn-confirm-delete:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(220,53,69,0.3);
+    }
+
+    .btn-cancel-delete {
+        background: var(--bg-surface);
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: block;
+        text-align: center;
+    }
+    .btn-cancel-delete:hover {
+        background: var(--bg-surface-2);
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+</style>
+
+<div class="delete-wrapper">
+    <div class="delete-card">
+        <div class="delete-card-header">
+            <h4>Maqolani o'chirishni tasdiqlang</h4>
+        </div>
+        <div class="delete-card-body">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p class="lead">Haqiqatan ham quyidagi maqolani o'chirib tashlamoqchimisiz?</p>
+            <h5 class="article-name">"{{ article.title }}"</h5>
+            <p class="warning-text">Diqqat: O'chirilgan maqolani qayta tiklab bo'lmaydi.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="delete-actions">
+                    <button type="submit" class="btn-confirm-delete">
+                        <i class="fas fa-trash-alt"></i> Ha, o'chirilsin
+                    </button>
+                    <a href="{% url 'article_detail' article.pk %}" class="btn-cancel-delete">
+                        Yo'q, bekor qilish
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% block title %}🥩 Tana Go'shti Hisoboti #{{ slaughter.id }} — Baxmal Meat{% endblock %}
+{% block content %}
+<style>
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .no-print { display: none !important; }
+  .report-card { border: none !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+  .badge { border: 1px solid #000 !important; color: #000 !important; background: transparent !important; }
+}
+
+.report-container {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+.report-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  padding: 30px;
+  margin-bottom: 30px;
+}
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+.report-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  color: var(--primary);
+  font-weight: 800;
+  margin: 0;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.stat-box {
+  background: var(--bg-main);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.stat-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+.stat-val.profit { color: var(--primary); }
+.stat-val.loss { color: #DC3545; }
+
+.section-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  color: var(--text-main);
+  font-weight: 700;
+  margin: 30px 0 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-custom {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+}
+.table-custom th {
+  background: var(--primary-gradient);
+  color: #fff;
+  font-weight: 700;
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+.table-custom th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+.table-custom th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+.table-custom td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  color: var(--text-main);
+}
+.table-custom tr:hover td {
+  background: rgba(27,107,74,0.02);
+}
+
+.progress-bar-custom {
+  height: 12px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary-gradient);
+  border-radius: 6px;
+  transition: width 0.5s ease-in-out;
+}
+</style>
+
+<div class="report-container">
+  <!-- Actions bar -->
+  <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <a href="{% url 'global_analytics' %}" class="btn btn-outline-secondary d-flex align-items-center gap-1" style="border-radius: 12px; font-weight: 600;">
+      <i class="bi bi-arrow-left"></i> Analitika paneliga qaytish
+    </a>
+    <button onclick="window.print()" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2" style="border-radius: 12px; font-weight: 700; background: var(--primary-gradient); border: none;">
+      <i class="bi bi-printer-fill"></i> Hisobotni Chop Etish
+    </button>
+  </div>
+
+  <div class="report-card">
+    <!-- Header -->
+    <div class="report-header">
+      <div>
+        <h1 class="report-title">🥩 Tana Go'shti Hisoboti #{{ slaughter.id }}</h1>
+        <div class="text-muted small mt-1">
+          <i class="bi bi-clock me-1"></i> Qabul qilingan vaqt: {{ slaughter.created_at|date:"d.m.Y H:i" }}
+        </div>
+      </div>
+      <div>
+        {% if slaughter.status == 'active' %}
+          <span class="badge bg-success py-2 px-3" style="font-size:13px; border-radius:30px; background:var(--primary-light) !important;">
+            <i class="bi bi-clock-history me-1"></i> Sotilmoqda (Aktiv)
+          </span>
+        {% else %}
+          <span class="badge bg-secondary py-2 px-3" style="font-size:13px; border-radius:30px; background:#6B7280 !important;">
+            <i class="bi bi-check-circle-fill me-1"></i> Sotib tugatildi
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stat-grid">
+      <div class="stat-box">
+        <span class="stat-lbl">Tana Turi</span>
+        <span class="stat-val">
+          {% if slaughter.animal_type == 'mol' %}🐂 Qora Mol{% else %}🐑 Qo'y{% endif %}
+        </span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-lbl">Dastlabki Og'irligi</span>
+        <span class="stat-val">{{ slaughter.total_weight }} kg</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-lbl">Xarid Tannarxi (kg)</span>
+        <span class="stat-val">{{ slaughter.purchase_price_per_kg|floatformat:0 }} so'm</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-lbl">Jami Xarid Qiymati</span>
+        <span class="stat-val">{{ slaughter.total_cost|floatformat:0 }} so'm</span>
+      </div>
+    </div>
+
+    <!-- Active progress weight -->
+    <div class="stat-box mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="stat-lbl">Sotuv progressi (Qoldiq vazn)</span>
+        <span class="fw-bold">{{ slaughter.remaining_weight }} kg / {{ slaughter.total_weight }} kg qoldi</span>
+      </div>
+      <div class="progress-bar-custom">
+        <div class="progress-fill" style="width: 0%;"></div>
+        <!-- Calculate percentage manually -->
+        <script>
+          document.currentScript.previousElementSibling.firstElementChild.style.width = 
+            Math.max(0, Math.min(100, (parseFloat("{{ slaughter.remaining_weight }}") / parseFloat("{{ slaughter.total_weight }}")) * 100)) + '%';
+        </script>
+      </div>
+    </div>
+
+    <!-- Ta'minotchi ma'lumotlari -->
+    <div class="section-title">
+      <i class="bi bi-person-badge"></i> Ta'minotchi (Chorvador)
+    </div>
+    <div class="p-3 mb-4" style="background:var(--bg-main); border-radius:12px; border:1px solid var(--border-color);">
+      {% if slaughter.supplier %}
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ slaughter.supplier.first_name }} {{ slaughter.supplier.last_name|default:'' }}</strong> 
+            <span class="text-muted ms-2">(ID: {{ slaughter.supplier.custom_id }})</span>
+          </div>
+          <div>
+            <i class="bi bi-phone me-1"></i> {{ slaughter.supplier.phone }}
+          </div>
+        </div>
+      {% else %}
+        <div class="text-muted">Ta'minotchi kiritilmagan</div>
+      {% endif %}
+    </div>
+
+    <!-- Finanslar Tahlili -->
+    <div class="section-title">
+      <i class="bi bi-currency-dollar"></i> Foyda / Zarar Hisob-kitobi
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box">
+        <span class="stat-lbl">Jami Sotuv Tushumi</span>
+        <span class="stat-val">{{ total_revenue|floatformat:0 }} so'm</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-lbl">Tana Tannarxi</span>
+        <span class="stat-val">{{ purchase_cost|floatformat:0 }} so'm</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-lbl">Qurish / Yo'qotilgan Vazn</span>
+        <span class="stat-val text-danger">{{ yield_loss|floatformat:3 }} kg ({{ yield_loss_pct }}%)</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-lbl">Yakuniy Foyda / Zarar</span>
+        <span class="stat-val {% if profit >= 0 %}profit{% else %}loss{% endif %}">
+          {% if profit >= 0 %}+{% endif %}{{ profit|floatformat:0 }} so'm
+        </span>
+      </div>
+    </div>
+
+    <!-- Nimtalar bo'yicha sotuv tahlili -->
+    <div class="section-title">
+      <i class="bi bi-pie-chart"></i> Mahsulotlar (Nimtalar) Kesimida Sotuv
+    </div>
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Mahsulot Nomi</th>
+          <th>Sotilgan Og'irlik</th>
+          <th>O'rtacha Narx (kg)</th>
+          <th>Jami Tushum</th>
+          <th>Vazn Ulushi (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for name, data in cuts_breakdown.items %}
+          <tr>
+            <td><strong>{{ name }}</strong></td>
+            <td>{{ data.weight|floatformat:3 }} kg</td>
+            <td>{{ data.avg_price|floatformat:0 }} so'm</td>
+            <td><strong>{{ data.revenue|floatformat:0 }} so'm</strong></td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span style="font-weight:700;">{{ data.pct }}%</span>
+                <div class="progress-bar-custom" style="width: 60px; height: 6px; margin: 0;">
+                  <div class="progress-fill" style="width: {{ data.pct }}%;"></div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-muted py-4">Ushbu tanadan hali birorta ham chakana sotuv amalga oshirilmagan.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Tranzaksiyalar batafsil logi -->
+    <div class="section-title">
+      <i class="bi bi-receipt-cutoff"></i> Ushbu Tanadan Sotuvlar Tarixi
+    </div>
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Sotuv ID</th>
+          <th>Sana / Vaqt</th>
+          <th>Xaridor</th>
+          <th>Mahsulot</th>
+          <th>Sotilgan Vazn</th>
+          <th>Narxi (kg)</th>
+          <th>Jami</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in sale_items %}
+          <tr>
+            <td>#{{ item.sale.id }}</td>
+            <td>{{ item.sale.created_at|date:"d.m.Y H:i" }}</td>
+            <td>
+              {% if item.sale.customer %}
+                <strong>{{ item.sale.customer }}</strong>
+                {% if item.sale.customer.supplier_profile %}
+                  <span class="badge bg-warning text-dark ms-1" style="font-size:9px;">Chorvador Barter</span>
+                {% endif %}
+              {% else %}
+                <span class="text-muted">Noma'lum xaridor</span>
+              {% endif %}
+            </td>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.weight|floatformat:3 }} kg</td>
+            <td>{{ item.price_at_sale|floatformat:0 }} so'm</td>
+            <td><strong>{{ item.item_total|floatformat:0 }} so'm</strong></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-4">Sotuvlar tarixi bo'sh.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

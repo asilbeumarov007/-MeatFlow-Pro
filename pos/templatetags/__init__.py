@@ -1,0 +1,1 @@
+# pos templatetags init

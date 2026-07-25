@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+.venv/
+ENV/
+
+# Environment Variables & Secrets (CRITICAL)
+.env
+.env.*
+secrets.json
+
+# Database
+db.sqlite3
+*.db
+*.sqlite3
+
+# Django Media & Collected Static
+media/
+staticfiles/
+
+# Frontend / Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+.DS_Store
+
+# IDE & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+.junie/

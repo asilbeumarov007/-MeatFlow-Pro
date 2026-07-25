@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+
+{% block title %}🥩 Mahsulotlar Katalogi — MeatFlow Pro{% endblock title %}
+
+{% block content %}
+<style>
+    .catalog-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+    }
+    .catalog-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .catalog-title {
+        font-family: var(--font-serif, 'DM Serif Display', serif);
+        font-size: 2.5rem;
+        color: var(--text-main, #1A1A2E);
+        margin-bottom: 8px;
+    }
+    .catalog-subtitle {
+        color: var(--text-muted, #6B7280);
+        font-size: 1.05rem;
+    }
+    .hero-line {
+        width: 80px;
+        height: 4px;
+        background: var(--accent, #D4A853);
+        border-radius: 4px;
+        margin: 12px auto 0;
+    }
+
+    /* Filter Pills */
+    .filter-pills {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 35px;
+        flex-wrap: wrap;
+    }
+    .filter-btn {
+        border: 1px solid rgba(0,0,0,0.06);
+        background: #FFFFFF;
+        color: var(--text-main, #1A1A2E);
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.05));
+    }
+    .filter-btn:hover {
+        border-color: var(--primary, #1B6B4A);
+        color: var(--primary, #1B6B4A);
+        transform: translateY(-1px);
+    }
+    .filter-btn.active {
+        background: var(--primary-gradient, linear-gradient(135deg, #1B6B4A, #2D9B6E));
+        color: #FFFFFF;
+        border-color: transparent;
+    }
+
+    /* Grid Layout */
+    .catalog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 28px;
+    }
+
+    /* Premium Cut Card */
+    .cut-card {
+        background: #FFFFFF;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 20px;
+        box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.05));
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+    }
+    .cut-card:hover {
+        box-shadow: var(--shadow-md, 0 4px 20px rgba(0,0,0,0.08));
+        transform: translateY(-6px);
+    }
+
+    .cut-image-wrapper {
+        width: 100%;
+        height: 220px;
+        position: relative;
+        overflow: hidden;
+        background: #F3F4F6;
+    }
+    .cut-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.4s ease;
+    }
+    .cut-card:hover .cut-img {
+        transform: scale(1.05);
+    }
+
+    /* Status badge */
+    .status-badge {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        z-index: 5;
+    }
+    .status-badge.in-stock {
+        background: #1B6B4A;
+        color: #FFFFFF;
+    }
+    .status-badge.out-of-stock {
+        background: #DC3545;
+        color: #FFFFFF;
+    }
+
+    .animal-type-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        background: rgba(255,255,255,0.9);
+        color: var(--primary, #1B6B4A);
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1px solid rgba(0,0,0,0.05);
+        z-index: 5;
+    }
+
+    .cut-details {
+        padding: 22px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .cut-name {
+        font-family: var(--font-serif, 'DM Serif Display', serif);
+        font-size: 1.35rem;
+        color: var(--text-main, #1A1A2E);
+        margin-bottom: 8px;
+        line-height: 1.3;
+    }
+    .cut-name a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .cut-name a:hover {
+        color: var(--primary, #1B6B4A);
+    }
+    
+    .cut-desc {
+        color: var(--text-muted, #6B7280);
+        font-size: 0.88rem;
+        line-height: 1.6;
+        margin-bottom: 18px;
+        flex: 1;
+    }
+
+    .cut-price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        padding-top: 16px;
+    }
+    .price-label {
+        font-size: 0.78rem;
+        color: var(--text-muted, #6B7280);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+    .price-val {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--primary, #1B6B4A);
+    }
+
+    .cut-card-footer {
+        background: var(--bg-surface-2, #F8F6F2);
+        padding: 12px 22px;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: var(--text-muted, #6B7280);
+    }
+    .cut-card-footer i {
+        color: var(--accent, #D4A853);
+        margin-right: 4px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: #FFFFFF;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 20px;
+        box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.05));
+    }
+    .empty-state-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: var(--bg-main, #F5F1EB);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+    }
+    .empty-state-icon i {
+        font-size: 28px;
+        color: var(--primary, #1B6B4A);
+    }
+    .empty-state-title {
+        font-family: var(--font-serif, 'DM Serif Display', serif);
+        font-size: 1.5rem;
+        color: var(--text-main, #1A1A2E);
+        margin-bottom: 8px;
+    }
+    .empty-state p {
+        color: var(--text-muted, #6B7280);
+    }
+</style>
+
+<div class="catalog-wrapper">
+    <div class="catalog-header">
+        <h2 class="catalog-title">Yangi Kesimlar Katalogi</h2>
+        <p class="catalog-subtitle">Bugungi yangi so'yim va tayyorlangan go'sht bo'laklari</p>
+        <div class="hero-line"></div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-pills">
+        <button class="filter-btn active" onclick="filterCatalog('all')">Barchasi</button>
+        <button class="filter-btn" onclick="filterCatalog('Mol')">Mol go'shti</button>
+        <button class="filter-btn" onclick="filterCatalog('Qo\'y')">Qo'y go'shti</button>
+        <button class="filter-btn" onclick="filterCatalog('Tovuq')">Tovuq go'shti</button>
+        <button class="filter-btn" onclick="filterCatalog('Boshqa')">Boshqalar</button>
+    </div>
+
+    <div class="catalog-grid">
+        {% for article in article_list %}
+        <div class="cut-item-card" data-animal="{{ article.animal_type }}">
+            <div class="cut-card">
+                <!-- Status Badge -->
+                {% if article.stock_kg > 0 %}
+                <span class="status-badge in-stock">Zaxirada: {{ article.stock_kg|floatformat:2 }} kg</span>
+                {% else %}
+                <span class="status-badge out-of-stock">Tugagan</span>
+                {% endif %}
+
+                <!-- Animal Type Badge -->
+                <span class="animal-type-badge">{{ article.get_animal_type_display }}</span>
+
+                <!-- Image -->
+                <div class="cut-image-wrapper">
+                    {% if article.photo %}
+                    <img src="{{ article.photo.url }}" class="cut-img" alt="{{ article.name }}">
+                    {% else %}
+                    <img src="/static/images/beef_card_bg.png" class="cut-img" alt="{{ article.name }}">
+                    {% endif %}
+                </div>
+
+                <!-- Body -->
+                <div class="cut-details">
+                    <div>
+                        <h3 class="cut-name">
+                            <a href="{% url 'article_detail' article.pk %}">{{ article.name }}</a>
+                        </h3>
+                        <p class="cut-desc">{{ article.summary|truncatewords:15|default:"Yangi so'yilgan, yuqori sifatli go'sht bo'lagi." }}</p>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="cut-price-row">
+                        <div>
+                            <div class="price-label">Sotuv Narxi</div>
+                            <div class="price-val">{{ article.price|floatformat:0 }} so'm / kg</div>
+                        </div>
+                        <a href="{% url 'article_detail' article.pk %}" class="btn-wizard btn-wizard-next" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px;">
+                            Batafsil
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="cut-card-footer">
+                    <span>
+                        <i class="bi bi-person-circle"></i> {{ article.author.get_full_name|default:article.author.username }}
+                    </span>
+                    <span>
+                        <i class="bi bi-calendar3"></i> {{ article.date|date:"d.m.Y" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12" style="grid-column: 1 / -1;">
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="bi bi-inbox-fill"></i>
+                </div>
+                <h4 class="empty-state-title">Kesimlar mavjud emas</h4>
+                <p>Hozircha sotuvga tayyorlangan yangi kesimlar ro'yxatga kiritilmagan.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function filterCatalog(type) {
+    // Update active pill
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Filter items
+    document.querySelectorAll('.cut-item-card').forEach(card => {
+        const itemType = card.getAttribute('data-animal');
+        if (type === 'all' || itemType === type) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

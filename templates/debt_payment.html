@@ -1,0 +1,743 @@
+{% extends 'base.html' %}
+{% block title %}💳 Qarz To'lovi — Baxmal Meat{% endblock %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !important; }
+
+.dp-shell {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+  min-height: 100vh;
+}
+
+.dp-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1A1A2E;
+  margin-bottom: 4px;
+  font-family: 'DM Serif Display', serif;
+}
+.dp-sub {
+  font-size: 14px;
+  color: #6B7280;
+  margin-bottom: 28px;
+}
+
+/* Search */
+.search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.search-field {
+  flex: 1;
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1A1A2E;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-field::placeholder { color: #bbb; }
+.search-field:focus { border-color: #1B6B4A; box-shadow: 0 0 0 3px rgba(27,107,74,0.08); }
+
+.cust-result {
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: all 0.15s;
+  width: 100%;
+  text-align: left;
+}
+.cust-result:hover { border-color: #1B6B4A; background: #F8F6F2; }
+.cust-avatar { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; margin-right: 14px; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.07); }
+.cust-name { font-size: 15px; font-weight: 700; color: #1A1A2E; }
+.cust-meta { font-family: 'Inter', sans-serif; font-size: 11px; color: #6B7280; margin-top: 2px; }
+.debt-pill {
+  background: rgba(220,53,69,0.08);
+  border: 1px solid rgba(220,53,69,0.2);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #DC3545;
+  flex-shrink: 0;
+}
+.no-results { padding: 16px; text-align: center; color: #6B7280; font-size: 14px; }
+
+/* Selected customer card */
+.selected-card {
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(27,107,74,0.2);
+}
+.selected-avatar { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3); flex-shrink: 0; }
+.selected-name { font-size: 18px; font-weight: 800; color: #fff; }
+.selected-meta { font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.selected-debt {
+  margin-left: auto;
+  text-align: right;
+  flex-shrink: 0;
+}
+.selected-debt-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+.selected-debt-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #FECACA;
+}
+.selected-debt-val.zero { color: #D4A853; }
+
+/* Amount input */
+.amount-card {
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.amount-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6B7280; margin-bottom: 12px; display: block; }
+
+.quick-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.quick-btn {
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  background: #F8F6F2;
+  color: #6B7280;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.quick-btn:hover { border-color: #1B6B4A; color: #1A1A2E; background: #fff; }
+.quick-btn.selected { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); border-color: #1B6B4A; color: #fff; }
+.quick-btn.full { background: rgba(220,53,69,0.06); border-color: rgba(220,53,69,0.2); color: #DC3545; }
+.quick-btn.full.selected { background: #DC3545; border-color: #DC3545; color: #fff; }
+
+.amount-display {
+  background: #F8F6F2;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1A1A2E;
+  text-align: right;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  margin-bottom: 0;
+}
+.amount-display:hover { border-color: #1B6B4A; }
+
+/* Payment options */
+.pay-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6B7280; margin-bottom: 10px; display: block; }
+.pay-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.pay-opt {
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 12px;
+  padding: 12px 10px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B7280;
+  text-align: center;
+  transition: all 0.15s;
+}
+.pay-opt:hover { border-color: #1B6B4A; color: #1A1A2E; }
+.pay-opt.selected { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); border-color: #1B6B4A; color: #fff; }
+
+.btn-pay {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 10px;
+}
+.btn-pay:hover { background: linear-gradient(135deg, #155a3e, #1B6B4A); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(27,107,74,0.3); }
+.btn-pay:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Numpad */
+.numpad-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.18s;
+  backdrop-filter: blur(4px);
+}
+.numpad-overlay.open { opacity: 1; pointer-events: all; }
+.numpad-box {
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 24px;
+  padding: 24px; width: 280px;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.22s cubic-bezier(0.34,1.5,0.64,1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.numpad-overlay.open .numpad-box { transform: scale(1) translateY(0); }
+.numpad-screen {
+  background: #F8F6F2; border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.07);
+  padding: 12px 16px; margin-bottom: 16px; text-align: right;
+}
+.numpad-screen-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 36px; font-weight: 700; color: #1A1A2E;
+  line-height: 1; min-height: 1em;
+}
+.numpad-screen-unit { font-size: 13px; color: #6B7280; margin-top: 4px; }
+.numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.nk {
+  height: 58px; border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.07); background: #F8F6F2; color: #1A1A2E;
+  font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 700;
+  cursor: pointer; transition: all 0.1s;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none;
+}
+.nk:active { background: #e8e4de; transform: scale(0.95); }
+.nk.nk-del { background: rgba(220,53,69,0.08); color: #DC3545; font-size: 16px; }
+.nk.nk-ok { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff; border-color: #1B6B4A; grid-column: span 3; font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase; }
+.nk.nk-cancel { background: #F8F6F2; color: #6B7280; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; grid-column: span 3; }
+
+/* Success overlay */
+.success-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  backdrop-filter: blur(4px);
+}
+.success-overlay.open { opacity: 1; pointer-events: all; }
+.success-box {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px 32px;
+  text-align: center;
+  width: 320px;
+  transform: scale(0.9);
+  transition: transform 0.25s cubic-bezier(0.34,1.5,0.64,1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.success-overlay.open .success-box { transform: scale(1); }
+.success-icon { font-size: 56px; margin-bottom: 16px; }
+.success-title { font-size: 22px; font-weight: 800; color: #1A1A2E; margin-bottom: 8px; }
+.success-msg { font-size: 14px; color: #6B7280; margin-bottom: 24px; line-height: 1.5; }
+.btn-ok {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff;
+  border: none; border-radius: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer;
+}
+.btn-ok:hover { box-shadow: 0 4px 16px rgba(27,107,74,0.3); }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.fade-up { animation: fadeUp 0.24s ease forwards; }
+</style>
+
+<div class="dp-shell">
+  <div class="dp-title">Qarz to'lash</div>
+  <div class="dp-sub">Mijozni qidiring va to'lov miqdorini kiriting</div>
+
+  <!-- QIDIRUV -->
+  <div id="search-section">
+    <div class="search-row">
+      <input type="text" id="searchInput" class="search-field"
+             placeholder="Ism yoki telefon..." oninput="doSearch(this.value)" autocomplete="off">
+    </div>
+    <div id="results"></div>
+  </div>
+
+  <!-- TANLANGAN MIJOZ -->
+  <div id="selected-section" style="display:none;">
+    <div class="selected-card" id="selectedCard">
+      <img src="" alt="" class="selected-avatar" id="selAvatar">
+      <div>
+        <div class="selected-name" id="selName"></div>
+        <div class="selected-meta" id="selMeta"></div>
+      </div>
+      <div class="selected-debt">
+        <div class="selected-debt-lbl">Qarz</div>
+        <div class="selected-debt-val" id="selDebt"></div>
+      </div>
+    </div>
+
+    <!-- SUMMA -->
+    <div class="amount-card">
+      <span class="amount-label">To'lov miqdori</span>
+      <div class="quick-grid" id="quickGrid"></div>
+      <div class="amount-display" id="amountDisplay" onclick="openNumpad()">
+        0 so'm
+      </div>
+    </div>
+
+    <!-- TO'LOV TURI -->
+    <span class="pay-label">To'lov turi</span>
+    <div class="pay-options">
+      <button class="pay-opt selected" data-val="naqd" onclick="selectPayment(this)">💵 Naqd</button>
+      <button class="pay-opt" data-val="karta" onclick="selectPayment(this)">💳 Karta</button>
+      <button class="pay-opt" data-val="qr" onclick="selectPayment(this)">📱 QR</button>
+    </div>
+    <input type="hidden" id="paymentMethod" value="naqd">
+
+    <button class="btn-pay" id="payBtn" onclick="submitPayment()" disabled>
+      Qarzni to'lash
+    </button>
+    <button style="width:100%;padding:12px;background:transparent;border:1.5px solid rgba(0,0,0,0.07);
+            border-radius:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
+            letter-spacing:0.1em;text-transform:uppercase;color:#6B7280;cursor:pointer;"
+            onclick="resetPage()">← Boshqa mijoz</button>
+  </div>
+</div>
+
+
+<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:20px;border:1.5px solid rgba(0,0,0,0.07);">
+      <div class="modal-header" style="background:#F8F6F2;border-radius:20px 20px 0 0;padding:18px 24px;">
+        <span style="font-family:'Inter',sans-serif;font-size:16px;font-weight:800;
+                     letter-spacing:0.08em;text-transform:uppercase;color:#1A1A2E;">
+          Mijozni tahrirlash
+        </span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="padding:24px;">
+        <input type="hidden" id="edit-cust-id">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+          <img id="edit-cust-avatar"
+               src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+               style="width:60px;height:60px;border-radius:12px;object-fit:cover;
+                      border:1.5px solid rgba(0,0,0,0.07);flex-shrink:0;">
+          <div>
+            <div id="edit-cust-fullname" style="font-size:17px;font-weight:800;color:#1A1A2E;"></div>
+            <div id="edit-cust-idnum" style="font-family:'Inter',sans-serif;font-size:12px;color:#6B7280;margin-top:2px;"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="mf-label" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;display:block;">Ismi *</label>
+          <input type="text" id="edit-firstname" class="search-field" placeholder="Asliddin">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;display:block;">Familiyasi</label>
+          <input type="text" id="edit-lastname" class="search-field" placeholder="Karimov">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;display:block;">Telefon</label>
+          <input type="text" id="edit-phone" class="search-field" placeholder="991234567">
+        </div>
+        <div class="mb-3">
+          <label class="mf-label" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;display:block;">Izoh</label>
+          <textarea id="edit-note" class="search-field" rows="3"
+                    placeholder="Masalan: VIP mijoz..."
+                    style="resize:vertical;width:100%;"></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="mf-label" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;display:block;">Yangi rasm (ixtiyoriy)</label>
+          <input type="file" id="edit-image" class="search-field"
+                 accept="image/*" style="padding:10px 14px;cursor:pointer;">
+        </div>
+        <div id="edit-error-msg" style="font-size:13px;color:#DC3545;font-weight:600;min-height:16px;margin-bottom:10px;"></div>
+        <button onclick="submitEditCustomer()"
+          style="width:100%;padding:14px;background:linear-gradient(135deg,#1B6B4A,#2D9B6E);color:#fff;border:none;
+                 border-radius:14px;font-family:'Inter',sans-serif;font-size:15px;
+                 font-weight:800;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
+          Saqlash
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--9860 1901 1093 3690 siroj-->
+<!-- NUMPAD -->
+<div class="numpad-overlay" id="numpadOverlay" onclick="handleNumpadOutsideClick(event)">
+  <div class="numpad-box">
+    <div class="numpad-screen">
+      <div class="numpad-screen-val" id="numpadDisplay">0</div>
+      <div class="numpad-screen-unit" id="numpadUnit">so'm</div>
+    </div>
+    <div class="numpad-grid">
+      <button class="nk" onclick="numpadKey('7')">7</button>
+      <button class="nk" onclick="numpadKey('8')">8</button>
+      <button class="nk" onclick="numpadKey('9')">9</button>
+      <button class="nk" onclick="numpadKey('4')">4</button>
+      <button class="nk" onclick="numpadKey('5')">5</button>
+      <button class="nk" onclick="numpadKey('6')">6</button>
+      <button class="nk" onclick="numpadKey('1')">1</button>
+      <button class="nk" onclick="numpadKey('2')">2</button>
+      <button class="nk" onclick="numpadKey('3')">3</button>
+      <button class="nk" style="grid-column:span 2;" onclick="numpadKey('0')">0</button>
+      <button class="nk nk-del" onclick="numpadKey('del')">⌫</button>
+      <button class="nk nk-ok" onclick="numpadConfirm()">Tasdiqlash</button>
+      <button class="nk nk-cancel" onclick="closeNumpad()">Bekor</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon" id="successIcon">✅</div>
+    <div class="success-title" id="successTitle">To'lov qabul qilindi!</div>
+    <div class="success-msg" id="successMsg"></div>
+    <button class="btn-ok" onclick="closeSuccess()">OK</button>
+  </div>
+</div>
+
+<script>
+let selectedCustomerId = null;
+let selectedDebt       = 0;
+let payAmount          = 0;
+let numpadBuffer       = "";
+function doSearch(val) {
+  const div = document.getElementById('results');
+  if (!val) { div.innerHTML = ''; return; }
+  fetch(`/pos/search-customers/?q=${val}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.length) {
+        div.innerHTML = '<div class="no-results">Mijoz topilmadi</div>';
+        return;
+      }
+      div.innerHTML = data.map(c => {
+        const debt = c.debt > 0
+          ? `<span class="debt-pill">${Math.round(c.debt).toLocaleString()} so'm</span>`
+          : `<span style="font-size:12px;color:#28A745;font-weight:700;">Qarz yo'q</span>`;
+
+        const noteTag = c.note
+          ? `<div style="margin-top:4px;">
+               <span style="font-size:11px;color:#D4A853;font-weight:600;
+                            background:rgba(212,168,83,0.1);border:1px solid rgba(212,168,83,0.2);
+                            border-radius:6px;padding:2px 8px;">
+                 📝 ${c.note.length > 30 ? c.note.slice(0,30)+'...' : c.note}
+               </span>
+             </div>` : '';
+
+        return `
+          <div style="background:#fff;border:1.5px solid rgba(0,0,0,0.07);border-radius:14px;
+                      padding:12px 14px;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+
+              <button style="flex:1;background:transparent;border:none;padding:0;text-align:left;cursor:pointer;"
+                onclick="selectCustomer(${c.id},'${c.name}','${c.id_num}','${c.phone||''}','${c.image}',${c.debt})">
+                <div style="display:flex;align-items:center;">
+                  <img src="${c.image}" class="cust-avatar" alt="">
+                  <div>
+                    <div class="cust-name">${c.name}</div>
+                    <div class="cust-meta">ID: ${c.id_num}${c.phone?' · '+c.phone:''}</div>
+                    ${noteTag}
+                  </div>
+                </div>
+              </button>
+
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px;">
+                ${debt}
+                <button onclick="openEditModal(${c.id},'${c.name}','${c.id_num}','${c.phone||''}','${c.image}','${(c.note||'').replace(/'/g,"\\'")}',event)"
+                  style="width:34px;height:34px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.07);
+                         background:#F8F6F2;cursor:pointer;display:flex;align-items:center;
+                         justify-content:center;font-size:16px;"
+                  title="Tahrirlash">✏️
+                </button>
+              </div>
+
+            </div>
+          </div>`;
+      }).join('');
+    })
+    .catch(() => {});
+}
+function selectCustomer(id, name, idNum, phone, image, debt) {
+  selectedCustomerId = id;
+  selectedDebt       = Math.round(debt);
+
+  document.getElementById('selAvatar').src    = image;
+  document.getElementById('selName').innerText = name;
+  document.getElementById('selMeta').innerText = `ID: ${idNum}${phone?' · '+phone:''}`;
+
+  const debtEl = document.getElementById('selDebt');
+  debtEl.innerText = selectedDebt.toLocaleString() + " so'm";
+  debtEl.className = 'selected-debt-val' + (selectedDebt <= 0 ? ' zero' : '');
+
+  document.getElementById('search-section').style.display = 'none';
+  document.getElementById('selected-section').style.display = 'block';
+
+  buildQuickAmounts();
+  setAmount(0);
+}
+
+// ── TEZ SUMMA TUGMALARI ──
+function buildQuickAmounts() {
+  if (selectedDebt <= 0) { document.getElementById('quickGrid').innerHTML = ''; return; }
+
+  const steps   = [10000, 50000, 100000, 500000];
+  const amounts = new Set();
+  amounts.add(selectedDebt); // To'liq qarz
+
+  steps.forEach(s => {
+    const d = Math.floor(selectedDebt / s) * s;
+    if (d > 0 && d !== selectedDebt) amounts.add(d);
+  });
+
+  const sorted = [...amounts].filter(a => a > 0).sort((a, b) => a - b);
+
+  document.getElementById('quickGrid').innerHTML = sorted.map(amt => {
+    const isFull = amt === selectedDebt;
+    return `<button class="quick-btn${isFull ? ' full' : ''}"
+      onclick="setAmount(${amt}, this)">
+      ${isFull ? '✓ To\'liq: ' : ''}${amt.toLocaleString()} so'm
+    </button>`;
+  }).join('');
+}
+
+function setAmount(amt, btn) {
+  payAmount = amt;
+  numpadBuffer = amt > 0 ? amt.toString() : "";
+
+  document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('selected'));
+  if (btn) btn.classList.add('selected');
+
+  document.getElementById('amountDisplay').innerText =
+    amt > 0 ? amt.toLocaleString() + ' so\'m' : '0 so\'m';
+
+  document.getElementById('payBtn').disabled = amt <= 0;
+}
+
+function openNumpad() {
+  numpadBuffer = payAmount > 0 ? payAmount.toString() : "";
+  document.getElementById('numpadDisplay').innerText = payAmount > 0 ? payAmount.toLocaleString() : "0";
+  document.getElementById('numpadOverlay').classList.add('open');
+}
+
+function closeNumpad() {
+  document.getElementById('numpadOverlay').classList.remove('open');
+}
+
+function handleNumpadOutsideClick(event) {
+  if (event.target.id === 'numpadOverlay') {
+    closeNumpad();
+  }
+}
+
+function numpadKey(k) {
+  if (k === 'del') {
+    numpadBuffer = numpadBuffer.slice(0, -1);
+  } else {
+    if (numpadBuffer === "" || numpadBuffer === "0") {
+      numpadBuffer = k;
+    } else {
+      numpadBuffer += k;
+    }
+    if (numpadBuffer.length > 9) {
+      numpadBuffer = numpadBuffer.slice(0, 9);
+    }
+  }
+
+  const num = parseInt(numpadBuffer) || 0;
+  document.getElementById('numpadDisplay').innerText = num > 0 ? num.toLocaleString() : "0";
+}
+
+function numpadConfirm() {
+  const sumVal = parseInt(numpadBuffer) || 0;
+  setAmount(sumVal);
+  closeNumpad();
+}
+
+function selectPayment(btn) {
+  document.querySelectorAll('.pay-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('paymentMethod').value = btn.dataset.val;
+}
+
+// ── TO'LOV YUBORISH ──
+function submitPayment() {
+  if (!selectedCustomerId || payAmount <= 0) return;
+
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.innerText = "Saqlanmoqda...";
+
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n+'=')) v = decodeURIComponent(c.slice(n.length+1));
+    });
+    return v;
+  }
+
+  fetch('/pos/api/process-debt-payment/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify({
+      customer_id:    selectedCustomerId,
+      amount:         payAmount,
+      payment_method: document.getElementById('paymentMethod').value,
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.status === 'success') {
+      // Qoldiq qarzni yangilaymiz
+      selectedDebt = d.remaining_debt;
+      const debtEl = document.getElementById('selDebt');
+      debtEl.innerText = selectedDebt.toLocaleString() + " so'm";
+      debtEl.className = 'selected-debt-val' + (selectedDebt <= 0 ? ' zero' : '');
+
+      // Success overlay
+      if (d.is_fully_paid) {
+        document.getElementById('successIcon').innerText  = '🎉';
+        document.getElementById('successTitle').innerText = 'Qarz to\'liq uzildi!';
+        document.getElementById('successMsg').innerText   =
+          `${d.paid.toLocaleString()} so'm qabul qilindi.\nQarz: 0 so'm ✓`;
+      } else {
+        document.getElementById('successIcon').innerText  = '✅';
+        document.getElementById('successTitle').innerText = 'To\'lov qabul qilindi!';
+        document.getElementById('successMsg').innerText   =
+          `${d.paid.toLocaleString()} so'm to'landi.\nQolgan qarz: ${d.remaining_debt.toLocaleString()} so'm`;
+      }
+      document.getElementById('successOverlay').classList.add('open');
+
+      // Formni tozalaymiz
+      setAmount(0);
+      buildQuickAmounts();
+
+    } else {
+      alert("Xatolik: " + d.message);
+    }
+    btn.disabled = false;
+    btn.innerText = "Qarzni to'lash";
+  })
+  .catch(e => {
+    alert("Xatolik: " + e.message);
+    btn.disabled = false;
+    btn.innerText = "Qarzni to'lash";
+  });
+}
+
+function closeSuccess() {
+  document.getElementById('successOverlay').classList.remove('open');
+  if (selectedDebt <= 0) resetPage();
+}
+
+function resetPage() {
+  selectedCustomerId = null;
+  selectedDebt       = 0;
+  payAmount          = 0;
+  numpadBuffer       = "";
+  document.getElementById('searchInput').value = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('search-section').style.display  = 'block';
+  document.getElementById('selected-section').style.display = 'none';
+  setTimeout(() => document.getElementById('searchInput').focus(), 100);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('searchInput').focus();
+});
+
+function openEditModal(id, name, idNum, phone, image, note, event) {
+  event.stopPropagation();
+  const parts     = name.trim().split(' ');
+  const firstName = parts[0] || '';
+  const lastName  = parts.slice(1).join(' ') || '';
+
+  document.getElementById('edit-cust-id').value           = id;
+  document.getElementById('edit-firstname').value         = firstName;
+  document.getElementById('edit-lastname').value          = lastName;
+  document.getElementById('edit-phone').value             = phone;
+  document.getElementById('edit-note').value              = note;
+  document.getElementById('edit-cust-avatar').src         = image;
+  document.getElementById('edit-cust-fullname').innerText = name;
+  document.getElementById('edit-cust-idnum').innerText    = 'ID: ' + idNum;
+  document.getElementById('edit-error-msg').innerText     = '';
+  document.getElementById('edit-image').value             = '';
+
+  new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
+}
+
+function submitEditCustomer() {
+  const id        = document.getElementById('edit-cust-id').value;
+  const firstName = document.getElementById('edit-firstname').value.trim();
+  const lastName  = document.getElementById('edit-lastname').value.trim();
+  const phone     = document.getElementById('edit-phone').value.trim();
+  const note      = document.getElementById('edit-note').value.trim();
+  const image     = document.getElementById('edit-image');
+  const err       = document.getElementById('edit-error-msg');
+
+  if (!firstName) { err.innerText = "Ism majburiy!"; return; }
+  err.innerText = "Saqlanmoqda...";
+
+  const fd = new FormData();
+  fd.append('first_name', firstName);
+  fd.append('last_name',  lastName);
+  fd.append('phone',      phone);
+  fd.append('note',       note);
+  if (image && image.files.length) fd.append('image', image.files[0]);
+
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n+'=')) v = decodeURIComponent(c.slice(n.length+1));
+    });
+    return v;
+  }
+
+  fetch(`/pos/customer/update/${id}/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    body: fd
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.status === 'success') {
+      bootstrap.Modal.getInstance(
+        document.getElementById('editCustomerModal')).hide();
+      const searchVal = document.getElementById('searchInput').value;
+      if (searchVal) doSearch(searchVal);
+      err.innerText = '';
+    } else {
+      err.innerText = d.message;
+    }
+  })
+  .catch(() => { err.innerText = "Tizim xatosi!"; });
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,1271 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}📈 Kengaytirilgan Analitika — Baxmal Meat{% endblock %}
+
+{% block extrahead %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --green:  #1B6B4A;
+  --green-light: #2D9B6E;
+  --blue:   #3b82f6;
+  --orange: #D4A853;
+  --red:    #DC3545;
+  --purple: #a855f7;
+  --bg-main:   #F5F1EB;
+  --card:   #FFFFFF;
+  --card2:  #F8F6F2;
+  --border: rgba(0,0,0,0.07);
+  --muted:  #6B7280;
+  --text:   #1A1A2E;
+}
+
+.an-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 28px 60px;
+}
+
+/* ── HEADER ── */
+.an-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.an-title { font-size: 24px; font-weight: 800; color: var(--text); font-family: 'DM Serif Display', serif; }
+.an-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: all 0.18s;
+  letter-spacing: 0.04em;
+}
+.btn-export:hover {
+  background: linear-gradient(135deg, #155a3e, #1B6B4A);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(27,107,74,0.3);
+  color: #fff !important;
+}
+
+/* ── STAT CARDS ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.stat-card.green::before  { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); }
+.stat-card.blue::before   { background: var(--blue); }
+.stat-card.orange::before { background: var(--orange); }
+.stat-card.red::before    { background: var(--red); }
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-val.green  { color: var(--green); }
+.stat-val.blue   { color: var(--blue); }
+.stat-val.orange { color: var(--orange); }
+.stat-val.red    { color: var(--red); }
+.stat-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-family: 'Inter', sans-serif;
+}
+.stat-icon {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 36px;
+  opacity: 0.08;
+  color: var(--text);
+}
+
+/* ── MAIN GRID ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.f-input, .f-select {
+  background: var(--card2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 11px !important;
+  color: var(--text) !important;
+  font-size: 13px !important;
+  padding: 9px 14px !important;
+  outline: none !important;
+  transition: border-color 0.18s !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.f-input:focus, .f-select:focus {
+  border-color: rgba(27,107,74,0.3) !important;
+  box-shadow: 0 0 0 3px rgba(27,107,74,0.08) !important;
+}
+.f-input::placeholder { color: var(--muted) !important; }
+.f-select option { background: #fff; color: var(--text); }
+.f-date { color-scheme: light; }
+.btn-filter {
+  padding: 9px 18px;
+  border-radius: 11px;
+  border: none;
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.btn-filter:hover { box-shadow: 0 4px 12px rgba(27,107,74,0.25); }
+.btn-reset {
+  padding: 9px 14px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none !important;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-reset:hover { border-color: rgba(27,107,74,0.3); color: var(--text); }
+
+/* ── CHART CARD ── */
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.chart-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.chart-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── TRANSACTIONS ── */
+.tx-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.date-group {
+  padding: 12px 20px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--card2);
+}
+.date-group-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.date-group-sum {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+}
+.tx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  transition: background 0.12s;
+}
+.tx-item:last-child { border-bottom: none; }
+.tx-item:hover { background: var(--card2); }
+.tx-left { display: flex; align-items: center; gap: 14px; }
+.tx-icon {
+  width: 42px; height: 42px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.tx-icon.naqd   { background: rgba(27,107,74,0.08);   color: var(--green); }
+.tx-icon.karta  { background: rgba(59,130,246,0.08);   color: var(--blue); }
+.tx-icon.qr     { background: rgba(168,85,247,0.08);   color: var(--purple); }
+.tx-icon.nasiya { background: rgba(220,53,69,0.08);    color: var(--red); }
+.tx-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.tx-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: 'Inter', sans-serif;
+}
+.tx-right { text-align: right; }
+.tx-amount {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.tx-amount.pos   { color: var(--green); }
+.tx-amount.neg   { color: var(--red); }
+.tx-time {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: 'Inter', sans-serif;
+}
+.tx-empty {
+  padding: 50px;
+  text-align: center;
+  color: var(--muted);
+}
+.tx-empty i { font-size: 36px; opacity: 0.3; display: block; margin-bottom: 10px; }
+
+/* ── RIGHT SIDEBAR ── */
+.side-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.side-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.pay-split-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.pay-split-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.pay-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pay-split-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.pay-bar-wrap {
+  height: 4px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 2px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.pay-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+/* Quick filters */
+.qf-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 6px;
+  text-decoration: none !important;
+}
+.qf-btn:hover { background: var(--card2); border-color: rgba(27,107,74,0.2); color: var(--text) !important; }
+.qf-badge {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(27,107,74,0.08);
+  color: var(--muted);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="an-wrap">
+
+  <!-- HEADER -->
+  <div class="an-header">
+    <div>
+      <div class="an-title">📊 Analitika</div>
+      <div class="an-subtitle">Savdolar, tushum va to'lov turlari bo'yicha hisobot</div>
+    </div>
+    <a href="{% url 'export_analytics_excel' %}?search_query={{ search_query }}&payment_method={{ payment_method }}&start_date={{ start_date }}&end_date={{ end_date }}"
+       class="btn-export">
+      <i class="bi bi-file-earmark-excel-fill"></i>
+      Excel yuklab olish
+    </a>
+  </div>
+
+  <!-- CLICK-STYLE ANALYTICS BANNER & BALANCE -->
+  <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(27, 107, 74, 0.03); border-radius: 50%; pointer-events: none;"></div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+      <div>
+        <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px;">
+          📊 Click Evolution-style Analitika
+        </span>
+        <h2 style="font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--primary); margin: 0;">
+          Mening Hisobotlarim
+        </h2>
+      </div>
+      <div style="text-align: right;">
+        <span style="font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px;">Umumiy aylanma</span>
+        <div style="font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 800; color: var(--text-main); line-height: 1;">
+          {{ total_sum|floatformat:0 }} <span style="font-size: 18px; font-weight: 500; color: var(--muted);">so'm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KIRIM vs CHIQIM/NASIYA BALANCE SLIDER -->
+    <div style="margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 8px;">
+        <span style="color: var(--green); display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block;"></span>
+          📥 Kirim (Sof Tushum): {{ jami_kirim|floatformat:0 }} so'm ({{ naqd_pct|add:karta_pct|add:qr_pct }}%)
+        </span>
+        <span style="color: var(--red); display: flex; align-items: center; gap: 6px;">
+          📤 Nasiya (Qarz): {{ jami_nasiya|floatformat:0 }} so'm ({{ nasiya_pct }}%)
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: inline-block;"></span>
+        </span>
+      </div>
+      <div style="height: 12px; border-radius: 6px; background: rgba(0,0,0,0.05); overflow: hidden; display: flex;">
+        <div style="width: {% if total_sum > 0 %}{% widthratio jami_kirim total_sum 100 %}{% else %}0{% endif %}%; background: linear-gradient(90deg, #1B6B4A, #2D9B6E); transition: width 0.3s ease;"></div>
+        <div style="width: {% if total_sum > 0 %}{% widthratio jami_nasiya total_sum 100 %}{% else %}0{% endif %}%; background: linear-gradient(90deg, #DC3545, #F59E0B); transition: width 0.3s ease;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLICK KPI SUB-STAT CARDS -->
+  <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+    <div class="stat-card" style="padding: 16px 20px;">
+      <div class="stat-label"><i class="bi bi-calculator" style="color:var(--orange);"></i> O'rtacha Chek</div>
+      <div class="stat-val" style="color:var(--text-main); font-size: 20px;">{{ avg_check|floatformat:0 }} <span style="font-size: 11px; font-weight: 500; color:var(--muted);">so'm</span></div>
+      <div class="stat-sub" style="margin-top: 4px;">Har bir xaridorga tushum</div>
+    </div>
+    <div class="stat-card" style="padding: 16px 20px;">
+      <div class="stat-label"><i class="bi bi-graph-up-arrow" style="color:var(--green);"></i> Eng yuqori savdo</div>
+      <div class="stat-val" style="color:var(--text-main); font-size: 20px;">{{ max_sale|floatformat:0 }} <span style="font-size: 11px; font-weight: 500; color:var(--muted);">so'm</span></div>
+      <div class="stat-sub" style="margin-top: 4px;">Eng katta bitta savdo qiymati</div>
+    </div>
+    <div class="stat-card" style="padding: 16px 20px;">
+      <div class="stat-label"><i class="bi bi-wallet2" style="color:var(--blue);"></i> Karta / QR ulushi</div>
+      <div class="stat-val" style="color:var(--text-main); font-size: 20px;">{{ karta_qr_summa|floatformat:0 }} <span style="font-size: 11px; font-weight: 500; color:var(--muted);">so'm</span></div>
+      <div class="stat-sub" style="margin-top: 4px;">Jami tushumdan {{ karta_pct|add:qr_pct }}% qismi</div>
+    </div>
+    <div class="stat-card" style="padding: 16px 20px;">
+      <div class="stat-label"><i class="bi bi-bag-check" style="color:var(--purple);"></i> Jami bitimlar</div>
+      <div class="stat-val" style="color:var(--text-main); font-size: 20px;">{{ total_sales }} <span style="font-size: 11px; font-weight: 500; color:var(--muted);">ta</span></div>
+      <div class="stat-sub" style="margin-top: 4px;">Umumiy xarid cheklari soni</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: filters + chart + transactions -->
+    <div>
+
+      <!-- QASSOB AI COPILOT -->
+      <div style="background: rgba(27,107,74,0.03); border: 1px solid rgba(27,107,74,0.1); border-radius: 18px; padding: 22px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+        <h4 style="font-family: 'DM Serif Display', serif; color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 1.25rem; margin-bottom: 4px;">
+          <i class="bi bi-robot" style="color: var(--accent);"></i> Qassob AI Copilot 🤖
+        </h4>
+        <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 16px;">Tizimdagi joriy savdolar, qarzlar va zaxiralarni tahlil qilish</p>
+        
+        <div id="ai-advice-container" style="min-height: 50px;">
+          <button type="button" class="btn btn-sm btn-success rounded-pill px-4" id="btn-load-ai" onclick="loadAICopilot()" style="background: var(--primary-gradient); border: none; font-weight: 600; padding: 8px 20px;">
+            <i class="bi bi-magic me-1"></i> AI Tahlilni yuklash
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <form method="GET" action="">
+        <div class="filter-bar">
+          <div style="position:relative;flex:1;min-width:180px;">
+            <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;"></i>
+            <input type="text" name="search_query" id="tx-search-input" class="f-input"
+                   style="width:100%;padding-left:34px !important;"
+                   placeholder="Xaridor ismi yoki chek ID..."
+                   value="{{ search_query }}">
+          </div>
+          <select name="payment_method" class="f-select" style="min-width:150px;">
+            <option value="">Hammasi</option>
+            <option value="naqd"   {% if payment_method == 'naqd' %}selected{% endif %}>💵 Naqd</option>
+            <option value="karta"  {% if payment_method == 'karta' %}selected{% endif %}>💳 Karta</option>
+            <option value="qr"     {% if payment_method == 'qr' %}selected{% endif %}>📱 QR</option>
+            <option value="nasiya" {% if payment_method == 'nasiya' %}selected{% endif %}>📋 Nasiya</option>
+          </select>
+          <input type="date" name="start_date" class="f-input f-date" value="{{ start_date }}" title="Boshlanish">
+          <input type="date" name="end_date"   class="f-input f-date" value="{{ end_date }}"   title="Tugash">
+          <button type="submit" class="btn-filter">
+            <i class="bi bi-funnel-fill"></i> Saralash
+          </button>
+          <a href="{% url 'global_analytics' %}" class="btn-reset">
+            <i class="bi bi-x"></i> Tozalash
+          </a>
+        </div>
+      </form>
+
+      <!-- CHART -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <span class="chart-card-title">📈 Kunlik tushum dinamikasi</span>
+          <span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);">
+            so'm
+          </span>
+        </div>
+        <canvas id="revenueChart" height="90"></canvas>
+      </div>
+
+      <!-- HOURLY CHART -->
+      <div class="chart-card" style="margin-top: 20px;">
+        <div class="chart-card-header">
+          <span class="chart-card-title">🕒 Soatlar bo'yicha savdo aylanmasi (Pik vaqtlar)</span>
+          <span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);">
+            so'm (kunlik faollik)
+          </span>
+        </div>
+        <canvas id="hourlyChart" height="90"></canvas>
+      </div>
+
+      <!-- TRANSACTIONS -->
+      <div class="tx-card">
+        {% for date_string, data in grouped_sales.items %}
+        <div class="date-group">
+          <span class="date-group-lbl"><i class="bi bi-calendar3 me-2"></i>{{ date_string }}</span>
+          <span class="date-group-sum">+{{ data.day_total|floatformat:0 }} so'm</span>
+        </div>
+        {% for sale in data.sales_list %}
+        <div class="tx-item" style="padding: 16px 20px;">
+          <div class="tx-left" style="align-items: flex-start;">
+            {% if sale.customer %}
+              <img src="{% if sale.customer.image %}{{ sale.customer.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}" 
+                   alt="{{ sale.customer.first_name }}" 
+                   style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(27,107,74,0.15); flex-shrink: 0;" />
+            {% else %}
+              <div class="tx-icon
+                {% if sale.payment_method == 'naqd' %}naqd
+                {% elif sale.payment_method == 'karta' %}karta
+                {% elif sale.payment_method == 'qr' %}qr
+                {% else %}nasiya{% endif %}" style="width: 44px; height: 44px; border-radius: 12px; font-size: 18px;">
+                {% if sale.payment_method == 'naqd' %}<i class="bi bi-cash-coin"></i>
+                {% elif sale.payment_method == 'karta' %}<i class="bi bi-credit-card-fill"></i>
+                {% elif sale.payment_method == 'qr' %}<i class="bi bi-qr-code-scan"></i>
+                {% else %}<i class="bi bi-person-exclamation"></i>{% endif %}
+              </div>
+            {% endif %}
+            <div>
+              <div class="tx-name" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+                {% if sale.customer %}
+                  <strong>{{ sale.customer }}</strong>
+                  <span style="font-size: 11px; background: rgba(0,0,0,0.04); color: var(--muted); padding: 1px 6px; border-radius: 4px;">ID: {{ sale.customer.custom_id }}</span>
+                  <a href="{% url 'customer_chats_dashboard' %}?selected_customer={{ sale.customer.id }}" class="badge bg-light text-dark border" style="font-size: 10px; text-decoration: none; padding: 3px 8px; border-radius: 6px;">
+                    <i class="bi bi-person-bounding-box me-1" style="color:var(--orange);"></i>Kabinet & Chat
+                  </a>
+                {% else %}
+                  <strong>Noma'lum xaridor</strong>
+                {% endif %}
+                <span style="font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);">#{{ sale.id }}</span>
+              </div>
+              <div class="tx-meta" style="margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; font-weight: 700; color: {% if sale.payment_method == 'nasiya' %}var(--red){% else %}var(--green){% endif %};">
+                  {% if sale.payment_method == 'naqd' %}💵 Naqd{% elif sale.payment_method == 'karta' %}💳 Karta{% elif sale.payment_method == 'qr' %}📱 QR{% else %}📋 Nasiya (Qarz){% endif %}
+                </span>
+                {% if sale.discount_amount > 0 %}
+                  <span style="font-size: 10px; color: var(--orange); background: rgba(212,168,83,0.08); padding: 1px 6px; border-radius: 4px; font-weight: 600;">
+                    Chegirma: -{{ sale.discount_amount|floatformat:0 }} so'm
+                  </span>
+                {% endif %}
+              </div>
+              <!-- Sotib olingan go'sht/mahsulotlar -->
+              <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;">
+                {% for item in sale.items.all %}
+                  <span style="font-size: 11px; padding: 3px 8px; border-radius: 6px; background: var(--card2); border: 1px solid var(--border); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 500;">
+                    🥩 {{ item.product.name }} — <strong>{{ item.weight|floatformat:3 }} kg</strong>
+                  </span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="tx-right">
+            <div class="tx-amount {% if sale.payment_method == 'nasiya' %}neg{% else %}pos{% endif %}" style="font-size: 16px;">
+              {% if sale.payment_method == 'nasiya' %}−{% else %}+{% endif %}{{ sale.total_amount|floatformat:0 }} so'm
+            </div>
+            <div class="tx-time" style="font-size: 12px; margin-top: 4px;">{{ sale.created_at|date:"H:i" }}</div>
+          </div>
+        </div>
+        {% endfor %}
+        {% empty %}
+        <div class="tx-empty">
+          <i class="bi bi-inbox"></i>
+          <div>Savdo topilmadi</div>
+          <div style="font-size:12px;margin-top:4px;">Filtrlarni o'zgartiring yoki tozalang</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- PAGINATION CONTROLS -->
+      {% if page_obj.has_other_pages %}
+      <div style="display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 20px; margin-top: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 24px;">
+        <div style="font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif;">
+          Ko'rsatilyapti <strong>{{ page_obj.start_index }}</strong> dan <strong>{{ page_obj.end_index }}</strong> gacha (jami <strong>{{ total_sales }}</strong> tadan)
+        </div>
+        <div style="display: flex; gap: 8px;">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search_query={{ search_query }}{% endif %}{% if payment_method %}&payment_method={{ payment_method }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card2); color: var(--text-main); text-decoration: none; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.15s;">
+              <i class="bi bi-chevron-left"></i> Oldingi
+            </a>
+          {% else %}
+            <span style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card2); color: var(--muted); font-size: 13px; font-family: 'Inter', sans-serif; opacity: 0.5; cursor: not-allowed;">
+              <i class="bi bi-chevron-left"></i> Oldingi
+            </span>
+          {% endif %}
+          
+          <span style="display: flex; align-items: center; padding: 8px 14px; font-size: 13px; font-weight: 700; font-family: 'Inter', sans-serif; color: var(--primary);">
+            Sahifa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+          </span>
+
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search_query={{ search_query }}{% endif %}{% if payment_method %}&payment_method={{ payment_method }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card2); color: var(--text-main); text-decoration: none; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.15s;">
+              Keyingi <i class="bi bi-chevron-right"></i>
+            </a>
+          {% else %}
+            <span style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card2); color: var(--muted); font-size: 13px; font-family: 'Inter', sans-serif; opacity: 0.5; cursor: not-allowed;">
+              Keyingi <i class="bi bi-chevron-right"></i>
+            </span>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- DEBT MIGRATION CARD -->
+      <div class="card-premium mt-4" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); border-radius: 18px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px;">
+        <h4 style="font-family: 'DM Serif Display', serif; color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 1.25rem; margin-bottom: 4px;">
+          <i class="bi bi-journal-bookmark-fill" style="color: var(--accent);"></i> Daftardan Qarzlarni Ko'chirish
+        </h4>
+        <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 20px;">Eski qog'oz daftardagi qarzlarni kassa tizimiga tezkor o'tkazish</p>
+        
+        <div class="d-flex gap-2 flex-wrap mb-4 align-items-end">
+          <div style="flex:1; min-width:200px;">
+            <label style="font-size:0.75rem; font-weight:700; color:var(--text-main); margin-bottom:6px; display:block; text-transform:uppercase;">Daftarni tanlang</label>
+            <select id="migNotebookSelect" class="f-select" style="width:100%;" onchange="selectMigNotebook(this.value)">
+              <option value="">-- Tanlang --</option>
+              {% for nb in notebooks %}
+              <option value="{{ nb.id }}">{{ nb.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="flex:1; min-width:200px; display:flex; gap:6px;">
+            <input type="text" id="newMigNotebookName" class="f-input" style="flex:1; height:38px; border: 1px solid var(--border) !important; background: var(--card2) !important; border-radius: 11px; padding: 9px 14px;" placeholder="Yangi daftar nomi...">
+            <button type="button" class="btn btn-success" onclick="createMigNotebook()" style="background:var(--primary-gradient); border:none; height:38px; padding:0 15px; font-weight:600; border-radius:11px;">Yaratish</button>
+          </div>
+        </div>
+
+        <!-- Migrating Form -->
+        <div id="migFormSection" style="display:none; border-top:1px solid rgba(0,0,0,0.07); padding-top:20px;">
+          <h5 style="font-size:0.95rem; font-weight:700; margin-bottom:14px; color:var(--primary);" id="migNotebookTitle">📖 Tanlangan Daftar</h5>
+          
+          <div class="row g-2 mb-3">
+            <div class="col-md-3">
+              <input type="text" id="migFirstname" class="f-input w-100" style="border: 1px solid var(--border) !important; background: var(--card2) !important; border-radius: 11px; padding: 9px 14px;" placeholder="Mijoz ismi *">
+            </div>
+            <div class="col-md-3">
+              <input type="text" id="migLastname" class="f-input w-100" style="border: 1px solid var(--border) !important; background: var(--card2) !important; border-radius: 11px; padding: 9px 14px;" placeholder="Familiyasi">
+            </div>
+            <div class="col-md-3">
+              <input type="text" id="migPhone" class="f-input w-100" style="border: 1px solid var(--border) !important; background: var(--card2) !important; border-radius: 11px; padding: 9px 14px;" placeholder="Telefon">
+            </div>
+            <div class="col-md-3">
+              <input type="text" id="migCustomId" class="f-input w-100" style="border: 1px solid var(--border) !important; background: var(--card2) !important; border-radius: 11px; padding: 9px 14px;" placeholder="ID (Auto)">
+            </div>
+          </div>
+          
+          <div class="d-flex gap-2 flex-wrap align-items-center mb-3">
+            <div style="flex:1; min-width:200px;">
+              <input type="number" id="migDebt" class="f-input w-100" style="font-weight:700; font-size:1.1rem; color:var(--red); border: 1px solid var(--border) !important; background: var(--card2) !important; border-radius: 11px; padding: 9px 14px;" placeholder="Qarz summasi (so'm) *" onkeydown="if(event.key==='Enter') saveMigCustomer()">
+            </div>
+            <button type="button" class="btn btn-success" onclick="saveMigCustomer()" style="background:var(--primary-gradient); border:none; height:38px; padding:0 24px; font-weight:600; border-radius:11px;">
+              <i class="bi bi-person-plus-fill me-1"></i> Saqlash
+            </button>
+          </div>
+          <div id="migStatusMsg" style="font-size:0.85rem; font-weight:600; min-height:20px; margin-bottom:15px;"></div>
+        </div>
+
+        <!-- Migrated Table -->
+        <div id="migTableSection" style="display:none; border-top:1px solid rgba(0,0,0,0.07); padding-top:20px;">
+          <h5 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:12px;">Ushbu daftarga yozilganlar</h5>
+          <div style="max-height:220px; overflow-y:auto;">
+            <table class="table table-sm table-hover align-middle">
+              <thead>
+                <tr>
+                  <th style="font-size:0.75rem; color:var(--muted); border-bottom:1px solid rgba(0,0,0,0.07);">#</th>
+                  <th style="font-size:0.75rem; color:var(--muted); border-bottom:1px solid rgba(0,0,0,0.07);">Mijoz</th>
+                  <th style="font-size:0.75rem; color:var(--muted); border-bottom:1px solid rgba(0,0,0,0.07);">Telefon</th>
+                  <th style="font-size:0.75rem; color:var(--muted); border-bottom:1px solid rgba(0,0,0,0.07);">Qarz</th>
+                </tr>
+              </thead>
+              <tbody id="migCustomersTableBody">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div>
+
+      <!-- Payment breakdown -->
+      <div class="side-card">
+        <div class="side-title">To'lov turlari</div>
+
+        <div class="pay-split-row">
+          <span class="pay-split-label"><span class="pay-dot" style="background:var(--green);"></span> Naqd pul</span>
+          <span class="pay-split-val">{{ naqd_sum|floatformat:0 }} so'm</span>
+        </div>
+        <div class="pay-bar-wrap">
+          <div class="pay-bar-fill" style="width:{{ naqd_pct|default:0 }}%;background:var(--green);"></div>
+        </div>
+
+        <div class="pay-split-row">
+          <span class="pay-split-label"><span class="pay-dot" style="background:var(--blue);"></span> Karta</span>
+          <span class="pay-split-val">{{ karta_sum|floatformat:0 }} so'm</span>
+        </div>
+        <div class="pay-bar-wrap">
+          <div class="pay-bar-fill" style="width:{{ karta_pct|default:0 }}%;background:var(--blue);"></div>
+        </div>
+
+        <div class="pay-split-row">
+          <span class="pay-split-label"><span class="pay-dot" style="background:var(--purple);"></span> QR</span>
+          <span class="pay-split-val">{{ qr_sum|floatformat:0 }} so'm</span>
+        </div>
+        <div class="pay-bar-wrap">
+          <div class="pay-bar-fill" style="width:{{ qr_pct|default:0 }}%;background:var(--purple);"></div>
+        </div>
+
+        <div class="pay-split-row">
+          <span class="pay-split-label"><span class="pay-dot" style="background:var(--red);"></span> Nasiya</span>
+          <span class="pay-split-val">{{ jami_nasiya|floatformat:0 }} so'm</span>
+        </div>
+        <div class="pay-bar-wrap">
+          <div class="pay-bar-fill" style="width:{{ nasiya_pct|default:0 }}%;background:var(--red);"></div>
+        </div>
+
+        <!-- Doughnut chart -->
+        <div style="max-width:160px;margin:16px auto 0;">
+          <canvas id="payChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Product breakdown -->
+      <div class="side-card">
+        <div class="side-title">🥩 Go'sht turlari ulushi</div>
+        
+        {% for prod in product_breakdown %}
+        <div class="pay-split-row" style="margin-top: 10px;">
+          <span class="pay-split-label" style="font-weight: 600;">
+            <i class="bi bi-tag-fill me-1" style="color: var(--accent);"></i> {{ prod.name }}
+          </span>
+          <span class="pay-split-val" style="font-family: 'Inter', sans-serif;">{{ prod.revenue|floatformat:0 }} so'm</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 2px;">
+          <span>Sotilgan vazn: <strong>{{ prod.weight|floatformat:2 }} kg</strong></span>
+          <span>{{ prod.pct }}%</span>
+        </div>
+        <div class="pay-bar-wrap" style="height: 6px; margin-top: 4px;">
+          <div class="pay-bar-fill" style="width:{{ prod.pct }}%; background: var(--primary);"></div>
+        </div>
+        {% empty %}
+        <div style="padding: 16px; text-align: center; font-size: 12px; color: var(--muted);">Savdolar mavjud emas</div>
+        {% endfor %}
+
+        <!-- Product Doughnut Chart -->
+        {% if product_breakdown %}
+        <div style="max-width:150px; margin: 16px auto 0;">
+          <canvas id="productChart"></canvas>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Quick filters -->
+      <div class="side-card">
+        <div class="side-title">Tez filtrlar</div>
+        <a href="?payment_method=naqd" class="qf-btn">
+          <span><i class="bi bi-cash-coin me-2" style="color:var(--green);"></i>Naqd savdolar</span>
+          <span class="qf-badge">naqd</span>
+        </a>
+        <a href="?payment_method=karta" class="qf-btn">
+          <span><i class="bi bi-credit-card me-2" style="color:var(--blue);"></i>Karta savdolar</span>
+          <span class="qf-badge">karta</span>
+        </a>
+        <a href="?payment_method=qr" class="qf-btn">
+          <span><i class="bi bi-qr-code me-2" style="color:var(--purple);"></i>QR savdolar</span>
+          <span class="qf-badge">qr</span>
+        </a>
+        <a href="?payment_method=nasiya" class="qf-btn">
+          <span><i class="bi bi-person-exclamation me-2" style="color:var(--red);"></i>Nasiya savdolar</span>
+          <span class="qf-badge">nasiya</span>
+        </a>
+        <hr style="border-color:var(--border);margin:8px 0;">
+        <a href="?start_date={% now 'Y-m-d' %}&end_date={% now 'Y-m-d' %}" class="qf-btn">
+          <span><i class="bi bi-calendar-day me-2" style="color:var(--orange);"></i>Bugungi savdolar</span>
+        </a>
+      </div>
+
+      <!-- Links -->
+      <div class="side-card">
+        <div class="side-title">Tez o'tish</div>
+        <a href="{% url 'terminal' %}" class="qf-btn">
+          <span><i class="bi bi-terminal me-2" style="color:var(--blue);"></i>Terminal</span>
+        </a>
+        <a href="{% url 'customers' %}" class="qf-btn">
+          <span><i class="bi bi-people me-2" style="color:var(--green);"></i>Mijozlar</span>
+        </a>
+        <a href="{% url 'debt_payment' %}" class="qf-btn">
+          <span><i class="bi bi-cash-coin me-2" style="color:var(--orange);"></i>Qarz to'lash</span>
+        </a>
+        <a href="{% url 'daily_report' %}" class="qf-btn">
+          <span><i class="bi bi-receipt me-2" style="color:var(--purple);"></i>Kunlik hisobot</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── BAR CHART ──
+const ctx = document.getElementById('revenueChart').getContext('2d');
+const chartLabels = [{% for d, data in grouped_sales.items %}'{{ d|slice:":6" }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+const chartData   = [{% for d, data in grouped_sales.items %}{{ data.day_total|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: chartLabels.reverse(),
+    datasets: [{
+      label: 'Kunlik tushum',
+      data: chartData.reverse(),
+      backgroundColor: 'rgba(27,107,74,0.12)',
+      borderColor: '#1B6B4A',
+      borderWidth: 1.5,
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#FFFFFF',
+        borderColor: 'rgba(0,0,0,0.07)',
+        borderWidth: 1,
+        titleColor: '#1A1A2E',
+        bodyColor: '#1B6B4A',
+        callbacks: {
+          label: ctx => ' ' + Math.round(ctx.raw).toLocaleString() + ' so\'m'
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: { color: '#6B7280', font: { size: 11 } }
+      },
+      y: {
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: {
+          color: '#6B7280',
+          font: { size: 11 },
+          callback: v => (v/1000000 >= 1 ? (v/1000000).toFixed(1)+'M' : (v/1000).toFixed(0)+'K')
+        }
+      }
+    }
+  }
+});
+
+// ── HOURLY CHART ──
+const hctx = document.getElementById('hourlyChart').getContext('2d');
+const hourlyLabels = [{% for hr, val in hourly_data.items %}'{{ hr }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+const hourlyData   = [{% for hr, val in hourly_data.items %}{{ val|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+new Chart(hctx, {
+  type: 'line',
+  data: {
+    labels: hourlyLabels,
+    datasets: [{
+      label: 'Soatlar bo\'yicha aylanma',
+      data: hourlyData,
+      backgroundColor: 'rgba(212,168,83,0.12)',
+      borderColor: '#D4A853',
+      borderWidth: 2,
+      tension: 0.4,
+      fill: true,
+      pointBackgroundColor: '#D4A853',
+      pointRadius: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#FFFFFF',
+        borderColor: 'rgba(0,0,0,0.07)',
+        borderWidth: 1,
+        titleColor: '#1A1A2E',
+        bodyColor: '#1B6B4A',
+        callbacks: {
+          label: ctx => ' ' + Math.round(ctx.raw).toLocaleString() + ' so\'m'
+        }
+      }
+    },
+    scales: {
+      y: {
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: {
+          font: { family: 'Inter', size: 10 },
+          callback: value => value >= 1000 ? (value / 1000) + 'k' : value
+        }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { font: { family: 'Inter', size: 10 } }
+      }
+    }
+  }
+});
+
+// ── DOUGHNUT CHART ──
+const pctx = document.getElementById('payChart').getContext('2d');
+new Chart(pctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Naqd', 'Karta', 'QR', 'Nasiya'],
+    datasets: [{
+      data: [
+        {{ naqd_sum|default:0 }},
+        {{ karta_sum|default:0 }},
+        {{ qr_sum|default:0 }},
+        {{ jami_nasiya|default:0 }}
+      ],
+      backgroundColor: [
+        'rgba(27,107,74,0.8)',
+        'rgba(59,130,246,0.8)',
+        'rgba(168,85,247,0.8)',
+        'rgba(220,53,69,0.8)',
+      ],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '70%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#FFFFFF',
+        borderColor: 'rgba(0,0,0,0.07)',
+        borderWidth: 1,
+        titleColor: '#1A1A2E',
+        bodyColor: '#1B6B4A',
+        callbacks: {
+          label: ctx => ' ' + Math.round(ctx.raw).toLocaleString() + ' so\'m'
+        }
+      }
+    }
+  }
+});
+
+// ── PRODUCT CHART ──
+{% if product_breakdown %}
+const prctx = document.getElementById('productChart').getContext('2d');
+new Chart(prctx, {
+  type: 'doughnut',
+  data: {
+    labels: [{% for prod in product_breakdown %}'{{ prod.name }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      data: [{% for prod in product_breakdown %}{{ prod.revenue }}{% if not forloop.last %},{% endif %}{% endfor %}],
+      backgroundColor: [
+        'rgba(27,107,74,0.8)',
+        'rgba(212,168,83,0.8)',
+        'rgba(59,130,246,0.8)',
+        'rgba(168,85,247,0.8)',
+        'rgba(249,115,22,0.8)'
+      ],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '70%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#FFFFFF',
+        borderColor: 'rgba(0,0,0,0.07)',
+        borderWidth: 1,
+        titleColor: '#1A1A2E',
+        bodyColor: '#1B6B4A',
+        callbacks: {
+          label: ctx => ' ' + Math.round(ctx.raw).toLocaleString() + ' so\'m'
+        }
+      }
+    }
+  }
+});
+{% endif %}
+
+function loadAICopilot() {
+  const container = document.getElementById('ai-advice-container');
+  container.innerHTML = `
+    <div class="d-flex align-items-center gap-2 text-muted" style="font-size:0.9rem;">
+      <div class="spinner-border spinner-border-sm text-success" role="status" style="border-color: var(--primary); border-right-color: transparent;"></div>
+      <span>Tizim ko'rsatkichlarini AI orqali tahlil qilmoqdaman, iltimos kuting...</span>
+    </div>
+  `;
+  
+  fetch('/pos/api/ai/copilot/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.advice) {
+      let formattedText = data.advice
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+      container.innerHTML = `
+        <div style="font-size: 0.95rem; line-height: 1.6; color: #1B6B4A; background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1.5px dashed rgba(27,107,74,0.15); box-shadow: 0 2px 12px rgba(0,0,0,0.02);">
+          ${formattedText}
+        </div>
+      `;
+    } else if (data.error) {
+      container.innerHTML = `
+        <div class="text-danger" style="font-size:0.9rem; font-weight: 600;">
+          <i class="bi bi-x-circle-fill me-1"></i> Xatolik yuz berdi: ${data.error}
+        </div>
+      `;
+    }
+  })
+  .catch(err => {
+    container.innerHTML = `
+      <div class="text-danger" style="font-size:0.9rem; font-weight: 600;">
+        <i class="bi bi-x-circle-fill me-1"></i> Server bilan bog'lanib bo'lmadi!
+      </div>
+    `;
+  });
+}
+
+let currentMigNotebookId = null;
+let currentMigNotebookName = "";
+
+function selectMigNotebook(val) {
+    currentMigNotebookId = val;
+    const formSection = document.getElementById('migFormSection');
+    const tableSection = document.getElementById('migTableSection');
+    const select = document.getElementById('migNotebookSelect');
+    
+    if (val) {
+        currentMigNotebookName = select.options[select.selectedIndex].text;
+        document.getElementById('migNotebookTitle').innerText = '📖 ' + currentMigNotebookName;
+        formSection.style.display = 'block';
+        tableSection.style.display = 'block';
+        loadMigCustomers();
+        // Generate random custom_id
+        document.getElementById('migCustomId').value = 'M-' + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('migFirstname').focus();
+    } else {
+        formSection.style.display = 'none';
+        tableSection.style.display = 'none';
+    }
+}
+
+function createMigNotebook() {
+    const nameInput = document.getElementById('newMigNotebookName');
+    const name = nameInput.value.trim();
+    if (!name) {
+        alert("Daftar nomini kiriting!");
+        return;
+    }
+    
+    fetch('/pos/api/create-notebook/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ name: name })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const select = document.getElementById('migNotebookSelect');
+            const opt = document.createElement('option');
+            opt.value = data.notebook.id;
+            opt.innerText = data.notebook.name;
+            select.appendChild(opt);
+            select.value = data.notebook.id;
+            selectMigNotebook(data.notebook.id);
+            nameInput.value = '';
+        } else {
+            alert("Xatolik: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Serverga ulanib bo'lmadi.");
+    });
+}
+
+function loadMigCustomers() {
+    if (!currentMigNotebookId) return;
+    const tbody = document.getElementById('migCustomersTableBody');
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-2 text-muted">Yuklanmoqda...</td></tr>';
+    
+    fetch(`/pos/api/get-notebook-customers/${currentMigNotebookId}/`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-2 text-muted">Bu daftarga hali qarz ko\'chirilmagan.</td></tr>';
+            return;
+        }
+        let html = '';
+        data.forEach((c, idx) => {
+            html += `
+                <tr>
+                    <td class="text-muted" style="font-size:0.85rem; border-bottom:1px solid rgba(0,0,0,0.05);">${idx + 1}</td>
+                    <td style="font-weight:600;font-size:0.9rem; border-bottom:1px solid rgba(0,0,0,0.05);">${c.first_name} ${c.last_name || ''}</td>
+                    <td style="font-size:0.85rem; border-bottom:1px solid rgba(0,0,0,0.05);">${c.phone || '—'}</td>
+                    <td style="font-weight:700;color:var(--red);font-size:0.9rem; border-bottom:1px solid rgba(0,0,0,0.05);">${Math.round(c.debt_balance).toLocaleString()} so'm</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    })
+    .catch(err => {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-2 text-danger">Server xatosi!</td></tr>';
+    });
+}
+
+function saveMigCustomer() {
+    const name = document.getElementById('migFirstname').value.trim();
+    const lastname = document.getElementById('migLastname').value.trim();
+    let phone = document.getElementById('migPhone').value.trim();
+    const customId = document.getElementById('migCustomId').value.trim();
+    const debt = parseFloat(document.getElementById('migDebt').value) || 0;
+    
+    if (!name || debt <= 0) {
+        alert("Mijoz ismi va qarz summasi majburiy!");
+        return;
+    }
+    
+    if (!phone) {
+        phone = 'No-Phone-' + Math.floor(100000 + Math.random() * 900000);
+    }
+    
+    fetch('/pos/api/save-migrated-debt/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            first_name: name,
+            last_name: lastname,
+            phone: phone,
+            custom_id: customId,
+            debt_balance: debt,
+            notebook_name: currentMigNotebookName
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById('migStatusMsg').innerText = `✓ ${name} muvaffaqiyatli saqlandi!`;
+            document.getElementById('migStatusMsg').style.color = 'var(--primary)';
+            
+            // Clear inputs
+            document.getElementById('migFirstname').value = '';
+            document.getElementById('migLastname').value = '';
+            document.getElementById('migPhone').value = '';
+            document.getElementById('migDebt').value = '';
+            
+            // Auto generate next custom ID
+            document.getElementById('migCustomId').value = 'M-' + Math.floor(1000 + Math.random() * 9000);
+            
+            document.getElementById('migFirstname').focus();
+            loadMigCustomers();
+            setTimeout(() => {
+                document.getElementById('migStatusMsg').innerText = '';
+            }, 3000);
+        } else {
+            document.getElementById('migStatusMsg').innerText = `✗ Xatolik: ${data.message}`;
+            document.getElementById('migStatusMsg').style.color = 'var(--red)';
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Server bilan aloqa uzildi!");
+    });
+// Live search for transaction list (Client-side)
+document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById('tx-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const txItems = document.querySelectorAll('.tx-item');
+            
+            txItems.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.setProperty('display', 'flex', 'important');
+                } else {
+                    item.style.setProperty('display', 'none', 'important');
+                }
+            });
+            
+            // Hide/show date groups based on whether they contain any visible items
+            const dateGroups = document.querySelectorAll('.date-group');
+            dateGroups.forEach(group => {
+                let next = group.nextElementSibling;
+                let hasVisible = false;
+                while (next && next.classList.contains('tx-item')) {
+                    if (next.style.display !== 'none') {
+                        hasVisible = true;
+                    }
+                    next = next.nextElementSibling;
+                }
+                if (hasVisible) {
+                    group.style.setProperty('display', 'flex', 'important');
+                } else {
+                    group.style.setProperty('display', 'none', 'important');
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

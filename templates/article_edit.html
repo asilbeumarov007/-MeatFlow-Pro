@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}✏️ Mahsulotni Tahrirlash — Baxmal Meat{% endblock title %}
+
+{% block content %}
+<style>
+    .edit-wrapper {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 48px 15px 40px;
+    }
+
+    .edit-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+
+    .edit-card-header {
+        background: var(--primary-gradient);
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .edit-card-header h2 {
+        font-family: var(--font-serif);
+        font-size: 1.6rem;
+        color: #fff;
+        margin: 0;
+    }
+    .btn-header-save {
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.35);
+        padding: 8px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-header-save:hover {
+        background: rgba(255,255,255,0.35);
+    }
+
+    .edit-card-body {
+        padding: 32px;
+    }
+
+    .section-label {
+        font-family: var(--font-serif);
+        font-size: 1.15rem;
+        color: var(--text-main);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .section-label::before {
+        content: '';
+        width: 4px;
+        height: 20px;
+        background: var(--accent);
+        border-radius: 4px;
+    }
+
+    .edit-divider {
+        border: none;
+        height: 1px;
+        background: var(--border-color);
+        margin: 32px 0;
+    }
+
+    .images-section-title {
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .images-section-title i {
+        color: var(--accent);
+    }
+
+    .image-manage-card {
+        background: var(--bg-surface-2);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        height: 100%;
+        transition: box-shadow 0.3s;
+    }
+    .image-manage-card:hover {
+        box-shadow: var(--shadow-sm);
+    }
+    .image-manage-card .img-thumbnail {
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-color);
+    }
+
+    .edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 28px;
+        border-top: 1px solid var(--border-color);
+        margin-top: 32px;
+    }
+
+    .btn-cancel {
+        background: var(--bg-surface);
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    .btn-cancel:hover {
+        background: var(--bg-surface-2);
+        color: var(--text-main);
+    }
+
+    .btn-save {
+        background: var(--primary-gradient);
+        color: #fff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(27,107,74,0.3);
+        color: #fff;
+    }
+</style>
+
+<div class="edit-wrapper">
+    <div class="edit-card">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.media }}
+
+            <div class="edit-card-header">
+                <h2>Maqolani tahrirlash</h2>
+                <button type="submit" class="btn-header-save">
+                    <i class="fas fa-save"></i> Saqlash
+                </button>
+            </div>
+
+            <div class="edit-card-body">
+                <h4 class="section-label">Maqola mazmuni</h4>
+
+                <div class="mb-4">
+                    {{ form|crispy }}
+                </div>
+
+                <hr class="edit-divider">
+
+                <div class="additional-images-section">
+                    <h5 class="images-section-title"><i class="fas fa-images"></i> Qo'shimcha rasmlarni boshqarish:</h5>
+                    {{ images.management_form }}
+                    <div class="row">
+                        {% for image_form in images %}
+                        <div class="col-md-4 mb-3">
+                            <div class="image-manage-card">
+                                {% if image_form.instance.pk %}
+                                <div class="text-center mb-2">
+                                    <img src="{{ image_form.instance.image.url }}" class="img-thumbnail" style="height: 120px; object-fit: cover;">
+                                </div>
+                                {% endif %}
+                                <div class="small">
+                                    {{ image_form|crispy }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="edit-actions">
+                    <a href="{% url 'article_detail' article.pk %}" class="btn-cancel">
+                        Bekor qilish
+                    </a>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-check-circle"></i> O'zgarishlarni saqlash
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

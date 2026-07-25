@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card shadow-lg">
+        <div class="auth-header">
+            <h2>✨ Kirish</h2>
+        </div>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    Kirish
+                </button>
+                <a class="btn btn-outline-danger" href="{% url 'password_reset' %}" role="button">Kalit so'zini tiklash </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Siz yuborgan kodlarni aynan shu yerga qo'ying */
+    .auth-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding-top: 50px;
+    }
+    .auth-card {
+        background: white;
+        width: 100%;
+        max-width: 450px;
+        padding: 40px;
+        border-radius: 20px;
+    }
+    /* ... qolgan barcha yuborgan CSS kodlaringiz ... */
+</style>
+{% endblock content %}

@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}📅 Kunlik Hisobot — Baxmal Meat{% endblock %}
+{% block extrahead %}
+<style>
+        body {
+            background: #F5F1EB;
+            min-height: 100vh;
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #1A1A2E;
+        }
+        .dashboard-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            color: #1A1A2E;
+            border: 1px solid rgba(0,0,0,0.07);
+        }
+        .stat-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
+        }
+        .stat-card.active {
+            border-width: 5px !important;
+            background-color: #F8F6F2 !important;
+            box-shadow: inset 0 0 10px rgba(27,107,74,0.08), 0 5px 10px rgba(0,0,0,0.08) !important;
+        }
+        .badge-date {
+            background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+            color: #fff;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .badge-count {
+            background: rgba(212,168,83,0.15);
+            color: #D4A853;
+            border: 1px solid rgba(212,168,83,0.3);
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .hero-banner {
+            background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+            color: #fff;
+            border-radius: 16px;
+        }
+        .hero-banner .text-secondary {
+            color: rgba(255,255,255,0.7) !important;
+        }
+        .hero-banner .text-warning {
+            color: #D4A853 !important;
+        }
+        .table thead {
+            background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+        }
+        .table thead th {
+            color: #fff !important;
+            border: none;
+        }
+        .btn-back {
+            background: #FFFFFF;
+            border: 1.5px solid rgba(0,0,0,0.07);
+            color: #1A1A2E;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-back:hover {
+            border-color: #1B6B4A;
+            color: #1B6B4A;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .btn-analytics {
+            background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 20px;
+            transition: all 0.2s;
+        }
+        .btn-analytics:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(27,107,74,0.3);
+            color: #fff;
+        }
+        .filter-hint {
+            color: #6B7280;
+        }
+        .card-section {
+            background: #F8F6F2;
+            border: 1px solid rgba(0,0,0,0.07);
+        }
+        .table {
+            background: #fff;
+        }
+        .badge-filtered {
+            background: rgba(27,107,74,0.1);
+            color: #1B6B4A;
+            border: 1px solid rgba(27,107,74,0.2);
+        }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-11">
+            <div class="dashboard-card p-4 p-md-5 shadow-lg border-0">
+
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-4">
+                    <div class="text-center text-md-start">
+                        <h1 class="fw-bold m-0 display-6" style="font-family:'DM Serif Display',serif;color:#1B6B4A;">Baxmal meat</h1>
+                        <h4 class="m-0 mt-1 fw-medium" style="color:#6B7280;">Kunlik Savdo Tahlili</h4>
+                    </div>
+                    <div class="text-center text-md-end mt-3 mt-md-0">
+                        <span class="badge-date shadow-sm">Sana: {{ today|date:"d-M, Y-\y\i\l" }}</span>                        <span class="badge-count shadow-sm ms-2">Jami cheklar: {{ sales_count }} ta</span>
+                    </div>
+                </div>
+                <!-- image_968795.jpg dagi oq panelning tepa o'ng burchagiga qo'shish uchun -->
+<a href="{% url 'global_analytics' %}" class="btn-analytics rounded-pill px-4 py-2 shadow-sm float-end mb-3" style="text-decoration:none;">
+    <i class="bi bi-graph-up-arrow me-2"></i>Butun Davr Hisobotiga o'tish &rarr;
+</a>
+<div class="clearfix"></div>
+
+                <div class="hero-banner p-4 rounded-4 text-center mb-4 shadow-sm">
+                    <span class="fs-5 text-uppercase fw-semibold text-secondary tracking-wider">Jami Kunlik Tushum (Hamma to'lovlar)</span>
+                    <strong class="display-4 fw-bold d-block my-1 text-warning" id="overall-display">0 so'm</strong>
+                </div>
+
+                <div class="text-start mb-2"><small class="filter-hint fw-bold text-uppercase">Filtrlash uchun bloklardan birini bosing:</small></div>
+                <div class="row g-3 text-center mb-5">
+                    <div class="col-6 col-lg-3">
+                        <div id="btn-naqd" onclick="filterSales('naqd')" class="stat-card p-3 bg-white rounded-4 border-start border-4 shadow-sm" style="border-color:#1B6B4A !important;">
+                            <span class="d-block fs-5 mb-1 fw-medium" style="color:#6B7280;">Naqd Pul</span>
+                            <strong class="fs-3 d-block" style="color:#1B6B4A;" id="sum-naqd">0</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div id="btn-karta" onclick="filterSales('karta')" class="stat-card p-3 bg-white rounded-4 border-start border-4 shadow-sm" style="border-color:#2D9B6E !important;">
+                            <span class="d-block fs-5 mb-1 fw-medium" style="color:#6B7280;">Plastik Karta</span>
+                            <strong class="fs-3 d-block" style="color:#2D9B6E;" id="sum-karta">0</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div id="btn-qr" onclick="filterSales('qr')" class="stat-card p-3 bg-white rounded-4 border-start border-4 shadow-sm" style="border-color:#D4A853 !important;">
+                            <span class="d-block fs-5 mb-1 fw-medium" style="color:#6B7280;">Yagona QR</span>
+                            <strong class="fs-3 d-block" style="color:#D4A853;" id="sum-qr">0</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div id="btn-nasiya" onclick="filterSales('nasiya')" class="stat-card p-3 bg-white rounded-4 border-start border-4 shadow-sm" style="border-color:#DC3545 !important;">
+                            <span class="d-block fs-5 mb-1 fw-medium" style="color:#6B7280;">Nasiya (Qarz)</span>
+                            <strong class="fs-3 d-block" style="color:#DC3545;" id="sum-nasiya">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm card-section rounded-4 p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold m-0" style="color:#1A1A2E;" id="table-title">Savdolar ro'yxati</h4>
+                        <span class="badge badge-filtered fs-6 py-2 px-3" id="filtered-count">0 ta savdo</span>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden m-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="ps-3 py-3" style="width: 15%;">Vaqt</th>
+                                    <th scope="col" class="py-3" style="width: 55%;">Mijoz (Xaridor)</th>
+                                    <th scope="col" class="text-end pe-3 py-3" style="width: 30%;">Jami Summa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BUGUNGI KASSA KIRIM-CHIQIM (CASH FLOW) -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background:#fff; border:1px solid rgba(0,0,0,0.07) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                        <h4 class="fw-bold m-0" style="color:#1B6B4A; font-family:'DM Serif Display',serif;">Kassa Kirim-Chiqim Tahlili (Bugun)</h4>
+                        <a href="/pos/cash-flow/" class="btn btn-analytics shadow-sm py-2 px-3" style="text-decoration:none; font-size:13px; border-radius:10px;">
+                            💸 Yangi Tranzaksiya &rarr;
+                        </a>
+                    </div>
+                    
+                    <div class="row g-3 text-center mb-4">
+                        <div class="col-4">
+                            <div class="p-3 bg-light rounded-4 border-start border-success border-4 shadow-sm text-start">
+                                <span class="d-block text-muted fs-6 mb-1">Kirim (Cash In)</span>
+                                <strong class="fs-4 d-block text-success">+{{ cash_in_total|floatformat:0 }} so'm</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-light rounded-4 border-start border-danger border-4 shadow-sm text-start">
+                                <span class="d-block text-muted fs-6 mb-1">Chiqim (Cash Out)</span>
+                                <strong class="fs-4 d-block text-danger">-{{ cash_out_total|floatformat:0 }} so'm</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-light rounded-4 border-start border-warning border-4 shadow-sm text-start">
+                                <span class="d-block text-muted fs-6 mb-1">Sof Kassa O'zgarishi</span>
+                                <strong class="fs-4 d-block text-dark">{{ net_cash_flow|floatformat:0 }} so'm</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                        <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden m-0">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th scope="col" class="ps-3 py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Turi</th>
+                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Kategoriya</th>
+                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">To'lov Turi</th>
+                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Summa</th>
+                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Izoh / Maqsad</th>
+                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Mas'ul</th>
+                                    <th scope="col" class="pe-3 py-2 text-dark text-end" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Vaqti</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tx in today_cash_transactions %}
+                                <tr>
+                                    <td class="ps-3">
+                                        {% if tx.transaction_type == 'in' %}
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-3 py-1 px-2" style="font-size:11px;">Kirim</span>
+                                        {% else %}
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-3 py-1 px-2" style="font-size:11px;">Chiqim</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="badge bg-secondary-subtle text-secondary py-1 px-2 rounded-3" style="font-size:11px;">{{ tx.get_category_display }}</span></td>
+                                    <td><span style="font-size:13px;">{% if tx.payment_method == 'naqd' %}💵 Naqd{% else %}💳 Karta{% endif %}</span></td>
+                                    <td class="fw-bold {% if tx.transaction_type == 'in' %}text-success{% else %}text-danger{% endif %}" style="font-size:13px;">
+                                        {% if tx.transaction_type == 'in' %}+{% else %}-{% endif %}{{ tx.amount|floatformat:0 }} so'm
+                                    </td>
+                                    <td><div style="font-size:13px; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ tx.description }}">{{ tx.description|default:"-" }}</div></td>
+                                    <td><span class="fw-semibold" style="font-size:13px; color:#1B6B4A;">{% if tx.created_by %}{{ tx.created_by.get_full_name|default:tx.created_by.username }}{% else %}Tizim (Avto){% endif %}</span></td>
+                                    <td class="pe-3 text-end text-muted" style="font-size:12px;">{{ tx.created_at|date:"H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted fs-6">Bugun hech qanday kassa tranzaksiyalari amalga oshirilmadi.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/pos/terminal/" class="btn btn-back btn-lg px-5 py-3 fs-5 border-2">
+                        ← Terminalga qaytish
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Raqamlarni chiroyli formatlash funksiyasi (Masalan: 8519760 -> 8 519 760)
+    function formatMoney(amount) {
+        // Clean any localization formatting
+        let cleanAmount = String(amount).replace(/\s/g, '').replace(',', '.');
+        return parseFloat(cleanAmount).toLocaleString('fr-FR') + " so'm";
+    }
+
+    // Djangodagi summalarni ekranga chiroyli formatlab chiqaramiz safely (wrap in quotes to prevent localization syntax errors)
+    document.getElementById('overall-display').innerText = formatMoney("{{ overall|default:0 }}");
+    document.getElementById('sum-naqd').innerText = parseFloat(String("{{ naqd|default:0 }}").replace(/\s/g, '').replace(',', '.')).toLocaleString('fr-FR');
+    document.getElementById('sum-karta').innerText = parseFloat(String("{{ karta|default:0 }}").replace(/\s/g, '').replace(',', '.')).toLocaleString('fr-FR');
+    document.getElementById('sum-qr').innerText = parseFloat(String("{{ qr|default:0 }}").replace(/\s/g, '').replace(',', '.')).toLocaleString('fr-FR');
+    document.getElementById('sum-nasiya').innerText = parseFloat(String("{{ nasiya|default:0 }}").replace(/\s/g, '').replace(',', '.')).toLocaleString('fr-FR');
+
+    // Xavfsiz JSON massivini yaratamiz
+    const allSales = [
+        {% for sale in todays_sales %}
+        {
+            time: "{{ sale.created_at|date:'H:i' }}",
+            customer: {% if sale.customer %}"{{ sale.customer.first_name }} {{ sale.customer.last_name|default:'' }} (ID: {{ sale.customer.custom_id }})"{% else %}"Mijozsiz davom etish"{% endif %},
+            amount: parseFloat(String("{{ sale.total_amount }}").replace(/\s/g, '').replace(',', '.')),
+            method: "{{ sale.payment_method }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    function filterSales(method) {
+        // 1. Aktiv stilni o'zgartirish
+        document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
+        const activeCard = document.getElementById(`btn-${method}`);
+        if(activeCard) activeCard.classList.add('active');
+
+        // 2. Sarlavhani yangilash
+        const titles = {
+            'naqd': "Naqd puldagi savdolar ro'yxati",
+            'karta': "Plastik kartadagi savdolar ro'yxati",
+            'qr': "QR kod orqali qilingan savdolar ro'yxati",
+            'nasiya': "Nasiyaga (qarzga) berilgan savdolar ro'yxati"
+        };
+        document.getElementById('table-title').innerText = titles[method] || "Savdolar ro'yxati";
+
+        // 3. Filtrlash
+        const filtered = allSales.filter(sale => sale.method === method);
+        document.getElementById('filtered-count').innerText = `${filtered.length} ta savdo`;
+
+        // 4. Jadvalni to'ldirish
+        const tbody = document.getElementById('sales-table-body');
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 fs-5" style="color:#6B7280;">Bugun bu to'lov turida hali savdo qilinmadi.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(sale => {
+            const textClass = method === 'nasiya' ? 'fw-bold' : '';
+            const textColor = method === 'nasiya' ? 'color:#DC3545;' : 'color:#1A1A2E;';
+            html += `<tr>
+                <td class="ps-3 fw-medium" style="color:#6B7280;">${sale.time}</td>
+                <td class="${textClass}" style="${textColor}">${sale.customer}</td>
+                <td class="text-end pe-3 fw-bold" style="color:#6B7280;">${parseFloat(sale.amount).toLocaleString('fr-FR')} so'm</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+</script>
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+    // Sahifa yuklanganda avtomat naqd pullarni ko'rsatadi
+    document.addEventListener("DOMContentLoaded", function() {
+        filterSales('naqd');
+    });
+</script>
+{% endblock %}

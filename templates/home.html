@@ -1,0 +1,1035 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if user.is_authenticated and user.is_superuser %}
+    📊 MeatFlow Pro — Analitika
+  {% else %}
+    🥩 Baxmal Meat — Premium Go'sht Do'koni
+  {% endif %}
+{% endblock title %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+{% if user.is_authenticated and user.is_superuser %}
+<!-- ══════════════════════════════════════
+     MEATFLOW PRO: MANAGER DASHBOARD
+     ══════════════════════════════════════ -->
+<style>
+  body {
+    background-color: #F7F5F0 !important;
+  }
+
+  .mfp-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #6B7280;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .mfp-tab:hover {
+    color: #1B6B4A !important;
+    background: rgba(27,107,74,0.04);
+  }
+  .mfp-tab.active {
+    color: #1B6B4A !important;
+    background: rgba(27,107,74,0.08);
+    font-weight: 700;
+  }
+
+  /* Dropdown styles for Manager Profile */
+  .mfp-profile-wrapper {
+    position: relative;
+    cursor: pointer;
+  }
+  .mfp-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    background: #FFFFFF;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 16px;
+    min-width: 240px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 1000;
+    padding: 8px;
+  }
+  .mfp-dropdown.show {
+    display: block;
+    animation: fadeInUpMini 0.2s ease-out;
+  }
+  .mfp-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: #4B5563;
+    text-decoration: none;
+    font-size: 13.5px;
+    border-radius: 10px;
+    transition: all 0.2s;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+  }
+  .mfp-dropdown-item:hover {
+    background: rgba(27,107,74,0.06);
+    color: #1B6B4A !important;
+  }
+  @keyframes fadeInUpMini {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<div class="mfp-container animate__animated animate__fadeIn" style="max-width: 1400px; margin: 0 auto; padding: 24px 24px 60px; font-family: 'Inter', sans-serif;">
+  
+
+
+  <!-- Dynamic Greeting -->
+  <h2 style="font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: #1A1A2E; margin-bottom: 24px; font-weight: 400;">
+    <span id="dynamic-greeting">Xayrli kun</span>, {{ user.get_full_name|default:user.username }}!
+  </h2>
+
+  <!-- 2. TOP METRICS GRID (Circular progress, Live scale, AI Chatbot) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    
+    <!-- Sales & Revenue Card -->
+    <div class="card-premium" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; min-height: 320px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 14.5px; font-weight: 700; color: #1A1A2E; letter-spacing: -0.2px; display: flex; align-items: center; gap: 6px;">
+          <i class="bi bi-wallet2" style="color: #1B6B4A;"></i> Bugungi Savdo
+        </span>
+        <a href="{% url 'daily_report' %}" style="color: #1B6B4A; font-weight: 700; font-size: 12.5px; text-decoration: none; display: flex; align-items: center; gap: 2px;">
+          Kassa <i class="bi bi-arrow-right-short" style="font-size: 15px;"></i>
+        </a>
+      </div>
+      
+      <div style="margin: 15px 0;">
+        <div style="font-size: 34px; font-weight: 850; color: #1B6B4A; font-family: 'Inter', sans-serif; letter-spacing: -1px; line-height: 1.1;">
+          {{ today_revenue|floatformat:0 }} <span style="font-size: 16px; font-weight: 700; color: #4B5563; letter-spacing: 0;">so'm</span>
+        </div>
+        <div style="font-size: 13px; color: #374151; font-weight: 600; margin-top: 6px;">
+          Tranzaksiyalar: <strong style="color: #1B6B4A;">{{ today_sales_count }} ta</strong>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+        <span style="font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">So'nggi savdolar:</span>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          {% for sale in recent_sales %}
+          <div style="display: flex; justify-content: space-between; font-size: 13px; color: #1A1A2E; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 4px;">
+            <span style="font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">
+              #{{ sale.id }} - {{ sale.customer.first_name|default:"Mehmon" }}
+            </span>
+            <span style="color: #1B6B4A; font-weight: 800;">{{ sale.total_amount|floatformat:0 }} so'm</span>
+          </div>
+          {% empty %}
+          <div style="font-size: 12.5px; color: #9CA3AF; font-style: italic; text-align: center; margin-top: 8px;">Savdolar mavjud emas</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Slaughter Yield Card -->
+    <div class="card-premium" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; min-height: 320px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 14.5px; font-weight: 700; color: #1A1A2E; letter-spacing: -0.2px;">Bugungi So'yim samaradorligi</span>
+        <a href="{% url 'yield_loss' %}" style="color: #1B6B4A; font-weight: 700; font-size: 12.5px; text-decoration: none; display: flex; align-items: center; gap: 2px;">
+          Tahlil <i class="bi bi-arrow-right-short" style="font-size: 15px;"></i>
+        </a>
+      </div>
+      
+      <div style="display: flex; justify-content: center; align-items: center; margin: 20px 0; position: relative;">
+        <svg width="150" height="150" style="transform: rotate(-90deg);">
+          <circle cx="75" cy="75" r="60" stroke="#F0EDE6" stroke-width="12" fill="transparent"/>
+          <circle cx="75" cy="75" r="60" stroke="#1B6B4A" stroke-width="12" fill="transparent"
+                  stroke-dasharray="376.99" stroke-dashoffset="82.93" stroke-linecap="round"
+                  style="transition: stroke-dashoffset 0.5s ease-in-out;"/>
+        </svg>
+        <div style="position: absolute; font-size: 32px; font-weight: 800; color: #1A1A2E; font-family: 'Inter', sans-serif;">
+          {{ yield_percent }}%
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size: 14px; font-weight: 700; color: #1B6B4A; margin-bottom: 4px;">Samaradorlik: {{ yield_percent }}%</div>
+        <div style="font-size: 12.5px; color: #6B7280; font-weight: 500;">
+          Ishlov berildi: <strong>{{ yield_processed|floatformat:0 }} kg</strong> / {{ yield_total|floatformat:0 }} kg
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Scale Weight Card (Glowing Emerald style) -->
+    <div class="card-premium" style="background: linear-gradient(135deg, #0A5C36, #147345); border: none; border-radius: 20px; padding: 24px; box-shadow: 0 8px 30px rgba(10,92,54,0.15); display: flex; flex-direction: column; justify-content: space-between; min-height: 320px; color: #48EF80; position: relative; overflow: hidden;">
+      <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(72,239,128,0.06) 0%, transparent 60%); z-index: 1;"></div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+        <span style="font-size: 14.5px; font-weight: 700; color: #FFFFFF; opacity: 0.9;">Live Scale Weight</span>
+        <a href="{% url 'terminal' %}" style="color: #FFFFFF; font-weight: 700; font-size: 12.5px; text-decoration: none; display: flex; align-items: center; gap: 2px; opacity: 0.9;">
+          Terminal <i class="bi bi-arrow-right-short" style="font-size: 15px;"></i>
+        </a>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0; position: relative; z-index: 2;">
+        <span id="live-weight-val" style="font-size: 64px; font-weight: 800; font-family: 'Inter', sans-serif; letter-spacing: -1.5px; text-shadow: 0 0 12px rgba(72, 239, 128, 0.7), 0 0 24px rgba(72, 239, 128, 0.4);">
+          0.00
+        </span>
+        <span style="font-size: 24px; font-weight: 700; margin-left: 4px; opacity: 0.9;">kg</span>
+      </div>
+
+      <div style="position: relative; z-index: 2;">
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: 700; color: #FFFFFF; cursor: pointer; border: 1px solid rgba(255,255,255,0.15);">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #48EF80; box-shadow: 0 0 8px #48EF80; animation: pulseGlow 1.5s infinite;"></span>
+          <i class="bi bi-scale"></i> ACTIVE SCALE
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Butcher Recommendations -->
+    <div class="card-premium" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; min-height: 320px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px;">
+        <span style="font-size: 14.5px; font-weight: 700; color: #1A1A2E; display: flex; align-items: center; gap: 6px;">
+          <i class="bi bi-cpu" style="color: #1B6B4A;"></i> AI BUTCHER
+        </span>
+        <a href="/pos/chats/" style="color: #1B6B4A; font-weight: 700; font-size: 12.5px; text-decoration: none; display: flex; align-items: center; gap: 2px;">
+          CRM Chat <i class="bi bi-arrow-right-short" style="font-size: 15px;"></i>
+        </a>
+      </div>
+
+      <div id="ai-chat-history" style="flex: 1; overflow-y: auto; padding: 12px 0; display: flex; flex-direction: column; gap: 8px; max-height: 170px;">
+        {% for alert in ai_alerts %}
+          {% if alert.action %}
+            <div class="chat-msg" style="background: #FFFFFF; border-radius: 12px; padding: 10px 14px; font-size: 12.5px; color: #1A1A2E; line-height: 1.45; border: 1.5px solid {% if alert.level == 'danger' %}#EF4444{% elif alert.level == 'warning' %}#F59E0B{% else %}rgba(27,107,74,0.12){% endif %}; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.02);" onclick="triggerAiAction('{{ alert.action.customer_name }}', '{{ alert.action.product_name }}', {{ alert.action.weight }})" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='{% if alert.level == 'danger' %}#EF4444{% elif alert.level == 'warning' %}#F59E0B{% else %}rgba(27,107,74,0.12){% endif %}'">
+              {{ alert.text|safe }}
+              <span style="display: block; font-size: 10.5px; color: #1B6B4A; font-weight: 700; margin-top: 4px; text-decoration: underline;">Tavsiyani qo'llash &rarr;</span>
+            </div>
+          {% else %}
+            <div class="chat-msg" style="background: {% if alert.level == 'danger' %}rgba(239,68,68,0.04){% elif alert.level == 'warning' %}rgba(245,158,11,0.04){% else %}#F8F6F2{% endif %}; border-radius: 12px; padding: 8px 12px; font-size: 12.5px; color: #1A1A2E; line-height: 1.45; border: 1px solid {% if alert.level == 'danger' %}#EF4444{% elif alert.level == 'warning' %}#F59E0B{% else %}rgba(0,0,0,0.04){% endif %};">
+              {{ alert.text|safe }}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
+        <input type="text" id="ai-chat-input" class="f-input" style="flex: 1; height: 38px; border: 1px solid rgba(0,0,0,0.08) !important; background: #F8F6F2 !important; border-radius: 100px; padding: 9px 16px;" placeholder="Type your message..." onkeydown="if(event.key==='Enter') sendAiMessage()">
+        <button onclick="sendAiMessage()" style="background: #1B6B4A; border: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFFFFF; cursor: pointer; transition: all 0.2s;">
+          <i class="bi bi-send-fill" style="font-size: 13px;"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 3. BOTTOM PANELS GRID (Active B2B Pre-orders, Credit Risk Heatmap) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px;">
+    
+    <!-- Active B2B Pre-orders -->
+    <div class="card-premium" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); min-height: 380px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: #1A1A2E; font-weight: 400; margin: 0;">
+          Kutilayotgan Nasiya Buyurtmalar (B2B)
+        </h3>
+        <a href="{% url 'customers' %}" style="color: #1B6B4A; font-weight: 700; font-size: 12.5px; text-decoration: none; display: flex; align-items: center; gap: 2px;">
+          Mijozlar <i class="bi bi-arrow-right-short" style="font-size: 15px;"></i>
+        </a>
+      </div>
+      
+      <!-- Live Search & Filter Bar -->
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <div style="position:relative; flex:1;">
+          <i class="bi bi-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9CA3AF; font-size:13px;"></i>
+          <input type="text" id="b2b-search-input" class="f-input" style="width:100%; padding-left:34px !important; height:36px; font-size:12.5px; border-radius:10px; background:#F8F6F2 !important; border:1px solid rgba(0,0,0,0.08) !important;" placeholder="Mijoz ismi yoki mahsulot..." oninput="filterB2BTable()">
+        </div>
+        <select id="b2b-filter-status" class="f-select" style="height:36px; padding:0 12px !important; font-size:12.5px; border-radius:10px; border:1px solid rgba(0,0,0,0.08) !important; background:#F8F6F2 !important; outline:none;" onchange="filterB2BTable()">
+          <option value="all">Barchasi</option>
+          <option value="overdue">Muddati o'tgan</option>
+          <option value="near">Muddati yaqin (1-2 kun)</option>
+          <option value="pending">Kutilmoqda</option>
+        </select>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+          <thead>
+            <tr style="border-bottom: 2px solid rgba(0,0,0,0.05);">
+              <th style="padding: 12px 8px; font-size: 11.5px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</th>
+              <th style="padding: 12px 8px; font-size: 11.5px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Customer</th>
+              <th style="padding: 12px 8px; font-size: 11.5px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Items</th>
+              <th style="padding: 12px 8px; font-size: 11.5px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+              <th style="padding: 12px 8px; font-size: 11.5px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in b2b_orders %}
+            <tr class="b2b-order-row" data-due="{{ order.due_date|date:'Y-m-d' }}" data-status="{{ order.status }}" style="border-bottom: 1px solid rgba(0,0,0,0.04); transition: background 0.15s;" onmouseover="this.style.background='#F8F6F2'" onmouseout="this.style.background='transparent'">
+              <td style="padding: 14px 8px; font-size: 13.5px; font-weight: 700; color: #1A1A2E;">{{ order.id }}</td>
+              <td class="b2b-customer" style="padding: 14px 8px; font-size: 13.5px; color: #1A1A2E; font-weight: 600;">{{ order.customer }}</td>
+              <td class="b2b-items" style="padding: 14px 8px; font-size: 13px; color: #6B7280;">{{ order.items }}</td>
+              <td style="padding: 14px 8px;">
+                <span style="font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 50px; background: rgba(40,167,69,0.08); color: #28A745; display: inline-block;">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td style="padding: 14px 8px; font-size: 13px; color: #6B7280; font-weight: 500;">{{ order.due_date|date:"M d"|default:order.due_date }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Debt Risk Heatmap / Credit Exposure Graph -->
+    <div class="card-premium" style="background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: #1A1A2E; font-weight: 400; margin: 0;">
+            Qarz xavflari tahlili (Risk Heatmap)
+          </h3>
+          <a href="{% url 'global_analytics' %}" style="color: #1B6B4A; font-weight: 700; font-size: 12.5px; text-decoration: none; display: flex; align-items: center; gap: 2px;">
+            Analitika <i class="bi bi-arrow-right-short" style="font-size: 15px;"></i>
+          </a>
+        </div>
+        <div style="font-size: 13px; color: #6B7280; font-weight: 500; display: flex; align-items: center; gap: 16px; margin-bottom: 15px;">
+          <span>Credit Exposure Trend</span>
+          <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #28A745;"></span> Normal</span>
+          <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #D4A853;"></span> Gold</span>
+          <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #DC3545;"></span> Red Risk</span>
+        </div>
+      </div>
+      
+      <div style="flex: 1; min-height: 220px; position: relative;">
+        <canvas id="creditTrendChart" style="width: 100%; height: 100%;"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- CSS animations and specific pulsing effects -->
+<style>
+  @keyframes pulseGlow {
+    0% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.3); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 0.9; }
+  }
+</style>
+
+<script>
+// Toggle manager profile dropdown
+function toggleProfileDropdown(event) {
+    event.stopPropagation();
+    document.getElementById("profileDropdown").classList.toggle("show");
+}
+
+document.addEventListener("click", function(e) {
+    const dropdown = document.getElementById("profileDropdown");
+    if (dropdown && dropdown.classList.contains("show")) {
+        dropdown.classList.remove("show");
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Dynamic greeting calculation
+    const hr = new Date().getHours();
+    let greet = "Xayrli kun";
+    if (hr < 12) greet = "Xayrli tong";
+    else if (hr > 17) greet = "Xayrli kech";
+    document.getElementById("dynamic-greeting").innerText = greet;
+
+    // Credit exposure trend chart loading
+    const ctx = document.getElementById('creditTrendChart').getContext('2d');
+    
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(27, 107, 74, 0.15)');
+    gradient.addColorStop(1, 'rgba(27, 107, 74, 0.00)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ week_days|safe }},
+            datasets: [{
+                label: 'Credit Level',
+                data: {{ debt_trend|safe }},
+                borderColor: '#1B6B4A',
+                borderWidth: 3,
+                fill: true,
+                backgroundColor: gradient,
+                tension: 0.4,
+                pointBackgroundColor: ['#1B6B4A', '#D4A853', '#D4A853', '#1B6B4A', '#1B6B4A', '#D4A853', '#DC3545'],
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    grid: { color: 'rgba(0,0,0,0.03)' },
+                    ticks: {
+                        callback: function(val) { return val + 'k'; },
+                        font: { family: 'Inter', size: 11 }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { family: 'Inter', size: 11 } }
+                }
+            }
+        }
+    });
+
+    // Real-time scale weight polling simulation/integration
+    function updateScaleWeight() {
+        fetch('/pos/api/get-weight/')
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const w = parseFloat(data.weight);
+                document.getElementById('live-weight-val').innerText = w.toFixed(2);
+            }
+        })
+        .catch(err => console.error("Tarozi ulanish xatosi:", err));
+    }
+    
+    setInterval(updateScaleWeight, 1000);
+    updateScaleWeight();
+});
+
+// Interactive AI Butcher Chat simulation
+function sendAiMessage() {
+    const input = document.getElementById('ai-chat-input');
+    const msgText = input.value.trim();
+    if (!msgText) return;
+
+    const chatHistory = document.getElementById('ai-chat-history');
+    
+    // User message bubble
+    const userBubble = document.createElement('div');
+    userBubble.className = 'chat-msg';
+    userBubble.style.cssText = 'background: rgba(27,107,74,0.08); border-radius: 12px; padding: 8px 12px; font-size: 12.5px; color: #1B6B4A; line-height: 1.45; border: 1px solid rgba(27,107,74,0.15); align-self: flex-end; margin-left: 20px;';
+    userBubble.innerText = msgText;
+    chatHistory.appendChild(userBubble);
+    
+    input.value = '';
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // AI simulated response
+    setTimeout(() => {
+        const aiBubble = document.createElement('div');
+        aiBubble.className = 'chat-msg';
+        aiBubble.style.cssText = 'background: #F8F6F2; border-radius: 12px; padding: 8px 12px; font-size: 12.5px; color: #1A1A2E; line-height: 1.45; border: 1px solid rgba(0,0,0,0.04); align-self: flex-start; margin-right: 20px;';
+        
+        let response = "Hmm, qiziqarli so'rov. Tahlil qilib ko'raman.";
+        if (msgText.toLowerCase().includes('ribeye') || msgText.toLowerCase().includes('steak')) {
+            response = "AI Butcher: Ribeye sotuvi bo'yicha 'The Steakhouse' bilan tuzilgan shartnomada jami 45kg go'sht yetkazildi, qolgan 15kg zaxirada.";
+        } else if (msgText.toLowerCase().includes('yield') || msgText.toLowerCase().includes('so\'yim')) {
+            response = "AI Butcher: Bugungi so'yim ko'rsatkichi 78% ni tashkil etdi (tavsiya etilgan me'yor 75-80%).";
+        } else if (msgText.toLowerCase().includes('qarz') || msgText.toLowerCase().includes('debt')) {
+            response = "AI Butcher: Qarz yuki tendensiyasi payshanba-juma kunlarida eng yuqori nuqtaga yetdi. Nasiyani nazorat qilish tavsiya etiladi.";
+        } else {
+            response = "AI Butcher: Tushundim. Do'kon zaxiralari va savdo dinamikasiga ko'ra, keyingi partiya so'yishni rejalashtirishni boshlashingiz mumkin.";
+        }
+        
+        aiBubble.innerText = response;
+        chatHistory.appendChild(aiBubble);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }, 1000);
+}
+
+// B2B Active pre-orders due date row highlight coloring
+function highlightB2BDueDates() {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    document.querySelectorAll('.b2b-order-row').forEach(row => {
+        const dueStr = row.dataset.due;
+        if (!dueStr) return;
+        const dueDate = new Date(dueStr);
+        dueDate.setHours(0,0,0,0);
+        
+        const diffTime = dueDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        const status = row.dataset.status ? row.dataset.status.toLowerCase() : '';
+        if (status === 'completed' || status === 'yakunlandi') return;
+        
+        if (diffDays < 0) {
+            // Overdue -> Soft Red background & border
+            row.style.background = 'rgba(220, 53, 69, 0.06)';
+            row.style.borderLeft = '4px solid #DC3545';
+            row.dataset.overdue = 'true';
+        } else if (diffDays <= 2) {
+            // Near due (1-2 days left) -> Soft Gold/Orange
+            row.style.background = 'rgba(212, 168, 83, 0.08)';
+            row.style.borderLeft = '4px solid #D4A853';
+            row.dataset.overdue = 'near';
+        } else {
+            row.dataset.overdue = 'false';
+        }
+    });
+}
+
+// B2B live search and filter table function
+function filterB2BTable() {
+    const query = document.getElementById('b2b-search-input').value.toLowerCase().trim();
+    const filter = document.getElementById('b2b-filter-status').value;
+    
+    document.querySelectorAll('.b2b-order-row').forEach(row => {
+        const customer = row.querySelector('.b2b-customer').innerText.toLowerCase();
+        const items = row.querySelector('.b2b-items').innerText.toLowerCase();
+        
+        const matchesSearch = customer.includes(query) || items.includes(query);
+        
+        let matchesFilter = true;
+        if (filter === 'overdue') {
+            matchesFilter = row.dataset.overdue === 'true';
+        } else if (filter === 'near') {
+            matchesFilter = row.dataset.overdue === 'near';
+        } else if (filter === 'pending') {
+            matchesFilter = row.dataset.status === 'pending' || row.dataset.status === 'Kutilmoqda';
+        }
+        
+        if (matchesSearch && matchesFilter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// AI action trigger function to call create_ai_draft_order API
+function triggerAiAction(customerName, productName, weight) {
+    if (!confirm(customerName + " uchun " + weight + " kg " + productName + " buyurtma loyihasini yaratmoqchimisiz?")) {
+        return;
+    }
+    
+    fetch('/pos/api/b2b-orders/create-ai-draft/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({
+            customer_name: customerName,
+            product_name: productName,
+            weight: weight
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast(data.message, 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showToast(data.message || "Xatolik yuz berdi", 'danger');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showToast("Tizim bilan ulanish xatosi", 'danger');
+    });
+}
+
+// Helper to get CSRF token
+function getCsrfToken() {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, 10) === 'csrftoken=') {
+                cookieValue = decodeURIComponent(cookie.substring(10));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast helper
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container-box') || (() => {
+        const c = document.createElement('div');
+        c.id = 'toast-container-box';
+        c.style.cssText = 'position:fixed; top:20px; right:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;';
+        document.body.appendChild(c);
+        return c;
+    })();
+    
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        background: ${type === 'success' ? '#1B6B4A' : '#DC3545'};
+        color: #FFFFFF;
+        padding: 12px 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        font-size: 13.5px;
+        font-weight: 600;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        opacity: 0;
+        transform: translateY(-20px);
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    toast.innerHTML = `<i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'}"></i> ` + message;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+    }, 50);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// Run row coloring on DOM content load
+document.addEventListener("DOMContentLoaded", function() {
+    highlightB2BDueDates();
+});
+</script>
+
+{% else %}
+<!-- ══════════════════════════════════════
+     LUXURY BOUTIQUE LANDING PAGE (CUSTOMERS/GUESTS)
+     ══════════════════════════════════════ -->
+<style>
+  /* Hero area styling */
+  .boutique-hero {
+    padding: 80px 0 60px;
+    background: radial-gradient(circle at 80% 20%, rgba(212,168,83,0.05) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(27,107,74,0.04) 0%, transparent 50%);
+  }
+  .hero-title-main {
+    font-family: var(--font-serif);
+    font-size: 64px;
+    line-height: 1.1;
+    color: var(--text-main);
+    font-weight: 400;
+  }
+  .hero-badge-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 50px;
+    background: rgba(212, 168, 83, 0.09);
+    border: 1px solid rgba(212, 168, 83, 0.2);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #8B6914;
+    margin-bottom: 24px;
+  }
+  
+  /* Boutique product cards styling */
+  .boutique-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 24px;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    height: 100%;
+  }
+  .boutique-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 36px rgba(27, 107, 74, 0.08);
+    border-color: rgba(27, 107, 74, 0.15);
+  }
+  .boutique-img-container {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+  }
+  .boutique-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .boutique-card:hover .boutique-img-container img {
+    transform: scale(1.08);
+  }
+  .boutique-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--primary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+  .boutique-body {
+    padding: 24px;
+  }
+  .boutique-item-title {
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    display: block;
+    text-decoration: none;
+  }
+  .boutique-item-title:hover {
+    color: var(--primary) !important;
+  }
+  .boutique-price-tag {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1B6B4A;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .boutique-price-tag span {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  /* Grid details section */
+  .why-choose-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 20px;
+    padding: 30px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  }
+  .why-choose-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 10px 25px rgba(212,168,83,0.08);
+    transform: translateY(-2px);
+  }
+  .why-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 18px;
+  }
+  /* Circular float animations */
+  .floating-circle {
+    transition: all 0.3s ease;
+  }
+  .circle-lg {
+    animation: floatLg 8s infinite ease-in-out alternate;
+  }
+  .circle-md {
+    animation: floatMd 10s infinite ease-in-out alternate;
+  }
+  .circle-sm {
+    animation: floatSm 7s infinite ease-in-out alternate;
+  }
+
+  @keyframes floatLg {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    50% { transform: translate(-10px, 15px) scale(1.05) rotate(1deg); }
+    100% { transform: translate(12px, -12px) scale(0.96) rotate(-1deg); }
+  }
+
+  @keyframes floatMd {
+    0% { transform: translate(0, 0) scale(0.95) rotate(0deg); }
+    50% { transform: translate(15px, -15px) scale(1.04) rotate(-2deg); }
+    100% { transform: translate(-12px, 12px) scale(0.95) rotate(2deg); }
+  }
+
+  @keyframes floatSm {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-12px, -12px) scale(1.08); }
+    100% { transform: translate(10px, 15px) scale(0.94); }
+  }
+
+  @keyframes spinDashed {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes spinDashedReverse {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+  }
+</style>
+
+<div class="boutique-hero">
+  <div class="container" style="max-width: 1300px;">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 animate__animated animate__fadeInLeft">
+        <div class="hero-badge-gold">
+          <i class="bi bi-award-fill"></i> Elita Sinfi Gastronomiyasi
+        </div>
+        <h1 class="hero-title-main">
+          Baxmal Meat<br>
+          <span style="background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-family: var(--font-serif); font-style: italic;">
+            Premium Boutique
+          </span>
+        </h1>
+        <div style="width: 80px; height: 4px; background: var(--primary-gradient); border-radius: 2px; margin: 24px 0;"></div>
+        <p style="font-size: 16.5px; line-height: 1.8; color: var(--text-muted); margin-bottom: 32px; font-weight: 400;">
+          Baxmal Meat — bu shunchaki go'sht do'koni emas, bu haqiqiy gastronomik madaniyatdir. 
+          Biz siz uchun eng sarxil, laboratoriya nazoratidan o'tgan halol go'sht kesimlarini va 
+          innovatsion raqamli xizmatlarni (IoT tarozi, shaxsiy hisob-kitoblar va buyurtmalar kabineti) taqdim etamiz.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+          <a href="/pos/my-cabinet/" class="btn-signup" style="padding: 14px 32px; border-radius: 50px;">
+            <i class="bi bi-qr-code-scan"></i> Shaxsiy Kabinet
+          </a>
+          <a href="{% url 'article_list' %}" class="btn-login" style="border: 1px solid var(--border-color); border-radius: 50px; padding: 14px 32px; font-weight: 600;">
+            <i class="bi bi-shop"></i> Mahsulotlar Katalogi
+          </a>
+        </div>
+      </div>
+      
+      <div class="col-lg-6 animate__animated animate__fadeInRight" style="position: relative; height: 420px; overflow: visible;">
+        <!-- Floating circular meat gallery -->
+        <div class="floating-gallery-wrap" style="position: relative; width: 100%; height: 100%; overflow: visible; min-height: 400px;">
+          
+          <!-- Circle 1: Large Main Meat (rasm.jpg) -->
+          <div class="floating-circle circle-lg" style="position: absolute; top: 12%; left: 8%; width: 240px; height: 240px; border-radius: 50%; border: 3px solid var(--accent); overflow: hidden; z-index: 3; box-shadow: 0 12px 36px rgba(0,0,0,0.08); background: #FFF;">
+            <img src="{% static 'images/rasm.jpg' %}" style="width: 100%; height: 100%; object-fit: cover;" alt="Premium meat cut">
+          </div>
+          
+          <!-- Circle 2: Medium Meat Selection (icon.jpg) -->
+          <div class="floating-circle circle-md" style="position: absolute; bottom: 6%; right: 12%; width: 170px; height: 170px; border-radius: 50%; border: 2.5px solid var(--primary); overflow: hidden; z-index: 2; box-shadow: 0 10px 28px rgba(0,0,0,0.06); background: #FFF;">
+            <img src="{% static 'images/icon.jpg' %}" style="width: 100%; height: 100%; object-fit: cover;" alt="Boutique meat">
+          </div>
+
+          <!-- Circle 3: Small Brand Heritage (logo.jpg) -->
+          <div class="floating-circle circle-sm" style="position: absolute; top: 4%; right: 18%; width: 110px; height: 110px; border-radius: 50%; border: 1.5px solid var(--accent-light); overflow: hidden; z-index: 1; box-shadow: 0 8px 20px rgba(0,0,0,0.05); background: #FFF;">
+            <img src="{% static 'images/logo.jpg' %}" style="width: 100%; height: 100%; object-fit: cover;" alt="Baxmal logo">
+          </div>
+          
+          <!-- Floating highlight orbits in background -->
+          <div style="position: absolute; top: 0; left: 0; width: 340px; height: 340px; border: 1.5px dashed rgba(27,107,74,0.12); border-radius: 50%; z-index: 0; pointer-events: none; animation: spinDashed 25s infinite linear;"></div>
+          <div style="position: absolute; bottom: -5%; right: 5%; width: 220px; height: 220px; border: 1px dashed rgba(212,168,83,0.15); border-radius: 50%; z-index: 0; pointer-events: none; animation: spinDashedReverse 20s infinite linear;"></div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 3. BOUTIQUE SHOWCASE (Real database products) ════ -->
+<div style="padding: 80px 0; background: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.03);">
+  <div class="container" style="max-width: 1300px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 45px;">
+      <div>
+        <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; display: block; margin-bottom: 8px;">Premium Vitrina</span>
+        <h2 style="font-family: var(--font-serif); font-size: 36px; color: var(--text-main); font-weight: 400; margin: 0;">Yangi Kelgan Sarxil Kesimlar</h2>
+      </div>
+      <a href="{% url 'article_list' %}" style="color: var(--primary); font-weight: 700; font-size: 14.5px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+        Barcha Kesimlar <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for article in article_list|slice:":3" %}
+      <div class="col-lg-4 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.{{ forloop.counter }}s;">
+        <div class="boutique-card">
+          <div class="boutique-img-container">
+            {% if article.photo %}
+              <img src="{{ article.photo.url }}" alt="{{ article.name }}">
+            {% else %}
+              <img src="https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=400&auto=format&fit=crop" alt="Premium Beef">
+            {% endif %}
+            <span class="boutique-badge">{{ article.animal_type }}</span>
+          </div>
+          <div class="boutique-body">
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 1px; display: block; margin-bottom: 6px;">
+              {{ article.cut_type }}
+            </span>
+            <a href="{% url 'article_detail' article.pk %}" class="boutique-item-title">{{ article.name }}</a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 16px;">
+              <div class="boutique-price-tag">
+                {{ article.price|floatformat:0 }} <span>so'm / kg</span>
+              </div>
+              <a href="{% url 'article_detail' article.pk %}" style="width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--primary); display: flex; align-items: center; justify-content: center; color: var(--primary); transition: all 0.2s;" 
+                 onmouseover="this.style.background='var(--primary)'; this.style.color='#FFFFFF'" onmouseout="this.style.background='transparent'; this.style.color='var(--primary)'">
+                <i class="bi bi-arrow-right-short" style="font-size: 20px;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center" style="padding: 40px 0; color: var(--text-muted);">
+        <i class="bi bi-info-circle" style="font-size: 32px; display: block; margin-bottom: 12px; color: var(--accent);"></i>
+        Hozircha boutique vitrinasi bo'sh. Mahsulotlar tez orada yuklanadi!
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ════ 4. BOUTIQUE ADVANTAGES ════ -->
+<div style="padding: 80px 0; background: #FDFCF7; border-top: 1px solid rgba(0,0,0,0.03);">
+  <div class="container" style="max-width: 1300px;">
+    
+    <div style="text-align: center; max-width: 600px; margin: 0 auto 55px;">
+      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px;">Nega Aynan Biz?</span>
+      <h2 style="font-family: var(--font-serif); font-size: 36px; color: var(--text-main); margin-top: 8px; font-weight: 400;">Premium Xizmat Standartlari</h2>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="why-choose-card">
+          <div class="why-icon" style="background: rgba(27,107,74,0.08); color: var(--primary);"><i class="bi bi-shield-check"></i></div>
+          <h4 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">100% Halol Kafolat</h4>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0;">Bizning barcha mahsulotlarimiz shariat qoidalariga mos va gigiyenik toza.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="why-choose-card">
+          <div class="why-icon" style="background: rgba(212,168,83,0.1); color: var(--accent);"><i class="bi bi-cpu"></i></div>
+          <h4 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">IoT Aqlli Tarozi</h4>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0;">NodeMCU/ESP8266 datchikli tarozilar orqali 1 grammgacha aniq va halol og'irlik.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="why-choose-card">
+          <div class="why-icon" style="background: rgba(27,107,74,0.08); color: var(--primary);"><i class="bi bi-award"></i></div>
+          <h4 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Elita Go'sht Sifati</h4>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0;">Faqat maxsus boqilgan yaylov mollarining saralangan elita qismlari.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="why-choose-card">
+          <div class="why-icon" style="background: rgba(212,168,83,0.1); color: var(--accent);"><i class="bi bi-truck"></i></div>
+          <h4 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">Tezkor Yetkazish</h4>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0;">Go'shtning yangiligini saqlovchi maxsus termal qutilarda tezkor yetkazib berish.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════ 5. CLIENT TESTIMONIALS ════ -->
+<div style="padding: 80px 0; background: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03);">
+  <div class="container" style="max-width: 1300px;">
+    
+    <div style="text-align: center; max-width: 600px; margin: 0 auto 55px;">
+      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 2px;">Mijozlarimiz Fikrlari</span>
+      <h2 style="font-family: var(--font-serif); font-size: 36px; color: var(--text-main); margin-top: 8px; font-weight: 400;">Bizga Ishonganlar</h2>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div style="background: #F8F6F2; border-radius: 20px; padding: 30px; border: 1px solid rgba(0,0,0,0.04); height: 100%;">
+          <div style="color: var(--accent); margin-bottom: 12px; font-size: 16px;">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+          </div>
+          <p style="font-size: 13.5px; line-height: 1.6; color: var(--text-muted); font-style: italic; margin-bottom: 20px;">
+            "Restoranimiz uchun go'sht yetkazib berishda juda ko'p hamkorlarni sinab ko'rdik. 
+            Lekin Baxmal Meat boshqacha: vazni 1 grammigacha to'g'ri keladi, go'shti esa har doim ideal va yumshoq!"
+          </p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 700; font-size: 14px;">
+              A
+            </div>
+            <div>
+              <span style="font-weight: 700; font-size: 13.5px; color: var(--text-main); display: block;">Asliddin Aliyev</span>
+              <span style="font-size: 11px; color: var(--text-muted);">"The Steakhouse" Bosh Shefi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div style="background: #F8F6F2; border-radius: 20px; padding: 30px; border: 1px solid rgba(0,0,0,0.04); height: 100%;">
+          <div style="color: var(--accent); margin-bottom: 12px; font-size: 16px;">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+          </div>
+          <p style="font-size: 13.5px; line-height: 1.6; color: var(--text-muted); font-style: italic; margin-bottom: 20px;">
+            "Uydagilar faqat shu yerdan go'sht olishimni so'rashadi. Kassa tizimi shaffof, tortgan tarozi vazni smartfonda ham darhol ko'rinadi. Premium daraja!"
+          </p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 700; font-size: 14px;">
+              M
+            </div>
+            <div>
+              <span style="font-weight: 700; font-size: 13.5px; color: var(--text-main); display: block;">Madina Nosirova</span>
+              <span style="font-size: 11px; color: var(--text-muted);">Doimiy mijoz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div style="background: #F8F6F2; border-radius: 20px; padding: 30px; border: 1px solid rgba(0,0,0,0.04); height: 100%;">
+          <div style="color: var(--accent); margin-bottom: 12px; font-size: 16px;">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+          </div>
+          <p style="font-size: 13.5px; line-height: 1.6; color: var(--text-muted); font-style: italic; margin-bottom: 20px;">
+            "Qarz daftarlari elektron ko'chirilishi va to'lovlar shaffofligi ajoyib yechim bo'lgan. Qiyin sharoitda ham yordam berishgan, rahmat."
+          </p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 700; font-size: 14px;">
+              D
+            </div>
+            <div>
+              <span style="font-weight: 700; font-size: 13.5px; color: var(--text-main); display: block;">Davronbek Karimov</span>
+              <span style="font-size: 11px; color: var(--text-muted);">Ulgurji xaridor</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════ 6. CALL TO ACTION ════ -->
+<div style="padding: 70px 0; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 80%);">
+  <div class="container" style="max-width: 1000px; text-align: center;">
+    <div style="background: #FFFFFF; border: 1px solid rgba(212,168,83,0.2); border-radius: 30px; padding: 50px 40px; box-shadow: var(--shadow-lg);">
+      <h3 style="font-family: var(--font-serif); font-size: 28px; color: var(--text-main); margin-bottom: 12px; font-weight: 400;">Shaxsiy Sodiqlik Tizimiga Qo'shiling!</h3>
+      <p style="font-size: 14.5px; color: var(--text-muted); max-width: 600px; margin: 0 auto 30px; line-height: 1.7;">
+        Bizning sodiqlik tizimimizda ro'yxatdan o'ting va har bir xaridingiz uchun bonus ballari to'plang. 
+        Shaxsiy kabinetingiz orqali buyurtmalar tarixi va qarzlarni real-vaqtda kuzatib boring.
+      </p>
+      {% if not user.is_authenticated %}
+      <a href="{% url 'signup' %}" class="btn-signup" style="padding: 14px 40px; border-radius: 50px;">Hozir Ro'yxatdan o'tish</a>
+      {% else %}
+      <a href="/pos/my-cabinet/" class="btn-signup" style="padding: 14px 40px; border-radius: 50px;">Kabinetga Kirish</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock content %}
