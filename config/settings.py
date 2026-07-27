@@ -19,9 +19,9 @@ SECRET_KEY = 'django-insecure-%k58&vjw)ai010%@t$xhi6i#hxfej!b-#r1c%!2f6pihx*lleg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Vercel va mahalliy xostlar uchun ruxsatlar
+# Vercel, Render va mahalliy xostlar uchun ruxsatlar
 
-ALLOWED_HOSTS = ['web-production-5aab.up.railway.app', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -128,7 +128,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Whitenoise orqali statik fayllarni siqish va saqlash
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -154,4 +154,9 @@ CKEDITOR_CONFIGS = {
 }
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 CKEDITOR_RESTRICT_BY_USER = True
-CSRF_TRUSTED_ORIGINS = ['https://web-production-5aab.up.railway.app']
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'https://web-production-5aab.up.railway.app',
+    'http://127.0.0.1:8000',
+    'http://localhost'
+]
