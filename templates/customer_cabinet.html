@@ -1011,6 +1011,19 @@
     <button class="cab-nav-tab" id="btn-tab-orders" onclick="switchCabinetSection('orders')">
       <i class="bi bi-box-seam-fill me-2"></i> Buyurtmalar (B2B)
     </button>
+    {% if customer.is_courier %}
+    <button class="cab-nav-tab" id="btn-tab-courier" onclick="switchCabinetSection('courier')">
+      <i class="bi bi-bicycle me-1 text-success"></i> Kuryer Paneli 🚴‍♂️
+    </button>
+    {% elif customer.courier_status == 'pending' %}
+    <button class="cab-nav-tab text-warning fw-bold" onclick="showToast('Kuryerlik arizangiz ko\'rib chiqilmoqda...', 'info')">
+      <i class="bi bi-clock-history me-1"></i> Ariza Kutilmoqda ⏳
+    </button>
+    {% else %}
+    <button class="cab-nav-tab text-success fw-bold" onclick="openCourierApplyModal()">
+      <i class="bi bi-bicycle me-1"></i> Kuryer Bo'lish 🚴‍♂️
+    </button>
+    {% endif %}
     <button class="cab-nav-tab" id="btn-tab-ai" onclick="openAIModal()"
       style="background: linear-gradient(135deg, rgba(212,168,83,0.12), rgba(27,107,74,0.12)); border: 1px solid rgba(212,168,83,0.4); color: #92650A; font-weight:700;">
       <i class="bi bi-robot me-1" style="color:var(--cab-gold);"></i> AI Maslahatchi
@@ -1283,60 +1296,82 @@
         <span class="cab-section-count" style="margin-left:auto;">{{ b2b_orders|length }} ta buyurtma</span>
       </div>
       {% if b2b_orders %}
-      <div class="cab-table-wrapper">
-        <table class="cab-tx-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Mahsulot</th>
-              <th>Og'irlik</th>
-              <th>Sana</th>
-              <th style="text-align:right;">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for order in b2b_orders %}
-            <tr>
-              <td class="tx-date fw-bold">#{{ order.id }}</td>
-              <td class="tx-title fw-semibold">{{ order.product.name }}</td>
-              <td><span style="font-weight:700; color:var(--cab-green);">{{ order.requested_weight|floatformat:1 }}
-                  kg</span></td>
-              <td class="tx-date">{{ order.created_at|date:"d.m.Y H:i" }}</td>
-              <td style="text-align:right;">
-                {% if order.status == 'pending' %}
-                <span class="b2b-badge b2b-pending">🕐 Kutilmoqda</span>
-                {% elif order.status == 'payment_uploaded' %}
-                <span class="b2b-badge"
-                  style="background:#DBEAFE; color:#1E40AF; font-size:11px; padding:3px 10px; border-radius:12px; font-weight:700;">📸
-                  Chek yuklandi</span>
-                {% elif order.status == 'approved' %}
-                <span class="b2b-badge b2b-approved">✅ Tasdiqlandi</span>
-                {% elif order.status == 'preparing' %}
-                <span class="b2b-badge"
-                  style="background:#F3E8FF; color:#6B21A8; font-size:11px; padding:3px 10px; border-radius:12px; font-weight:700;">🥩
-                  Qadoqlanmoqda</span>
-                {% elif order.status == 'shipping' %}
-                <span class="b2b-badge"
-                  style="background:#CFFAFE; color:#155E75; font-size:11px; padding:3px 10px; border-radius:12px; font-weight:700;">🚚
-                  Kuryer yo'lda</span>
-                {% elif order.status == 'rejected' %}
-                <span class="b2b-badge b2b-rejected">❌ Rad etildi</span>
-                {% elif order.status == 'completed' %}
-                <span class="b2b-badge b2b-completed">🎉 Yakunlandi</span>
-                {% endif %}
+      <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
+        {% for order in b2b_orders %}
+        <div class="order-card p-3 rounded-4 bg-white border shadow-sm" style="border: 1.5px solid var(--cab-border) !important;">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <span class="badge bg-primary text-white fw-bold me-2" style="font-size:12px;">#{{ order.id }}</span>
+              <strong class="text-dark" style="font-size:14px;">{{ order.product.name }}</strong>
+              <span class="text-success fw-bold ms-2" style="font-size:13px;">{{ order.requested_weight|floatformat:1 }} kg</span>
+            </div>
+            <div class="text-muted" style="font-size:11px;">
+              <i class="bi bi-clock me-1"></i>{{ order.created_at|date:"d.m.Y H:i" }}
+            </div>
+          </div>
 
-                {% if order.payment_proof_image %}
-                <button class="btn btn-sm btn-outline-primary ms-1 py-0 px-2"
-                  style="font-size:11px; border-radius:8px; font-weight:700;"
-                  onclick="openProofModal('{{ order.payment_proof_image.url }}', '{{ order.requested_weight }} kg {{ order.product.name }}', 'B2B', '{{ order.created_at|date:'d.m.Y H:i' }}', {% if order.status == 'approved' or order.status == 'completed' %}true{% else %}false{% endif %})">
-                  📸 Chek
-                </button>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+          <!-- Live Visual Progress Tracker Stepper Bar -->
+          {% if order.status == 'rejected' %}
+            <div class="alert alert-danger py-2 px-3 m-0 rounded-3 d-flex align-items-center gap-2" style="font-size:12px;">
+              <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+              <div><strong>Buyurtma rad etildi.</strong> Do'kon operatori bilan chatda bog'lanishingiz mumkin.</div>
+            </div>
+          {% else %}
+            <div class="order-stepper-wrapper mt-3 pt-2 border-top">
+              <div class="d-flex justify-content-between align-items-center position-relative px-2">
+                
+                <!-- Stepper Line Behind Icons -->
+                <div style="position:absolute; top:14px; left:12%; right:12%; height:3px; background:#E2E8F0; z-index:0;"></div>
+
+                <!-- Step 1: Qabul qilindi -->
+                <div class="text-center flex-fill position-relative" style="z-index:1;">
+                  <div class="mx-auto mb-1 d-flex align-items-center justify-content-center rounded-circle {% if order.status == 'pending' or order.status == 'payment_uploaded' or order.status == 'approved' or order.status == 'preparing' or order.status == 'shipping' or order.status == 'completed' %}bg-success text-white shadow-sm{% else %}bg-secondary bg-opacity-25 text-secondary{% endif %}" style="width:28px; height:28px; font-size:12px;">
+                    <i class="bi bi-check-lg"></i>
+                  </div>
+                  <div class="fw-bold" style="font-size:10px; color:{% if order.status == 'pending' or order.status == 'payment_uploaded' or order.status == 'approved' or order.status == 'preparing' or order.status == 'shipping' or order.status == 'completed' %}#10B981{% else %}#94A3B8{% endif %};">⏳ Qabul</div>
+                </div>
+
+                <!-- Step 2: Qadoqlanmoqda -->
+                <div class="text-center flex-fill position-relative" style="z-index:1;">
+                  <div class="mx-auto mb-1 d-flex align-items-center justify-content-center rounded-circle {% if order.status == 'approved' or order.status == 'preparing' or order.status == 'shipping' or order.status == 'completed' %}bg-success text-white shadow-sm{% else %}bg-secondary bg-opacity-25 text-secondary{% endif %}" style="width:28px; height:28px; font-size:12px;">
+                    <i class="bi bi-box-seam-fill"></i>
+                  </div>
+                  <div class="fw-bold" style="font-size:10px; color:{% if order.status == 'approved' or order.status == 'preparing' or order.status == 'shipping' or order.status == 'completed' %}#10B981{% else %}#94A3B8{% endif %};">🥩 Qadoqlash</div>
+                </div>
+
+                <!-- Step 3: Kuryer yo'lda -->
+                <div class="text-center flex-fill position-relative" style="z-index:1;">
+                  <div class="mx-auto mb-1 d-flex align-items-center justify-content-center rounded-circle {% if order.status == 'shipping' or order.status == 'completed' %}bg-success text-white shadow-sm{% else %}bg-secondary bg-opacity-25 text-secondary{% endif %}" style="width:28px; height:28px; font-size:12px;">
+                    <i class="bi bi-bicycle"></i>
+                  </div>
+                  <div class="fw-bold" style="font-size:10px; color:{% if order.status == 'shipping' or order.status == 'completed' %}#10B981{% else %}#94A3B8{% endif %};">🚴 Yo'lda</div>
+                </div>
+
+                <!-- Step 4: Yetkazildi -->
+                <div class="text-center flex-fill position-relative" style="z-index:1;">
+                  <div class="mx-auto mb-1 d-flex align-items-center justify-content-center rounded-circle {% if order.status == 'completed' %}bg-success text-white shadow-sm{% else %}bg-secondary bg-opacity-25 text-secondary{% endif %}" style="width:28px; height:28px; font-size:12px;">
+                    <i class="bi bi-flag-fill"></i>
+                  </div>
+                  <div class="fw-bold" style="font-size:10px; color:{% if order.status == 'completed' %}#10B981{% else %}#94A3B8{% endif %};">✅ Yetkazildi</div>
+                </div>
+
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top" style="font-size:11px;">
+            <div class="text-muted">
+              {% if order.delivery_type == 'delivery' %}🚚 Kuryer (Dostavka){% else %}🏃 Samovivoz{% endif %} · 💳 {{ order.get_payment_method_display }}
+              {% if order.delivery_address %} · 📍 {{ order.delivery_address }}{% endif %}
+            </div>
+            {% if order.payment_proof_image %}
+            <button class="btn btn-sm btn-outline-primary py-0 px-2 fw-bold" style="font-size:10px; border-radius:6px;" onclick="openProofModal('{{ order.payment_proof_image.url }}', '{{ order.requested_weight }} kg {{ order.product.name }}', 'B2B', '{{ order.created_at|date:'d.m.Y H:i' }}', {% if order.status == 'approved' or order.status == 'completed' %}true{% else %}false{% endif %})">
+              📸 Chek rasmi
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
       </div>
       {% else %}
       <div class="cab-empty">
@@ -1348,6 +1383,34 @@
         <button class="btn-cab-primary w-100" onclick="openB2BModal()">
           <i class="bi bi-cart-plus"></i> Yangi buyurtma berish
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: COURIER WORKSPACE -->
+  <div id="sec-courier" class="cab-sec-content d-none">
+    <div class="cab-section">
+      <div class="cab-section-header">
+        <i class="bi bi-bicycle" style="color:var(--cab-green); font-size:18px;"></i>
+        <h6 class="cab-section-title">Kuryerlik Paneli & Buyurtmalar Marketi</h6>
+        <div style="margin-left:auto;">
+          <button class="btn btn-sm btn-outline-success rounded-3 fw-bold" onclick="loadCourierOrders()" style="font-size:11px;">
+            <i class="bi bi-arrow-clockwise me-1"></i> Yangilash
+          </button>
+        </div>
+      </div>
+      <div class="p-3">
+        <!-- Active Deliveries -->
+        <h6 class="fw-bold mb-2 text-primary" style="font-size:13px;"><i class="bi bi-box2-heart-fill me-1"></i> Mening Faol Yetkazishlarim</h6>
+        <div id="courier-active-deliveries" class="mb-4">
+          <div class="text-center text-muted py-3" style="font-size:12px;">Sizda qabul qilingan faol yetkazishlar yo'q.</div>
+        </div>
+
+        <!-- Available Open Delivery Orders -->
+        <h6 class="fw-bold mb-2 text-success" style="font-size:13px;"><i class="bi bi-bag-plus-fill me-1"></i> Tayyor Buyurtmalar (Yetkazib berish lozim)</h6>
+        <div id="courier-available-orders">
+          <div class="text-center text-muted py-3" style="font-size:12px;">Hozirda kuryer kutayotgan yangi buyurtmalar yo'q.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1536,69 +1599,132 @@
   </div>
 </div>
 
-<!-- 4. B2B ORDER MODAL -->
+<!-- 4. B2B ORDER MODAL (E-COMMERCE MULTI-ITEM CART) -->
 <div class="modal fade" id="b2bModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:520px;">
+  <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width:680px;">
     <div class="modal-content"
-      style="border-radius:20px; border:none; box-shadow:0 15px 40px rgba(0,0,0,0.2); overflow:hidden;">
+      style="border-radius:24px; border:none; box-shadow:0 20px 50px rgba(0,0,0,0.25); overflow:hidden;">
+      
+      <!-- Modal Header -->
       <div class="modal-header"
-        style="background:linear-gradient(135deg,#1e3a8a,#3B82F6); color:#fff; padding:18px 24px; border-bottom:none;">
-        <h5 class="modal-title fw-bold" style="display:flex;align-items:center;gap:8px; font-size:16px;">
-          <i class="bi bi-cart-plus-fill text-warning"></i> Go'sht Buyurtma Berish
-        </h5>
+        style="background:linear-gradient(135deg,#09301F 0%,#1B6B4A 60%,#2D9B6E 100%); color:#fff; padding:18px 24px; border-bottom:1px solid rgba(212,168,83,0.3);">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:18px; color:#D4A853;">
+            <i class="bi bi-cart-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold m-0" style="font-size:16px;">Go'sht Buyurtma Berish</h5>
+            <small style="font-size:11px; opacity:0.85;">Kerakli mahsulot va vaznlarni tanlang</small>
+          </div>
+        </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4" style="max-height:80vh; overflow-y:auto; background:#FAFAF8;">
-        <!-- Product Select -->
-        <div class="mb-3">
-          <label
-            style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:8px; letter-spacing:0.5px;">MAHSULOTNI
-            TANLANG *</label>
-          <div class="b2b-product-grid"
-            style="display:flex; gap:12px; overflow-x:auto; padding:4px 4px 12px; scroll-behavior:smooth;">
+
+      <div class="modal-body p-4" style="max-height:78vh; overflow-y:auto; background:#FAF9F6;">
+        
+        <!-- STEP 1: PRODUCT SELECTION GRID -->
+        <div class="mb-4">
+          <label style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:10px; letter-spacing:0.5px;">
+            1. MAHSULOTLARNI TANLANG VAKG KIRITING *
+          </label>
+
+          <div class="row g-3">
             {% for product in products %}
-            <div class="b2b-prod-card" data-name="{{ product.name|escapejs }}"
-              onclick="selectB2BProduct(this.dataset.name, this)"
-              style="flex: 0 0 100px; cursor:pointer; background:#fff; border: 1.5px solid var(--cab-border); border-radius:12px; padding:8px; text-align:center; transition:all 0.2s ease;">
-              <div
-                style="width:100%; aspect-ratio:1/1; border-radius:8px; overflow:hidden; background:#F5F5F5; margin-bottom:6px; position:relative;">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" style="width:100%; height:100%; object-fit:cover;">
-                {% else %}
-                <img src="https://cdn-icons-png.flaticon.com/512/1046/1046747.png"
-                  style="width:100%; height:100%; object-fit:cover;">
-                {% endif %}
-                <div class="check-icon"
-                  style="display:none; position:absolute; top:4px; right:4px; background:#3B82F6; color:#fff; width:18px; height:18px; border-radius:50%; align-items:center; justify-content:center; font-size:10px;">
-                  <i class="bi bi-check-lg"></i>
+            <div class="col-6 col-sm-4">
+              <div class="b2b-cart-prod-card" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-price="{{ product.price_per_kg }}"
+                style="background:#fff; border:1.5px solid var(--cab-border); border-radius:16px; padding:10px; text-align:center; transition:all 0.2s ease; position:relative; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                
+                <div style="width:100%; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:#F5F5F5; margin-bottom:8px; position:relative;">
+                  {% if product.image %}
+                  <img src="{{ product.image.url }}" style="width:100%; height:100%; object-fit:cover;">
+                  {% else %}
+                  <img src="https://cdn-icons-png.flaticon.com/512/1046/1046747.png" style="width:100%; height:100%; object-fit:cover;">
+                  {% endif %}
+                  <span class="badge bg-dark bg-opacity-75" style="position:absolute; bottom:4px; right:4px; font-size:9px; font-weight:700;">
+                    {{ product.price_per_kg|floatformat:0 }} so'm/kg
+                  </span>
                 </div>
+
+                <div style="font-size:12px; font-weight:700; color:var(--cab-text); line-height:1.2; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; margin-bottom:6px;">
+                  {{ product.name }}
+                </div>
+
+                <!-- Weight Controls -->
+                <div class="input-group input-group-sm rounded-3 overflow-hidden border">
+                  <button class="btn btn-outline-secondary px-2" type="button" onclick="changeCartWeight('{{ product.name|escapejs }}', -0.5, '{{ product.price_per_kg }}')">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <input type="number" class="form-control text-center px-1 fw-bold cart-qty-input" 
+                    id="cart-qty-{{ forloop.counter }}" 
+                    data-product-name="{{ product.name }}"
+                    data-price="{{ product.price_per_kg }}"
+                    placeholder="0 kg" step="0.5" min="0" value="" 
+                    onchange="onCartInputChanged('{{ product.name|escapejs }}', this.value, '{{ product.price_per_kg }}')"
+                    style="font-size:11px;">
+                  <button class="btn btn-outline-success px-2" type="button" onclick="changeCartWeight('{{ product.name|escapejs }}', 0.5, '{{ product.price_per_kg }}')">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+
               </div>
-              <div
-                style="font-size:11px; font-weight:700; color:var(--cab-text); line-height:1.2; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
-                {{ product.name }}</div>
             </div>
             {% endfor %}
           </div>
-          <select id="b2b-product-select" class="d-none">
-            <option value="" disabled selected>Mahsulotni tanlang...</option>
-            {% for product in products %}
-            <option value="{{ product.name }}">{{ product.name }}</option>
-            {% endfor %}
-          </select>
         </div>
 
-        <!-- Weight Input -->
-        <div class="mb-3">
-          <label
-            style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:6px; letter-spacing:0.5px;">KUTILAYOTGAN
-            OG'IRLIK (kg) *</label>
-          <input type="number" id="b2b-weight-input" class="form-control rounded-3" placeholder="Masalan: 5.5"
-            step="0.1" min="0.1" style="font-size:14px; padding:10px 14px;">
+        <!-- STEP 2: CART SUMMARY BOX -->
+        <div class="card border-0 mb-4 shadow-sm" style="border-radius:18px; background:#fff; border:1.5px solid rgba(27,107,74,0.12) !important;">
+          <div class="card-body p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <h6 class="fw-bold m-0" style="font-size:13px; color:var(--cab-green); display:flex; align-items:center; gap:6px;">
+                <i class="bi bi-bag-check-fill"></i> Savat Hoshiyasi
+              </h6>
+              <span class="badge" id="cart-item-count-badge" style="background:rgba(27,107,74,0.1); color:var(--cab-green); font-size:11px; font-weight:700;">
+                0 ta mahsulot
+              </span>
+            </div>
+
+            <div id="cart-empty-msg" class="text-center py-3 text-muted" style="font-size:12px;">
+              <i class="bi bi-cart-x display-6 opacity-25 d-block mb-1"></i>
+              Yuqoridagi katalogdan kerakli go'sht vaznini tanlang.
+            </div>
+
+            <!-- Items Table -->
+            <div id="cart-items-wrapper" style="display:none;">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle m-0" style="font-size:12px;">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Mahsulot</th>
+                      <th class="text-center">Vazn (kg)</th>
+                      <th class="text-end">Narx</th>
+                      <th class="text-end">Summa</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="cart-items-tbody">
+                    <!-- JS populated -->
+                  </tbody>
+                </table>
+              </div>
+              <hr class="my-2" style="opacity:0.1;">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="text-muted" style="font-size:12px; font-weight:600;">Jami Taxminiy Summa:</span>
+                <span class="fw-bold text-success" id="cart-total-sum-display" style="font-size:16px;">
+                  0 so'm
+                </span>
+              </div>
+            </div>
+
+          </div>
         </div>
 
-        <!-- Delivery Type -->
+        <!-- STEP 3: DELIVERY TYPE & ADDRESS -->
         <div class="mb-3">
-          <div class="d-flex gap-2">
+          <label style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:8px; letter-spacing:0.5px;">
+            2. YETKAZIB BERISH TURI VAMANZIL *
+          </label>
+          <div class="d-flex gap-2 mb-2">
             <label class="flex-fill p-2 rounded-3 text-center border cursor-pointer b2b-delivery-opt active"
               id="b2b-del-delivery" onclick="selectB2BDelivery('delivery')"
               style="background:#EFF6FF; border-color:#3B82F6 !important; font-size:12px; font-weight:700; color:#1D4ED8;">
@@ -1611,23 +1737,28 @@
             </label>
           </div>
           <input type="hidden" id="b2b-delivery-type" value="delivery">
+
+          <!-- Delivery Address Input -->
+          <div id="b2b-address-group">
+            <div class="input-group">
+              <input type="text" id="b2b-address-input" class="form-control rounded-start-3"
+                placeholder="Masalan: Toshkent, Chilonzor 5, 12-uy (Mo'ljal: Makro)"
+                style="font-size:13px; padding:9px 12px;">
+              <button class="btn btn-outline-primary rounded-end-3" type="button" onclick="detectGPSLocation()" style="font-size:12px; font-weight:700;">
+                <i class="bi bi-geo-alt-fill me-1"></i> GPS Lokatsiya
+              </button>
+            </div>
+            <input type="hidden" id="b2b-latitude" value="">
+            <input type="hidden" id="b2b-longitude" value="">
+            <small id="gps-status-text" class="text-muted" style="font-size:10px; display:block; margin-top:3px;"></small>
+          </div>
         </div>
 
-        <!-- Delivery Address -->
-        <div class="mb-3" id="b2b-address-group">
-          <label
-            style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:6px; letter-spacing:0.5px;">YETKAZIB
-            BERISH MANZILI (LOKATSIYA / MO'LJAL)</label>
-          <input type="text" id="b2b-address-input" class="form-control rounded-3"
-            placeholder="Masalan: Toshkent, Chilonzor 5, 12-uy (Mo'ljal: Makro)"
-            style="font-size:13px; padding:9px 12px;">
-        </div>
-
-        <!-- Payment Method -->
+        <!-- STEP 4: PAYMENT METHOD -->
         <div class="mb-3">
-          <label
-            style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:8px; letter-spacing:0.5px;">TO'LOV
-            TURI *</label>
+          <label style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:8px; letter-spacing:0.5px;">
+            3. TO'LOV TURI *
+          </label>
           <div class="d-flex gap-2">
             <label class="flex-fill p-2 rounded-3 text-center border cursor-pointer b2b-pay-opt active"
               id="b2b-pay-karta" onclick="selectB2BPayment('karta')"
@@ -1648,33 +1779,97 @@
           <input type="hidden" id="b2b-payment-method" value="karta">
         </div>
 
-        <!-- Payment Proof Photo Upload (Optional) -->
+        <!-- Payment Proof Photo Upload (Optional) & Requisites Box -->
         <div class="mb-3" id="b2b-proof-group">
-          <label
-            style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:6px; letter-spacing:0.5px;">TO'LOV
-            CHEKI RASMI (IXTIYORIY)</label>
-          <input type="file" id="b2b-proof-image" class="form-control rounded-3" accept="image/*"
-            style="font-size:12px;">
-          <small class="text-muted" style="font-size:10px;">Karta orqali to'lov qilingan bo'lsa chek rasmini birga
-            yuklashingiz mumkin.</small>
+          <!-- Store Card Requisites Card -->
+          <div class="mb-3 p-3 rounded-4" id="b2b-card-requisite-box" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: #FFF; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-warning fw-bold" style="font-size:10px; letter-spacing:1px;">BAXMAL MEAT · PLASTIK KARTA REKVIZITI</span>
+              <span class="badge bg-success" style="font-size:9px;">CLICK / PAYME</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between my-2">
+              <div class="fw-bold font-monospace text-light fs-5" id="store-card-number" style="letter-spacing:2px;">8600 1234 5678 9012</div>
+              <button type="button" class="btn btn-sm btn-warning fw-bold py-1 px-3 rounded-3" onclick="copyStoreCardNumber()" style="font-size:11px;">
+                <i class="bi bi-copy me-1"></i> Nusxalash
+              </button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center" style="font-size:10px; opacity:0.8;">
+              <span>Ega: Baxmal Meat Enterprise</span>
+              <span>Ilovada nusxalab to'lov qiling</span>
+            </div>
+          </div>
+
+          <label style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:6px; letter-spacing:0.5px;">
+            TO'LOV CHEKI RASMI (IXTIYORIY)
+          </label>
+          <input type="file" id="b2b-proof-image" class="form-control rounded-3" accept="image/*" style="font-size:12px;">
+          <small class="text-muted" style="font-size:10px;">Karta orqali to'lov qilingan bo'lsa chek rasmini birga yuklashingiz mumkin.</small>
         </div>
 
         <!-- Notes -->
-        <div class="mb-3">
-          <label
-            style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:6px; letter-spacing:0.5px;">MAXSUS
-            ESLATMALAR (IZOH)</label>
+        <div class="mb-2">
+          <label style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:6px; letter-spacing:0.5px;">
+            MAXSUS ESLATMALAR (IZOH)
+          </label>
           <textarea id="b2b-notes-input" class="form-control rounded-3" rows="2"
-            placeholder="Masalan: Lahm qismidan bo'lsin, suyaksiz..." style="resize:none; font-size:13px;"></textarea>
+            placeholder="Masalan: Lahm qismidan bo'lsin, suyaksiz, fresh..." style="resize:none; font-size:13px;"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer p-3" style="gap:10px; background:#fff; border-top:1px solid var(--cab-border);">
+        <button type="button" class="btn btn-outline-secondary btn-sm rounded-3 px-3" data-bs-dismiss="modal">
+          Bekor qilish
+        </button>
+        <button type="button" class="btn btn-success btn-sm rounded-3 px-4 fw-bold" id="b2b-submit-btn"
+          onclick="sendB2BOrder()"
+          style="background:linear-gradient(135deg,#1B6B4A,#2D9B6E); border:none; box-shadow:0 4px 16px rgba(27,107,74,0.3); font-size:14px; padding:10px 24px;">
+          <i class="bi bi-send-fill me-1"></i> Buyurtma Berish (<span id="btn-total-sum-text">0 so'm</span>)
+        </button>
+      </div> <!-- closes modal-footer -->
+    </div> <!-- closes modal-content -->
+  </div> <!-- closes modal-dialog -->
+</div> <!-- closes b2bModal -->
+
+<!-- COURIER APPLY MODAL -->
+<div class="modal fade" id="courierApplyModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+    <div class="modal-content" style="border-radius:20px; border:none; box-shadow:0 15px 40px rgba(0,0,0,0.2); overflow:hidden;">
+      <div class="modal-header" style="background:linear-gradient(135deg,#09301F,#1B6B4A); color:#fff; padding:18px 24px;">
+        <h5 class="modal-title fw-bold" style="display:flex; align-items:center; gap:8px; font-size:16px;">
+          🚴‍♂️ Kuryerlikka Ariza Topshirish
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4" style="background:#FAF9F6;">
+        <div class="text-center mb-3">
+          <div style="width:60px; height:60px; border-radius:50%; background:rgba(27,107,74,0.1); color:var(--cab-green); display:inline-flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:8px;">
+            🛵
+          </div>
+          <h6 class="fw-bold text-dark mb-1">Do'kon bilan birga pul ishlang!</h6>
+          <small class="text-muted" style="font-size:12px;">Mijozlarga go'sht mahsulotlarini yetkazib berib kuryerlik haqini oling.</small>
+        </div>
+
+        <div class="mb-3">
+          <label style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:6px;">TRANSPORT TURINGIZ *</label>
+          <select id="courier-vehicle-select" class="form-select rounded-3" style="font-size:13px; padding:10px 14px;">
+            <option value="Moped/Skuter">🛵 Moped / Skuter</option>
+            <option value="Yengil Avto">🚗 Yengil Avtomobil</option>
+            <option value="Velosiped">🚴 Velosiped</option>
+            <option value="Piyoda">🏃 Piyoda</option>
+          </select>
+        </div>
+
+        <div class="alert alert-success border-0 rounded-3 mb-0 p-2 text-center" style="font-size:11px; background:rgba(27,107,74,0.08); color:var(--cab-green);">
+          <i class="bi bi-info-circle-fill me-1"></i> Arizangiz admin tomonidan tasdiqlanishi bilan kabinetda Kuryer Paneli faollashadi.
         </div>
       </div>
-      <div class="modal-footer p-3" style="gap:10px; background:#fff; border-top:1px solid var(--cab-border);">
-        <button type="button" class="btn btn-outline-secondary btn-sm rounded-3 px-3" data-bs-dismiss="modal">Bekor
-          qilish</button>
-        <button type="button" class="btn btn-primary btn-sm rounded-3 px-4 fw-bold" id="b2b-submit-btn"
-          onclick="sendB2BOrder()"
-          style="background:linear-gradient(135deg,#1e3a8a,#3B82F6); border:none; box-shadow:0 4px 16px rgba(59,130,246,0.3);">
-          <i class="bi bi-send-fill me-1"></i> Buyurtma Berish
+      <div class="modal-footer p-3" style="background:#fff; border-top:1px solid var(--cab-border);">
+        <button type="button" class="btn btn-outline-secondary btn-sm rounded-3 px-3" data-bs-dismiss="modal">Bekor qilish</button>
+        <button type="button" class="btn btn-success btn-sm rounded-3 px-4 fw-bold" id="btn-submit-courier-app" onclick="submitCourierApplication()"
+          style="background:linear-gradient(135deg,#1B6B4A,#2D9B6E); border:none;">
+          🚀 Arizani Yuborish
         </button>
       </div>
     </div>
@@ -1857,6 +2052,15 @@
       scrollChatToBottom();
     });
 
+    document.addEventListener('hidden.bs.modal', function () {
+      if (!document.querySelectorAll('.modal.show').length) {
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = 'auto';
+        document.body.style.paddingRight = '0';
+      }
+    });
+
     // ── TOAST ──────────────────────────
     function showToast(msg, type = 'success') {
       const t = document.getElementById('cabToast');
@@ -1896,6 +2100,19 @@
           row.style.display = 'none';
         }
       });
+    }
+
+    function copyStoreCardNumber() {
+      const cardNum = "8600123456789012";
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cardNum).then(() => {
+          showToast("Karta raqami nusxalandi: 8600 1234 5678 9012", 'success');
+        }).catch(() => {
+          showToast("Karta raqami: 8600 1234 5678 9012", 'info');
+        });
+      } else {
+        showToast("Karta raqami: 8600 1234 5678 9012", 'info');
+      }
     }
 
     // ── PAYMENT MODAL ───────────────────
@@ -2014,43 +2231,331 @@
       }).catch(() => { btn.disabled = false; showToast("Tarmoq xatoligi!", 'error'); });
     }
 
-    // ── B2B ORDER ────────────────────────
+    // ── B2B MULTI-ITEM CART SYSTEM ────────────────
+    let cartState = {};
+
     function openB2BModal() {
-      document.getElementById('b2b-product-select').value = "";
-      document.getElementById('b2b-weight-input').value = "";
+      cartState = {};
+      document.querySelectorAll('.cart-qty-input').forEach(inp => inp.value = "");
       document.getElementById('b2b-notes-input').value = "";
       document.getElementById('b2b-address-input').value = "";
       const proofInput = document.getElementById('b2b-proof-image');
       if (proofInput) proofInput.value = "";
       document.getElementById('b2b-latitude').value = "";
       document.getElementById('b2b-longitude').value = "";
-      const gpsBadge = document.getElementById('gps-status-badge');
-      if (gpsBadge) gpsBadge.style.display = 'none';
+      const gpsText = document.getElementById('gps-status-text');
+      if (gpsText) { gpsText.textContent = ""; gpsText.className = "text-muted"; }
+      
       selectB2BDelivery('delivery');
       selectB2BPayment('karta');
-      document.querySelectorAll('.b2b-prod-card').forEach(card => {
-        card.style.borderColor = 'var(--cab-border)';
-        card.style.background = '#fff';
-        const chk = card.querySelector('.check-icon');
-        if (chk) chk.style.display = 'none';
-      });
+      renderCartUI();
+
       new bootstrap.Modal(document.getElementById('b2bModal')).show();
     }
 
-    function selectB2BProduct(name, el) {
-      document.getElementById('b2b-product-select').value = name;
-      document.querySelectorAll('.b2b-prod-card').forEach(card => {
-        card.style.borderColor = 'var(--cab-border)';
-        card.style.background = '#fff';
-        const chk = card.querySelector('.check-icon');
-        if (chk) chk.style.display = 'none';
-      });
-      if (el) {
-        el.style.borderColor = '#3B82F6';
-        el.style.background = 'rgba(59,130,246,0.02)';
-        const chk = el.querySelector('.check-icon');
-        if (chk) chk.style.display = 'flex';
+    function changeCartWeight(productName, delta, priceStr) {
+      const price = parseFloat(priceStr) || 0;
+      const current = (cartState[productName] && cartState[productName].weight) || 0;
+      let newWeight = Math.max(0, parseFloat((current + delta).toFixed(2)));
+      
+      if (newWeight <= 0) {
+        delete cartState[productName];
+      } else {
+        cartState[productName] = { name: productName, weight: newWeight, price: price };
       }
+      
+      // Update matching input
+      document.querySelectorAll('.cart-qty-input').forEach(inp => {
+        if (inp.dataset.productName === productName) {
+          inp.value = newWeight > 0 ? newWeight : "";
+        }
+      });
+
+      renderCartUI();
+    }
+
+    function onCartInputChanged(productName, val, priceStr) {
+      const price = parseFloat(priceStr) || 0;
+      let newWeight = parseFloat(val) || 0;
+      if (newWeight <= 0) {
+        delete cartState[productName];
+      } else {
+        cartState[productName] = { name: productName, weight: newWeight, price: price };
+      }
+      renderCartUI();
+    }
+
+    function removeFromCart(productName) {
+      delete cartState[productName];
+      document.querySelectorAll('.cart-qty-input').forEach(inp => {
+        if (inp.dataset.productName === productName) {
+          inp.value = "";
+        }
+      });
+      renderCartUI();
+    }
+
+    let currentDeliveryFee = 0;
+    let currentDistanceKm = 0;
+
+    function renderCartUI() {
+      const tbody = document.getElementById('cart-items-tbody');
+      const emptyMsg = document.getElementById('cart-empty-msg');
+      const itemsWrapper = document.getElementById('cart-items-wrapper');
+      const badgeCount = document.getElementById('cart-item-count-badge');
+      const totalSumDisplay = document.getElementById('cart-total-sum-display');
+      const btnTotalText = document.getElementById('btn-total-sum-text');
+
+      const items = Object.values(cartState);
+      const itemCount = items.length;
+
+      if (itemCount === 0) {
+        if (emptyMsg) emptyMsg.style.display = 'block';
+        if (itemsWrapper) itemsWrapper.style.display = 'none';
+        if (badgeCount) badgeCount.textContent = "0 ta mahsulot";
+        if (totalSumDisplay) totalSumDisplay.textContent = "0 so'm";
+        if (btnTotalText) btnTotalText.textContent = "0 so'm";
+        return;
+      }
+
+      if (emptyMsg) emptyMsg.style.display = 'none';
+      if (itemsWrapper) itemsWrapper.style.display = 'block';
+      if (badgeCount) badgeCount.textContent = `${itemCount} ta mahsulot`;
+
+      let totalProductSum = 0;
+      let html = '';
+
+      items.forEach(item => {
+        const itemTotal = item.weight * item.price;
+        totalProductSum += itemTotal;
+        html += `
+          <tr>
+            <td class="fw-bold text-dark">${item.name}</td>
+            <td class="text-center fw-bold text-primary">${item.weight} kg</td>
+            <td class="text-end text-muted">${item.price.toLocaleString('uz-UZ')} so'm</td>
+            <td class="text-end fw-bold text-dark">${itemTotal.toLocaleString('uz-UZ')} so'm</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-link text-danger p-0" onclick="removeFromCart('${item.name.replace(/'/g, "\\'")}')" title="O'chirish">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      const delType = document.getElementById('b2b-delivery-type').value;
+      let grandTotal = totalProductSum;
+
+      if (delType === 'delivery' && currentDeliveryFee > 0) {
+        grandTotal += currentDeliveryFee;
+        html += `
+          <tr class="table-info">
+            <td colspan="3" class="fw-bold text-dark"><i class="bi bi-truck me-1"></i> Dostavka (Masofa: ${currentDistanceKm} km)</td>
+            <td class="text-end fw-bold text-primary">${currentDeliveryFee.toLocaleString('uz-UZ')} so'm</td>
+            <td></td>
+          </tr>
+        `;
+      }
+
+      if (tbody) tbody.innerHTML = html;
+      const formattedTotal = grandTotal.toLocaleString('uz-UZ') + " so'm";
+      if (totalSumDisplay) totalSumDisplay.textContent = formattedTotal;
+      if (btnTotalText) btnTotalText.textContent = formattedTotal;
+    }
+
+    function calculateProductsTotalSum() {
+      let sum = 0;
+      Object.values(cartState).forEach(item => {
+        sum += item.weight * item.price;
+      });
+      return sum;
+    }
+
+    function detectGPSLocation() {
+      const gpsText = document.getElementById('gps-status-text');
+      if (!navigator.geolocation) {
+        if (gpsText) { gpsText.textContent = "Brauzeringiz GPS-ni qo'llab-quvvatlamaydi."; gpsText.className = "text-danger"; }
+        return;
+      }
+      if (gpsText) { gpsText.textContent = "GPS lokatsiyangiz aniqlanmoqda..."; gpsText.className = "text-primary fw-bold"; }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          document.getElementById('b2b-latitude').value = lat;
+          document.getElementById('b2b-longitude').value = lng;
+          
+          fetch(`/pos/api/calculate-delivery/?lat=${lat}&lng=${lng}&total_sum=${calculateProductsTotalSum()}`)
+            .then(r => r.json())
+            .then(data => {
+              if (data.status === 'success') {
+                currentDeliveryFee = data.delivery_fee;
+                currentDistanceKm = data.distance_km;
+                if (gpsText) {
+                  gpsText.textContent = `✓ Lokatsiya: Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)} (Masofa: ${data.distance_km} km, Kuryer: ${data.formatted_fee})`;
+                  gpsText.className = "text-success fw-bold";
+                }
+                renderCartUI();
+              } else {
+                if (gpsText) {
+                  gpsText.textContent = `✓ Lokatsiyangiz aniqlandi: Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`;
+                  gpsText.className = "text-success fw-bold";
+                }
+              }
+            }).catch(() => {
+              if (gpsText) {
+                gpsText.textContent = `✓ Lokatsiyangiz aniqlandi: Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`;
+                gpsText.className = "text-success fw-bold";
+              }
+            });
+        },
+        (err) => {
+          if (gpsText) {
+            gpsText.textContent = "GPS lokatsiyani olish imkoni bo'lmadi. Manzilni matn ko'rinishida kiriting.";
+            gpsText.className = "text-warning";
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    function openCourierApplyModal() {
+      new bootstrap.Modal(document.getElementById('courierApplyModal')).show();
+    }
+
+    function submitCourierApplication() {
+      const vehicle = document.getElementById('courier-vehicle-select').value;
+      const btn = document.getElementById('btn-submit-courier-app');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Yuborilmoqda...';
+
+      fetch('/pos/api/courier/apply/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+        body: JSON.stringify({ vehicle: vehicle })
+      }).then(r => r.json()).then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '🚀 Arizani Yuborish';
+        if (data.status === 'success') {
+          bootstrap.Modal.getInstance(document.getElementById('courierApplyModal')).hide();
+          showToast(data.message, 'success');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showToast(data.error || data.message || "Xatolik!", 'error');
+        }
+      }).catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '🚀 Arizani Yuborish';
+        showToast("Tarmoq xatoligi!", 'error');
+      });
+    }
+
+    function loadCourierOrders() {
+      const availBox = document.getElementById('courier-available-orders');
+      const activeBox = document.getElementById('courier-active-deliveries');
+      if (!availBox || !activeBox) return;
+
+      availBox.innerHTML = '<div class="text-center py-2"><span class="spinner-border spinner-border-sm text-success"></span> Yuklanmoqda...</div>';
+      activeBox.innerHTML = '<div class="text-center py-2"><span class="spinner-border spinner-border-sm text-primary"></span> Yuklanmoqda...</div>';
+
+      fetch('/pos/api/courier/orders/')
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'success') {
+            // Render available orders
+            if (data.available_orders && data.available_orders.length > 0) {
+              let html = '';
+              data.available_orders.forEach(o => {
+                html += `
+                  <div class="card border-0 mb-2 shadow-sm rounded-3 p-3" style="background:#fff; border-left:4px solid #10B981 !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="fw-bold text-dark" style="font-size:13px;">Buyurtma #${o.id} · ${o.product_name} (${o.weight} kg)</span>
+                      <span class="badge bg-success" style="font-size:11px;">+ ${o.delivery_fee.toLocaleString('uz-UZ')} so'm (Kuryer haqi)</span>
+                    </div>
+                    <div class="text-muted mb-2" style="font-size:11px;">
+                      👤 Mijoz: <strong>${o.customer_name}</strong> (Tel: ${o.customer_phone})<br>
+                      📍 Manzil: ${o.delivery_address || 'GPS Lokatsiya berilgan'}<br>
+                      📏 Masofa: ${o.distance_km} km
+                    </div>
+                    <button class="btn btn-sm btn-success rounded-3 fw-bold w-100" onclick="acceptCourierOrder(${o.id})" style="font-size:12px;">
+                      📦 Delivery'ni Qabul Qilish
+                    </button>
+                  </div>
+                `;
+              });
+              availBox.innerHTML = html;
+            } else {
+              availBox.innerHTML = '<div class="text-center text-muted py-3" style="font-size:12px;">Hozirda kuryer kutayotgan yangi buyurtmalar yo\'q.</div>';
+            }
+
+            // Render active deliveries
+            if (data.my_deliveries && data.my_deliveries.length > 0) {
+              let html = '';
+              data.my_deliveries.forEach(o => {
+                html += `
+                  <div class="card border-0 mb-2 shadow-sm rounded-3 p-3" style="background:#fff; border-left:4px solid #3B82F6 !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="fw-bold text-dark" style="font-size:13px;">Buyurtma #${o.id} · ${o.product_name} (${o.weight} kg)</span>
+                      <span class="badge bg-primary" style="font-size:11px;">${o.status_display}</span>
+                    </div>
+                    <div class="text-muted mb-2" style="font-size:11px;">
+                      👤 Mijoz: <strong>${o.customer_name}</strong> (<a href="tel:${o.customer_phone}" class="fw-bold">${o.customer_phone}</a>)<br>
+                      📍 Manzil: ${o.delivery_address || ''} 
+                      ${o.latitude ? `<a href="https://maps.google.com/?q=${o.latitude},${o.longitude}" target="_blank" class="ms-1 text-primary fw-bold">[🗺️ Google Maps]</a>` : ''}
+                    </div>
+                    <button class="btn btn-sm btn-primary rounded-3 fw-bold w-100" onclick="completeCourierOrder(${o.id})" style="font-size:12px;">
+                      ✅ Yetkazib Berildi Deb Belgilash
+                    </button>
+                  </div>
+                `;
+              });
+              activeBox.innerHTML = html;
+            } else {
+              activeBox.innerHTML = '<div class="text-center text-muted py-3" style="font-size:12px;">Sizda qabul qilingan faol yetkazishlar yo\'q.</div>';
+            }
+          } else {
+            availBox.innerHTML = `<div class="text-center text-danger py-2" style="font-size:12px;">${data.error || 'Xatolik'}</div>`;
+            activeBox.innerHTML = '';
+          }
+        }).catch(() => {
+          availBox.innerHTML = '<div class="text-center text-danger py-2" style="font-size:12px;">Tarmoq xatoligi</div>';
+          activeBox.innerHTML = '';
+        });
+    }
+
+    function acceptCourierOrder(orderId) {
+      if (!confirm(`Buyurtma #${orderId} ni qabul qilib yetkazib berishga tayyormisiz?`)) return;
+
+      fetch('/pos/api/courier/accept-order/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+        body: JSON.stringify({ order_id: orderId })
+      }).then(r => r.json()).then(data => {
+        if (data.status === 'success') {
+          showToast(data.message, 'success');
+          loadCourierOrders();
+        } else {
+          showToast(data.error || "Xatolik!", 'error');
+        }
+      }).catch(() => showToast("Tarmoq xatoligi!", 'error'));
+    }
+
+    function completeCourierOrder(orderId) {
+      if (!confirm(`Buyurtma #${orderId} ni yetkazib berilgan deb tasdiqlaysizmi?`)) return;
+
+      fetch('/pos/api/courier/complete-order/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+        body: JSON.stringify({ order_id: orderId })
+      }).then(r => r.json()).then(data => {
+        if (data.status === 'success') {
+          showToast(data.message, 'success');
+          loadCourierOrders();
+        } else {
+          showToast(data.error || "Xatolik!", 'error');
+        }
+      }).catch(() => showToast("Tarmoq xatoligi!", 'error'));
     }
 
     function selectB2BDelivery(type) {
@@ -2087,8 +2592,16 @@
     }
 
     function sendB2BOrder() {
-      const product = document.getElementById('b2b-product-select').value;
-      const weight = document.getElementById('b2b-weight-input').value.trim();
+      const itemsList = Object.values(cartState).map(i => ({
+        product_name: i.name,
+        weight: i.weight
+      }));
+
+      if (itemsList.length === 0) {
+        showToast("Iltimos, kamida bitta mahsulot va vaznini tanlang!", 'error');
+        return;
+      }
+
       const notes = document.getElementById('b2b-notes-input').value.trim();
       const deliveryType = document.getElementById('b2b-delivery-type').value;
       const deliveryAddress = document.getElementById('b2b-address-input').value.trim();
@@ -2097,16 +2610,17 @@
       const lat = document.getElementById('b2b-latitude').value;
       const lng = document.getElementById('b2b-longitude').value;
 
-      if (!product) { showToast("Iltimos, mahsulotni tanlang!", 'error'); return; }
-      if (!weight || parseFloat(weight) <= 0) { showToast("Kutilayotgan og'irlikni (kg) kiriting!", 'error'); return; }
+      if (deliveryType === 'delivery' && !deliveryAddress && !lat) {
+        showToast("Yetkazib berish manzilini yoki GPS lokatsiyasini kiriting!", 'error');
+        return;
+      }
 
       const btn = document.getElementById('b2b-submit-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Yuborilmoqda...';
 
       const formData = new FormData();
-      formData.append('product_name', product);
-      formData.append('weight', weight);
+      formData.append('items', JSON.stringify(itemsList));
       formData.append('notes', notes);
       formData.append('delivery_type', deliveryType);
       formData.append('delivery_address', deliveryAddress);
@@ -2126,6 +2640,7 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Buyurtma Berish';
         if (data.status === 'success') {
+          cartState = {};
           bootstrap.Modal.getInstance(document.getElementById('b2bModal')).hide();
           showToast(data.message || "Buyurtmangiz muvaffaqiyatli qabul qilindi!", 'success');
           setTimeout(() => location.reload(), 1500);

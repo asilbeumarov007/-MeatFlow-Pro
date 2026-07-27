@@ -186,14 +186,27 @@ def main_menu_reply_keyboard():
     """Asosiy mijoz menyusi — Telegram + Sayt birlashtirilgan."""
     return {
         'keyboard': [
-            [{'text': "\U0001f6d2 Go'sht Buyurtma Qilish"}, {'text': '\U0001f4cc Buyurtma Statusi (Live)'}],
-            [{'text': '\U0001f464 Shaxsiy Kabinet (Balans)'}, {'text': "\U0001f969 AI Go'sht Maslahatchisi"}],
-            [{'text': '\U0001f9fe Xaridlar Tarixi'}, {'text': "\U0001f4b3 To'lov Chekini Yuborish"}],
-            [{'text': '\U0001f4ac Admin bilan Aloqa'}, {'text': '\U0001f4b0 Qarz va Kredit'}],
-            [{'text': '\U0001f310 Veb-saytga O\'tish'}]
+            [{'text': "🛒 Go'sht Buyurtma Qilish"}, {'text': '📌 Buyurtma Statusi (Live)'}],
+            [{'text': "💳 Qarz To'lash (Karta)"}, {'text': "📸 To'lov Chekini Yuborish"}],
+            [{'text': '👤 Shaxsiy Kabinet (Balans)'}, {'text': '💰 Qarz va Kredit'}],
+            [{'text': "🥩 AI Go'sht Maslahatchisi"}, {'text': '🧾 Xaridlar Tarixi'}],
+            [{'text': '💬 Admin bilan Aloqa'}, {'text': "🌐 Veb-saytga O'tish"}]
         ],
         'resize_keyboard': True
     }
+
+
+def render_telegram_stepper_bar(status):
+    """Telegram bot uchun 4 bosqichli Live Progress Bar."""
+    if status == 'rejected':
+        return "❌ *STATUS:* Rad etildi"
+    
+    s1 = "🟢 Qabul" if status in ['pending', 'payment_uploaded', 'approved', 'preparing', 'shipping', 'completed'] else "⚪️ Qabul"
+    s2 = "🟢 Qadoqlash" if status in ['approved', 'preparing', 'shipping', 'completed'] else "⚪️ Qadoqlash"
+    s3 = "🟢 Yo'lda" if status in ['shipping', 'completed'] else "⚪️ Yo'lda"
+    s4 = "🟢 Yetkazildi" if status == 'completed' else "⚪️ Yetkazildi"
+
+    return f"{s1} ➔ {s2} ➔ {s3} ➔ {s4}"
 
 
 def location_reply_keyboard():
@@ -519,13 +532,53 @@ def handle_customer_update(update):
                 }.get(o.status, o.get_status_display())
 
                 total_price = o.requested_weight * o.product.price_per_kg
+                stepper_bar = render_telegram_stepper_bar(o.status)
                 lines.append(
                     f"📦 *Buyurtma #{o.id}:* {o.product.name} ({o.requested_weight} kg)\n"
-                    f"💵 Jami: `{total_price:,.0f}` so'm\n"
-                    f"📊 *Status:* *{status_emoji}*\n"
+                    f"💵 Jami: `{total_price:,.0f}` so'm ({o.get_delivery_type_display()})\n"
+                    f"{stepper_bar}\n"
+                    f"📊 *Holat:* *{status_emoji}*\n"
                     f"📅 {o.created_at.strftime('%d.%m.%Y %H:%M')}\n"
                 )
             send_message(chat_id, "\n".join(lines), reply_markup=main_menu_reply_keyboard())
+
+        elif text in ["💳 Qarz To'lash (Karta)", '💳 Karta va Rekvizitlar', '💳 Karta Rekviziti', "💳 Qarz To'lash"]:
+            pay_details, qr_images = get_active_payment_settings_details()
+            debt_sum = customer.debt_amount if customer else Decimal('0.00')
+            debt_str = f"💰 *Sizning Joriy Qarzingiz:* `{debt_sum:,.0f}` so'm\n\n" if debt_sum > 0 else "💰 *Sizda hozircha qarz mavjud emas.*\n\n"
+
+            msg = (
+                "💳 *QARZ TO'LASH VA KARTA REKVIZITLARI*\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👤 *Mijoz:* {customer.first_name if customer else 'Mijoz'} ({customer.custom_id if customer else ''})\n"
+                f"{debt_str}"
+                "🏦 *Do'kon Plastik Karta Raqami:*\n"
+                "`8600123456789012` *(ustiga 1 marta bossangiz nusxalanadi!)*\n"
+                "Ega: *Baxmal Meat Enterprise*\n"
+                "To'lov Turlari: *Click / Payme / Bank Ilovasi*\n\n"
+                f"{pay_details}\n\n"
+                "📸 *To'lovni amalga oshirgach, pastdagi '📸 To'lov Chekini Yuborish' tugmasini bosing va chek fotosini chatga yuboring!*"
+            )
+            inline_kb = {
+                'inline_keyboard': [
+                    [{'text': "📸 Hozir To'lov Chekini Yuborish", 'callback_data': 'upload_proof_now'}],
+                    [{'text': "🌐 Saytdan To'lash (Click/Payme)", 'url': f"{SITE_URL}/pos/my-cabinet/"}]
+                ]
+            }
+            send_message(chat_id, msg, reply_markup=inline_kb)
+            for qr_title, qr_path in qr_images:
+                send_customer_photo(chat_id, qr_path, caption=f"📲 *{qr_title} QR Kodi*")
+
+        elif text in ["📸 To'lov Chekini Yuborish", "📸 To'lov Cheki"]:
+            USER_STATES[chat_id] = 'awaiting_payment_proof'
+            msg = (
+                "📸 *TO'LOV CHEKINI YUBORISH*\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "💳 *Do'kon Karta Raqami:* `8600123456789012` (Baxmal Meat)\n\n"
+                "Iltimos, Click/Payme yoki bank ilovasi orqali bajarilgan to'lov kvitansiyasi (skrinshot yoki foto)ni ushbu chatga yuboring.\n\n"
+                "📌 *Foto kelishi bilan admin paneli hamda balansingizga avtomatik biriktiriladi!*"
+            )
+            send_message(chat_id, msg)
 
         elif text == '👤 Shaxsiy Kabinet (Balans)':
             smart_score = customer.calculate_smart_score()
@@ -582,14 +635,6 @@ def handle_customer_update(update):
                 )
             send_message(chat_id, "\n".join(text_lines), reply_markup=main_menu_reply_keyboard())
 
-        elif text == '💳 To\'lov Chekini Yuborish':
-            USER_STATES[chat_id] = 'awaiting_payment_proof'
-            msg = (
-                "📸 *To'lov Chekini Yuborish*\n\n"
-                "Iltimos, Click/Payme yoki bank ilovasi orqali to'langan to'lov kvitansiyasi (skrinshot/foto)ni ushbu chatga yuboring."
-            )
-            send_message(chat_id, msg)
-
         elif text == '💬 Admin bilan Aloqa':
             USER_STATES[chat_id] = 'awaiting_support_msg'
             send_message(chat_id, "✍️ Adminga yubormoqchi bo'lgan xabaringizni yozib qoldiring:")
@@ -638,7 +683,12 @@ def handle_customer_update(update):
                 f"📈 *Smart Skoring:* `{smart_score}/100 ball`\n\n"
                 f"{'⚠️ Diqqat: Kredit limitingiz tugab qolmoqda!' if limit_used_pct > 80 else '✅ Kredit holatiz yaxshi.'}"
             )
-            send_message(chat_id, msg, reply_markup=main_menu_reply_keyboard())
+            inline_kb = {
+                'inline_keyboard': [
+                    [{'text': "💳 Qarzni Hozir To'lash (Karta)", 'callback_data': 'pay_debt_now'}]
+                ]
+            }
+            send_message(chat_id, msg, reply_markup=inline_kb)
 
         elif text == "🌐 Veb-saytga O'tish":
             cabinet_url = f"{SITE_URL}/pos/my-cabinet/"
@@ -685,6 +735,35 @@ def handle_customer_update(update):
                 send_message(chat_id, "Asosiy menyudan foydalanishingiz mumkin:", reply_markup=main_menu_reply_keyboard())
             except Customer.DoesNotExist:
                 send_message(chat_id, "⚠️ Tanlangan profil bazada topilmadi.")
+
+        elif data == 'upload_proof_now':
+            USER_STATES[chat_id] = 'awaiting_payment_proof'
+            send_message(chat_id, "📸 *To'lov chekini (kvitansiya/skrinshot) fotosini chatga yuboring:*")
+
+        elif data == 'pay_debt_now':
+            pay_details, qr_images = get_active_payment_settings_details()
+            customer = get_customer_by_chat_id(chat_id)
+            debt_sum = customer.debt_amount if customer else Decimal('0.00')
+            debt_str = f"💰 *Sizning Joriy Qarzingiz:* `{debt_sum:,.0f}` so'm\n\n" if debt_sum > 0 else "💰 *Sizda hozircha qarz mavjud emas.*\n\n"
+
+            msg = (
+                "💳 *QARZ TO'LASH VA KARTA REKVIZITLARI*\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"{debt_str}"
+                "🏦 *Do'kon Plastik Karta Raqami:*\n"
+                "`8600123456789012` *(ustiga 1 marta bossangiz nusxalanadi!)*\n"
+                "Ega: *Baxmal Meat Enterprise*\n"
+                "To'lov Turlari: *Click / Payme / Bank Ilovasi*\n\n"
+                f"{pay_details}\n\n"
+                "📸 *To'lovni amalga oshirgach, pastdagi '📸 To'lov Chekini Yuborish' tugmasini bosing va chek fotosini chatga yuboring!*"
+            )
+            inline_kb = {
+                'inline_keyboard': [
+                    [{'text': "📸 Hozir To'lov Chekini Yuborish", 'callback_data': 'upload_proof_now'}],
+                    [{'text': "🌐 Saytdan To'lash (Click/Payme)", 'url': f"{SITE_URL}/pos/my-cabinet/"}]
+                ]
+            }
+            send_message(chat_id, msg, reply_markup=inline_kb)
 
         elif data.startswith('order_prod_'):
             prod_id = int(data.replace('order_prod_', ''))

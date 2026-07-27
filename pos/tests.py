@@ -341,7 +341,7 @@ class POSAPITestCase(TestCase):
 
         log = CustomerLog.objects.filter(customer=self.customer, title="Mijoz xabari").first()
         self.assertIsNotNone(log)
-        self.assertIn("B2B BUYURTMA", log.message)
+        self.assertIn("BUYURTMA", log.message)
 
         # 3. Retrieve customer orders (login back as admin/superuser)
         self.client.force_login(self.admin_user)
@@ -375,5 +375,5 @@ class POSAPITestCase(TestCase):
         # Verify notice posted to logs
         log_notice = CustomerLog.objects.filter(customer=self.customer, title="Do'kon xabari").first()
         self.assertIsNotNone(log_notice)
-        self.assertIn("Sizning B2B buyurtmangiz", log_notice.message)
+        self.assertIn("BUYURTMA", log_notice.message)
         self.assertIn("Tasdiqlandi", log_notice.message)

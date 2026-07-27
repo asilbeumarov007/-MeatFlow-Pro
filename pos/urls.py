@@ -88,4 +88,9 @@ urlpatterns = [
     path('api/b2b-orders/create-with-proof/', views_api.api_b2b_create_with_proof, name='api_b2b_create_with_proof'),
     path('api/b2b-orders/live-tracking/<int:customer_id>/', views_api.api_b2b_live_tracking, name='api_b2b_live_tracking'),
     path('api/payment-settings/', views_api.api_payment_settings, name='api_payment_settings'),
+    path('api/calculate-delivery/', views_api.api_calculate_delivery, name='api_calculate_delivery'),
+    path('api/courier/apply/', views_api.api_courier_apply, name='api_courier_apply'),
+    path('api/courier/orders/', views_api.api_courier_orders, name='api_courier_orders'),
+    path('api/courier/accept-order/', views_api.api_courier_accept_order, name='api_courier_accept_order'),
+    path('api/courier/complete-order/', views_api.api_courier_complete_order, name='api_courier_complete_order'),
 ]

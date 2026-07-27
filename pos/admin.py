@@ -27,9 +27,20 @@ class SlaughterAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('custom_id', 'first_name', 'last_name', 'phone', 'bonus_points', 'debt_amount', 'is_blacklisted')
-    list_filter = ('is_blacklisted',)
+    list_display = ('custom_id', 'first_name', 'last_name', 'phone', 'bonus_points', 'debt_amount', 'is_courier', 'courier_status', 'is_blacklisted')
+    list_filter = ('is_blacklisted', 'is_courier', 'courier_status')
     search_fields = ('custom_id', 'first_name', 'last_name', 'phone')
+    actions = ['approve_courier', 'reject_courier']
+
+    def approve_courier(self, request, queryset):
+        queryset.update(is_courier=True, courier_status='approved')
+        self.message_user(request, f"{queryset.count()} ta mijoz kuryer sifatida tasdiqlandi!")
+    approve_courier.short_description = "🚴‍♂️ Kuryer sifatida tasdiqlash"
+
+    def reject_courier(self, request, queryset):
+        queryset.update(is_courier=False, courier_status='rejected')
+        self.message_user(request, f"{queryset.count()} ta mijoz kuryerligi rad etildi.")
+    reject_courier.short_description = "❌ Kuryerlikni rad etish"
 
 class SaleItemInline(admin.TabularInline):
     model = SaleItem
@@ -48,7 +59,12 @@ class CustomerLogAdmin(admin.ModelAdmin):
     list_filter = ('log_type', 'created_at')
     search_fields = ('customer__first_name', 'customer__last_name', 'title')
 
-from .models import CashTransaction, Notebook, B2BOrder, StockBatch
+from .models import CashTransaction, Notebook, B2BOrder, StockBatch, StoreSetting
+
+@admin.register(StoreSetting)
+class StoreSettingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'address', 'latitude', 'longitude', 'base_delivery_fee', 'fee_per_km', 'is_active')
+    list_editable = ('is_active',)
 
 @admin.register(CashTransaction)
 class CashTransactionAdmin(admin.ModelAdmin):
@@ -66,10 +82,10 @@ from django.utils.html import format_html
 
 @admin.register(B2BOrder)
 class B2BOrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'customer', 'product', 'requested_weight', 'status', 'payment_proof_preview', 'created_at')
-    list_filter = ('status', 'created_at')
+    list_display = ('id', 'customer', 'product', 'requested_weight', 'delivery_fee', 'distance_km', 'assigned_courier', 'status', 'payment_proof_preview', 'created_at')
+    list_filter = ('status', 'delivery_type', 'created_at')
     search_fields = ('customer__first_name', 'customer__last_name', 'product__name')
-    raw_id_fields = ('customer', 'product')
+    raw_id_fields = ('customer', 'product', 'assigned_courier')
     readonly_fields = ('payment_proof_preview_large',)
 
     def payment_proof_preview(self, obj):

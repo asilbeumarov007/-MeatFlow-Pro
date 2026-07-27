@@ -1179,81 +1179,140 @@ def create_b2b_order(request):
                 return JsonResponse({'status': 'error', 'message': "Mijoz profili topilmadi!"}, status=404)
             
             # Support both JSON and multipart/form-data
+            items_data = []
             if request.content_type and 'application/json' in request.content_type:
                 body = json.loads(request.body)
-                product_name = body.get('product_name', '').strip()
-                weight_val = body.get('weight', '').strip()
-                notes = body.get('notes', '').strip()
-                delivery_type = body.get('delivery_type', 'delivery').strip()
-                delivery_address = body.get('delivery_address', '').strip()
-                payment_method = body.get('payment_method', 'karta').strip()
+                notes = str(body.get('notes', '') or '').strip()
+                delivery_type = str(body.get('delivery_type', 'delivery') or 'delivery').strip()
+                delivery_address = str(body.get('delivery_address', '') or '').strip()
+                payment_method = str(body.get('payment_method', 'karta') or 'karta').strip()
                 latitude_val = body.get('latitude')
                 longitude_val = body.get('longitude')
                 proof_file = None
+                
+                if 'items' in body and isinstance(body['items'], list):
+                    items_data = body['items']
+                else:
+                    items_data = [{'product_name': str(body.get('product_name', '') or '').strip(), 'weight': str(body.get('weight', '') or '').strip()}]
             else:
-                product_name = request.POST.get('product_name', '').strip()
-                weight_val = request.POST.get('weight', '').strip()
-                notes = request.POST.get('notes', '').strip()
-                delivery_type = request.POST.get('delivery_type', 'delivery').strip()
-                delivery_address = request.POST.get('delivery_address', '').strip()
-                payment_method = request.POST.get('payment_method', 'karta').strip()
+                notes = str(request.POST.get('notes', '') or '').strip()
+                delivery_type = str(request.POST.get('delivery_type', 'delivery') or 'delivery').strip()
+                delivery_address = str(request.POST.get('delivery_address', '') or '').strip()
+                payment_method = str(request.POST.get('payment_method', 'karta') or 'karta').strip()
                 latitude_val = request.POST.get('latitude')
                 longitude_val = request.POST.get('longitude')
                 proof_file = request.FILES.get('proof_image')
+                
+                raw_items = request.POST.get('items')
+                if raw_items:
+                    try:
+                        items_data = json.loads(raw_items)
+                    except Exception:
+                        items_data = []
+                if not items_data:
+                    items_data = [{'product_name': str(request.POST.get('product_name', '') or '').strip(), 'weight': str(request.POST.get('weight', '') or '').strip()}]
             
-            if not product_name or not weight_val:
-                return JsonResponse({'status': 'error', 'message': "Mahsulot va og'irlik to'ldirilishi shart!"}, status=400)
+            if not items_data:
+                return JsonResponse({'status': 'error', 'message': "Savat bo'sh!"}, status=400)
                 
-            try:
-                product = Product.objects.get(name=product_name, is_active=True)
-            except Product.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': "Mahsulot topilmadi!"}, status=404)
-                
-            try:
-                weight = Decimal(weight_val)
-                if weight <= 0:
-                    raise ValueError()
-            except Exception:
-                return JsonResponse({'status': 'error', 'message': "Noto'g'ri og'irlik kiritildi!"}, status=400)
-
             lat_float = float(latitude_val) if latitude_val and str(latitude_val).strip() else None
             lng_float = float(longitude_val) if longitude_val and str(longitude_val).strip() else None
 
-            from pos.models import B2BOrder, CustomerLog
+            calc_distance_km = 0.0
+            calc_delivery_fee = Decimal('0.00')
+
+            if lat_float and lng_float and delivery_type == 'delivery':
+                from pos.models import StoreSetting
+                from pos.views_api import calculate_haversine_distance
+                store = StoreSetting.objects.filter(is_active=True).first()
+                if store:
+                    calc_distance_km = calculate_haversine_distance(store.latitude, store.longitude, lat_float, lng_float)
+                    calc_delivery_fee = store.base_delivery_fee + (Decimal(str(calc_distance_km)) * store.fee_per_km)
+                    calc_delivery_fee = calc_delivery_fee.quantize(Decimal('1000.00'))
+
+            from pos.models import B2BOrder, CustomerLog, Product
             initial_status = 'payment_uploaded' if proof_file else 'pending'
 
-            order = B2BOrder.objects.create(
-                customer=customer,
-                product=product,
-                requested_weight=weight,
-                delivery_type=delivery_type,
-                delivery_address=delivery_address,
-                latitude=lat_float,
-                longitude=lng_float,
-                payment_method=payment_method,
-                payment_proof_image=proof_file,
-                notes=notes,
-                status=initial_status
-            )
-            
+            created_orders = []
+            order_summary_items = []
+            total_sum = Decimal('0.00')
+
+            for item_info in items_data:
+                p_name = str(item_info.get('product_name', '') or '').strip()
+                w_val = str(item_info.get('weight', '') or '').strip()
+                if not p_name or not w_val:
+                    continue
+                
+                try:
+                    product = Product.objects.get(name=p_name, is_active=True)
+                except Product.DoesNotExist:
+                    continue
+
+                try:
+                    weight = Decimal(str(w_val))
+                    if weight <= 0:
+                        continue
+                except Exception:
+                    continue
+
+                order = B2BOrder.objects.create(
+                    customer=customer,
+                    product=product,
+                    requested_weight=weight,
+                    delivery_type=delivery_type,
+                    delivery_address=delivery_address,
+                    latitude=lat_float,
+                    longitude=lng_float,
+                    distance_km=calc_distance_km,
+                    delivery_fee=calc_delivery_fee,
+                    payment_method=payment_method,
+                    payment_proof_image=proof_file,
+                    notes=notes,
+                    status=initial_status
+                )
+                created_orders.append(order)
+
+                item_total = weight * product.price_per_kg
+                total_sum += item_total
+                order_summary_items.append({
+                    'order': order,
+                    'product_name': product.name,
+                    'weight': weight,
+                    'price_per_kg': product.price_per_kg,
+                    'total_price': item_total
+                })
+
+            if not created_orders:
+                return JsonResponse({'status': 'error', 'message': "Hech qanday mahsulot va og'irlik tanlanmadi!"}, status=400)
+
             delivery_str = "🚚 Yetkazib berish (Kuryer)" if delivery_type == 'delivery' else "🏃 Samovivoz (Do'kondan olib ketish)"
             pay_str = {"karta": "💳 Karta (Click/Payme)", "naqd": "💵 Naqd pul", "nasiya": "📋 Nasiya (Qarz)"}.get(payment_method, payment_method)
             
-            img_url = order.payment_proof_image.url if order.payment_proof_image else None
+            first_order = created_orders[0]
+            img_url = first_order.payment_proof_image.url if first_order.payment_proof_image else None
+
+            # Format items summary HTML
+            items_html_lines = []
+            for item in order_summary_items:
+                items_html_lines.append(f"• 🥩 <b>{item['product_name']}</b> — {item['weight']} kg x {item['price_per_kg']:,.0f} = <b>{item['total_price']:,.0f} so'm</b>")
+            items_html = "<br>".join(items_html_lines)
 
             gps_chat_str = f"<br>📍 GPS: <a href=\"https://maps.google.com/?q={lat_float},{lng_float}\" target=\"_blank\" style=\"color:#3B82F6;\">Google Maps ({lat_float:.4f}, {lng_float:.4f})</a>" if lat_float and lng_float else ""
 
-            # Send message to chat log formatted with clean HTML tags
+            order_ids_str = ", ".join([f"#{o.id}" for o in created_orders])
+            
+            # Send message to chat log
             msg_text = (
-                f"📋 <b>BUYURTMA #{order.id} YARATILDI</b><br>"
-                f"🥩 {product.name} — {weight} kg<br>"
+                f"📋 <b>BUYURTMA {order_ids_str} YARATILDI</b><br>"
+                f"{items_html}<br>"
+                f"💰 <b>Jami taxminiy summa:</b> {total_sum:,.0f} so'm<br>"
                 f"{delivery_str}<br>"
                 f"💳 To'lov: {pay_str}"
                 f"{'<br>📍 Manzil: ' + delivery_address if delivery_address else ''}"
                 f"{gps_chat_str}"
                 f"{'<br>📝 Izoh: ' + notes if notes else ''}"
             )
-            log_details = {'source': 'web', 'order_id': order.id, 'latitude': lat_float, 'longitude': lng_float}
+            log_details = {'source': 'web', 'order_ids': [o.id for o in created_orders], 'latitude': lat_float, 'longitude': lng_float}
             if img_url:
                 log_details['image_url'] = img_url
 
@@ -1271,13 +1330,19 @@ def create_b2b_order(request):
                 from .views_api import send_telegram_notification, send_telegram_location
                 gps_tg_str = f"🗺️ *GPS Lokatsiya:* [Google Maps-da Ko'rish](https://maps.google.com/?q={lat_float},{lng_float})\n" if lat_float and lng_float else ""
                 
+                tg_items_lines = []
+                for item in order_summary_items:
+                    tg_items_lines.append(f"• *{item['product_name']}*: {item['weight']} kg (`{item['total_price']:,.0f}` so'm)")
+                tg_items_text = "\n".join(tg_items_lines)
+
                 tg_msg = (
-                    f"📦 *YANGI BUYURTMA #{order.id}*\n"
+                    f"📦 *YANGI SAVAT BUYURTMASI ({order_ids_str})*\n"
                     f"━━━━━━━━━━━━━━━━━━━\n"
                     f"👤 *Mijoz:* {customer.first_name} {customer.last_name or ''} (ID: `{customer.custom_id}`)\n"
-                    f"📞 *Tel:* `{customer.phone}`\n"
-                    f"🥩 *Mahsulot:* {product.name}\n"
-                    f"⚖️ *Og'irlik:* {weight} kg\n"
+                    f"📞 *Tel:* `{customer.phone}`\n\n"
+                    f"🥩 *Mahsulotlar:* \n{tg_items_text}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"💵 *Jami Taxminiy Summa:* *{total_sum:,.0f} so'm*\n\n"
                     f"🚚 *Turi:* {delivery_str}\n"
                     f"💳 *To'lov:* {pay_str}\n"
                     f"{'📍 *Manzil:* ' + delivery_address + '\n' if delivery_address else ''}"
@@ -1294,7 +1359,13 @@ def create_b2b_order(request):
             except Exception as tg_err:
                 print(f"Telegram notify error in create_b2b_order: {tg_err}")
 
-            return JsonResponse({'status': 'success', 'message': "Buyurtmangiz muvaffaqiyatli qabul qilindi!", 'order_id': order.id})
+            return JsonResponse({
+                'status': 'success',
+                'message': "Buyurtmangiz muvaffaqiyatli qabul qilindi!",
+                'order_id': first_order.id,
+                'order_ids': [o.id for o in created_orders],
+                'total_sum': float(total_sum)
+            })
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'error', 'message': "Noto'g'ri so'rov usuli!"}, status=405)

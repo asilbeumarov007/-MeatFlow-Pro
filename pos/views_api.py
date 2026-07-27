@@ -1052,7 +1052,7 @@ def api_b2b_create_with_proof(request):
         total_price = weight * product.price_per_kg
 
         # Notify Admin via Telegram Bot
-        from .telegram_bot import send_message as send_admin_msg
+        from .telegram_bot import send_message as send_admin_msg, CHAT_ID as ADMIN_CHAT_ID
         admin_text = (
             f"🛒 *YANGI SAYT BUYURTMASI!* (Buyurtma #{order.id})\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -1062,7 +1062,8 @@ def api_b2b_create_with_proof(request):
             f"💵 *Jami Summa:* `{total_price:,.0f}` so'm\n"
             f"🚗 *Yetkazish:* {order.get_delivery_type_display()} ({delivery_address})"
         )
-        send_admin_msg(ADMIN_CHAT_ID, admin_text)
+        if ADMIN_CHAT_ID:
+            send_admin_msg(ADMIN_CHAT_ID, admin_text)
 
         return Response({
             'status': 'ok',
@@ -1117,5 +1118,237 @@ def api_payment_settings(request):
                 'instructions': s.instructions
             })
         return Response({'settings': data})
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+# =====================================================================
+# AI MASOFA VA KURYERLIK KALKULYATORI & MARKETPLACE API
+# =====================================================================
+import math
+
+def calculate_haversine_distance(lat1, lon1, lat2, lon2):
+    R = 6371.0 # Earth radius in kilometers
+    dLat = math.radians(lat2 - lat1)
+    dLon = math.radians(lon2 - lon1)
+    a = math.sin(dLat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dLon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return round(R * c, 2)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def api_calculate_delivery(request):
+    """Do'kon va mijoz koordinatasi oralig'ida masofa (km) va kuryerlik haqini hisoblash API."""
+    try:
+        if request.method == 'POST':
+            lat = request.data.get('latitude')
+            lng = request.data.get('longitude')
+            total_sum = Decimal(str(request.data.get('total_sum', 0)))
+        else:
+            lat = request.GET.get('lat') or request.GET.get('latitude')
+            lng = request.GET.get('lng') or request.GET.get('longitude')
+            total_sum = Decimal(str(request.GET.get('total_sum', 0)))
+
+        if not lat or not lng:
+            return Response({'error': "Lokatsiya koordinatalari berilmadi!"}, status=400)
+
+        cust_lat = float(lat)
+        cust_lng = float(lng)
+
+        from .models import StoreSetting
+        store = StoreSetting.objects.filter(is_active=True).first()
+        if not store:
+            store = StoreSetting.objects.create(
+                name="Baxmal Meat Do'koni",
+                latitude=41.2995,
+                longitude=69.2401,
+                base_delivery_fee=Decimal('10000.00'),
+                fee_per_km=Decimal('3000.00'),
+                min_free_delivery_amount=Decimal('500000.00')
+            )
+
+        distance = calculate_haversine_distance(store.latitude, store.longitude, cust_lat, cust_lng)
+        
+        # Check if free delivery applies
+        if total_sum >= store.min_free_delivery_amount and total_sum > 0:
+            fee = Decimal('0.00')
+            is_free = True
+        else:
+            fee = store.base_delivery_fee + (Decimal(str(distance)) * store.fee_per_km)
+            fee = fee.quantize(Decimal('1000.00')) # Round to nearest 1000 so'm
+            is_free = False
+
+        return Response({
+            'status': 'success',
+            'store_name': store.name,
+            'store_address': store.address,
+            'distance_km': distance,
+            'delivery_fee': float(fee),
+            'formatted_fee': f"{fee:,.0f} so'm" if not is_free else "Bepul (Aksiya)",
+            'is_free': is_free
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_courier_apply(request):
+    """Mijozning kuryerlikka ariza berishi API."""
+    try:
+        user_ident = request.user.email if request.user.email else request.user.username
+        from .models import Customer
+        customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
+        if not customer:
+            return Response({'error': "Mijoz profili topilmadi!"}, status=404)
+
+        vehicle = request.data.get('vehicle', 'Moped/Skuter').strip()
+
+        customer.courier_status = 'pending'
+        customer.courier_vehicle = vehicle
+        customer.save()
+
+        # Send Telegram Admin alert
+        from .telegram_bot import send_message as send_admin_msg, CHAT_ID as ADMIN_CHAT_ID
+        admin_text = (
+            f"🚴‍♂️ *YANGI KURYERLIK ARIZASI!*\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"👤 *Mijoz:* {customer.first_name} {customer.last_name or ''}\n"
+            f"📞 *Tel:* `{customer.phone}` (ID: `{customer.custom_id}`)\n"
+            f"🛵 *Transport:* {vehicle}\n\n"
+            f"⏳ _Admin panelidan tasdiqlashingiz kutilmoqda._"
+        )
+        if ADMIN_CHAT_ID:
+            send_admin_msg(ADMIN_CHAT_ID, admin_text)
+
+        return Response({
+            'status': 'success',
+            'message': 'Arizangiz muvaffaqiyatli qabul qilindi! Admin tasdiqlashi bilan kuryerlik paneli ochiladi.'
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_courier_orders(request):
+    """Tasdiqlangan kuryer uchun ochiq buyurtmalar ro'yxati API."""
+    try:
+        user_ident = request.user.email if request.user.email else request.user.username
+        from .models import Customer, B2BOrder
+        customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
+        if not customer or not customer.is_courier:
+            return Response({'error': "Ruxsat berilmadi! Siz kuryer sifatida tasdiqlanmagansiz."}, status=403)
+
+        # Pending or approved delivery orders needing courier
+        available_orders = B2BOrder.objects.filter(
+            delivery_type='delivery',
+            assigned_courier__isnull=True,
+            status__in=['approved', 'preparing', 'payment_uploaded']
+        ).order_by('-created_at')[:10]
+
+        # Orders claimed by this courier
+        my_deliveries = B2BOrder.objects.filter(
+            assigned_courier=customer,
+            status__in=['shipping', 'preparing', 'approved']
+        ).order_by('-created_at')[:10]
+
+        def serialize_order(o):
+            return {
+                'id': o.id,
+                'customer_name': f"{o.customer.first_name} {o.customer.last_name or ''}".strip(),
+                'customer_phone': o.customer.phone,
+                'product_name': o.product.name,
+                'weight': float(o.requested_weight),
+                'total_price': float(o.requested_weight * o.product.price_per_kg),
+                'delivery_address': o.delivery_address,
+                'delivery_fee': float(o.delivery_fee),
+                'distance_km': o.distance_km,
+                'latitude': o.latitude,
+                'longitude': o.longitude,
+                'status': o.status,
+                'status_display': o.get_status_display(),
+                'created_at': o.created_at.strftime('%d.%m.%Y %H:%M')
+            }
+
+        return Response({
+            'status': 'success',
+            'available_orders': [serialize_order(o) for o in available_orders],
+            'my_deliveries': [serialize_order(o) for o in my_deliveries]
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_courier_accept_order(request):
+    """Kuryer buyurtmani o'ziga biriktirib yetkazishni boshlashi API."""
+    try:
+        user_ident = request.user.email if request.user.email else request.user.username
+        from .models import Customer, B2BOrder
+        customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
+        if not customer or not customer.is_courier:
+            return Response({'error': "Siz tasdiqlangan kuryer emassiz!"}, status=403)
+
+        order_id = request.data.get('order_id')
+        order = B2BOrder.objects.get(id=order_id)
+        if order.assigned_courier and order.assigned_courier != customer:
+            return Response({'error': "Ushbu buyurtma boshqa kuryer tomonidan olingan!"}, status=400)
+
+        order.assigned_courier = customer
+        order.status = 'shipping'
+        order.save()
+
+        # Send CustomerLog notification to customer
+        from .models import CustomerLog
+        CustomerLog.objects.create(
+            customer=order.customer,
+            log_type='bonus',
+            title="Do'kon xabari",
+            message=f"🚴‍♂️ <b>KURYER YO'LDA!</b><br>Buyurtmangiz #{order.id} kuryer ({customer.first_name}, tel: {customer.phone}) tomonidan olindi va yetkazilmoqda!",
+            amount=Decimal('0.00')
+        )
+
+        return Response({
+            'status': 'success',
+            'message': f"Buyurtma #{order.id} o'zingizga biriktirildi! Omadli yetkazib berish tilaymiz!"
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_courier_complete_order(request):
+    """Kuryer buyurtmani yetkazib berib yakunlashi API."""
+    try:
+        user_ident = request.user.email if request.user.email else request.user.username
+        from .models import Customer, B2BOrder
+        customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
+        if not customer or not customer.is_courier:
+            return Response({'error': "Ruxsat berilmadi!"}, status=403)
+
+        order_id = request.data.get('order_id')
+        order = B2BOrder.objects.get(id=order_id, assigned_courier=customer)
+
+        order.status = 'completed'
+        order.save()
+
+        # Send CustomerLog notification
+        from .models import CustomerLog
+        CustomerLog.objects.create(
+            customer=order.customer,
+            log_type='bonus',
+            title="Do'kon xabari",
+            message=f"✅ <b>BUYURTMA YETKAZILDI!</b><br>Buyurtmangiz #{order.id} muvaffaqiyatli yetkazib berildi. Oshingiz halol bo'lsin!",
+            amount=Decimal('0.00')
+        )
+
+        return Response({
+            'status': 'success',
+            'message': f"Buyurtma #{order.id} muvaffaqiyatli yetkazildi!"
+        })
     except Exception as e:
         return Response({'error': str(e)}, status=400)

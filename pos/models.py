@@ -122,6 +122,19 @@ class Customer(models.Model):
     note = models.TextField(blank=True, null=True, verbose_name="Eslatma/Izoh")
     image = models.ImageField(upload_to='customers/', null=True, blank=True, verbose_name="Mijoz rasmi")
     telegram_chat_id = models.CharField(max_length=50, blank=True, null=True, db_index=True, verbose_name="Telegram Chat ID")
+    is_courier = models.BooleanField(default=False, verbose_name="Kuryermi?")
+    courier_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('none', 'Mijoz'),
+            ('pending', 'Kuryerlikka ariza bergan'),
+            ('approved', 'Tasdiqlangan Kuryer'),
+            ('rejected', 'Rad etilgan')
+        ],
+        default='none',
+        verbose_name="Kuryerlik statusi"
+    )
+    courier_vehicle = models.CharField(max_length=100, blank=True, null=True, verbose_name="Transport turi")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Qo'shilgan vaqti")
 
     @property
@@ -354,12 +367,34 @@ class B2BOrder(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='karta', verbose_name="To'lov turi")
     payment_proof_image = models.ImageField(upload_to='payment_proofs/', blank=True, null=True, verbose_name="To'lov cheki fotosi")
     notes = models.TextField(blank=True, null=True, verbose_name="Maxsus eslatmalar")
+    assigned_courier = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries', verbose_name="Biriktirilgan Kuryer")
+    delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Kuryerlik (Dostavka) haqsi")
+    distance_km = models.FloatField(default=0.0, verbose_name="Masofa (km)")
     status = models.CharField(max_length=25, choices=STATUS_CHOICES, default='pending', verbose_name="Status")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan vaqti")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Tahrirlangan vaqti")
 
     def __str__(self):
         return f"Buyurtma #{self.id}: {self.customer.first_name} - {self.product.name} ({self.requested_weight} kg) - {self.get_status_display()}"
+
+
+class StoreSetting(models.Model):
+    name = models.CharField(max_length=100, default="Baxmal Meat Do'koni", verbose_name="Do'kon nomi")
+    address = models.CharField(max_length=255, default="Toshkent shahri, Chilonzor tuman", verbose_name="Do'kon manzili")
+    latitude = models.FloatField(default=41.2995, verbose_name="Do'kon GPS Latitude")
+    longitude = models.FloatField(default=69.2401, verbose_name="Do'kon GPS Longitude")
+    base_delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10000.00'), verbose_name="Boshlang'ich kuryer narxi (so'm)")
+    fee_per_km = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('3000.00'), verbose_name="Har bir km uchun (so'm)")
+    min_free_delivery_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('500000.00'), verbose_name="Bepul yetkazish minimal summasi (so'm)")
+    is_active = models.BooleanField(default=True, verbose_name="Faolmi?")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Do'kon Sozlamasi & Lokatsiyasi"
+        verbose_name_plural = "Do'kon Sozlamalari & Lokatsiyasi"
+
+    def __str__(self):
+        return f"{self.name} (Lat: {self.latitude}, Lng: {self.longitude})"
 
 
 class AIChatMessage(models.Model):

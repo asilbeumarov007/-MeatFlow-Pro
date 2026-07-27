@@ -777,11 +777,13 @@ def notify_customer_order_status(order, new_status_text):
 
     chat_id = order.customer.telegram_chat_id
     try:
-        from .customer_bot import send_message as send_customer_msg, main_menu_reply_keyboard
+        from .customer_bot import send_message as send_customer_msg, main_menu_reply_keyboard, render_telegram_stepper_bar
+        stepper_bar = render_telegram_stepper_bar(order.status)
         msg = (
             f"🔔 *BUYURTMANINGIZ STATUSI O'ZGARDI!* (Buyurtma #{order.id})\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"📦 *Mahsulot:* {order.product.name} ({order.requested_weight} kg)\n"
+            f"📦 *Mahsulot:* {order.product.name} ({order.requested_weight} kg)\n\n"
+            f"{stepper_bar}\n\n"
             f"📊 *Yangi status:* *{new_status_text}*\n\n"
             f"📌 Real vaqt rejimida kuzatish uchun *'📌 Buyurtma Statusi (Live)'* tugmasini bosing."
         )
