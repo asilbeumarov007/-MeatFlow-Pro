@@ -836,3 +836,56 @@ def handle_customer_update(update):
             except Exception as e:
                 print(f"[Customer TG Bot Order Error]: {e}")
                 send_message(chat_id, f"⚠️ Buyurtma yaratishda xato: {str(e)}", parse_mode=None)
+
+        # Admin status update callback handlers
+        elif data.startswith('adm_app_'):
+            order_id = int(data.replace('adm_app_', ''))
+            try:
+                order = B2BOrder.objects.get(id=order_id)
+                order.status = 'approved'
+                order.save()
+                answer_callback(cq_id, text="✅ Buyurtma tasdiqlandi!")
+                edit_message(chat_id, cq['message']['message_id'], f"✅ Buyurtma #{order.id} tasdiqlandi va tayyorlanishga o'tdi!")
+                from .telegram_bot import notify_customer_order_status
+                notify_customer_order_status(order)
+            except Exception as e:
+                answer_callback(cq_id, text=f"Xatolik: {e}")
+
+        elif data.startswith('adm_prep_'):
+            order_id = int(data.replace('adm_prep_', ''))
+            try:
+                order = B2BOrder.objects.get(id=order_id)
+                order.status = 'preparing'
+                order.save()
+                answer_callback(cq_id, text="🥩 Qadoqlashga berildi!")
+                edit_message(chat_id, cq['message']['message_id'], f"🥩 Buyurtma #{order.id} qadoqlanmoqda!")
+                from .telegram_bot import notify_customer_order_status
+                notify_customer_order_status(order)
+            except Exception as e:
+                answer_callback(cq_id, text=f"Xatolik: {e}")
+
+        elif data.startswith('adm_ship_'):
+            order_id = int(data.replace('adm_ship_', ''))
+            try:
+                order = B2BOrder.objects.get(id=order_id)
+                order.status = 'shipping'
+                order.save()
+                answer_callback(cq_id, text="🚚 Kuryer yo'lda!")
+                edit_message(chat_id, cq['message']['message_id'], f"🚚 Buyurtma #{order.id} kuryer yo'lda!")
+                from .telegram_bot import notify_customer_order_status
+                notify_customer_order_status(order)
+            except Exception as e:
+                answer_callback(cq_id, text=f"Xatolik: {e}")
+
+        elif data.startswith('adm_rej_'):
+            order_id = int(data.replace('adm_rej_', ''))
+            try:
+                order = B2BOrder.objects.get(id=order_id)
+                order.status = 'rejected'
+                order.save()
+                answer_callback(cq_id, text="❌ Buyurtma rad etildi!")
+                edit_message(chat_id, cq['message']['message_id'], f"❌ Buyurtma #{order.id} rad etildi!")
+                from .telegram_bot import notify_customer_order_status
+                notify_customer_order_status(order)
+            except Exception as e:
+                answer_callback(cq_id, text=f"Xatolik: {e}")

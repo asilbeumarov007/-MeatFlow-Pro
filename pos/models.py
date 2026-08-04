@@ -381,6 +381,11 @@ class B2BOrder(models.Model):
 class StoreSetting(models.Model):
     name = models.CharField(max_length=100, default="Baxmal Meat Do'koni", verbose_name="Do'kon nomi")
     address = models.CharField(max_length=255, default="Toshkent shahri, Chilonzor tuman", verbose_name="Do'kon manzili")
+    phone_number = models.CharField(max_length=30, default="+998 77 082 4477", verbose_name="Telefon raqam")
+    announcement_text = models.CharField(max_length=255, default="🔥 Mol va Qo'y go'shtidan buyurtma bering — Toshkent bo'ylab yetkazib berish va halol kafolat!", verbose_name="Yuqori e'lon matni")
+    hero_title = models.CharField(max_length=255, default="Sarxil Go'sht & Raqamli MeatFlow Pro Texnologiyasi", verbose_name="Bosh sahifa sarlavhasi (Hero Title)")
+    hero_subtitle = models.TextField(default="Baxmal Meat — Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor kuryerlik xizmati.", verbose_name="Bosh sahifa ta'rifi (Hero Subtitle)")
+    promo_banner_text = models.CharField(max_length=255, default="500,000 so'mdan yuqori buyurtmalar uchun Toshkent shahri bo'ylab yetkazib berish BEPUL!", verbose_name="Aksiya banneri matni")
     latitude = models.FloatField(default=41.2995, verbose_name="Do'kon GPS Latitude")
     longitude = models.FloatField(default=69.2401, verbose_name="Do'kon GPS Longitude")
     base_delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10000.00'), verbose_name="Boshlang'ich kuryer narxi (so'm)")

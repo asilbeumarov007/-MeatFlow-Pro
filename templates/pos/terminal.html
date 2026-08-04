@@ -1956,6 +1956,114 @@ function syncOfflineSales() {
   });
 }
 
+// ── CASHIER SHIFT (Z-REPORT) MANAGEMENT ──
+let currentShiftData = null;
+
+function checkShiftStatus() {
+  fetch('/pos/api/shift/current/')
+    .then(r => r.json())
+    .then(data => {
+      const badge = document.getElementById('shift-status-badge');
+      const btn = document.getElementById('shift-action-btn');
+      if (data.is_open) {
+        currentShiftData = data;
+        if (badge) {
+          badge.style.background = '#10B981';
+          badge.innerText = `OCHIQ SHIFT (#${data.shift_id})`;
+        }
+        if (btn) {
+          btn.style.background = '#EF4444';
+          btn.innerText = 'Smenani Yopish (Z-Report)';
+        }
+      } else {
+        currentShiftData = null;
+        if (badge) {
+          badge.style.background = '#EF4444';
+          badge.innerText = 'YOPILGAN SHIFT';
+        }
+        if (btn) {
+          btn.style.background = 'var(--primary)';
+          btn.innerText = 'Shiftni ochish';
+        }
+      }
+    })
+    .catch(() => {});
+}
+
+function toggleShiftAction() {
+  if (currentShiftData && currentShiftData.is_open) {
+    promptCloseShift();
+  } else {
+    promptOpenShift();
+  }
+}
+
+function promptOpenShift() {
+  const startCash = prompt("Smena boshlanishidagi kassa naqd pul summasini kiriting (so'm):", "0");
+  if (startCash === null) return;
+  
+  const cashVal = parseFloat(startCash) || 0;
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n+'=')) v = decodeURIComponent(c.slice(n.length+1));
+    });
+    return v;
+  }
+
+  fetch('/pos/open-shift/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify({ opening_cash: cashVal })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.status === 'success') {
+      alert("✅ " + d.message);
+      checkShiftStatus();
+    } else {
+      alert("⚠️ " + (d.message || "Xatolik!"));
+    }
+  })
+  .catch(() => alert("Tarmoq xatoligi!"));
+}
+
+function promptCloseShift() {
+  if (!currentShiftData) return;
+  const expectedStr = Number(currentShiftData.expected_cash || 0).toLocaleString();
+  const actualCash = prompt(`Smenani yopish (Z-Hisobot):\n\nKassada kutilayotgan naqd pul: ${expectedStr} so'm.\n\nSiz sanagan FAKTIK naqd pul summasini kiriting:`, currentShiftData.expected_cash || "0");
+  if (actualCash === null) return;
+
+  const actualVal = parseFloat(actualCash) || 0;
+  const notes = prompt("Smena yopilish izohi / Z-Report eslatmasi (ixtiyoriy):", "") || "";
+
+  function getCookie(n) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(n+'=')) v = decodeURIComponent(c.slice(n.length+1));
+    });
+    return v;
+  }
+
+  fetch('/pos/close-shift/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify({ closed_cash_actual: actualVal, notes: notes })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.status === 'success') {
+      alert("✅ " + d.message + "\n\nZ-Report tayyorlandi va Admin Telegram botiga yuborildi!");
+      checkShiftStatus();
+    } else {
+      alert("⚠️ " + (d.message || "Xatolik!"));
+    }
+  })
+  .catch(() => alert("Tarmoq xatoligi!"));
+}
+
 // 15 soniyada bir marta internetni tekshirib sinxronizatsiya qilish
 setInterval(syncOfflineSales, 15000);
 document.addEventListener("DOMContentLoaded", () => {

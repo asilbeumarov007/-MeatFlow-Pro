@@ -190,6 +190,24 @@ class HomePageView(TemplateView):
             
             context['ai_alerts'] = ai_alerts
             
-        context['article_list'] = Product.objects.all().order_by('-id')[:6]
+        from pos.models import StoreSetting
+        store = StoreSetting.objects.filter(is_active=True).first()
+        if not store:
+            store = StoreSetting.objects.create(
+                name="Baxmal Meat Do'koni",
+                phone_number="+998 77 082 4477",
+                address="Toshkent shahri, Chilonzor tumani",
+                announcement_text="🔥 Mol va Qo'y go'shtidan buyurtma bering — Toshkent bo'ylab yetkazib berish va halol kafolat!",
+                hero_title="Sarxil Go'sht & Raqamli MeatFlow Pro Texnologiyasi",
+                hero_subtitle="Baxmal Meat — Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor kuryerlik xizmati.",
+                promo_banner_text="500,000 so'mdan yuqori buyurtmalar uchun Toshkent shahri bo'ylab yetkazib berish BEPUL!",
+                latitude=41.2995,
+                longitude=69.2401,
+                base_delivery_fee=Decimal('10000.00'),
+                fee_per_km=Decimal('3000.00'),
+                min_free_delivery_amount=Decimal('500000.00')
+            )
+        context['store'] = store
+        context['article_list'] = Product.objects.all().order_by('-id')[:8]
         return context
 

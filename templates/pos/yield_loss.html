@@ -711,7 +711,12 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
     <div class="yl-header">
         <div>
             <h1 class="yl-title">Yangi So'yim / Go'sht Nimtalash</h1>
-            <p class="yl-sub">So'yilgan toza go'sht va barcha tana a'zolarini o'lchab zaxiraga kiritish</p>
+            <p class="yl-sub">So'yilgan toza go'sht va barcha tana a'zolarini o'lchab zaxiraga kiritish hamda xolodilnik suv bug'lanishi analitikasi</p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-outline-success fw-bold px-3 py-2 rounded-3 shadow-sm" onclick="triggerDecayRecalculation()" id="decay-btn">
+                <i class="bi bi-arrow-repeat me-1"></i> 🔄 Zaxira Qurishini Hisoblash (Decay)
+            </button>
         </div>
     </div>
 
@@ -1237,6 +1242,42 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
 </div>
 
 <script>
+function triggerDecayRecalculation() {
+    const btn = document.getElementById('decay-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Hisoblanmoqda...';
+    }
+
+    fetch('/pos/api/run-decay/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || '',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 🔄 Zaxira Qurishini Hisoblash (Decay)';
+        }
+        if (data.status === 'success') {
+            alert("✅ " + data.message);
+            location.reload();
+        } else {
+            alert("⚠️ " + (data.message || "Xatolik yuz berdi!"));
+        }
+    })
+    .catch(() => {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 🔄 Zaxira Qurishini Hisoblash (Decay)';
+        }
+        alert("Tarmoq xatoligi yuz berdi!");
+    });
+}
+
 // Wizard logic
 let currentStep = 1;
 let selectedSupplierId = null;

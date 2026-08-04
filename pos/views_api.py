@@ -1352,3 +1352,64 @@ def api_courier_complete_order(request):
         })
     except Exception as e:
         return Response({'error': str(e)}, status=400)
+
+
+@csrf_exempt
+@api_view(['POST', 'GET'])
+@permission_classes([AllowAny])
+def api_trigger_stock_decay(request):
+    """Sovuqxonadagi mahsulot partiyalarining kunlik qurish zararini (decay loss) hisoblash va kassa chiqimini shakllantirish."""
+    try:
+        from .models import StockBatch, CashTransaction
+        active_batches = StockBatch.objects.filter(current_quantity__gt=0)
+        
+        total_loss_amount = Decimal("0.00")
+        total_loss_weight = Decimal("0.000")
+        updated_batches = []
+
+        for batch in active_batches:
+            days = batch.get_days_passed()
+            if days <= 0:
+                continue
+
+            factor_yesterday = Decimal(str((1 - float(batch.decay_rate_per_day)/100.0) ** (days - 1)))
+            weight_yesterday = (batch.current_quantity * factor_yesterday).quantize(Decimal('0.001'))
+
+            weight_today = batch.get_decayed_weight()
+            day_loss = (weight_yesterday - weight_today).quantize(Decimal('0.001'))
+
+            if day_loss > 0:
+                loss_cost = (day_loss * batch.purchase_price_per_kg).quantize(Decimal('0.01'))
+                
+                CashTransaction.objects.create(
+                    transaction_type='out',
+                    amount=loss_cost,
+                    category='expense',
+                    payment_method='naqd',
+                    description=f"Zaxira qurish zarari: {batch.product.name} (Partiya #{batch.id}) - {day_loss} kg"
+                )
+
+                total_loss_amount += loss_cost
+                total_loss_weight += day_loss
+                
+                # Update actual batch quantity
+                batch.current_quantity = weight_today
+                batch.save()
+
+                updated_batches.append({
+                    'batch_id': batch.id,
+                    'product_name': batch.product.name,
+                    'loss_kg': float(day_loss),
+                    'loss_cost': float(loss_cost),
+                    'new_cost_per_kg': float(batch.get_real_cost_per_kg())
+                })
+
+        return Response({
+            'status': 'success',
+            'message': f"Zaxira qurish zarari qayta hisoblandi. Jami yo'qotish: {total_loss_weight} kg ({total_loss_amount:,.0f} so'm)",
+            'total_loss_weight': float(total_loss_weight),
+            'total_loss_amount': float(total_loss_amount),
+            'updated_batches': updated_batches
+        })
+    except Exception as e:
+        return Response({'status': 'error', 'message': str(e)}, status=400)

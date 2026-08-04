@@ -93,4 +93,5 @@ urlpatterns = [
     path('api/courier/orders/', views_api.api_courier_orders, name='api_courier_orders'),
     path('api/courier/accept-order/', views_api.api_courier_accept_order, name='api_courier_accept_order'),
     path('api/courier/complete-order/', views_api.api_courier_complete_order, name='api_courier_complete_order'),
+    path('api/run-decay/', views_api.api_trigger_stock_decay, name='api_run_decay'),
 ]

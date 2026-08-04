@@ -63,8 +63,19 @@ from .models import CashTransaction, Notebook, B2BOrder, StockBatch, StoreSettin
 
 @admin.register(StoreSetting)
 class StoreSettingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'address', 'latitude', 'longitude', 'base_delivery_fee', 'fee_per_km', 'is_active')
+    list_display = ('id', 'name', 'phone_number', 'address', 'base_delivery_fee', 'fee_per_km', 'is_active')
     list_editable = ('is_active',)
+    fieldsets = (
+        ("Do'kon Ma'lumotlari", {
+            'fields': ('name', 'phone_number', 'address', 'is_active')
+        }),
+        ("Bosh Sahifa Marketing Matnlari (Admin Boshqaradigan)", {
+            'fields': ('announcement_text', 'hero_title', 'hero_subtitle', 'promo_banner_text')
+        }),
+        ("GPS va Dostavka Tariflari", {
+            'fields': ('latitude', 'longitude', 'base_delivery_fee', 'fee_per_km', 'min_free_delivery_amount')
+        }),
+    )
 
 @admin.register(CashTransaction)
 class CashTransactionAdmin(admin.ModelAdmin):
