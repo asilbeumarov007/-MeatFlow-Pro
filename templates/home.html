@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}
   {% if user.is_authenticated and user.is_superuser %}
-    ЁЯУК MeatFlow Pro тАФ Analitika & Boshqaruv
+    РЃРЇРЈРљ MeatFlow Pro С‚РђР¤ Analitika & Boshqaruv
   {% else %}
-    ЁЯей {{ store.name|default:"MeatFlow Pro | Baxmal Meat Boutique" }}
+    РЃРЇРµР№ {{ store.name|default:"MeatFlow Pro | Baxmal Meat Boutique" }}
   {% endif %}
 {% endblock title %}
 
@@ -14,9 +14,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 {% if user.is_authenticated and user.is_superuser %}
-<!-- тХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХР
+<!-- С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР 
      MEATFLOW PRO: MANAGER DASHBOARD
-     тХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХР -->
+     С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР  -->
 <style>
   body {
     background-color: #F7F5F0 !important;
@@ -95,10 +95,10 @@
 <div style="background: linear-gradient(90deg, #0F382C, #1B6B4A); color: #FFF; padding: 10px 24px; font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
   <div style="display: flex; align-items: center; gap: 8px;">
     <span class="badge bg-warning text-dark font-monospace" style="font-size: 10px;">ADMIN PANEL</span>
-    <span>ЁЯТб Bosh sahifa reklama va sarlavhalarini admin panel orqali 1-clickda o'zgartirishingiz mumkin.</span>
+    <span>РЃРЇРўР± Bosh sahifa reklama va sarlavhalarini admin panel orqali 1-clickda o'zgartirishingiz mumkin.</span>
   </div>
   <a href="/admin/pos/storesetting/" class="btn btn-sm btn-light py-0 px-2 fw-bold text-success" style="font-size: 11px; border-radius: 6px;">
-    тЬПя╕П Bosh Sahifani Tahrirlash
+    С‚Р¬РџСЏв••Рџ Bosh Sahifani Tahrirlash
   </a>
 </div>
 
@@ -227,7 +227,7 @@
       <div style="background: #FFFFFF; border-radius: 20px; padding: 24px; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
           <h5 class="m-0" style="font-family: 'DM Serif Display', serif; font-size: 18px; color: #1A1A2E;">
-            ЁЯУК Haftalik Nasiya & Qarz Risk dinamikasi
+            РЃРЇРЈРљ Haftalik Nasiya & Qarz Risk dinamikasi
           </h5>
           <span class="badge bg-light text-dark font-monospace" style="font-size: 11px;">Mon - Sun</span>
         </div>
@@ -303,193 +303,243 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 {% else %}
-<!-- тХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХР
-     FUTURISTIC LUXURY LANDING PAGE (MEATFLOW PRO CUSTOMER EDITION)
-     тХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХРтХР -->
+<!-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+     BAXMAL MEAT вЂ” PREMIUM LUXURY LANDING PAGE
+     Dark marble + gold headings + floating glass card
+     в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ -->
 <style>
-  :root {
-    --mfp-emerald: #0F382C;
-    --mfp-green: #10B981;
-    --mfp-gold: #D4A853;
-    --mfp-dark: #0A110D;
-    --mfp-glass: rgba(255, 255, 255, 0.04);
-    --mfp-border: rgba(16, 185, 129, 0.15);
-  }
+  body { background: #0D0D0D !important; }
 
   /* Announcement bar */
-  .mfp-anno-bar {
-    background: linear-gradient(90deg, #092019, #0F382C, #092019);
-    border-bottom: 1px solid rgba(212,168,83,0.3);
-    color: #F3F4F6;
-    padding: 10px 24px;
-    font-size: 12.5px;
-    font-weight: 600;
-    text-align: center;
+  .lp-anno {
+    background: linear-gradient(90deg, #0A1A0E, #112210, #0A1A0E);
+    border-bottom: 1px solid rgba(212,168,83,0.25);
+    color: #E5E7EB; padding: 9px 20px;
+    font-size: 12.5px; font-weight: 600;
+    text-align: center; letter-spacing: 0.2px;
   }
 
-  /* Ultra-modern Hero */
-  .mfp-hero-section {
-    position: relative;
-    padding: 90px 0 80px;
-    background: radial-gradient(circle at 75% 20%, rgba(16,185,129,0.15) 0%, transparent 45%),
-                radial-gradient(circle at 20% 80%, rgba(212,168,83,0.12) 0%, transparent 45%),
-                linear-gradient(180deg, #0B1612 0%, #0F2920 100%);
-    color: #FFFFFF;
-    overflow: hidden;
+  /* HERO */
+  .lp-hero {
+    position: relative; min-height: 92vh;
+    display: flex; align-items: center; overflow: hidden;
+    background: #0D0D0D;
   }
+  .lp-hero-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(100deg, rgba(13,13,13,0.97) 45%, rgba(13,13,13,0.55) 100%),
+      url("{% static 'images/beef_card_bg.png' %}");
+    background-size: cover; background-position: center;
+    background-attachment: fixed;
+  }
+  .lp-hero-bg::before {
+    content:''; position:absolute; top:-120px; left:-120px;
+    width:500px; height:500px;
+    background: radial-gradient(circle, rgba(212,168,83,0.12) 0%, transparent 70%);
+  }
+  .lp-hero-bg::after {
+    content:''; position:absolute; bottom:-100px; right:200px;
+    width:400px; height:400px;
+    background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
+  }
+  .lp-hero-content { position: relative; z-index: 2; }
 
-  .mfp-hero-title {
+  .lp-badge-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 16px; border-radius: 50px;
+    border: 1px solid rgba(212,168,83,0.4);
+    background: rgba(212,168,83,0.08);
+    color: #D4A853; font-size: 11px; font-weight: 800;
+    letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 22px;
+  }
+  .lp-h1 {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 54px;
-    font-weight: 900;
-    line-height: 1.12;
-    letter-spacing: -1.5px;
-    color: #FFFFFF;
-    margin-bottom: 24px;
+    font-size: clamp(36px, 5.5vw, 62px); font-weight: 900;
+    line-height: 1.1; letter-spacing: -1.5px; color: #FFFFFF; margin-bottom: 10px;
   }
+  .lp-h1 .gold { color: #D4A853; }
+  .lp-sub {
+    font-size: 16px; line-height: 1.75; color: #9CA3AF;
+    max-width: 540px; margin-bottom: 34px;
+  }
+  .lp-btn-primary {
+    background: linear-gradient(135deg, #C9A84C, #D4A853);
+    color: #0D0D0D; border: none; padding: 14px 30px; border-radius: 50px;
+    font-weight: 800; font-size: 14.5px;
+    box-shadow: 0 8px 28px rgba(212,168,83,0.35);
+    transition: all 0.3s; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .lp-btn-primary:hover { transform:translateY(-2px); box-shadow:0 14px 38px rgba(212,168,83,0.45); color:#0D0D0D; }
+  .lp-btn-outline {
+    background: rgba(255,255,255,0.05); color: #E5E7EB;
+    border: 1px solid rgba(255,255,255,0.18); padding: 14px 28px; border-radius: 50px;
+    font-weight: 700; font-size: 14.5px; transition: all 0.3s; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .lp-btn-outline:hover { border-color:rgba(212,168,83,0.5); color:#D4A853; background:rgba(212,168,83,0.06); }
 
-  .mfp-hero-subtitle {
-    font-size: 17px;
-    line-height: 1.8;
-    color: #9CA3AF;
-    font-weight: 400;
-    margin-bottom: 36px;
-    max-width: 580px;
-  }
+  .lp-trust-bar { display:flex; align-items:center; gap:28px; margin-top:42px; padding-top:28px; border-top:1px solid rgba(255,255,255,0.08); flex-wrap:wrap; }
+  .lp-trust-item .val { font-size:24px; font-weight:900; line-height:1; }
+  .lp-trust-item .lbl { font-size:11px; color:#6B7280; margin-top:3px; }
+  .lp-divider-v { width:1px; height:34px; background:rgba(255,255,255,0.1); }
 
-  /* Glassmorphism Feature Card */
-  .mfp-glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 28px;
-    padding: 32px;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  /* Glass Card */
+  .lp-glass-card {
+    background: rgba(255,255,255,0.06); backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 28px; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,168,83,0.1);
+    animation: floatCard 7s ease-in-out infinite alternate; max-width:420px; margin:0 auto;
   }
-  .mfp-glass-card:hover {
-    border-color: var(--mfp-green);
-    box-shadow: 0 20px 50px rgba(16,185,129,0.2);
-    transform: translateY(-4px);
+  @keyframes floatCard {
+    0% { transform:translateY(0) rotate(0deg); }
+    100% { transform:translateY(-18px) rotate(0.8deg); }
   }
+  .lp-glass-card img { width:100%; height:280px; object-fit:cover; display:block; }
+  .lp-glass-card-body { padding:20px 24px; }
+  .lp-glass-card-body .tag { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:#D4A853; margin-bottom:6px; }
+  .lp-glass-card-body .title { font-size:20px; font-weight:800; color:#FFFFFF; margin-bottom:12px; }
+  .lp-glass-card-body .meta { display:flex; justify-content:space-between; align-items:center; }
+  .lp-glass-card-body .price { font-size:26px; font-weight:900; color:#D4A853; }
+  .lp-glass-card-body .price small { font-size:12px; color:#6B7280; font-weight:500; }
 
-  /* Product Card styling */
-  .mfp-prod-card {
-    background: #FFFFFF;
-    border-radius: 24px;
-    border: 1px solid rgba(0,0,0,0.06);
-    overflow: hidden;
-    transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  .lp-float-badge {
+    position:absolute; background:rgba(10,17,13,0.92); backdrop-filter:blur(14px);
+    border:1.5px solid rgba(16,185,129,0.5); border-radius:16px; padding:10px 16px;
+    display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:3;
   }
-  .mfp-prod-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(15,56,44,0.12);
-    border-color: rgba(16,185,129,0.3);
-  }
-  .mfp-prod-img {
-    width: 100%;
-    height: 230px;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
-  .mfp-prod-card:hover .mfp-prod-img {
-    transform: scale(1.06);
-  }
+  .lp-float-badge.bottom-right { bottom:-16px; right:-16px; }
+  .lp-float-badge.top-left { top:-16px; left:-16px; }
+  .lp-float-badge img { width:40px; height:40px; border-radius:10px; object-fit:cover; border:1px solid rgba(212,168,83,0.4); }
+  .lp-float-badge .badge-label { font-size:10px; font-weight:800; color:#10B981; text-transform:uppercase; letter-spacing:1px; }
+  .lp-float-badge .badge-val { font-size:14px; font-weight:800; color:#FFF; }
 
-  /* Floating Bull Badge */
-  .mfp-bull-logo-wrapper {
-    width: 280px;
-    height: 280px;
-    border-radius: 40px;
-    padding: 8px;
-    background: linear-gradient(135deg, rgba(16,185,129,0.4), rgba(212,168,83,0.3));
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(16,185,129,0.3);
-    animation: floatBull 8s ease-in-out infinite alternate;
-  }
-  @keyframes floatBull {
-    0% { transform: translateY(0) rotate(0deg); }
-    100% { transform: translateY(-16px) rotate(1.5deg); }
+  /* Promo */
+  .lp-promo { background:linear-gradient(135deg,#C9A84C,#E8C96A,#C9A84C); padding:14px 24px; text-align:center; font-weight:800; font-size:14px; color:#0D0D0D; box-shadow:0 4px 24px rgba(212,168,83,0.3); }
+
+  /* Product Section */
+  .lp-section-dark { background:#0F0F0F; padding:80px 0; }
+  .lp-section-slate { background:#111612; padding:80px 0; }
+  .lp-section-label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:2.5px; color:#D4A853; margin-bottom:10px; display:block; }
+  .lp-section-h2 { font-family:'Plus Jakarta Sans',sans-serif; font-size:clamp(28px,4vw,40px); font-weight:900; color:#FFFFFF; letter-spacing:-0.8px; margin-bottom:0; }
+
+  .lp-prod-card { background:#1A1A1A; border:1px solid rgba(255,255,255,0.07); border-radius:20px; overflow:hidden; transition:all 0.35s cubic-bezier(0.165,0.84,0.44,1); height:100%; display:flex; flex-direction:column; }
+  .lp-prod-card:hover { border-color:rgba(212,168,83,0.4); transform:translateY(-6px); box-shadow:0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,168,83,0.2); }
+  .lp-prod-img-wrap { position:relative; overflow:hidden; height:210px; }
+  .lp-prod-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform 0.6s ease; }
+  .lp-prod-card:hover .lp-prod-img-wrap img { transform:scale(1.08); }
+  .lp-prod-type-badge { position:absolute; top:14px; left:14px; background:rgba(13,13,13,0.85); backdrop-filter:blur(8px); border:1px solid rgba(212,168,83,0.35); color:#D4A853; font-size:10px; font-weight:800; padding:5px 12px; border-radius:30px; text-transform:uppercase; letter-spacing:0.8px; }
+  .lp-prod-card-body { padding:20px; flex:1; display:flex; flex-direction:column; }
+  .lp-prod-cut { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; color:#10B981; margin-bottom:6px; }
+  .lp-prod-name { font-size:17px; font-weight:800; color:#FFFFFF; margin-bottom:14px; flex:1; }
+  .lp-prod-footer { display:flex; justify-content:space-between; align-items:center; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06); }
+  .lp-prod-price { font-size:22px; font-weight:900; color:#D4A853; }
+  .lp-prod-price small { font-size:11px; color:#6B7280; font-weight:500; }
+  .lp-add-btn { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#C9A84C,#D4A853); border:none; display:flex; align-items:center; justify-content:center; color:#0D0D0D; font-size:18px; cursor:pointer; transition:all 0.25s; box-shadow:0 4px 14px rgba(212,168,83,0.35); text-decoration:none; }
+  .lp-add-btn:hover { transform:scale(1.1); box-shadow:0 8px 22px rgba(212,168,83,0.5); color:#0D0D0D; }
+
+  .lp-feat-card { background:#1A1A1A; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:28px; height:100%; transition:all 0.3s; }
+  .lp-feat-card:hover { border-color:rgba(212,168,83,0.3); background:#1E1E1E; transform:translateY(-4px); }
+  .lp-feat-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:18px; }
+  .lp-feat-title { font-size:16px; font-weight:800; color:#FFFFFF; margin-bottom:10px; }
+  .lp-feat-desc { font-size:13px; color:#6B7280; line-height:1.65; margin:0; }
+
+  #home-calc-result .calc-box { background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:16px; padding:14px 18px; margin-top:14px; color:#E5E7EB; font-size:13px; }
+
+  @media (max-width:768px) {
+    .lp-hero { min-height:auto; padding:60px 0 50px; }
+    .lp-glass-card { max-width:340px; margin-top:40px; }
+    .lp-float-badge.bottom-right { right:0; bottom:-12px; }
+    .lp-float-badge.top-left { display:none; }
   }
 </style>
 
-<!-- Top Announcement Banner (Admin Editable) -->
-<div class="mfp-anno-bar">
-  <div class="container d-flex align-items-center justify-content-center gap-2">
-    <span class="badge bg-warning text-dark font-monospace" style="font-size: 10px;">AKSIYA</span>
-    <span>{{ store.announcement_text|default:"ЁЯФе Mol va Qo'y go'shtidan buyurtma bering тАФ Toshkent bo'ylab yetkazib berish va halol kafolat!" }}</span>
+<!-- ANNOUNCEMENT BAR -->
+<div class="lp-anno">
+  <div class="container d-flex align-items-center justify-content-center gap-2 flex-wrap">
+    <span class="badge fw-bold" style="background:#D4A853; color:#0D0D0D; font-size:10px; border-radius:6px;">KATTA AKSIYA</span>
+    <span>рџ”Ґ {{ store.announcement_text|default:"Mol go'shtidan buyurtma bering вЂ” Toshkent bo'ylab yetkazib berish mutlaqo bepul!" }}</span>
+    <a href="/pos/my-cabinet/" style="color:#D4A853; font-weight:700; text-decoration:none; font-size:12px;">Buyurtma berish в†’</a>
   </div>
 </div>
 
-<!-- HERO SECTION -->
-<section class="mfp-hero-section">
-  <div class="container" style="max-width: 1300px;">
+<!-- HERO -->
+<section class="lp-hero">
+  <div class="lp-hero-bg"></div>
+  <div class="container lp-hero-content py-5" style="max-width:1300px;">
     <div class="row align-items-center g-5">
-      
-      <!-- Text & Call to Action -->
+
+      <!-- LEFT: Text -->
       <div class="col-lg-6 animate__animated animate__fadeInLeft">
-        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 50px; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #10B981; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 24px;">
-          <i class="bi bi-shield-check"></i> 100% Halol & IoT Laboratoriya Nazorati
+        <div class="lp-badge-pill">
+          <i class="bi bi-shield-check"></i>
+          100% Halol &amp; IoT Laboratoriya Nazorati
         </div>
-
-        <h1 class="mfp-hero-title">
-          {{ store.hero_title|default:"Sarxil Go'sht & Raqamli MeatFlow Pro Texnologiyasi" }}
+        <h1 class="lp-h1">
+          SARXIL GO'SHT<br>&amp; RAQAMLI<br>
+          <span class="gold">MeatFlow Pro</span><br>
+          <span style="font-size:clamp(24px,3.5vw,44px); color:#9CA3AF; font-weight:700;">TEXNOLOGIYASI</span>
         </h1>
+        <p class="lp-sub">{{ store.hero_subtitle|default:"Baxmal Meat вЂ” Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor kuryerlik xizmati." }}</p>
 
-        <p class="mfp-hero-subtitle">
-          {{ store.hero_subtitle|default:"Baxmal Meat тАФ Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor kuryerlik xizmati." }}
-        </p>
-
-        <!-- CTA Buttons -->
-        <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
-          <a href="/pos/my-cabinet/" class="btn btn-success btn-lg rounded-pill px-4 py-3 fw-bold" style="background: linear-gradient(135deg, #10B981, #059669); border: none; font-size: 15px; box-shadow: 0 8px 25px rgba(16,185,129,0.4);">
-            <i class="bi bi-cart-check-fill me-2"></i> Buyurtma Berish (Kabinet)
+        <div class="d-flex flex-wrap gap-3">
+          <a href="/pos/my-cabinet/" class="lp-btn-primary">
+            <i class="bi bi-cart-check-fill"></i> Buyurtma Berish (Kabinet)
           </a>
-          <button onclick="calculateHomeDelivery()" class="btn btn-outline-light btn-lg rounded-pill px-4 py-3 fw-bold" style="border-color: rgba(255,255,255,0.25); font-size: 15px; background: rgba(255,255,255,0.05);">
-            <i class="bi bi-geo-alt-fill text-warning me-2"></i> ЁЯУН Delivery Narxini Hisoblash
+          <button onclick="calculateHomeDelivery()" class="lp-btn-outline">
+            <i class="bi bi-geo-alt-fill" style="color:#D4A853;"></i> Delivery Narxini Hisoblash
           </button>
         </div>
+        <div id="home-calc-result"></div>
 
-        <!-- Live Delivery Calc Result Box -->
-        <div id="home-calc-result" class="mt-3"></div>
-
-        <!-- Trust Badges Bar -->
-        <div style="display: flex; align-items: center; gap: 24px; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
-          <div>
-            <div style="font-size: 22px; font-weight: 900; color: #FFFFFF;">100%</div>
-            <div style="font-size: 11px; color: #9CA3AF;">Halol Sifat</div>
+        <div class="lp-trust-bar">
+          <div class="lp-trust-item">
+            <div class="val" style="color:#D4A853;">100%</div>
+            <div class="lbl">Halol Sifat</div>
           </div>
-          <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
-          <div>
-            <div style="font-size: 22px; font-weight: 900; color: #10B981;">0.1 gr</div>
-            <div style="font-size: 11px; color: #9CA3AF;">IoT Tarozi Aniqligi</div>
+          <div class="lp-divider-v"></div>
+          <div class="lp-trust-item">
+            <div class="val" style="color:#10B981;">0.1 gr</div>
+            <div class="lbl">IoT Tarozi Aniqligi</div>
           </div>
-          <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
-          <div>
-            <div style="font-size: 22px; font-weight: 900; color: #D4A853;">30-45 min</div>
-            <div style="font-size: 11px; color: #9CA3AF;">Tezkor Delivery</div>
+          <div class="lp-divider-v"></div>
+          <div class="lp-trust-item">
+            <div class="val" style="color:#FFFFFF;">20вЂ“45 min</div>
+            <div class="lbl">Tezkor Delivery</div>
           </div>
         </div>
-
       </div>
 
-      <!-- Cyber Bull Logo Showcase -->
+      <!-- RIGHT: Floating Glass Card -->
       <div class="col-lg-6 text-center animate__animated animate__fadeInRight">
-        <div class="d-inline-block position-relative">
-          <!-- Main animated hero image -->
-          <div class="mfp-bull-logo-wrapper mx-auto">
-            <img src="{% static 'images/beef_card_bg.png' %}" alt="Sarxil Premium Go'sht" style="width: 100%; height: 100%; object-fit: cover; border-radius: 34px;">
+        <div class="position-relative d-inline-block" style="padding:24px;">
+          <div class="lp-glass-card">
+            <img src="{% static 'images/beef_card_bg.png' %}" alt="Premium Mol Go'shti">
+            <div class="lp-glass-card-body">
+              <div class="tag">в­ђ Eng Ko'p Sotilgan</div>
+              <div class="title">Premium Gourmet Steak</div>
+              <div class="meta">
+                <div class="price">70 000 <small>so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="lp-add-btn"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
           </div>
-          <!-- Orbit Badge: Logo + MeatFlow Pro -->
-          <div class="position-absolute d-flex align-items-center gap-2" style="bottom: -22px; right: -14px; background: rgba(10,17,13,0.92); backdrop-filter: blur(12px); border: 1.5px solid #10B981; padding: 10px 16px; border-radius: 20px; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro Logo" style="width: 46px; height: 46px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(16,185,129,0.4); flex-shrink: 0;">
+          <!-- Floating badge top-left: MeatFlow Pro logo -->
+          <div class="lp-float-badge top-left">
+            <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro">
             <div>
-              <div style="font-size: 10px; font-weight: 800; color: #10B981; text-transform: uppercase; letter-spacing: 1.2px;">⚡ Smart Platform</div>
-              <div style="font-size: 15px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.3px;">MeatFlow Pro</div>
+              <div class="badge-label">вљЎ Smart Platform</div>
+              <div class="badge-val">MeatFlow Pro</div>
+            </div>
+          </div>
+          <!-- Floating badge bottom-right: Baxmal Meat logo -->
+          <div class="lp-float-badge bottom-right">
+            <img src="{% static 'images/icon.jpg' %}" alt="Baxmal Meat">
+            <div>
+              <div class="badge-label">рџЏ† EST. 2023</div>
+              <div class="badge-val">Baxmal Meat</div>
             </div>
           </div>
         </div>
@@ -499,163 +549,146 @@ document.addEventListener("DOMContentLoaded", function() {
   </div>
 </section>
 
-<!-- PROMO BANNER (Admin Editable) -->
-<div style="background: linear-gradient(135deg, #D4A853, #B88E36); color: #0A110D; padding: 16px 24px; text-align: center; font-weight: 800; font-size: 14px; box-shadow: 0 4px 20px rgba(212,168,83,0.3);">
+<!-- PROMO BANNER -->
+<div class="lp-promo">
   <div class="container d-flex align-items-center justify-content-center gap-3 flex-wrap">
-    <span>ЁЯОБ {{ store.promo_banner_text|default:"500,000 so'mdan yuqori buyurtmalar uchun Toshkent shahri bo'ylab yetkazib berish BEPUL!" }}</span>
-    <a href="/pos/my-cabinet/" class="btn btn-dark btn-sm rounded-pill px-3 py-1 font-monospace" style="font-size: 12px;">Xarid Qilish <i class="bi bi-arrow-right"></i></a>
+    <span>рџЋЃ {{ store.promo_banner_text|default:"500,000 so'mdan yuqori buyurtmalar uchun Toshkent shahri bo'ylab yetkazib berish BEPUL!" }}</span>
+    <a href="/pos/my-cabinet/" style="background:#0D0D0D; color:#D4A853; padding:6px 18px; border-radius:30px; font-size:12px; font-weight:800; text-decoration:none;">Xarid Qilish в†’</a>
   </div>
 </div>
 
-<!-- PRODUCT CATALOG VITRINA -->
-<section style="padding: 80px 0; background: #FAF9F5;">
-  <div class="container" style="max-width: 1300px;">
-    
+<!-- PRODUCT CATALOG -->
+<section class="lp-section-dark">
+  <div class="container" style="max-width:1300px;">
     <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
       <div>
-        <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #10B981; letter-spacing: 2px;">Sarxil Mahsulotlar</span>
-        <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 36px; font-weight: 800; color: #0A110D; margin-top: 6px;">Yangi Kelgan Go'sht Kesimlari</h2>
+        <span class="lp-section-label">Sarxil Mahsulotlar</span>
+        <h2 class="lp-section-h2">Yangi Luxury Meat Boutique</h2>
       </div>
-      <a href="{% url 'article_list' %}" class="btn btn-outline-success rounded-pill px-4 fw-bold" style="border-color: #10B981; color: #0F382C;">
-        Barcha Mahsulotlar Katalogi <i class="bi bi-arrow-right me-1"></i>
+      <a href="{% url 'article_list' %}" style="background:rgba(212,168,83,0.1); color:#D4A853; border:1px solid rgba(212,168,83,0.3); padding:10px 22px; border-radius:30px; font-size:13px; font-weight:700; text-decoration:none;">
+        Barcha Mahsulotlar Katalogi в†’
       </a>
     </div>
-
     <div class="row g-4">
       {% for article in article_list|slice:":6" %}
       <div class="col-lg-4 col-md-6">
-        <div class="mfp-prod-card">
-          <div style="position: relative; overflow: hidden; height: 220px;">
-            {% if article.photo %}
-              <img src="{{ article.photo.url }}" class="mfp-prod-img" alt="{{ article.name }}">
-            {% else %}
-              <img src="https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=400&auto=format&fit=crop" class="mfp-prod-img" alt="Sarxil go'sht">
-            {% endif %}
-            <span style="position: absolute; top: 16px; right: 16px; background: rgba(10,17,13,0.85); backdrop-filter: blur(10px); color: #10B981; font-size: 11px; font-weight: 800; padding: 6px 14px; border-radius: 30px; border: 1px solid rgba(16,185,129,0.3);">
-              {{ article.animal_type }}
-            </span>
+        <div class="lp-prod-card">
+          <div class="lp-prod-img-wrap">
+            {% if article.photo %}<img src="{{ article.photo.url }}" alt="{{ article.name }}">
+            {% else %}<img src="{% static 'images/beef_card_bg.png' %}" alt="Go'sht">{% endif %}
+            <span class="lp-prod-type-badge">{{ article.animal_type }}</span>
           </div>
-
-          <div style="padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #D4A853; letter-spacing: 1px; display: block; margin-bottom: 6px;">
-                {{ article.cut_type }}
-              </span>
-              <h4 style="font-size: 18px; font-weight: 800; color: #0A110D; margin-bottom: 12px;">{{ article.name }}</h4>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; pt-3; border-top: 1px solid rgba(0,0,0,0.06); margin-top: 16px;">
-              <div>
-                <span style="font-size: 22px; font-weight: 900; color: #0F382C;">{{ article.price|floatformat:0 }}</span>
-                <span style="font-size: 12px; color: #6B7280; font-weight: 600;">so'm / kg</span>
-              </div>
-              <a href="/pos/my-cabinet/" class="btn btn-success btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #10B981; border: none; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
-                <i class="bi bi-cart-plus-fill fs-5 text-white"></i>
-              </a>
+          <div class="lp-prod-card-body">
+            <div class="lp-prod-cut">{{ article.cut_type }}</div>
+            <div class="lp-prod-name">{{ article.name }}</div>
+            <div class="lp-prod-footer">
+              <div class="lp-prod-price">{{ article.price|floatformat:0 }} <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="lp-add-btn"><i class="bi bi-cart-plus-fill"></i></a>
             </div>
           </div>
         </div>
       </div>
       {% empty %}
-      <div class="col-12 text-center py-5 text-muted">
-        <i class="bi bi-info-circle fs-1 text-warning d-block mb-3"></i>
-        Boutique vitrinasi tez orada yangilanadi.
+      {% for i in "123456" %}
+      <div class="col-lg-4 col-md-6">
+        <div class="lp-prod-card">
+          <div class="lp-prod-img-wrap">
+            {% if forloop.counter == 1 %}<img src="{% static 'images/beef_card_bg.png' %}" alt="Mol Go'shti">
+            {% elif forloop.counter == 2 %}<img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Go'shti">
+            {% elif forloop.counter == 3 %}<img src="{% static 'images/WIN_20260612_09_02_49_Pro.jpg' %}" alt="Go'sht">
+            {% elif forloop.counter == 4 %}<img src="{% static 'images/rasm.jpg' %}" alt="Go'sht">
+            {% elif forloop.counter == 5 %}<img src="{% static 'images/beef_card_bg.png' %}" alt="Steak">
+            {% else %}<img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y">{% endif %}
+            <span class="lp-prod-type-badge">{% if forloop.counter <= 4 %}Mol{% else %}Qo'y{% endif %}</span>
+          </div>
+          <div class="lp-prod-card-body">
+            <div class="lp-prod-cut">{% cycle "Gourmet Steak" "Qovurg'a" "Dumg'aza" "Liver" "Ribeye" "Qo'y Qovurg'asi" %}</div>
+            <div class="lp-prod-name">{% cycle "Gourmet Steak вЂ” Dumg'aza" "Qovurg'a вЂ” Rib" "Ground Beef" "Liver" "Ribeye Premium" "Qo'y Qovurg'asi" %}</div>
+            <div class="lp-prod-footer">
+              <div class="lp-prod-price">{% cycle "70 000" "60 000" "70 000" "60 000" "80 000" "75 000" %} <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="lp-add-btn"><i class="bi bi-cart-plus-fill"></i></a>
+            </div>
+          </div>
+        </div>
       </div>
       {% endfor %}
+      {% endfor %}
     </div>
-
   </div>
 </section>
 
-<!-- WHY CHOOSE US & ADVANTAGES -->
-<section style="padding: 80px 0; background: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.04);">
-  <div class="container" style="max-width: 1300px;">
-    
-    <div class="text-center max-w-600 mx-auto mb-5">
-      <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #D4A853; letter-spacing: 2px;">Bizning Ustunliklarimiz</span>
-      <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 36px; font-weight: 800; color: #0A110D; margin-top: 6px;">Nega Baxmal Meat Tanlanadi?</h2>
+<!-- WHY CHOOSE US -->
+<section class="lp-section-slate">
+  <div class="container" style="max-width:1300px;">
+    <div class="text-center mb-5">
+      <span class="lp-section-label">Bizning Ustunliklarimiz</span>
+      <h2 class="lp-section-h2">Nega Baxmal Meat Tanlanadi?</h2>
     </div>
-
     <div class="row g-4">
       <div class="col-md-3 col-sm-6">
-        <div style="background: #FAF9F5; border-radius: 20px; padding: 28px; border: 1px solid rgba(0,0,0,0.05); height: 100%;">
-          <div style="width: 50px; height: 50px; border-radius: 14px; background: rgba(16,185,129,0.12); color: #10B981; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 18px;">
-            <i class="bi bi-shield-check"></i>
-          </div>
-          <h4 style="font-size: 16px; font-weight: 800; color: #0A110D; margin-bottom: 10px;">100% Halol & Gigiyena</h4>
-          <p style="font-size: 13px; color: #6B7280; line-height: 1.6; margin: 0;">Barcha so'yimlar shariat qoidalari va veterinariya nazorati asosida amalga oshiriladi.</p>
+        <div class="lp-feat-card">
+          <div class="lp-feat-icon" style="background:rgba(212,168,83,0.1); color:#D4A853;"><i class="bi bi-shield-check-fill"></i></div>
+          <div class="lp-feat-title">100% Halol &amp; Gigiyena</div>
+          <p class="lp-feat-desc">Barcha so'yimlar shariat qoidalari va veterinariya nazorati asosida amalga oshiriladi.</p>
         </div>
       </div>
-
       <div class="col-md-3 col-sm-6">
-        <div style="background: #FAF9F5; border-radius: 20px; padding: 28px; border: 1px solid rgba(0,0,0,0.05); height: 100%;">
-          <div style="width: 50px; height: 50px; border-radius: 14px; background: rgba(212,168,83,0.15); color: #D4A853; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 18px;">
-            <i class="bi bi-cpu-fill"></i>
-          </div>
-          <h4 style="font-size: 16px; font-weight: 800; color: #0A110D; margin-bottom: 10px;">IoT Smart Tarozi</h4>
-          <p style="font-size: 13px; color: #6B7280; line-height: 1.6; margin: 0;">WiFi tarmog'iga ulangan raqamli tarozilar orqali 0.1 grammgacha to'g'ri va halol tortish.</p>
+        <div class="lp-feat-card">
+          <div class="lp-feat-icon" style="background:rgba(16,185,129,0.1); color:#10B981;"><i class="bi bi-cpu-fill"></i></div>
+          <div class="lp-feat-title">IoT Smart Tarozi</div>
+          <p class="lp-feat-desc">WiFi tarmog'iga ulangan raqamli tarozilar orqali 0.1 grammgacha to'g'ri va halol tortish.</p>
         </div>
       </div>
-
       <div class="col-md-3 col-sm-6">
-        <div style="background: #FAF9F5; border-radius: 20px; padding: 28px; border: 1px solid rgba(0,0,0,0.05); height: 100%;">
-          <div style="width: 50px; height: 50px; border-radius: 14px; background: rgba(16,185,129,0.12); color: #10B981; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 18px;">
-            <i class="bi bi-truck-front-fill"></i>
-          </div>
-          <h4 style="font-size: 16px; font-weight: 800; color: #0A110D; margin-bottom: 10px;">AI Kuryer Marketplace</h4>
-          <p style="font-size: 13px; color: #6B7280; line-height: 1.6; margin: 0;">Do'kondan manzilingizgacha bo'lgan masofani AI hisoblab yetkazadi.</p>
+        <div class="lp-feat-card">
+          <div class="lp-feat-icon" style="background:rgba(212,168,83,0.1); color:#D4A853;"><i class="bi bi-truck-front-fill"></i></div>
+          <div class="lp-feat-title">AI Kuryer Marketplace</div>
+          <p class="lp-feat-desc">Do'kondan manzilingizgacha bo'lgan masofani AI hisoblab 30вЂ“45 daqiqada yetkazadi.</p>
         </div>
       </div>
-
       <div class="col-md-3 col-sm-6">
-        <div style="background: #FAF9F5; border-radius: 20px; padding: 28px; border: 1px solid rgba(0,0,0,0.05); height: 100%;">
-          <div style="width: 50px; height: 50px; border-radius: 14px; background: rgba(212,168,83,0.15); color: #D4A853; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 18px;">
-            <i class="bi bi-journal-check"></i>
-          </div>
-          <h4 style="font-size: 16px; font-weight: 800; color: #0A110D; margin-bottom: 10px;">Shaffof Hisob-Kitob</h4>
-          <p style="font-size: 13px; color: #6B7280; line-height: 1.6; margin: 0;">Barcha xaridlar va nasiya qarzlari elektron cheklar bilan shaxsiy kabinetda ko'rinadi.</p>
+        <div class="lp-feat-card">
+          <div class="lp-feat-icon" style="background:rgba(16,185,129,0.1); color:#10B981;"><i class="bi bi-journal-check"></i></div>
+          <div class="lp-feat-title">Shaffof Hisob-Kitob</div>
+          <p class="lp-feat-desc">Barcha xaridlar va nasiya qarzlari elektron cheklar bilan shaxsiy kabinetda ko'rinadi.</p>
         </div>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- SCRIPT FOR HOME DELIVERY CALCULATOR -->
+<!-- FOOTER STRIP -->
+<div style="background:#0A0A0A; border-top:1px solid rgba(255,255,255,0.05); padding:24px; text-align:center;">
+  <div class="container d-flex align-items-center justify-content-center gap-3 flex-wrap">
+    <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro" style="width:36px; height:36px; border-radius:10px; object-fit:cover;">
+    <span style="color:#4B5563; font-size:13px;">В© 2025 <strong style="color:#D4A853;">Baxmal Meat</strong> | MeatFlow Pro Platform</span>
+  </div>
+</div>
+
 <script>
 function calculateHomeDelivery() {
   const gpsText = document.getElementById('home-calc-result');
   if (!navigator.geolocation) {
-    if (gpsText) { gpsText.innerHTML = "<div class='alert alert-danger py-2' style='font-size:12px;'>Brauzeringiz GPS-ni qo'llab-quvvatlamaydi.</div>"; }
-    return;
+    gpsText.innerHTML = "<div class='calc-box'>Brauzeringiz GPS-ni qo'llab-quvvatlamaydi.</div>"; return;
   }
-  if (gpsText) { gpsText.innerHTML = "<div class='alert alert-info py-2' style='font-size:12px;'><span class='spinner-border spinner-border-sm me-1'></span> GPS lokatsiyangiz va masofa aniqlanmoqda...</div>"; }
-
+  gpsText.innerHTML = "<div class='calc-box'><span class='spinner-border spinner-border-sm me-2'></span>GPS lokatsiyangiz aniqlanmoqda...</div>";
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      fetch(`/pos/api/calculate-delivery/?lat=${lat}&lng=${lng}&total_sum=150000`)
+      fetch(`/pos/api/calculate-delivery/?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&total_sum=150000`)
         .then(r => r.json())
         .then(data => {
           if (data.status === 'success') {
-            gpsText.innerHTML = `
-              <div class="p-3 rounded-4 shadow-sm text-start" style="background:#0A110D; border:1px solid #10B981; color:#FFF;">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="fw-bold text-success" style="font-size:13px;"><i class="bi bi-geo-alt-fill me-1"></i> Do'kongacha masofa: ${data.distance_km} km</span>
-                  <span class="badge bg-success" style="font-size:11px;">Kuryer haqi: ${data.formatted_fee}</span>
-                </div>
-                <small class="text-muted d-block" style="font-size:11px;">ЁЯУН Do'kon: ${data.store_name} (${data.store_address})</small>
+            gpsText.innerHTML = `<div class="calc-box">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span style="color:#10B981; font-weight:700;"><i class="bi bi-geo-alt-fill me-1"></i>Do'kongacha: ${data.distance_km} km</span>
+                <span style="background:#D4A853; color:#0D0D0D; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800;">Kuryer: ${data.formatted_fee}</span>
               </div>
-            `;
+              <small style="color:#6B7280; font-size:11px;">рџ“Ќ ${data.store_name} (${data.store_address})</small>
+            </div>`;
           }
-        }).catch(() => {
-          gpsText.innerHTML = "<div class='alert alert-warning py-2' style='font-size:12px;'>Kuryer narxini hisoblashda tarmoq xatosi.</div>";
-        });
+        }).catch(() => { gpsText.innerHTML = "<div class='calc-box'>Tarmoq xatosi yuz berdi.</div>"; });
     },
-    (err) => {
-      gpsText.innerHTML = "<div class='alert alert-warning py-2' style='font-size:12px;'>GPS lokatsiya berilmadi. Shaxsiy kabinetda manzil yozishingiz mumkin.</div>";
-    },
+    () => { gpsText.innerHTML = "<div class='calc-box'>GPS lokatsiya berilmadi.</div>"; },
     { enableHighAccuracy: true, timeout: 10000 }
   );
 }
@@ -663,3 +696,4 @@ function calculateHomeDelivery() {
 {% endif %}
 
 {% endblock content %}
+
