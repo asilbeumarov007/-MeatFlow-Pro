@@ -304,711 +304,763 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 {% else %}
-{# ================================================================
-   BAXMAL MEAT вЂ” PREMIUM CUSTOMER LANDING PAGE
-   Design: Exactly matches reference screenshots
-   - Mobile: dark marble bg, chef photo hero, SARXIL GO'SHT gold
-   - Desktop: dark bg, floating glass card, real steak photos
-   ================================================================ #}
-
+<!-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+     MEATFLOW PRO вЂ” EMERALD IOT SMART LANDING PAGE (REFERENCE DESIGN)
+     в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ -->
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
 
-/* в”Ђв”Ђв”Ђ RESET в”Ђв”Ђв”Ђ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: #0B0B0B !important;
+.mf-emerald-page {
   font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #F8FAF8;
+  color: #1A1A2E;
+  margin: 0;
+  padding: 0;
+}
+
+/* в”Ђв”Ђ Navbar Header в”Ђв”Ђ */
+.mf-header {
+  background: #091C14;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+  padding: 14px 28px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.mf-header-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mf-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.mf-logo-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.mf-logo-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.1;
+}
+.mf-logo-title span {
+  color: #10B981;
+}
+.mf-logo-sub {
+  font-size: 10px;
+  color: #9CA3AF;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.mf-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mf-lang-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  padding: 5px 14px;
   color: #E5E7EB;
-  -webkit-font-smoothing: antialiased;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+.mf-lang-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFF;
+}
+.mf-btn-login {
+  background: transparent;
+  color: #D1D5DB;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 50px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s;
+}
+.mf-btn-login:hover {
+  color: #FFF;
+  border-color: #10B981;
+}
+.mf-btn-order {
+  background: #10B981;
+  color: #061A13;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 9px 22px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.mf-btn-order:hover {
+  background: #059669;
+  color: #FFF;
 }
 
-/* в”Ђв”Ђв”Ђ TOPBAR в”Ђв”Ђв”Ђ */
-.bt {
-  background: #111;
-  border-bottom: 1px solid rgba(212,168,83,0.18);
-  padding: 9px 24px;
-  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-  font-size: 12px; font-weight: 600; color: #9CA3AF;
+/* в”Ђв”Ђ Hero Section (Dark Emerald Matrix Theme) в”Ђв”Ђ */
+.mf-hero {
+  background: linear-gradient(145deg, #051610 0%, #09261B 60%, #061A13 100%);
+  padding: 64px 28px 70px;
+  position: relative;
+  overflow: hidden;
+  color: #FFFFFF;
 }
-.bt a { color: #D4A853; text-decoration: none; font-weight: 700; }
-.bt .dot { color: rgba(255,255,255,0.15); }
-
-/* в”Ђв”Ђв”Ђ NAVBAR (pill style like mobile screenshot) в”Ђв”Ђв”Ђ */
-.bn {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(11,11,11,0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 14px 24px;
-}
-.bn-inner {
-  max-width: 1280px; margin: 0 auto;
-  display: flex; align-items: center; justify-content: space-between; gap: 20px;
-}
-.bn-logo {
-  display: flex; align-items: center; gap: 10px; text-decoration: none;
-}
-.bn-logo img { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; }
-.bn-logo-text { font-size: 16px; font-weight: 800; color: #FFF; letter-spacing: -0.3px; }
-.bn-logo-text span { color: #D4A853; }
-.bn-logo-sub { font-size: 10px; color: #10B981; font-weight: 700; letter-spacing: 0.5px; }
-.bn-links {
-  display: flex; align-items: center; gap: 4px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 50px; padding: 6px;
-}
-.bn-link {
-  padding: 7px 18px; border-radius: 50px; font-size: 13px; font-weight: 600;
-  color: #9CA3AF; text-decoration: none; transition: all 0.2s; white-space: nowrap;
-}
-.bn-link:hover { color: #FFFFFF; background: rgba(255,255,255,0.08); }
-.bn-link.active { background: #1A1A1A; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.1); }
-.bn-right { display: flex; align-items: center; gap: 10px; }
-.bn-login {
-  font-size: 13px; font-weight: 700; color: #9CA3AF;
-  text-decoration: none; padding: 8px 16px; border-radius: 30px;
-  border: 1px solid rgba(255,255,255,0.12); transition: all 0.2s;
-}
-.bn-login:hover { color: #FFF; border-color: rgba(255,255,255,0.3); }
-.bn-order {
-  background: #D4A853; color: #0B0B0B; font-weight: 800; font-size: 13px;
-  padding: 9px 20px; border-radius: 30px; text-decoration: none;
-  transition: all 0.2s; white-space: nowrap;
-}
-.bn-order:hover { background: #C9A84C; color: #0B0B0B; }
-
-/* в”Ђв”Ђв”Ђ HERO в”Ђв”Ђв”Ђ */
-.hero {
-  position: relative; min-height: 100vh;
-  display: flex; align-items: center; overflow: hidden;
-}
-/* Dark marble/stone texture background via CSS */
-.hero-bg {
-  position: absolute; inset: 0; z-index: 0;
-  background:
-    linear-gradient(160deg, rgba(11,11,11,0.92) 0%, rgba(11,11,11,0.6) 55%, rgba(11,11,11,0.85) 100%),
-    url("{% static 'images/beef_card_bg.png' %}") center center / cover no-repeat;
-}
-/* Stone/marble veins overlay */
-.hero-bg::before {
+.mf-hero::before {
   content: '';
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 600px 400px at 15% 60%, rgba(212,168,83,0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 400px 600px at 85% 30%, rgba(16,185,129,0.05) 0%, transparent 70%);
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+  filter: blur(60px);
 }
-.hero-inner {
-  position: relative; z-index: 2;
-  width: 100%; padding: 80px 0 60px;
+.mf-hero-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
 }
-
-/* Left text */
-.hero-eyebrow {
-  font-size: 14px; font-weight: 600; color: #9CA3AF;
-  margin-bottom: 12px; letter-spacing: 0.2px;
-}
-.hero-h1 { line-height: 1.0; margin-bottom: 18px; }
-.hero-h1 .line1 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(18px, 3vw, 26px);
-  font-weight: 700; color: #D1D5DB; display: block; margin-bottom: 4px;
-}
-.hero-h1 .line2 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(52px, 10vw, 96px);
-  font-weight: 900; color: #D4A853;
-  letter-spacing: -2px; display: block;
-  text-shadow: 0 2px 40px rgba(212,168,83,0.3);
-  line-height: 0.95;
-}
-.hero-h1 .line3 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(28px, 5vw, 50px);
-  font-weight: 800; color: #FFFFFF; display: block;
-  margin-top: 6px;
-}
-.hero-sub {
-  font-size: 15px; color: #6B7280; line-height: 1.7;
-  max-width: 480px; margin-bottom: 32px;
+.mf-hero-left {
+  flex: 1;
+  max-width: 650px;
+  z-index: 2;
 }
 
-/* Halol badge */
-.halol-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  border: 1.5px solid rgba(212,168,83,0.6);
-  background: rgba(212,168,83,0.06);
-  border-radius: 50px; padding: 5px 15px;
-  color: #D4A853; font-size: 12px; font-weight: 800;
-  margin-bottom: 28px; letter-spacing: 0.5px;
+.mf-badge-halol {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 50px;
+  padding: 6px 16px;
+  color: #10B981;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
 }
 
-/* CTA buttons вЂ” exactly like mobile reference */
-.cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
-.btn-white {
-  background: #FFFFFF; color: #0B0B0B; font-weight: 800; font-size: 14px;
-  padding: 14px 28px; border-radius: 50px; text-decoration: none;
-  border: none; display: inline-flex; align-items: center; gap: 8px;
-  transition: all 0.25s; cursor: pointer;
+.mf-hero-h1 {
+  font-size: clamp(34px, 4.5vw, 54px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -1px;
+  color: #FFFFFF;
+  margin-bottom: 18px;
 }
-.btn-white:hover { background: #F3F4F6; color: #0B0B0B; transform: translateY(-1px); }
-.btn-outline {
-  background: rgba(255,255,255,0.06); color: #E5E7EB; font-weight: 700; font-size: 14px;
-  padding: 14px 28px; border-radius: 50px; text-decoration: none;
-  border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 8px;
+.mf-hero-h1 span {
+  color: #10B981;
+}
+
+.mf-hero-sub {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #9CA3AF;
+  margin-bottom: 32px;
+  max-width: 540px;
+}
+
+.mf-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.mf-btn-primary {
+  background: #10B981;
+  color: #061A13;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 13px 28px;
+  border-radius: 50px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
   transition: all 0.25s;
 }
-.btn-outline:hover { border-color: rgba(212,168,83,0.5); color: #D4A853; }
-
-/* Delivery speed badge */
-.delivery-pill {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 50px; padding: 8px 16px; font-size: 12.5px; font-weight: 700; color: #E5E7EB;
+.mf-btn-primary:hover {
+  background: #059669;
+  color: #FFF;
+  transform: translateY(-2px);
 }
-.delivery-pill i { color: #D4A853; }
-
-/* в”Ђв”Ђв”Ђ FLOATING GLASS CARD (right side) в”Ђв”Ђв”Ђ */
-.glass-wrap {
-  position: relative; display: flex; justify-content: center; align-items: center; padding: 40px 20px;
+.mf-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #E5E7EB;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 13px 26px;
+  border-radius: 50px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s;
 }
-.glass-card {
+.mf-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFF;
+}
+
+.mf-hero-stats {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.mf-stat-item .stat-val {
+  font-size: 22px;
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1;
+}
+.mf-stat-item .stat-lbl {
+  font-size: 11px;
+  color: #6B7280;
+  margin-top: 4px;
+}
+.mf-stat-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Right side: Digital Matrix IoT Scale Readout Stream */
+.mf-hero-right {
+  flex: 1;
+  max-width: 480px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+.mf-matrix-card {
+  width: 100%;
+  background: rgba(5, 22, 16, 0.85);
+  border: 1.5px solid rgba(16, 185, 129, 0.3);
+  border-radius: 24px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.08);
   position: relative;
-  width: 340px;
-  background: rgba(255,255,255,0.07);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 24px; overflow: hidden;
-  box-shadow:
-    0 40px 80px rgba(0,0,0,0.7),
-    0 0 0 1px rgba(212,168,83,0.12),
-    inset 0 1px 0 rgba(255,255,255,0.12);
-  animation: glassFloat 7s ease-in-out infinite alternate;
+  overflow: hidden;
 }
-@keyframes glassFloat {
-  from { transform: translateY(0px) rotate(0deg); }
-  to   { transform: translateY(-22px) rotate(1.2deg); }
+.mf-matrix-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
 }
-.glass-card-img { width: 100%; height: 240px; object-fit: cover; display: block; }
-.glass-card-body { padding: 18px 20px; }
-.glass-card-tag { font-size: 9.5px; font-weight: 800; color: #D4A853; text-transform: uppercase; letter-spacing: 1.8px; margin-bottom: 5px; }
-.glass-card-name { font-size: 17px; font-weight: 800; color: #FFFFFF; margin-bottom: 14px; }
-.glass-card-row { display: flex; justify-content: space-between; align-items: center; }
-.glass-card-price { font-size: 22px; font-weight: 900; color: #D4A853; }
-.glass-card-price small { font-size: 11px; color: #6B7280; font-weight: 500; }
-.glass-add {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: linear-gradient(135deg, #C9A84C, #D4A853);
-  display: flex; align-items: center; justify-content: center;
-  color: #0B0B0B; font-size: 18px; text-decoration: none;
-  box-shadow: 0 4px 16px rgba(212,168,83,0.45); transition: all 0.22s; border: none; cursor: pointer;
+.mf-matrix-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #10B981;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.glass-add:hover { transform: scale(1.12); color: #0B0B0B; }
+.mf-live-pulse {
+  width: 8px;
+  height: 8px;
+  background: #10B981;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10B981;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
 
-/* Mini floating badges */
-.mini-badge {
+.mf-matrix-stream {
+  font-family: 'Space Mono', monospace;
+  color: #10B981;
+  font-size: 16px;
+  line-height: 1.8;
+  text-align: right;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  max-height: 240px;
+  overflow: hidden;
+  opacity: 0.9;
+}
+
+/* в”Ђв”Ђ Catalog Section (Clean Light) в”Ђв”Ђ */
+.mf-catalog-sec {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 60px 28px 80px;
+}
+.mf-sec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 36px;
+}
+.mf-sec-badge {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 50px;
+  margin-bottom: 8px;
+}
+.mf-sec-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1A1A2E;
+}
+.mf-sec-link {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50px;
+  padding: 8px 20px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.mf-sec-link:hover {
+  border-color: #10B981;
+  color: #10B981;
+}
+
+/* Grid Cards */
+.mf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.mf-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.mf-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+}
+.mf-card-img-wrap {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+.mf-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mf-card-badge {
   position: absolute;
-  background: rgba(11,11,11,0.94);
-  backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(16,185,129,0.5);
-  border-radius: 14px; padding: 9px 14px;
-  display: flex; align-items: center; gap: 10px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.6); z-index: 5;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #1A1A2E;
 }
-.mini-badge img { width: 36px; height: 36px; border-radius: 9px; object-fit: cover; border: 1px solid rgba(212,168,83,0.35); }
-.mini-badge .mbl { font-size: 8.5px; font-weight: 800; color: #10B981; text-transform: uppercase; letter-spacing: 1px; }
-.mini-badge .mbv { font-size: 13px; font-weight: 800; color: #FFF; }
-.mb-tl { top: 14px; left: 6px; }
-.mb-br { bottom: 14px; right: 6px; }
-
-/* в”Ђв”Ђв”Ђ PROMO STRIP в”Ђв”Ђв”Ђ */
-.promo-strip {
-  background: linear-gradient(90deg, #B8933F, #D4A853, #E4C35A, #D4A853, #B8933F);
-  padding: 14px 20px; text-align: center;
-  font-weight: 800; font-size: 14px; color: #0B0B0B;
-  letter-spacing: 0.1px;
+.mf-card-body {
+  padding: 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-.promo-strip a {
-  background: #0B0B0B; color: #D4A853;
-  padding: 5px 16px; border-radius: 30px;
-  font-size: 12px; font-weight: 800; text-decoration: none; margin-left: 12px;
+.mf-card-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1A1A2E;
+  margin-bottom: 12px;
 }
-
-/* в”Ђв”Ђв”Ђ PRODUCT SECTION в”Ђв”Ђв”Ђ */
-.sec-dark  { background: #0E0E0E; padding: 72px 0; }
-.sec-slate { background: #111612; padding: 72px 0; }
-.sec-max   { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
-
-.sec-ey { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2.5px; color: #D4A853; display: block; margin-bottom: 8px; }
-.sec-h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4.5vw, 42px); font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; margin: 0; }
-.catalog-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-  color: #9CA3AF; font-size: 13px; font-weight: 600;
-  padding: 9px 20px; border-radius: 30px; text-decoration: none; transition: all 0.2s;
+.mf-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.catalog-btn:hover { border-color: rgba(212,168,83,0.4); color: #D4A853; }
-.catalog-btn i { font-size: 11px; }
-
-/* в”Ђв”Ђв”Ђ PRODUCT CARDS (exactly like reference desktop/mobile) в”Ђв”Ђв”Ђ */
-.pc {
-  background: #161616;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 18px; overflow: hidden;
-  display: flex; flex-direction: column; height: 100%;
-  transition: transform 0.32s cubic-bezier(0.165,0.84,0.44,1),
-              border-color 0.32s,
-              box-shadow 0.32s;
+.mf-card-price {
+  font-size: 18px;
+  font-weight: 900;
+  color: #10B981;
 }
-.pc:hover {
-  transform: translateY(-8px);
-  border-color: rgba(212,168,83,0.45);
-  box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,168,83,0.2);
+.mf-card-price small {
+  font-size: 11px;
+  color: #6B7280;
+  font-weight: 500;
 }
-.pc-img-wrap { position: relative; height: 200px; overflow: hidden; }
-.pc-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.55s ease; display: block; }
-.pc:hover .pc-img-wrap img { transform: scale(1.07); }
-.pc-type-badge {
-  position: absolute; top: 12px; left: 12px;
-  background: rgba(11,11,11,0.88); backdrop-filter: blur(8px);
-  border: 1px solid rgba(212,168,83,0.32); color: #D4A853;
-  font-size: 9.5px; font-weight: 800; padding: 4px 11px;
-  border-radius: 30px; text-transform: uppercase; letter-spacing: 0.8px;
+.mf-card-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 16px;
+  transition: all 0.2s;
+  border: none;
 }
-.pc-body { padding: 16px 16px 18px; flex: 1; display: flex; flex-direction: column; }
-.pc-cut  { font-size: 9.5px; font-weight: 800; color: #10B981; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px; }
-.pc-name { font-size: 15px; font-weight: 800; color: #FFFFFF; margin-bottom: 5px; }
-.pc-desc { font-size: 11.5px; color: #6B7280; line-height: 1.5; margin-bottom: 14px; flex: 1; }
-.pc-foot { display: flex; justify-content: space-between; align-items: center; }
-.pc-price { font-size: 18px; font-weight: 900; color: #D4A853; line-height: 1.2; }
-.pc-price .unit { font-size: 10px; color: #6B7280; font-weight: 500; display: block; }
-/* "Savatga qo'shish" button вЂ” rounded dark like reference */
-.savatga {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: #212121; border: 1px solid rgba(255,255,255,0.12);
-  color: #E5E7EB; font-size: 11.5px; font-weight: 700;
-  padding: 7px 14px; border-radius: 30px; text-decoration: none;
-  transition: all 0.22s; white-space: nowrap;
-}
-.savatga:hover { background: #D4A853; color: #0B0B0B; border-color: #D4A853; }
-
-/* в”Ђв”Ђв”Ђ WHY US FEATURES в”Ђв”Ђв”Ђ */
-.feat {
-  background: #161616; border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 18px; padding: 24px; height: 100%; transition: all 0.28s;
-}
-.feat:hover { border-color: rgba(212,168,83,0.28); transform: translateY(-3px); }
-.feat-icon { width: 48px; height: 48px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 21px; margin-bottom: 15px; }
-.feat-title { font-size: 14.5px; font-weight: 800; color: #FFFFFF; margin-bottom: 7px; }
-.feat-desc  { font-size: 12px; color: #6B7280; line-height: 1.65; }
-
-/* в”Ђв”Ђв”Ђ FOOTER в”Ђв”Ђв”Ђ */
-.site-footer {
-  background: #080808; border-top: 1px solid rgba(255,255,255,0.05);
-  padding: 24px 20px; text-align: center;
-}
-.site-footer-inner {
-  max-width: 1280px; margin: 0 auto;
-  display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
-}
-.site-footer img { width: 32px; height: 32px; border-radius: 9px; object-fit: cover; }
-.site-footer span { font-size: 12.5px; color: #4B5563; }
-.site-footer strong { color: #D4A853; }
-
-/* в”Ђв”Ђв”Ђ CALC BOX в”Ђв”Ђв”Ђ */
-#hp-calc .cbox {
-  background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.2);
-  border-radius: 13px; padding: 12px 16px; margin-top: 12px; font-size: 13px; color: #E5E7EB;
+.mf-card-btn:hover {
+  background: #10B981;
+  color: #FFFFFF;
 }
 
-/* в”Ђв”Ђв”Ђ SPARKLE в”Ђв”Ђв”Ђ */
-.sp {
-  position: absolute; color: #D4A853; pointer-events: none;
-  animation: spk 5s ease-in-out infinite;
+/* IoT Scale Live Special Card */
+.mf-card-iot {
+  background: linear-gradient(145deg, #0A1C15 0%, #122B22 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #FFFFFF;
 }
-@keyframes spk { 0%,100%{opacity:0.35;transform:scale(1)rotate(0deg)} 50%{opacity:0.85;transform:scale(1.35)rotate(12deg)} }
+.mf-card-iot .mf-card-title {
+  color: #FFFFFF;
+}
+.mf-iot-display {
+  background: rgba(5, 22, 16, 0.8);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.mf-iot-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #10B981;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+.mf-iot-sub {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-top: 4px;
+}
 
-/* в”Ђв”Ђв”Ђ RESPONSIVE в”Ђв”Ђв”Ђ */
 @media (max-width: 991px) {
-  .hero { min-height: auto; }
-  .hero-inner { padding: 56px 0 40px; }
-  .glass-wrap { padding: 20px 10px; margin-top: 28px; }
-  .glass-card { width: 100%; max-width: 330px; }
-  .mb-tl, .mb-br { display: none; }
-  .bn-links { display: none; }
-}
-@media (max-width: 576px) {
-  .hero-h1 .line2 { letter-spacing: -1px; }
-  .cta-row { flex-direction: column; }
-  .btn-white, .btn-outline { width: 100%; justify-content: center; }
+  .mf-hero-container {
+    flex-direction: column;
+  }
+  .mf-hero-right {
+    width: 100%;
+  }
 }
 </style>
 
-<!-- в•ђв•ђ TOPBAR в•ђв•ђ -->
-<div class="bt">
-  <span><i class="bi bi-shield-check" style="color:#D4A853;"></i>&nbsp; 100% Halol Kafolatli Go'sht Mahsulotlari</span>
-  <span class="dot">|</span>
-  <span><i class="bi bi-telephone-fill" style="color:#D4A853;"></i>&nbsp; <a href="tel:+998770824477">+998 77 082 4477</a></span>
-</div>
+<div class="mf-emerald-page">
 
-<!-- в•ђв•ђ NAVBAR в•ђв•ђ -->
-<nav class="bn">
-  <div class="bn-inner">
-    <a href="{% url 'home' %}" class="bn-logo">
-      <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro">
-      <div>
-        <div class="bn-logo-text">MeatFlow<span> Pro</span></div>
-        <div class="bn-logo-sub">BAXMAL MEAT DO'KONI</div>
-      </div>
-    </a>
-
-    <div class="bn-links">
-      <a href="{% url 'home' %}" class="bn-link active">Bosh Sahifa</a>
-      <a href="{% url 'article_list' %}" class="bn-link">Katalog</a>
-      <a href="/pos/my-cabinet/" class="bn-link">Kabinet</a>
-      <a href="#why" class="bn-link">About</a>
-      <a href="tel:+998770824477" class="bn-link">Aloqa</a>
-    </div>
-
-    <div class="bn-right">
-      <a href="{% url 'login' %}" class="bn-login">Kirish / Ro'yxat</a>
-      <a href="/pos/my-cabinet/" class="bn-order">
-        <i class="bi bi-cart-fill"></i> Buyurtma
+  <!-- Header -->
+  <header class="mf-header">
+    <div class="mf-header-container">
+      <a href="{% url 'home' %}" class="mf-logo-group">
+        <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro" class="mf-logo-img">
+        <div>
+          <div class="mf-logo-title">MeatFlow <span>Pro</span></div>
+          <div class="mf-logo-sub">BAXMAL MEAT DO'KONI</div>
+        </div>
       </a>
+
+      <div class="mf-nav-actions">
+        <a href="#" class="mf-lang-pill">
+          LOTIN / KIRILL
+        </a>
+        <a href="{% url 'login' %}" class="mf-btn-login">Kirish</a>
+        <a href="/pos/my-cabinet/" class="mf-btn-order">Buyurtma Berish</a>
+      </div>
     </div>
-  </div>
-</nav>
+  </header>
 
-<!-- в•ђв•ђ HERO в•ђв•ђ -->
-<section class="hero">
-  <div class="hero-bg"></div>
+  <!-- Hero Section -->
+  <section class="mf-hero">
+    <div class="mf-hero-container">
+      <div class="mf-hero-left">
+        <div class="mf-badge-halol">
+          <i class="bi bi-shield-check"></i> 100% Halol &amp; IoT Laboratoriya Nazorati
+        </div>
+        <h1 class="mf-hero-h1">
+          Ishonchli Halol &amp;<br>
+          <span>IoT Smart Tarozilar</span>
+        </h1>
+        <p class="mf-hero-sub">
+          Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor kuryerlik xizmati.
+        </p>
 
-  <!-- sparkle accents -->
-  <div class="sp" style="bottom:10%;right:7%;font-size:32px;animation-delay:0s;">вњ¦</div>
-  <div class="sp" style="top:18%;right:40%;font-size:14px;animation-delay:2.5s;">вњ¦</div>
-  <div class="sp" style="bottom:25%;left:8%;font-size:10px;animation-delay:1.2s;opacity:0.3;">вњ¦</div>
-
-  <div class="hero-inner">
-    <div class="container" style="max-width:1280px;">
-      <div class="row align-items-center g-5">
-
-        <!-- LEFT -->
-        <div class="col-lg-6 animate__animated animate__fadeInLeft">
-          <p class="hero-eyebrow">Fermadan To'g'ri Dasturxoningizga</p>
-          <h1 class="hero-h1">
-            <span class="line2">SARXIL GO'SHT</span>
-            <span class="line3">Mahsulotlari</span>
-          </h1>
-          <p class="hero-sub">
-            {{ store.hero_subtitle|default:"Baxmal Meat вЂ” IoT aqlli tarozilar, shaffof hisob-kitob va Toshkent bo'yicha 45 daqiqada muzlatilmagan yangi go'sht yetkazish xizmati." }}
-          </p>
-
-          <div class="halol-pill">
-            <i class="bi bi-patch-check-fill"></i> HALOL SERTIFIKATLANGAN
-          </div>
-
-          <div class="cta-row">
-            <a href="{% url 'article_list' %}" class="btn-white">
-              <i class="bi bi-grid-fill"></i> Katalogni Ko'rish
-            </a>
-            <a href="/pos/my-cabinet/" class="btn-outline">
-              <i class="bi bi-cart-check-fill"></i> Buyurtma Berish
-            </a>
-          </div>
-
-          <div class="delivery-pill">
-            <i class="bi bi-lightning-charge-fill"></i>
-            30вЂ“45 Daqiqa &nbsp;<span style="color:rgba(255,255,255,0.2);">|</span>&nbsp;
-            <i class="bi bi-shield-check"></i> 100% Halol
-          </div>
-
-          <div id="hp-calc"></div>
-          <button onclick="hpCalc()" style="margin-top:12px;background:none;border:none;color:#6B7280;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0;">
-            <i class="bi bi-geo-alt" style="color:#D4A853;"></i> Delivery narxini hisoblash
+        <div class="mf-hero-actions">
+          <a href="/pos/my-cabinet/" class="mf-btn-primary">
+            <i class="bi bi-cart-check-fill"></i> Buyurtma Berish (Kabinet)
+          </a>
+          <button onclick="calculateHomeDelivery()" class="mf-btn-secondary">
+            <i class="bi bi-geo-alt-fill"></i> Delivery Narxini Hisoblash
           </button>
         </div>
 
-        <!-- RIGHT: Floating glass card -->
-        <div class="col-lg-6 animate__animated animate__fadeInRight">
-          <div class="glass-wrap">
-            <div class="glass-card">
-              <img src="{% static 'images/beef_card_bg.png' %}" alt="Premium Steak" class="glass-card-img">
-              <div class="glass-card-body">
-                <div class="glass-card-tag">в­ђ Eng Ko'p Sotilgan</div>
-                <div class="glass-card-name">Mermer Mol Go'shti вЂ” Ribeye</div>
-                <div class="glass-card-row">
-                  <div class="glass-card-price">70 000 <small>so'm/kg</small></div>
-                  <a href="/pos/my-cabinet/" class="glass-add"><i class="bi bi-cart-plus-fill"></i></a>
-                </div>
-              </div>
-            </div>
+        <div id="home-calc-result"></div>
 
-            <div class="mini-badge mb-tl">
-              <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro">
-              <div>
-                <div class="mbl">вљЎ Smart Platform</div>
-                <div class="mbv">MeatFlow Pro</div>
-              </div>
-            </div>
-
-            <div class="mini-badge mb-br">
-              <img src="{% static 'images/icon.jpg' %}" alt="Baxmal Meat">
-              <div>
-                <div class="mbl">рџЏ† EST. 2023</div>
-                <div class="mbv">Baxmal Meat</div>
-              </div>
-            </div>
+        <div class="mf-hero-stats">
+          <div class="mf-stat-item">
+            <div class="stat-val">100%</div>
+            <div class="stat-lbl">Halol Sifat</div>
+          </div>
+          <div class="mf-stat-divider"></div>
+          <div class="mf-stat-item">
+            <div class="stat-val">0.1 gr</div>
+            <div class="stat-lbl">Tarozi Aniqligi</div>
+          </div>
+          <div class="mf-stat-divider"></div>
+          <div class="mf-stat-item">
+            <div class="stat-val">30-45 min</div>
+            <div class="stat-lbl">Tezkor Delivery</div>
           </div>
         </div>
+      </div>
 
+      <!-- Right: Matrix Stream Card -->
+      <div class="mf-hero-right">
+        <div class="mf-matrix-card">
+          <div class="mf-matrix-header">
+            <div class="mf-matrix-title">
+              <span class="mf-live-pulse"></span> IoT LIVE SCALE SENSORS
+            </div>
+            <span style="font-family:'Space Mono'; font-size:10px; color:#6B7280;">WIFI-ONLINE</span>
+          </div>
+
+          <div class="mf-matrix-stream" id="matrixStream">
+            12.002 gr<br>
+            12.005 gr<br>
+            13.000 gr<br>
+            13.009 gr<br>
+            13.007 gr<br>
+            13.084 gr<br>
+            12.083 gr<br>
+            13.003 gr<br>
+            12.094 gr<br>
+            12.090 gr<br>
+            12.061 gr<br>
+            10.057 gr
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- в•ђв•ђ PROMO STRIP в•ђв•ђ -->
-<div class="promo-strip">
-  рџЋЃ {{ store.promo_banner_text|default:"500,000 so'mdan yuqori buyurtmalar uchun Toshkent bo'ylab yetkazib berish BEPUL!" }}
-  <a href="/pos/my-cabinet/">Buyurtma berish в†’</a>
-</div>
-
-<!-- в•ђв•ђ TANLANGAN KESIMLAR в•ђв•ђ -->
-<section class="sec-dark">
-  <div class="sec-max">
-
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
+  <!-- Products Section -->
+  <section class="mf-catalog-sec">
+    <div class="mf-sec-header">
       <div>
-        <span class="sec-ey">Sarxil Mahsulotlar</span>
-        <h2 class="sec-h2">Tanlangan Kesimlar</h2>
+        <span class="mf-sec-badge">YANGI MAHSULOTLAR</span>
+        <h2 class="mf-sec-title">Yangi Kelgan Go'sht Kesimlari</h2>
       </div>
-      <a href="{% url 'article_list' %}" class="catalog-btn">
-        Sarcho Mahsutator Katalog <i class="bi bi-chevron-down"></i>
+      <a href="{% url 'article_list' %}" class="mf-sec-link">
+        Barcha Mahsulotlar Katalogi &gt;
       </a>
     </div>
 
-    <div class="row g-4">
-
-      {% for article in article_list|slice:":6" %}
-      <div class="col-lg-4 col-md-6">
-        <div class="pc">
-          <div class="pc-img-wrap">
-            {% if article.photo %}
-              <img src="{{ article.photo.url }}" alt="{{ article.name }}">
-            {% else %}
-              <img src="{% static 'images/beef_card_bg.png' %}" alt="{{ article.name }}">
-            {% endif %}
-            <span class="pc-type-badge">{{ article.animal_type }}</span>
-          </div>
-          <div class="pc-body">
-            <div class="pc-cut">{{ article.cut_type }}</div>
-            <div class="pc-name">{{ article.name }}</div>
-            <div class="pc-desc">Sarxil qo'shimcha go'shtlar, fermerdan bevosita yetkazilgan.</div>
-            <div class="pc-foot">
-              <div class="pc-price">
-                {{ article.price|floatformat:0 }}
-                <span class="unit">so'm / kg</span>
-              </div>
-              <a href="/pos/my-cabinet/" class="savatga">
-                <i class="bi bi-cart-plus-fill"></i> Savatga qo'shish
-              </a>
-            </div>
-          </div>
+    <div class="mf-grid">
+      <!-- Card 1 -->
+      <div class="mf-card">
+        <div class="mf-card-img-wrap">
+          <img src="{% static 'images/rasm.jpg' %}" alt="Qorinli yog'li">
+          <span class="mf-card-badge">MOL</span>
         </div>
-      </div>
-      {% empty %}
-
-      {# в”Ђв”Ђ 6 Demo cards matching mobile reference exactly в”Ђв”Ђ #}
-      <div class="col-lg-4 col-md-6">
-        <div class="pc">
-          <div class="pc-img-wrap">
-            <img src="{% static 'images/beef_card_bg.png' %}" alt="Mermer Mol Go'shti">
-            <span class="pc-type-badge">Mol</span>
-          </div>
-          <div class="pc-body">
-            <div class="pc-cut">Gourmet Steak</div>
-            <div class="pc-name">Mermer Mol Go'shti</div>
-            <div class="pc-desc">Sarxil qoralim monunu, yangi mermer mol go'shti.</div>
-            <div class="pc-foot">
-              <div class="pc-price">60 000<span class="unit">so'm / kg</span></div>
-              <a href="/pos/my-cabinet/" class="savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
-            </div>
+        <div class="mf-card-body">
+          <div class="mf-card-title">Qorinli yog'li</div>
+          <div class="mf-card-footer">
+            <div class="mf-card-price">60000 <small>so'm / kg</small></div>
+            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-4 col-md-6">
-        <div class="pc">
-          <div class="pc-img-wrap">
-            <img src="{% static 'images/beef_card_bg.png' %}" alt="Ribeye">
-            <span class="pc-type-badge">Mol</span>
-          </div>
-          <div class="pc-body">
-            <div class="pc-cut">Premium Cut</div>
-            <div class="pc-name">Ribeye</div>
-            <div class="pc-desc">Barmil base da tomami yangi shoralim ribeye.</div>
-            <div class="pc-foot">
-              <div class="pc-price">70 000<span class="unit">so'm / kg</span></div>
-              <a href="/pos/my-cabinet/" class="savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
-            </div>
+      <!-- Card 2 -->
+      <div class="mf-card">
+        <div class="mf-card-img-wrap">
+          <img src="{% static 'images/WIN_20260612_07_40_18_Pro.jpg' %}" alt="Dumg'aza">
+          <span class="mf-card-badge">MOL</span>
+        </div>
+        <div class="mf-card-body">
+          <div class="mf-card-title">Dumg'aza</div>
+          <div class="mf-card-footer">
+            <div class="mf-card-price">70000 <small>so'm / kg</small></div>
+            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-4 col-md-6">
-        <div class="pc">
-          <div class="pc-img-wrap">
-            <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Qovurg'asi">
-            <span class="pc-type-badge">Qo'y</span>
-          </div>
-          <div class="pc-body">
-            <div class="pc-cut">Qovurg'a</div>
-            <div class="pc-name">Qo'y Qovurg'asi</div>
-            <div class="pc-desc">Baxmil go'sht mo'num, qo'y qovurg'asi w go'shti...</div>
-            <div class="pc-foot">
-              <div class="pc-price">80 000<span class="unit">so'm / kg</span></div>
-              <a href="/pos/my-cabinet/" class="savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
-            </div>
+      <!-- Card 3 -->
+      <div class="mf-card">
+        <div class="mf-card-img-wrap">
+          <img src="{% static 'images/photo_2026-07-16_12-08-59.jpg' %}" alt="Yurak">
+          <span class="mf-card-badge">MOL</span>
+        </div>
+        <div class="mf-card-body">
+          <div class="mf-card-title">Yurak</div>
+          <div class="mf-card-footer">
+            <div class="mf-card-price">50000 <small>so'm / kg</small></div>
+            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-4 col-md-6">
-        <div class="pc">
-          <div class="pc-img-wrap">
-            <img src="{% static 'images/WIN_20260612_09_02_49_Pro.jpg' %}" alt="Mo's Qovurg'asi">
-            <span class="pc-type-badge">Mol</span>
+      <!-- Card 4: IoT Smart Scale Live Card -->
+      <div class="mf-card mf-card-iot">
+        <div class="mf-card-body" style="padding: 24px;">
+          <div>
+            <span class="mf-sec-badge" style="background:rgba(16,185,129,0.2); color:#10B981; margin-bottom:12px;">IOT SMART SCALE</span>
+            <div class="mf-card-title">IoT Smart Tarozi Tizimi</div>
           </div>
-          <div class="pc-body">
-            <div class="pc-cut">Qovurg'a</div>
-            <div class="pc-name">Mo's Qovurg'asi</div>
-            <div class="pc-desc">Go'y qovurg al-onaim yangi mo'llar mermer go'shti.</div>
-            <div class="pc-foot">
-              <div class="pc-price">70 000<span class="unit">so'm / kg</span></div>
-              <a href="/pos/my-cabinet/" class="savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
-            </div>
+          
+          <div class="mf-iot-display">
+            <div class="mf-iot-val" id="liveWeightVal">501 gr</div>
+            <div class="mf-iot-sub">0.1 gr aniqlik</div>
+          </div>
+
+          <div class="mf-card-footer">
+            <div class="mf-card-price" style="color:#FFF;">65000 <small style="color:#9CA3AF;">so'm / kg</small></div>
+            <a href="/pos/my-cabinet/" class="mf-card-btn" style="background:#10B981; color:#061A13;"><i class="bi bi-cart-plus-fill"></i></a>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-4 col-md-6">
-        <div class="pc">
-          <div class="pc-img-wrap">
-            <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Qovurg'asi">
-            <span class="pc-type-badge">Qo'y</span>
-          </div>
-          <div class="pc-body">
-            <div class="pc-cut">Qovurg'a</div>
-            <div class="pc-name">Qo'y Qovurg'asi</div>
-            <div class="pc-desc">Baxmal gose bir ronnam yangi mermer mol go'shti.</div>
-            <div class="pc-foot">
-              <div class="pc-price">40 000<span class="unit">so'm / kg</span></div>
-              <a href="/pos/my-cabinet/" class="savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
-            </div>
+      <!-- Card 5 -->
+      <div class="mf-card">
+        <div class="mf-card-img-wrap">
+          <img src="{% static 'images/WIN_20260612_09_02_49_Pro.jpg' %}" alt="Mol Qo'shma">
+          <span class="mf-card-badge">MOL</span>
+        </div>
+        <div class="mf-card-body">
+          <div class="mf-card-title">Mol Qo'shma</div>
+          <div class="mf-card-footer">
+            <div class="mf-card-price">60000 <small>so'm / kg</small></div>
+            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-4 col-md-6">
-        <div class="pc">
-          <div class="pc-img-wrap">
-            <img src="{% static 'images/rasm.jpg' %}" alt="Mol Dumg'aza">
-            <span class="pc-type-badge">Mol</span>
+      <!-- Card 6 -->
+      <div class="mf-card">
+        <div class="mf-card-img-wrap">
+          <img src="{% static 'images/photo_2026-07-16_12-08-59.jpg' %}" alt="Qo'y Qovurg'asi">
+          <span class="mf-card-badge">QO'Y</span>
+        </div>
+        <div class="mf-card-body">
+          <div class="mf-card-title">Qo'y Qovurg'asi</div>
+          <div class="mf-card-footer">
+            <div class="mf-card-price">75000 <small>so'm / kg</small></div>
+            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
           </div>
-          <div class="pc-body">
-            <div class="pc-cut">Dumg'aza</div>
-            <div class="pc-name">Mol Dumg'aza</div>
-            <div class="pc-desc">Eng sara qorinli mol go'shti, fermerdan bevosita.</div>
-            <div class="pc-foot">
-              <div class="pc-price">55 000<span class="unit">so'm / kg</span></div>
-              <a href="/pos/my-cabinet/" class="savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {% endfor %}
-    </div>
-
-  </div>
-</section>
-
-<!-- в•ђв•ђ NEGA BAXMAL MEAT в•ђв•ђ -->
-<section class="sec-slate" id="why">
-  <div class="sec-max">
-    <div style="text-align:center;margin-bottom:48px;">
-      <span class="sec-ey">Bizning Ustunliklarimiz</span>
-      <h2 class="sec-h2">Nega Baxmal Meat?</h2>
-    </div>
-    <div class="row g-4">
-      <div class="col-md-3 col-6">
-        <div class="feat">
-          <div class="feat-icon" style="background:rgba(212,168,83,0.1);color:#D4A853;"><i class="bi bi-shield-check-fill"></i></div>
-          <div class="feat-title">100% Halol</div>
-          <p class="feat-desc">Shariat qoidalari va veterinariya nazorati asosida barcha so'yimlar amalga oshiriladi.</p>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="feat">
-          <div class="feat-icon" style="background:rgba(16,185,129,0.1);color:#10B981;"><i class="bi bi-cpu-fill"></i></div>
-          <div class="feat-title">IoT Smart Tarozi</div>
-          <p class="feat-desc">WiFi ulangan tarozilar: 0.1 grammgacha aniq va halol o'lchash.</p>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="feat">
-          <div class="feat-icon" style="background:rgba(212,168,83,0.1);color:#D4A853;"><i class="bi bi-truck-front-fill"></i></div>
-          <div class="feat-title">30вЂ“45 min Delivery</div>
-          <p class="feat-desc">AI kuryer hisobi bilan tezkor va muzlatilmagan yetkazib berish xizmati.</p>
-        </div>
-      </div>
-      <div class="col-md-3 col-6">
-        <div class="feat">
-          <div class="feat-icon" style="background:rgba(16,185,129,0.1);color:#10B981;"><i class="bi bi-journal-check"></i></div>
-          <div class="feat-title">Shaffof Hisob</div>
-          <p class="feat-desc">Barcha xaridlar va nasiya qarzlari elektron chek bilan kabinetda ko'rinadi.</p>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- в•ђв•ђ FOOTER в•ђв•ђ -->
-<footer class="site-footer">
-  <div class="site-footer-inner">
-    <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro">
-    <span>В© 2025 <strong>Baxmal Meat</strong> | MeatFlow Pro Platform вЂ” Barcha huquqlar himoyalangan</span>
-    <span style="color:#D4A853;opacity:0.45;font-size:20px;">вњ¦</span>
-  </div>
-</footer>
+</div>
 
 <script>
-function hpCalc() {
-  const b = document.getElementById('hp-calc');
-  if (!navigator.geolocation) {
-    b.innerHTML = "<div class='cbox'>Brauzeringiz GPS qo'llab-quvvatlamaydi.</div>"; return;
+// Simulate live Matrix IoT Weight stream
+document.addEventListener("DOMContentLoaded", function() {
+  const stream = document.getElementById("matrixStream");
+  const weightDisplay = document.getElementById("liveWeightVal");
+  
+  if (stream) {
+    setInterval(() => {
+      const randomVal = (Math.random() * (13.5 - 11.5) + 11.5).toFixed(3);
+      const newElem = document.createElement("div");
+      newElem.textContent = randomVal + " gr";
+      stream.appendChild(newElem);
+      if (stream.childNodes.length > 14) {
+        stream.removeChild(stream.firstChild);
+      }
+    }, 1200);
   }
-  b.innerHTML = "<div class='cbox'><span class='spinner-border spinner-border-sm me-2'></span>GPS aniqlanmoqda...</div>";
+
+  if (weightDisplay) {
+    setInterval(() => {
+      const g = Math.floor(Math.random() * (515 - 495) + 495);
+      weightDisplay.textContent = g + " gr";
+    }, 2000);
+  }
+});
+
+function calculateHomeDelivery() {
+  const gpsText = document.getElementById('home-calc-result');
+  if (!navigator.geolocation) {
+    if (gpsText) { gpsText.innerHTML = "<div style='background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:10px; color:#EF4444; font-size:12px; margin-top:10px;'>Brauzeringiz GPS-ni qo'llab-quvvatlamaydi.</div>"; }
+    return;
+  }
+  if (gpsText) { gpsText.innerHTML = "<div style='background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:10px; color:#10B981; font-size:12px; margin-top:10px;'><span class='spinner-border spinner-border-sm me-2'></span> GPS lokatsiya aniqlanmoqda...</div>"; }
+
   navigator.geolocation.getCurrentPosition(
-    p => {
-      fetch(`/pos/api/calculate-delivery/?lat=${p.coords.latitude}&lng=${p.coords.longitude}&total_sum=150000`)
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      fetch(`/pos/api/calculate-delivery/?lat=${lat}&lng=${lng}&total_sum=150000`)
         .then(r => r.json())
-        .then(d => {
-          b.innerHTML = d.status === 'success'
-            ? `<div class="cbox"><span style="color:#10B981;font-weight:700;"><i class="bi bi-geo-alt-fill me-1"></i>${d.distance_km} km</span>
-               &nbsp;|&nbsp; <span style="background:#D4A853;color:#0B0B0B;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:800;">Kuryer: ${d.formatted_fee}</span>
-               <br><small style="color:#6B7280;font-size:11px;">рџ“Ќ ${d.store_name}</small></div>`
-            : "<div class='cbox'>Xato yuz berdi.</div>";
-        }).catch(() => { b.innerHTML = "<div class='cbox'>Tarmoq xatosi.</div>"; });
+        .then(data => {
+          if (data.status === 'success') {
+            gpsText.innerHTML = `
+              <div style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); border-radius: 12px; padding: 14px 18px; color: #FFFFFF; margin-top:12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span style="font-weight: 700; font-size: 13px; color: #10B981;"><i class="bi bi-geo-alt-fill me-1"></i> Masofa: ${data.distance_km} km</span>
+                  <span style="background: #10B981; color: #061A13; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 6px;">Kuryer: ${data.formatted_fee}</span>
+                </div>
+                <small style="color: rgba(255,255,255,0.7); font-size: 11px;">рџ“Ќ ${data.store_name} (${data.store_address})</small>
+              </div>
+            `;
+          }
+        }).catch(() => {
+          gpsText.innerHTML = "<div style='background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:10px; color:#EF4444; font-size:12px; margin-top:10px;'>Tarmoq xatosi yuz berdi.</div>";
+        });
     },
-    () => { b.innerHTML = "<div class='cbox'>GPS berilmadi.</div>"; },
+    () => {
+      gpsText.innerHTML = "<div style='background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px; color:#9CA3AF; font-size:12px; margin-top:10px;'>GPS lokatsiya berilmadi. Shaxsiy kabinetda manzil yozing.</div>";
+    },
     { enableHighAccuracy: true, timeout: 10000 }
   );
 }
 </script>
-
 {% endif %}
 
 {% endblock content %}
