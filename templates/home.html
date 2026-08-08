@@ -305,7 +305,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
 {% else %}
 <!-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-     MEATFLOW PRO вЂ” EMERALD IOT SMART LANDING PAGE (REFERENCE DESIGN)
+     MEATFLOW PRO вЂ” EMERALD DESIGN WITH 3-ANIMATED HERO BANNERS
+     AND TIMER-BASED PRODUCT ROTATING CAROUSEL ("TAYMER BILAN AYLANADIGAN QATOR")
      в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
@@ -316,6 +317,7 @@ document.addEventListener("DOMContentLoaded", function() {
   color: #1A1A2E;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /* в”Ђв”Ђ Navbar Header в”Ђв”Ђ */
@@ -415,23 +417,13 @@ document.addEventListener("DOMContentLoaded", function() {
   color: #FFF;
 }
 
-/* в”Ђв”Ђ Hero Section (Dark Emerald Matrix Theme) в”Ђв”Ђ */
+/* в”Ђв”Ђ Hero Section with 3-Animated Image Banners в”Ђв”Ђ */
 .mf-hero {
   background: linear-gradient(145deg, #051610 0%, #09261B 60%, #061A13 100%);
-  padding: 64px 28px 70px;
+  padding: 56px 28px 64px;
   position: relative;
   overflow: hidden;
   color: #FFFFFF;
-}
-.mf-hero::before {
-  content: '';
-  position: absolute;
-  top: -20%;
-  left: -10%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
-  filter: blur(60px);
 }
 .mf-hero-container {
   max-width: 1320px;
@@ -439,11 +431,11 @@ document.addEventListener("DOMContentLoaded", function() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 40px;
+  gap: 36px;
 }
 .mf-hero-left {
   flex: 1;
-  max-width: 650px;
+  max-width: 600px;
   z-index: 2;
 }
 
@@ -460,16 +452,16 @@ document.addEventListener("DOMContentLoaded", function() {
   font-weight: 800;
   letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .mf-hero-h1 {
-  font-size: clamp(34px, 4.5vw, 54px);
+  font-size: clamp(32px, 4.2vw, 50px);
   font-weight: 900;
-  line-height: 1.12;
+  line-height: 1.15;
   letter-spacing: -1px;
   color: #FFFFFF;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 .mf-hero-h1 span {
   color: #10B981;
@@ -477,25 +469,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
 .mf-hero-sub {
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.65;
   color: #9CA3AF;
-  margin-bottom: 32px;
-  max-width: 540px;
+  margin-bottom: 28px;
+  max-width: 520px;
 }
 
 .mf-hero-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 .mf-btn-primary {
   background: #10B981;
   color: #061A13;
   font-size: 14px;
   font-weight: 800;
-  padding: 13px 28px;
+  padding: 12px 26px;
   border-radius: 50px;
   text-decoration: none;
   display: inline-flex;
@@ -514,7 +506,7 @@ document.addEventListener("DOMContentLoaded", function() {
   color: #E5E7EB;
   font-size: 14px;
   font-weight: 700;
-  padding: 13px 26px;
+  padding: 12px 24px;
   border-radius: 50px;
   text-decoration: none;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -522,152 +514,234 @@ document.addEventListener("DOMContentLoaded", function() {
   align-items: center;
   gap: 8px;
   transition: all 0.25s;
+  cursor: pointer;
 }
 .mf-btn-secondary:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #FFF;
 }
 
-.mf-hero-stats {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-.mf-stat-item .stat-val {
-  font-size: 22px;
-  font-weight: 900;
-  color: #FFFFFF;
-  line-height: 1;
-}
-.mf-stat-item .stat-lbl {
-  font-size: 11px;
-  color: #6B7280;
-  margin-top: 4px;
-}
-.mf-stat-divider {
-  width: 1px;
-  height: 30px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Right side: Digital Matrix IoT Scale Readout Stream */
-.mf-hero-right {
+/* 3-Animated Image Hero Banner Slider */
+.mf-hero-slider-wrap {
   flex: 1;
-  max-width: 480px;
-  display: flex;
-  justify-content: center;
+  max-width: 540px;
+  position: relative;
   z-index: 2;
 }
-.mf-matrix-card {
-  width: 100%;
-  background: rgba(5, 22, 16, 0.85);
-  border: 1.5px solid rgba(16, 185, 129, 0.3);
-  border-radius: 24px;
-  padding: 24px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.08);
+.mf-hero-slider {
   position: relative;
+  width: 100%;
+  height: 380px;
+  border-radius: 28px;
   overflow: hidden;
+  border: 1.5px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
 }
-.mf-matrix-header {
+.mf-hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s ease;
+  transform: scale(1.04);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
 }
-.mf-matrix-title {
-  font-size: 11px;
-  font-weight: 800;
-  color: #10B981;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.mf-hero-slide.active {
+  opacity: 1;
+  transform: scale(1);
 }
-.mf-live-pulse {
-  width: 8px;
-  height: 8px;
+.mf-hero-slide img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.mf-slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 26, 19, 0.1) 0%, rgba(6, 26, 19, 0.85) 80%, rgba(6, 26, 19, 0.95) 100%);
+  z-index: 1;
+}
+.mf-slide-content {
+  position: relative;
+  z-index: 2;
+}
+.mf-slide-tag {
+  display: inline-block;
   background: #10B981;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #10B981;
-  animation: pulse 1.5s infinite;
+  color: #061A13;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  padding: 4px 12px;
+  border-radius: 30px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 }
-@keyframes pulse {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
+.mf-slide-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 4px;
 }
-
-.mf-matrix-stream {
-  font-family: 'Space Mono', monospace;
-  color: #10B981;
-  font-size: 16px;
-  line-height: 1.8;
-  text-align: right;
-  text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-  max-height: 240px;
-  overflow: hidden;
-  opacity: 0.9;
+.mf-slide-desc {
+  font-size: 12px;
+  color: #D1D5DB;
 }
 
-/* в”Ђв”Ђ Catalog Section (Clean Light) в”Ђв”Ђ */
-.mf-catalog-sec {
+/* Slider Controls / Indicators */
+.mf-slider-dots {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+.mf-dot {
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.mf-dot.active {
+  width: 40px;
+  background: #10B981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+}
+
+/* в”Ђв”Ђ Rotating Product Row ("Taymer bilan aylanadigan qator") в”Ђв”Ђ */
+.mf-carousel-sec {
+  background: #F4F7F4;
+  padding: 60px 0 80px;
+  position: relative;
+}
+.mf-carousel-container {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 60px 28px 80px;
+  padding: 0 28px;
 }
-.mf-sec-header {
+
+.mf-carousel-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 36px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
-.mf-sec-badge {
-  display: inline-block;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10B981;
-  font-size: 10px;
+.mf-car-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 4px 12px;
+  letter-spacing: 1px;
+  padding: 5px 14px;
   border-radius: 50px;
+  text-transform: uppercase;
   margin-bottom: 8px;
 }
-.mf-sec-title {
+.mf-car-title {
   font-size: 28px;
   font-weight: 900;
-  color: #1A1A2E;
+  color: #111827;
+  margin: 0;
 }
-.mf-sec-link {
+
+/* Timer progress bar */
+.mf-timer-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  border-radius: 2px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.mf-timer-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #10B981, #059669);
+  transition: width 0.1s linear;
+}
+
+/* Filter buttons & nav arrows */
+.mf-car-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.mf-filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mf-filter-btn {
   background: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 6px 16px;
   border-radius: 50px;
-  padding: 8px 20px;
-  color: #374151;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  text-decoration: none;
+  color: #4B5563;
+  cursor: pointer;
   transition: all 0.2s;
 }
-.mf-sec-link:hover {
+.mf-filter-btn:hover, .mf-filter-btn.active {
+  background: #10B981;
+  color: #061A13;
   border-color: #10B981;
-  color: #10B981;
 }
 
-/* Grid Cards */
-.mf-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+.mf-arrow-btns {
+  display: flex;
+  gap: 8px;
+}
+.mf-arrow-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s;
+}
+.mf-arrow-btn:hover {
+  background: #10B981;
+  color: #FFF;
+  border-color: #10B981;
+}
+
+/* Product Track (Scrollable / Auto-rotating) */
+.mf-product-track-wrapper {
+  overflow: hidden;
+  position: relative;
+  padding: 10px 4px 20px;
+}
+.mf-product-track {
+  display: flex;
   gap: 24px;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.mf-card {
+/* Product Card */
+.mf-pcard {
+  flex: 0 0 calc(25% - 18px);
+  min-width: 260px;
   background: #FFFFFF;
   border-radius: 20px;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -677,66 +751,67 @@ document.addEventListener("DOMContentLoaded", function() {
   flex-direction: column;
   transition: transform 0.25s, box-shadow 0.25s;
 }
-.mf-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+.mf-pcard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
 }
-.mf-card-img-wrap {
+.mf-pcard-img {
   position: relative;
-  height: 200px;
+  height: 190px;
   overflow: hidden;
 }
-.mf-card-img-wrap img {
+.mf-pcard-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.mf-card-badge {
+.mf-pcard-badge {
   position: absolute;
   top: 12px;
   left: 12px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 10px;
   font-weight: 800;
-  color: #1A1A2E;
+  color: #111827;
+  text-transform: uppercase;
 }
-.mf-card-body {
+.mf-pcard-body {
   padding: 18px;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-.mf-card-title {
+.mf-pcard-title {
   font-size: 16px;
   font-weight: 800;
-  color: #1A1A2E;
+  color: #111827;
   margin-bottom: 12px;
 }
-.mf-card-footer {
+.mf-pcard-foot {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.mf-card-price {
+.mf-pcard-price {
   font-size: 18px;
   font-weight: 900;
-  color: #10B981;
+  color: #059669;
 }
-.mf-card-price small {
+.mf-pcard-price small {
   font-size: 11px;
   color: #6B7280;
   font-weight: 500;
 }
-.mf-card-btn {
+.mf-pcard-add {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -745,47 +820,56 @@ document.addEventListener("DOMContentLoaded", function() {
   transition: all 0.2s;
   border: none;
 }
-.mf-card-btn:hover {
+.mf-pcard-add:hover {
   background: #10B981;
   color: #FFFFFF;
 }
 
-/* IoT Scale Live Special Card */
-.mf-card-iot {
+/* IoT Scale Special Card */
+.mf-pcard-iot {
   background: linear-gradient(145deg, #0A1C15 0%, #122B22 100%);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   color: #FFFFFF;
 }
-.mf-card-iot .mf-card-title {
+.mf-pcard-iot .mf-pcard-title {
   color: #FFFFFF;
 }
-.mf-iot-display {
-  background: rgba(5, 22, 16, 0.8);
+.mf-iot-screen {
+  background: rgba(5, 22, 16, 0.85);
   border: 1px solid rgba(16, 185, 129, 0.25);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 14px;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .mf-iot-val {
   font-family: 'Space Mono', monospace;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   color: #10B981;
-  text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
-.mf-iot-sub {
-  font-size: 11px;
+.mf-iot-lbl {
+  font-size: 10px;
   color: #9CA3AF;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 @media (max-width: 991px) {
   .mf-hero-container {
     flex-direction: column;
   }
-  .mf-hero-right {
+  .mf-hero-slider-wrap {
     width: 100%;
+    max-width: 100%;
+  }
+  .mf-pcard {
+    flex: 0 0 calc(50% - 12px);
+  }
+}
+@media (max-width: 576px) {
+  .mf-pcard {
+    flex: 0 0 100%;
   }
 }
 </style>
@@ -813,9 +897,11 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
   </header>
 
-  <!-- Hero Section -->
+  <!-- Hero Section with 3-Animated Hero Banners -->
   <section class="mf-hero">
     <div class="mf-hero-container">
+      
+      <!-- Left Hero Text -->
       <div class="mf-hero-left">
         <div class="mf-badge-halol">
           <i class="bi bi-shield-check"></i> 100% Halol &amp; IoT Laboratoriya Nazorati
@@ -838,190 +924,341 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
 
         <div id="home-calc-result"></div>
-
-        <div class="mf-hero-stats">
-          <div class="mf-stat-item">
-            <div class="stat-val">100%</div>
-            <div class="stat-lbl">Halol Sifat</div>
-          </div>
-          <div class="mf-stat-divider"></div>
-          <div class="mf-stat-item">
-            <div class="stat-val">0.1 gr</div>
-            <div class="stat-lbl">Tarozi Aniqligi</div>
-          </div>
-          <div class="mf-stat-divider"></div>
-          <div class="mf-stat-item">
-            <div class="stat-val">30-45 min</div>
-            <div class="stat-lbl">Tezkor Delivery</div>
-          </div>
-        </div>
       </div>
 
-      <!-- Right: Matrix Stream Card -->
-      <div class="mf-hero-right">
-        <div class="mf-matrix-card">
-          <div class="mf-matrix-header">
-            <div class="mf-matrix-title">
-              <span class="mf-live-pulse"></span> IoT LIVE SCALE SENSORS
+      <!-- Right Hero: 3-Animated Image Banner Slider -->
+      <div class="mf-hero-slider-wrap">
+        <div class="mf-hero-slider" id="heroBannerSlider">
+          
+          <!-- Slide 1: Premium Mol Go'shti -->
+          <div class="mf-hero-slide active">
+            <img src="{% static 'images/beef_card_bg.png' %}" alt="Mol Go'shti">
+            <div class="mf-slide-overlay"></div>
+            <div class="mf-slide-content">
+              <span class="mf-slide-tag">MOL GO'SHTI</span>
+              <div class="mf-slide-title">Sarxil Mermer Mol Go'shti</div>
+              <div class="mf-slide-desc">Fermadan to'g'ridan-to'g'ri, 100% Halol va muzlatilmagan.</div>
             </div>
-            <span style="font-family:'Space Mono'; font-size:10px; color:#6B7280;">WIFI-ONLINE</span>
           </div>
 
-          <div class="mf-matrix-stream" id="matrixStream">
-            12.002 gr<br>
-            12.005 gr<br>
-            13.000 gr<br>
-            13.009 gr<br>
-            13.007 gr<br>
-            13.084 gr<br>
-            12.083 gr<br>
-            13.003 gr<br>
-            12.094 gr<br>
-            12.090 gr<br>
-            12.061 gr<br>
-            10.057 gr
+          <!-- Slide 2: Qo'y Go'shti -->
+          <div class="mf-hero-slide">
+            <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Go'shti">
+            <div class="mf-slide-overlay"></div>
+            <div class="mf-slide-content">
+              <span class="mf-slide-tag" style="background:#F59E0B; color:#000;">QO'Y GO'SHTI</span>
+              <div class="mf-slide-title">Baxmal Tog' Qo'ylari Go'shti</div>
+              <div class="mf-slide-desc">Lazzatli qovurg'a va yumshoq saralangan lahm kesimlar.</div>
+            </div>
           </div>
+
+          <!-- Slide 3: IoT Scale & Fresh Slaughter -->
+          <div class="mf-hero-slide">
+            <img src="{% static 'images/rasm.jpg' %}" alt="Yangi So'yim">
+            <div class="mf-slide-overlay"></div>
+            <div class="mf-slide-content">
+              <span class="mf-slide-tag" style="background:#3B82F6; color:#FFF;">IOT SMART SCALE</span>
+              <div class="mf-slide-title">0.1 gramm Aniq IoT Tarozi</div>
+              <div class="mf-slide-desc">Raqamli shaffof o'lchov va elektron chek tizimi.</div>
+            </div>
+          </div>
+
+          <!-- Slider Indicators (Dots) -->
+          <div class="mf-slider-dots">
+            <div class="mf-dot active" onclick="setHeroSlide(0)"></div>
+            <div class="mf-dot" onclick="setHeroSlide(1)"></div>
+            <div class="mf-dot" onclick="setHeroSlide(2)"></div>
+          </div>
+
         </div>
       </div>
+
     </div>
   </section>
 
-  <!-- Products Section -->
-  <section class="mf-catalog-sec">
-    <div class="mf-sec-header">
-      <div>
-        <span class="mf-sec-badge">YANGI MAHSULOTLAR</span>
-        <h2 class="mf-sec-title">Yangi Kelgan Go'sht Kesimlari</h2>
-      </div>
-      <a href="{% url 'article_list' %}" class="mf-sec-link">
-        Barcha Mahsulotlar Katalogi &gt;
-      </a>
-    </div>
-
-    <div class="mf-grid">
-      <!-- Card 1 -->
-      <div class="mf-card">
-        <div class="mf-card-img-wrap">
-          <img src="{% static 'images/rasm.jpg' %}" alt="Qorinli yog'li">
-          <span class="mf-card-badge">MOL</span>
+  <!-- в”Ђв”Ђ Rotating Product Row ("Taymer bilan aylanadigan qator") в”Ђв”Ђ -->
+  <section class="mf-carousel-sec">
+    <div class="mf-carousel-container">
+      
+      <!-- Section Header -->
+      <div class="mf-carousel-header">
+        <div>
+          <div class="mf-car-badge">
+            <i class="bi bi-clock-history"></i> YANGI SO'YIMLAR &amp; SARXIL GO'SHTLAR
+          </div>
+          <h2 class="mf-car-title">Aylanma Mahsulotlar Qatori</h2>
         </div>
-        <div class="mf-card-body">
-          <div class="mf-card-title">Qorinli yog'li</div>
-          <div class="mf-card-footer">
-            <div class="mf-card-price">60000 <small>so'm / kg</small></div>
-            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
+
+        <div class="mf-car-nav">
+          <div class="mf-filter-pills">
+            <button class="mf-filter-btn active" onclick="filterCategory('all')">Barchasi</button>
+            <button class="mf-filter-btn" onclick="filterCategory('mol')">Mol Go'shti</button>
+            <button class="mf-filter-btn" onclick="filterCategory('qoy')">Qo'y Go'shti</button>
+            <button class="mf-filter-btn" onclick="filterCategory('qolganlar')">Qolganlar</button>
+          </div>
+
+          <div class="mf-arrow-btns">
+            <button class="mf-arrow-btn" onclick="prevSlide()"><i class="bi bi-chevron-left"></i></button>
+            <button class="mf-arrow-btn" onclick="nextSlide()"><i class="bi bi-chevron-right"></i></button>
           </div>
         </div>
       </div>
 
-      <!-- Card 2 -->
-      <div class="mf-card">
-        <div class="mf-card-img-wrap">
-          <img src="{% static 'images/WIN_20260612_07_40_18_Pro.jpg' %}" alt="Dumg'aza">
-          <span class="mf-card-badge">MOL</span>
-        </div>
-        <div class="mf-card-body">
-          <div class="mf-card-title">Dumg'aza</div>
-          <div class="mf-card-footer">
-            <div class="mf-card-price">70000 <small>so'm / kg</small></div>
-            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
-          </div>
-        </div>
+      <!-- Timer Progress Bar -->
+      <div class="mf-timer-bar-wrap">
+        <div class="mf-timer-bar" id="productTimerBar"></div>
       </div>
 
-      <!-- Card 3 -->
-      <div class="mf-card">
-        <div class="mf-card-img-wrap">
-          <img src="{% static 'images/photo_2026-07-16_12-08-59.jpg' %}" alt="Yurak">
-          <span class="mf-card-badge">MOL</span>
-        </div>
-        <div class="mf-card-body">
-          <div class="mf-card-title">Yurak</div>
-          <div class="mf-card-footer">
-            <div class="mf-card-price">50000 <small>so'm / kg</small></div>
-            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
-          </div>
-        </div>
-      </div>
+      <!-- Product Track (Auto-rotating Carousel) -->
+      <div class="mf-product-track-wrapper">
+        <div class="mf-product-track" id="productTrack">
 
-      <!-- Card 4: IoT Smart Scale Live Card -->
-      <div class="mf-card mf-card-iot">
-        <div class="mf-card-body" style="padding: 24px;">
-          <div>
-            <span class="mf-sec-badge" style="background:rgba(16,185,129,0.2); color:#10B981; margin-bottom:12px;">IOT SMART SCALE</span>
-            <div class="mf-card-title">IoT Smart Tarozi Tizimi</div>
+          {% for article in article_list %}
+          <div class="mf-pcard" data-cat="{% if 'Qo' in article.animal_type or 'qo' in article.animal_type %}qoy{% else %}mol{% endif %}">
+            <div class="mf-pcard-img">
+              {% if article.photo %}
+                <img src="{{ article.photo.url }}" alt="{{ article.name }}">
+              {% else %}
+                <img src="{% static 'images/beef_card_bg.png' %}" alt="{{ article.name }}">
+              {% endif %}
+              <span class="mf-pcard-badge">{{ article.animal_type }}</span>
+            </div>
+            <div class="mf-pcard-body">
+              <div class="mf-pcard-title">{{ article.name }}</div>
+              <div class="mf-pcard-foot">
+                <div class="mf-pcard-price">{{ article.price|floatformat:0 }} <small>so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
           </div>
+          {% empty %}
+
+          <!-- Default Demo Carousel Items (Mol, Qo'y, Submahsulotlar & IoT Scale) -->
           
-          <div class="mf-iot-display">
-            <div class="mf-iot-val" id="liveWeightVal">501 gr</div>
-            <div class="mf-iot-sub">0.1 gr aniqlik</div>
+          <!-- Item 1: Mol Steak -->
+          <div class="mf-pcard" data-cat="mol">
+            <div class="mf-pcard-img">
+              <img src="{% static 'images/beef_card_bg.png' %}" alt="Mermer Mol Steak">
+              <span class="mf-pcard-badge">MOL</span>
+            </div>
+            <div class="mf-pcard-body">
+              <div class="mf-pcard-title">Mermer Mol Steak</div>
+              <div class="mf-pcard-foot">
+                <div class="mf-pcard-price">70 000 <small>so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
           </div>
 
-          <div class="mf-card-footer">
-            <div class="mf-card-price" style="color:#FFF;">65000 <small style="color:#9CA3AF;">so'm / kg</small></div>
-            <a href="/pos/my-cabinet/" class="mf-card-btn" style="background:#10B981; color:#061A13;"><i class="bi bi-cart-plus-fill"></i></a>
+          <!-- Item 2: Qo'y Qovurg'asi -->
+          <div class="mf-pcard" data-cat="qoy">
+            <div class="mf-pcard-img">
+              <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Qovurg'asi">
+              <span class="mf-pcard-badge" style="background:#F59E0B; color:#FFF;">QO'Y</span>
+            </div>
+            <div class="mf-pcard-body">
+              <div class="mf-pcard-title">Qo'y Qovurg'asi</div>
+              <div class="mf-pcard-foot">
+                <div class="mf-pcard-price">80 000 <small>so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
           </div>
+
+          <!-- Item 3: Qorinli yog'li -->
+          <div class="mf-pcard" data-cat="mol">
+            <div class="mf-pcard-img">
+              <img src="{% static 'images/rasm.jpg' %}" alt="Qorinli yog'li">
+              <span class="mf-pcard-badge">MOL</span>
+            </div>
+            <div class="mf-pcard-body">
+              <div class="mf-pcard-title">Qorinli yog'li</div>
+              <div class="mf-pcard-foot">
+                <div class="mf-pcard-price">60 000 <small>so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 4: Dumg'aza -->
+          <div class="mf-pcard" data-cat="mol">
+            <div class="mf-pcard-img">
+              <img src="{% static 'images/WIN_20260612_07_40_18_Pro.jpg' %}" alt="Dumg'aza">
+              <span class="mf-pcard-badge">MOL</span>
+            </div>
+            <div class="mf-pcard-body">
+              <div class="mf-pcard-title">Dumg'aza</div>
+              <div class="mf-pcard-foot">
+                <div class="mf-pcard-price">70 000 <small>so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 5: IoT Smart Scale Live Card -->
+          <div class="mf-pcard mf-pcard-iot" data-cat="qolganlar">
+            <div class="mf-pcard-body">
+              <div>
+                <span style="font-size:10px; font-weight:800; color:#10B981; letter-spacing:1px;">IOT SMART SCALE</span>
+                <div class="mf-pcard-title" style="margin-top:4px;">Smart Tarozi Tizimi</div>
+              </div>
+              <div class="mf-iot-screen">
+                <div class="mf-iot-val" id="rotIotVal">501 gr</div>
+                <div class="mf-iot-lbl">0.1 gr aniqlik</div>
+              </div>
+              <div class="mf-pcard-foot">
+                <div class="mf-pcard-price" style="color:#FFF;">65 000 <small style="color:#9CA3AF;">so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="mf-pcard-add" style="background:#10B981; color:#061A13;"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 6: Yurak -->
+          <div class="mf-pcard" data-cat="qolganlar">
+            <div class="mf-pcard-img">
+              <img src="{% static 'images/photo_2026-07-16_12-08-59.jpg' %}" alt="Yurak">
+              <span class="mf-pcard-badge" style="background:#6B7280; color:#FFF;">QOLGANLAR</span>
+            </div>
+            <div class="mf-pcard-body">
+              <div class="mf-pcard-title">Yurak</div>
+              <div class="mf-pcard-foot">
+                <div class="mf-pcard-price">50 000 <small>so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 7: Qo'y Lahm -->
+          <div class="mf-pcard" data-cat="qoy">
+            <div class="mf-pcard-img">
+              <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Lahm">
+              <span class="mf-pcard-badge" style="background:#F59E0B; color:#FFF;">QO'Y</span>
+            </div>
+            <div class="mf-pcard-body">
+              <div class="mf-pcard-title">Qo'y Lahm</div>
+              <div class="mf-pcard-foot">
+                <div class="mf-pcard-price">85 000 <small>so'm / kg</small></div>
+                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
+              </div>
+            </div>
+          </div>
+
+          {% endfor %}
+
         </div>
       </div>
 
-      <!-- Card 5 -->
-      <div class="mf-card">
-        <div class="mf-card-img-wrap">
-          <img src="{% static 'images/WIN_20260612_09_02_49_Pro.jpg' %}" alt="Mol Qo'shma">
-          <span class="mf-card-badge">MOL</span>
-        </div>
-        <div class="mf-card-body">
-          <div class="mf-card-title">Mol Qo'shma</div>
-          <div class="mf-card-footer">
-            <div class="mf-card-price">60000 <small>so'm / kg</small></div>
-            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 6 -->
-      <div class="mf-card">
-        <div class="mf-card-img-wrap">
-          <img src="{% static 'images/photo_2026-07-16_12-08-59.jpg' %}" alt="Qo'y Qovurg'asi">
-          <span class="mf-card-badge">QO'Y</span>
-        </div>
-        <div class="mf-card-body">
-          <div class="mf-card-title">Qo'y Qovurg'asi</div>
-          <div class="mf-card-footer">
-            <div class="mf-card-price">75000 <small>so'm / kg</small></div>
-            <a href="/pos/my-cabinet/" class="mf-card-btn"><i class="bi bi-cart-plus-fill"></i></a>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
 </div>
 
 <script>
-// Simulate live Matrix IoT Weight stream
-document.addEventListener("DOMContentLoaded", function() {
-  const stream = document.getElementById("matrixStream");
-  const weightDisplay = document.getElementById("liveWeightVal");
-  
-  if (stream) {
-    setInterval(() => {
-      const randomVal = (Math.random() * (13.5 - 11.5) + 11.5).toFixed(3);
-      const newElem = document.createElement("div");
-      newElem.textContent = randomVal + " gr";
-      stream.appendChild(newElem);
-      if (stream.childNodes.length > 14) {
-        stream.removeChild(stream.firstChild);
-      }
-    }, 1200);
-  }
+// 1. Hero 3-Animated Image Banner Slider (Timer every 4s)
+let heroCurrent = 0;
+const slides = document.querySelectorAll('.mf-hero-slide');
+const dots = document.querySelectorAll('.mf-dot');
 
-  if (weightDisplay) {
+function setHeroSlide(index) {
+  if (!slides.length) return;
+  slides.forEach(s => s.classList.remove('active'));
+  dots.forEach(d => d.classList.remove('active'));
+  
+  heroCurrent = (index + slides.length) % slides.length;
+  slides[heroCurrent].classList.add('active');
+  dots[heroCurrent].classList.add('active');
+}
+
+setInterval(() => {
+  setHeroSlide(heroCurrent + 1);
+}, 4000);
+
+// 2. Rotating Product Track Carousel ("Taymer bilan aylanadigan qator")
+let trackIndex = 0;
+const track = document.getElementById('productTrack');
+const timerBar = document.getElementById('productTimerBar');
+let autoTimer;
+let progressVal = 0;
+let progressInterval;
+
+function getVisibleCards() {
+  const cards = track ? Array.from(track.querySelectorAll('.mf-pcard')).filter(c => c.style.display !== 'none') : [];
+  return cards;
+}
+
+function updateTrackPosition() {
+  const cards = getVisibleCards();
+  if (!cards.length) return;
+  
+  const cardWidth = cards[0].offsetWidth + 24; // card width + gap
+  const maxIndex = Math.max(0, cards.length - Math.floor(track.parentElement.offsetWidth / cardWidth));
+  
+  if (trackIndex > maxIndex) trackIndex = 0;
+  if (trackIndex < 0) trackIndex = maxIndex;
+
+  track.style.transform = `translateX(-${trackIndex * cardWidth}px)`;
+}
+
+function nextSlide() {
+  trackIndex++;
+  updateTrackPosition();
+  resetProgressTimer();
+}
+
+function prevSlide() {
+  trackIndex--;
+  updateTrackPosition();
+  resetProgressTimer();
+}
+
+function resetProgressTimer() {
+  clearInterval(progressInterval);
+  progressVal = 0;
+  if (timerBar) timerBar.style.width = '0%';
+
+  progressInterval = setInterval(() => {
+    progressVal += 2;
+    if (timerBar) timerBar.style.width = progressVal + '%';
+    if (progressVal >= 100) {
+      progressVal = 0;
+      nextSlide();
+    }
+  }, 70); // 3.5 seconds total
+}
+
+// Category Filtering
+function filterCategory(cat) {
+  const filterBtns = document.querySelectorAll('.mf-filter-btn');
+  filterBtns.forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const cards = track.querySelectorAll('.mf-pcard');
+  cards.forEach(c => {
+    if (cat === 'all' || c.getAttribute('data-cat') === cat) {
+      c.style.display = 'flex';
+    } else {
+      c.style.display = 'none';
+    }
+  });
+
+  trackIndex = 0;
+  updateTrackPosition();
+  resetProgressTimer();
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  resetProgressTimer();
+
+  // IoT Live Weight animation
+  const rotIot = document.getElementById('rotIotVal');
+  if (rotIot) {
     setInterval(() => {
       const g = Math.floor(Math.random() * (515 - 495) + 495);
-      weightDisplay.textContent = g + " gr";
-    }, 2000);
+      rotIot.textContent = g + " gr";
+    }, 2200);
   }
+
+  window.addEventListener('resize', updateTrackPosition);
 });
 
 function calculateHomeDelivery() {
