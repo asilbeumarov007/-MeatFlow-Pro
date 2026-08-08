@@ -3,9 +3,9 @@
 
 {% block title %}
   {% if user.is_authenticated and user.is_superuser %}
-    РЃРЇРЈРљ MeatFlow Pro С‚РђР¤ Analitika & Boshqaruv
+    Р РѓР Р‡Р Р€Р С™ MeatFlow Pro РЎвЂљР С’Р В¤ Analitika & Boshqaruv
   {% else %}
-    РЃРЇРµР№ {{ store.name|default:"MeatFlow Pro | Baxmal Meat Boutique" }}
+    Р РѓР Р‡Р ВµР в„– {{ store.name|default:"MeatFlow Pro | Baxmal Meat Boutique" }}
   {% endif %}
 {% endblock title %}
 
@@ -14,9 +14,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 {% if user.is_authenticated and user.is_superuser %}
-<!-- С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР 
+<!-- РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В 
      MEATFLOW PRO: MANAGER DASHBOARD
-     С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР С‚РҐР  -->
+     РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В РЎвЂљР ТђР В  -->
 <style>
   body {
     background-color: #F7F5F0 !important;
@@ -95,10 +95,10 @@
 <div style="background: linear-gradient(90deg, #0F382C, #1B6B4A); color: #FFF; padding: 10px 24px; font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
   <div style="display: flex; align-items: center; gap: 8px;">
     <span class="badge bg-warning text-dark font-monospace" style="font-size: 10px;">ADMIN PANEL</span>
-    <span>РЃРЇРўР± Bosh sahifa reklama va sarlavhalarini admin panel orqali 1-clickda o'zgartirishingiz mumkin.</span>
+    <span>Р РѓР Р‡Р СћР В± Bosh sahifa reklama va sarlavhalarini admin panel orqali 1-clickda o'zgartirishingiz mumkin.</span>
   </div>
   <a href="/admin/pos/storesetting/" class="btn btn-sm btn-light py-0 px-2 fw-bold text-success" style="font-size: 11px; border-radius: 6px;">
-    С‚Р¬РџСЏв••Рџ Bosh Sahifani Tahrirlash
+    РЎвЂљР В¬Р СџРЎРЏРІвЂўвЂўР Сџ Bosh Sahifani Tahrirlash
   </a>
 </div>
 
@@ -227,7 +227,7 @@
       <div style="background: #FFFFFF; border-radius: 20px; padding: 24px; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
           <h5 class="m-0" style="font-family: 'DM Serif Display', serif; font-size: 18px; color: #1A1A2E;">
-            РЃРЇРЈРљ Haftalik Nasiya & Qarz Risk dinamikasi
+            Р РѓР Р‡Р Р€Р С™ Haftalik Nasiya & Qarz Risk dinamikasi
           </h5>
           <span class="badge bg-light text-dark font-monospace" style="font-size: 11px;">Mon - Sun</span>
         </div>
@@ -299,396 +299,519 @@ document.addEventListener("DOMContentLoaded", function() {
         else if (hour >= 12 && hour < 18) grElem.textContent = "Xayrli kun";
         else grElem.textContent = "Xayrli kech";
     }
+    }
 });
 </script>
 
 {% else %}
-<!-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-     BAXMAL MEAT вЂ” PREMIUM LUXURY LANDING PAGE
-     Dark marble + gold headings + floating glass card
-     в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ -->
 <style>
-  body { background: #0D0D0D !important; }
+/* === GLOBAL === */
+body { background: #0C0C0C !important; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-  /* Announcement bar */
-  .lp-anno {
-    background: linear-gradient(90deg, #0A1A0E, #112210, #0A1A0E);
-    border-bottom: 1px solid rgba(212,168,83,0.25);
-    color: #E5E7EB; padding: 9px 20px;
-    font-size: 12.5px; font-weight: 600;
-    text-align: center; letter-spacing: 0.2px;
-  }
+/* === TOPBAR === */
+.bm-topbar {
+  background: #111;
+  border-bottom: 1px solid rgba(212,168,83,0.2);
+  color: #9CA3AF; font-size: 12px; font-weight: 600;
+  padding: 8px 20px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+}
+.bm-topbar .gold { color: #D4A853; }
 
-  /* HERO */
-  .lp-hero {
-    position: relative; min-height: 92vh;
-    display: flex; align-items: center; overflow: hidden;
-    background: #0D0D0D;
-  }
-  .lp-hero-bg {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(100deg, rgba(13,13,13,0.97) 45%, rgba(13,13,13,0.55) 100%),
-      url("{% static 'images/beef_card_bg.png' %}");
-    background-size: cover; background-position: center;
-    background-attachment: fixed;
-  }
-  .lp-hero-bg::before {
-    content:''; position:absolute; top:-120px; left:-120px;
-    width:500px; height:500px;
-    background: radial-gradient(circle, rgba(212,168,83,0.12) 0%, transparent 70%);
-  }
-  .lp-hero-bg::after {
-    content:''; position:absolute; bottom:-100px; right:200px;
-    width:400px; height:400px;
-    background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
-  }
-  .lp-hero-content { position: relative; z-index: 2; }
+/* === HERO === */
+.bm-hero {
+  position: relative; min-height: 100vh;
+  display: flex; align-items: center; overflow: hidden;
+}
+.bm-hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(105deg, rgba(12,12,12,0.96) 42%, rgba(12,12,12,0.6) 100%),
+    url("{% static 'images/beef_card_bg.png' %}");
+  background-size: cover; background-position: center;
+}
+.bm-hero-bg::before {
+  content: ''; position: absolute; top: 8%; left: 4%;
+  width: 440px; height: 440px;
+  background: radial-gradient(circle, rgba(212,168,83,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+.bm-hero-bg::after {
+  content: ''; position: absolute; bottom: 8%; right: 8%;
+  width: 340px; height: 340px;
+  background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+.bm-hero-inner { position: relative; z-index: 2; width: 100%; padding: 80px 0 60px; }
 
-  .lp-badge-pill {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 6px 16px; border-radius: 50px;
-    border: 1px solid rgba(212,168,83,0.4);
-    background: rgba(212,168,83,0.08);
-    color: #D4A853; font-size: 11px; font-weight: 800;
-    letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 22px;
-  }
-  .lp-h1 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(36px, 5.5vw, 62px); font-weight: 900;
-    line-height: 1.1; letter-spacing: -1.5px; color: #FFFFFF; margin-bottom: 10px;
-  }
-  .lp-h1 .gold { color: #D4A853; }
-  .lp-sub {
-    font-size: 16px; line-height: 1.75; color: #9CA3AF;
-    max-width: 540px; margin-bottom: 34px;
-  }
-  .lp-btn-primary {
-    background: linear-gradient(135deg, #C9A84C, #D4A853);
-    color: #0D0D0D; border: none; padding: 14px 30px; border-radius: 50px;
-    font-weight: 800; font-size: 14.5px;
-    box-shadow: 0 8px 28px rgba(212,168,83,0.35);
-    transition: all 0.3s; text-decoration: none;
-    display: inline-flex; align-items: center; gap: 8px;
-  }
-  .lp-btn-primary:hover { transform:translateY(-2px); box-shadow:0 14px 38px rgba(212,168,83,0.45); color:#0D0D0D; }
-  .lp-btn-outline {
-    background: rgba(255,255,255,0.05); color: #E5E7EB;
-    border: 1px solid rgba(255,255,255,0.18); padding: 14px 28px; border-radius: 50px;
-    font-weight: 700; font-size: 14.5px; transition: all 0.3s; text-decoration: none;
-    display: inline-flex; align-items: center; gap: 8px;
-  }
-  .lp-btn-outline:hover { border-color:rgba(212,168,83,0.5); color:#D4A853; background:rgba(212,168,83,0.06); }
+/* Heading styles */
+.bm-hero-eyebrow { font-size: 15px; font-weight: 600; color: #9CA3AF; margin-bottom: 10px; }
+.bm-hero-h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; line-height: 1.0; letter-spacing: -2px; margin-bottom: 16px; }
+.bm-hero-h1 .line-gold { display: block; font-size: clamp(52px, 9vw, 90px); color: #D4A853; text-shadow: 0 0 60px rgba(212,168,83,0.2); }
+.bm-hero-h1 .line-white { display: block; font-size: clamp(28px, 4.5vw, 50px); color: #FFFFFF; }
+.bm-hero-sub { font-size: 15px; color: #6B7280; line-height: 1.7; max-width: 500px; margin-bottom: 30px; }
 
-  .lp-trust-bar { display:flex; align-items:center; gap:28px; margin-top:42px; padding-top:28px; border-top:1px solid rgba(255,255,255,0.08); flex-wrap:wrap; }
-  .lp-trust-item .val { font-size:24px; font-weight:900; line-height:1; }
-  .lp-trust-item .lbl { font-size:11px; color:#6B7280; margin-top:3px; }
-  .lp-divider-v { width:1px; height:34px; background:rgba(255,255,255,0.1); }
+/* Halol badge */
+.bm-halol-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1.5px solid #D4A853; border-radius: 50px; padding: 5px 15px;
+  color: #D4A853; font-size: 12px; font-weight: 800; margin-bottom: 22px; letter-spacing: 0.5px;
+}
 
-  /* Glass Card */
-  .lp-glass-card {
-    background: rgba(255,255,255,0.06); backdrop-filter:blur(24px);
-    -webkit-backdrop-filter:blur(24px);
-    border: 1px solid rgba(255,255,255,0.12); border-radius: 28px; overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,168,83,0.1);
-    animation: floatCard 7s ease-in-out infinite alternate; max-width:420px; margin:0 auto;
-  }
-  @keyframes floatCard {
-    0% { transform:translateY(0) rotate(0deg); }
-    100% { transform:translateY(-18px) rotate(0.8deg); }
-  }
-  .lp-glass-card img { width:100%; height:280px; object-fit:cover; display:block; }
-  .lp-glass-card-body { padding:20px 24px; }
-  .lp-glass-card-body .tag { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:#D4A853; margin-bottom:6px; }
-  .lp-glass-card-body .title { font-size:20px; font-weight:800; color:#FFFFFF; margin-bottom:12px; }
-  .lp-glass-card-body .meta { display:flex; justify-content:space-between; align-items:center; }
-  .lp-glass-card-body .price { font-size:26px; font-weight:900; color:#D4A853; }
-  .lp-glass-card-body .price small { font-size:12px; color:#6B7280; font-weight:500; }
+/* CTA Buttons */
+.bm-cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+.bm-btn-white {
+  background: #FFFFFF; color: #0C0C0C; font-weight: 800; font-size: 14px;
+  padding: 13px 28px; border-radius: 50px; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px; border: none; transition: all 0.25s;
+}
+.bm-btn-white:hover { background: #F3F4F6; color: #0C0C0C; }
+.bm-btn-dark {
+  background: #1A1A1A; color: #FFFFFF; font-weight: 700; font-size: 14px;
+  padding: 13px 28px; border-radius: 50px; text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s;
+}
+.bm-btn-dark:hover { border-color: #D4A853; color: #D4A853; }
 
-  .lp-float-badge {
-    position:absolute; background:rgba(10,17,13,0.92); backdrop-filter:blur(14px);
-    border:1.5px solid rgba(16,185,129,0.5); border-radius:16px; padding:10px 16px;
-    display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:3;
-  }
-  .lp-float-badge.bottom-right { bottom:-16px; right:-16px; }
-  .lp-float-badge.top-left { top:-16px; left:-16px; }
-  .lp-float-badge img { width:40px; height:40px; border-radius:10px; object-fit:cover; border:1px solid rgba(212,168,83,0.4); }
-  .lp-float-badge .badge-label { font-size:10px; font-weight:800; color:#10B981; text-transform:uppercase; letter-spacing:1px; }
-  .lp-float-badge .badge-val { font-size:14px; font-weight:800; color:#FFF; }
+/* Trust row */
+.bm-trust-row {
+  display: flex; align-items: center; gap: 20px;
+  padding: 13px 20px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+  width: fit-content; flex-wrap: wrap;
+}
+.bm-trust-item { display: flex; align-items: center; gap: 8px; }
+.bm-trust-item i { color: #D4A853; font-size: 18px; }
+.bm-trust-item span { font-size: 13px; color: #E5E7EB; font-weight: 600; }
 
-  /* Promo */
-  .lp-promo { background:linear-gradient(135deg,#C9A84C,#E8C96A,#C9A84C); padding:14px 24px; text-align:center; font-weight:800; font-size:14px; color:#0D0D0D; box-shadow:0 4px 24px rgba(212,168,83,0.3); }
+/* Floating glass card */
+.bm-float-wrap { position: relative; display: flex; justify-content: center; align-items: center; padding: 32px; }
+.bm-float-card {
+  background: rgba(255,255,255,0.06); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255,255,255,0.14); border-radius: 28px; overflow: visible;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(212,168,83,0.12);
+  animation: bmFloat 8s ease-in-out infinite alternate; width: 360px;
+}
+@keyframes bmFloat {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-20px) rotate(1deg); }
+}
+.bm-float-img { width: 100%; height: 262px; object-fit: cover; border-radius: 24px 24px 0 0; display: block; }
+.bm-float-body { padding: 20px 22px; }
+.bm-float-label { font-size: 10px; font-weight: 800; color: #D4A853; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.bm-float-name  { font-size: 18px; font-weight: 800; color: #FFFFFF; margin-bottom: 14px; }
+.bm-float-foot  { display: flex; justify-content: space-between; align-items: center; }
+.bm-float-price { font-size: 24px; font-weight: 900; color: #D4A853; }
+.bm-float-price small { font-size: 11px; color: #6B7280; font-weight: 500; }
+.bm-circle-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #C9A84C, #D4A853);
+  display: flex; align-items: center; justify-content: center;
+  color: #0C0C0C; font-size: 19px; text-decoration: none;
+  box-shadow: 0 4px 14px rgba(212,168,83,0.4); transition: all 0.22s; border: none; cursor: pointer;
+}
+.bm-circle-btn:hover { transform: scale(1.12); color: #0C0C0C; }
 
-  /* Product Section */
-  .lp-section-dark { background:#0F0F0F; padding:80px 0; }
-  .lp-section-slate { background:#111612; padding:80px 0; }
-  .lp-section-label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:2.5px; color:#D4A853; margin-bottom:10px; display:block; }
-  .lp-section-h2 { font-family:'Plus Jakarta Sans',sans-serif; font-size:clamp(28px,4vw,40px); font-weight:900; color:#FFFFFF; letter-spacing:-0.8px; margin-bottom:0; }
+/* Floating mini badges */
+.bm-mbadge {
+  position: absolute; background: rgba(12,12,12,0.93); backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(16,185,129,0.5); border-radius: 16px; padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.6); z-index: 5;
+}
+.bm-mbadge img { width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(212,168,83,0.35); }
+.bm-mbadge .mb-l { font-size: 9px; font-weight: 800; color: #10B981; text-transform: uppercase; letter-spacing: 1px; }
+.bm-mbadge .mb-v { font-size: 13px; font-weight: 800; color: #FFF; margin-top: 1px; }
+.bm-mbadge.tl { top: 2px; left: 2px; }
+.bm-mbadge.br { bottom: 2px; right: 2px; }
 
-  .lp-prod-card { background:#1A1A1A; border:1px solid rgba(255,255,255,0.07); border-radius:20px; overflow:hidden; transition:all 0.35s cubic-bezier(0.165,0.84,0.44,1); height:100%; display:flex; flex-direction:column; }
-  .lp-prod-card:hover { border-color:rgba(212,168,83,0.4); transform:translateY(-6px); box-shadow:0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,168,83,0.2); }
-  .lp-prod-img-wrap { position:relative; overflow:hidden; height:210px; }
-  .lp-prod-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform 0.6s ease; }
-  .lp-prod-card:hover .lp-prod-img-wrap img { transform:scale(1.08); }
-  .lp-prod-type-badge { position:absolute; top:14px; left:14px; background:rgba(13,13,13,0.85); backdrop-filter:blur(8px); border:1px solid rgba(212,168,83,0.35); color:#D4A853; font-size:10px; font-weight:800; padding:5px 12px; border-radius:30px; text-transform:uppercase; letter-spacing:0.8px; }
-  .lp-prod-card-body { padding:20px; flex:1; display:flex; flex-direction:column; }
-  .lp-prod-cut { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; color:#10B981; margin-bottom:6px; }
-  .lp-prod-name { font-size:17px; font-weight:800; color:#FFFFFF; margin-bottom:14px; flex:1; }
-  .lp-prod-footer { display:flex; justify-content:space-between; align-items:center; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06); }
-  .lp-prod-price { font-size:22px; font-weight:900; color:#D4A853; }
-  .lp-prod-price small { font-size:11px; color:#6B7280; font-weight:500; }
-  .lp-add-btn { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#C9A84C,#D4A853); border:none; display:flex; align-items:center; justify-content:center; color:#0D0D0D; font-size:18px; cursor:pointer; transition:all 0.25s; box-shadow:0 4px 14px rgba(212,168,83,0.35); text-decoration:none; }
-  .lp-add-btn:hover { transform:scale(1.1); box-shadow:0 8px 22px rgba(212,168,83,0.5); color:#0D0D0D; }
+/* Sparkle */
+.bm-spark { position: absolute; color: #D4A853; opacity: 0.5; animation: sparkPulse 5s ease-in-out infinite; pointer-events: none; }
+@keyframes sparkPulse { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:0.9;transform:scale(1.3)} }
 
-  .lp-feat-card { background:#1A1A1A; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:28px; height:100%; transition:all 0.3s; }
-  .lp-feat-card:hover { border-color:rgba(212,168,83,0.3); background:#1E1E1E; transform:translateY(-4px); }
-  .lp-feat-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:18px; }
-  .lp-feat-title { font-size:16px; font-weight:800; color:#FFFFFF; margin-bottom:10px; }
-  .lp-feat-desc { font-size:13px; color:#6B7280; line-height:1.65; margin:0; }
+/* === PROMO STRIPE === */
+.bm-promo { background: linear-gradient(90deg, #C9A84C, #E4C35A, #C9A84C); padding: 13px 20px; text-align: center; font-weight: 800; font-size: 13.5px; color: #0C0C0C; }
 
-  #home-calc-result .calc-box { background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:16px; padding:14px 18px; margin-top:14px; color:#E5E7EB; font-size:13px; }
+/* === PRODUCT SECTION === */
+.bm-sec-dark  { background: #0F0F0F; padding: 70px 0; }
+.bm-sec-slate { background: #111612; padding: 70px 0; }
+.bm-sec-ey { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2.5px; color: #D4A853; display: block; margin-bottom: 8px; }
+.bm-sec-h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(26px,4vw,38px); font-weight: 900; color: #FFFFFF; letter-spacing: -0.8px; margin: 0; }
 
-  @media (max-width:768px) {
-    .lp-hero { min-height:auto; padding:60px 0 50px; }
-    .lp-glass-card { max-width:340px; margin-top:40px; }
-    .lp-float-badge.bottom-right { right:0; bottom:-12px; }
-    .lp-float-badge.top-left { display:none; }
-  }
+.bm-catalog-lnk {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  color: #E5E7EB; font-size: 12.5px; font-weight: 700; padding: 9px 20px;
+  border-radius: 30px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+}
+.bm-catalog-lnk:hover { border-color: rgba(212,168,83,0.4); color: #D4A853; }
+
+/* Product card */
+.bm-pcard {
+  background: #181818; border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px; overflow: hidden; height: 100%;
+  display: flex; flex-direction: column;
+  transition: all 0.32s cubic-bezier(0.165,0.84,0.44,1);
+}
+.bm-pcard:hover { border-color: rgba(212,168,83,0.4); transform: translateY(-7px); box-shadow: 0 22px 55px rgba(0,0,0,0.65), 0 0 0 1px rgba(212,168,83,0.18); }
+.bm-pcard-img { position: relative; height: 210px; overflow: hidden; }
+.bm-pcard-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.55s ease; }
+.bm-pcard:hover .bm-pcard-img img { transform: scale(1.07); }
+.bm-pcard-type { position: absolute; top: 14px; left: 14px; background: rgba(12,12,12,0.88); backdrop-filter: blur(8px); border: 1px solid rgba(212,168,83,0.3); color: #D4A853; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 30px; text-transform: uppercase; letter-spacing: 0.8px; }
+.bm-pcard-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+.bm-pcard-cut  { font-size: 10px; font-weight: 800; color: #10B981; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 5px; }
+.bm-pcard-name { font-size: 16px; font-weight: 800; color: #FFFFFF; margin-bottom: 4px; flex: 1; }
+.bm-pcard-desc { font-size: 12px; color: #6B7280; margin-bottom: 14px; line-height: 1.5; }
+.bm-pcard-foot { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+.bm-pcard-price { font-size: 20px; font-weight: 900; color: #D4A853; }
+.bm-pcard-price small { font-size: 10px; color: #6B7280; font-weight: 500; }
+.bm-savatga {
+  background: #1F1F1F; border: 1px solid rgba(255,255,255,0.12);
+  color: #E5E7EB; font-size: 12px; font-weight: 700; padding: 7px 15px;
+  border-radius: 30px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.22s;
+}
+.bm-savatga:hover { background: #D4A853; color: #0C0C0C; border-color: #D4A853; }
+
+/* Feature cards */
+.bm-feat { background: #181818; border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 26px; height: 100%; transition: all 0.28s; }
+.bm-feat:hover { border-color: rgba(212,168,83,0.28); transform: translateY(-4px); }
+.bm-feat-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+.bm-feat-title { font-size: 15px; font-weight: 800; color: #FFFFFF; margin-bottom: 8px; }
+.bm-feat-desc  { font-size: 12.5px; color: #6B7280; line-height: 1.65; margin: 0; }
+
+/* Calc box */
+#home-calc-result .calc-box { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.22); border-radius: 14px; padding: 12px 16px; margin-top: 12px; color: #E5E7EB; font-size: 13px; }
+
+@media (max-width: 991px) {
+  .bm-hero { min-height: auto; }
+  .bm-hero-inner { padding: 60px 0 40px; }
+  .bm-float-wrap { padding: 16px; margin-top: 30px; }
+  .bm-float-card { width: 100%; max-width: 340px; margin: 0 auto; }
+  .bm-mbadge.tl, .bm-mbadge.br { display: none; }
+}
 </style>
 
-<!-- ANNOUNCEMENT BAR -->
-<div class="lp-anno">
-  <div class="container d-flex align-items-center justify-content-center gap-2 flex-wrap">
-    <span class="badge fw-bold" style="background:#D4A853; color:#0D0D0D; font-size:10px; border-radius:6px;">KATTA AKSIYA</span>
-    <span>рџ”Ґ {{ store.announcement_text|default:"Mol go'shtidan buyurtma bering вЂ” Toshkent bo'ylab yetkazib berish mutlaqo bepul!" }}</span>
-    <a href="/pos/my-cabinet/" style="color:#D4A853; font-weight:700; text-decoration:none; font-size:12px;">Buyurtma berish в†’</a>
-  </div>
+<!-- TOPBAR -->
+<div class="bm-topbar">
+  <span><i class="bi bi-shield-check gold"></i> 100% Halol Kafolatli Go'sht Mahsulotlari</span>
+  <span style="color:#9CA3AF;"><i class="bi bi-telephone-fill" style="color:#D4A853;"></i> +998 77 082 4477</span>
 </div>
 
 <!-- HERO -->
-<section class="lp-hero">
-  <div class="lp-hero-bg"></div>
-  <div class="container lp-hero-content py-5" style="max-width:1300px;">
-    <div class="row align-items-center g-5">
+<section class="bm-hero">
+  <div class="bm-hero-bg"></div>
 
-      <!-- LEFT: Text -->
-      <div class="col-lg-6 animate__animated animate__fadeInLeft">
-        <div class="lp-badge-pill">
-          <i class="bi bi-shield-check"></i>
-          100% Halol &amp; IoT Laboratoriya Nazorati
-        </div>
-        <h1 class="lp-h1">
-          SARXIL GO'SHT<br>&amp; RAQAMLI<br>
-          <span class="gold">MeatFlow Pro</span><br>
-          <span style="font-size:clamp(24px,3.5vw,44px); color:#9CA3AF; font-weight:700;">TEXNOLOGIYASI</span>
-        </h1>
-        <p class="lp-sub">{{ store.hero_subtitle|default:"Baxmal Meat вЂ” Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor kuryerlik xizmati." }}</p>
+  <!-- Sparkle accents -->
+  <div class="bm-spark" style="bottom: 12%; right: 6%; font-size: 30px;">вњ¦</div>
+  <div class="bm-spark" style="top: 22%; right: 35%; font-size: 16px; animation-delay: 2s;">вњ¦</div>
 
-        <div class="d-flex flex-wrap gap-3">
-          <a href="/pos/my-cabinet/" class="lp-btn-primary">
-            <i class="bi bi-cart-check-fill"></i> Buyurtma Berish (Kabinet)
-          </a>
-          <button onclick="calculateHomeDelivery()" class="lp-btn-outline">
-            <i class="bi bi-geo-alt-fill" style="color:#D4A853;"></i> Delivery Narxini Hisoblash
+  <div class="bm-hero-inner">
+    <div class="container" style="max-width: 1280px;">
+      <div class="row align-items-center g-4">
+
+        <!-- LEFT: Text column -->
+        <div class="col-lg-6 animate__animated animate__fadeInLeft">
+          <p class="bm-hero-eyebrow">Fermadan To'g'ri Dasturxoningizga</p>
+          <h1 class="bm-hero-h1">
+            <span class="line-gold">SARXIL GO'SHT</span>
+            <span class="line-white">Mahsulotlari</span>
+          </h1>
+          <p class="bm-hero-sub">
+            {{ store.hero_subtitle|default:"Baxmal Meat вЂ” IoT aqlli tarozilar, shaffof hisob-kitob va Toshkent bo'yicha 30вЂ“45 daqiqada muzlatilmagan yangi go'sht yetkazish xizmati." }}
+          </p>
+
+          <div class="bm-halol-badge">
+            <i class="bi bi-patch-check-fill"></i> HALOL SERTIFIKATLANGAN
+          </div>
+
+          <div class="bm-cta-row">
+            <a href="{% url 'article_list' %}" class="bm-btn-white">
+              <i class="bi bi-grid-fill"></i> Katalogni Ko'rish
+            </a>
+            <a href="/pos/my-cabinet/" class="bm-btn-dark">
+              <i class="bi bi-cart-check-fill"></i> Buyurtma Berish
+            </a>
+          </div>
+
+          <div class="bm-trust-row">
+            <div class="bm-trust-item">
+              <i class="bi bi-lightning-charge-fill"></i>
+              <span>30вЂ“45 Daqiqa</span>
+            </div>
+            <div style="width:1px; height:22px; background:rgba(255,255,255,0.1);"></div>
+            <div class="bm-trust-item">
+              <i class="bi bi-shield-check"></i>
+              <span>100% Halol</span>
+            </div>
+            <div style="width:1px; height:22px; background:rgba(255,255,255,0.1);"></div>
+            <div class="bm-trust-item">
+              <i class="bi bi-cpu-fill"></i>
+              <span>IoT 0.1 gr Tarozi</span>
+            </div>
+          </div>
+
+          <div id="home-calc-result"></div>
+          <button onclick="calculateHomeDelivery()" style="background:transparent; border:none; color:#6B7280; font-size:12.5px; padding:0; margin-top:10px; cursor:pointer; display:flex; align-items:center; gap:6px;">
+            <i class="bi bi-geo-alt" style="color:#D4A853;"></i> Do'kongacha masofani hisoblash
           </button>
         </div>
-        <div id="home-calc-result"></div>
 
-        <div class="lp-trust-bar">
-          <div class="lp-trust-item">
-            <div class="val" style="color:#D4A853;">100%</div>
-            <div class="lbl">Halol Sifat</div>
-          </div>
-          <div class="lp-divider-v"></div>
-          <div class="lp-trust-item">
-            <div class="val" style="color:#10B981;">0.1 gr</div>
-            <div class="lbl">IoT Tarozi Aniqligi</div>
-          </div>
-          <div class="lp-divider-v"></div>
-          <div class="lp-trust-item">
-            <div class="val" style="color:#FFFFFF;">20вЂ“45 min</div>
-            <div class="lbl">Tezkor Delivery</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT: Floating Glass Card -->
-      <div class="col-lg-6 text-center animate__animated animate__fadeInRight">
-        <div class="position-relative d-inline-block" style="padding:24px;">
-          <div class="lp-glass-card">
-            <img src="{% static 'images/beef_card_bg.png' %}" alt="Premium Mol Go'shti">
-            <div class="lp-glass-card-body">
-              <div class="tag">в­ђ Eng Ko'p Sotilgan</div>
-              <div class="title">Premium Gourmet Steak</div>
-              <div class="meta">
-                <div class="price">70 000 <small>so'm / kg</small></div>
-                <a href="/pos/my-cabinet/" class="lp-add-btn"><i class="bi bi-cart-plus-fill"></i></a>
+        <!-- RIGHT: Floating glass card -->
+        <div class="col-lg-6 animate__animated animate__fadeInRight">
+          <div class="bm-float-wrap">
+            <div class="bm-float-card">
+              <img src="{% static 'images/beef_card_bg.png' %}" alt="Premium Steak" class="bm-float-img">
+              <div class="bm-float-body">
+                <div class="bm-float-label">в­ђ Eng Ko'p Sotilgan</div>
+                <div class="bm-float-name">Mermer Mol Go'shti вЂ” Ribeye</div>
+                <div class="bm-float-foot">
+                  <div class="bm-float-price">70 000 <small>so'm/kg</small></div>
+                  <a href="/pos/my-cabinet/" class="bm-circle-btn"><i class="bi bi-cart-plus-fill"></i></a>
+                </div>
               </div>
             </div>
-          </div>
-          <!-- Floating badge top-left: MeatFlow Pro logo -->
-          <div class="lp-float-badge top-left">
-            <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro">
-            <div>
-              <div class="badge-label">вљЎ Smart Platform</div>
-              <div class="badge-val">MeatFlow Pro</div>
+            <!-- Mini badge: MeatFlow Pro (top-left) -->
+            <div class="bm-mbadge tl">
+              <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro">
+              <div><div class="mb-l">вљЎ Smart Platform</div><div class="mb-v">MeatFlow Pro</div></div>
             </div>
-          </div>
-          <!-- Floating badge bottom-right: Baxmal Meat logo -->
-          <div class="lp-float-badge bottom-right">
-            <img src="{% static 'images/icon.jpg' %}" alt="Baxmal Meat">
-            <div>
-              <div class="badge-label">рџЏ† EST. 2023</div>
-              <div class="badge-val">Baxmal Meat</div>
+            <!-- Mini badge: Baxmal Meat (bottom-right) -->
+            <div class="bm-mbadge br">
+              <img src="{% static 'images/icon.jpg' %}" alt="Baxmal Meat">
+              <div><div class="mb-l">рџЏ† EST. 2023</div><div class="mb-v">Baxmal Meat</div></div>
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
 </section>
 
-<!-- PROMO BANNER -->
-<div class="lp-promo">
+<!-- PROMO STRIPE -->
+<div class="bm-promo">
   <div class="container d-flex align-items-center justify-content-center gap-3 flex-wrap">
     <span>рџЋЃ {{ store.promo_banner_text|default:"500,000 so'mdan yuqori buyurtmalar uchun Toshkent shahri bo'ylab yetkazib berish BEPUL!" }}</span>
-    <a href="/pos/my-cabinet/" style="background:#0D0D0D; color:#D4A853; padding:6px 18px; border-radius:30px; font-size:12px; font-weight:800; text-decoration:none;">Xarid Qilish в†’</a>
+    <a href="/pos/my-cabinet/" style="background:#0C0C0C; color:#D4A853; padding:5px 16px; border-radius:30px; font-size:12px; font-weight:800; text-decoration:none;">Buyurtma berish в†’</a>
   </div>
 </div>
 
-<!-- PRODUCT CATALOG -->
-<section class="lp-section-dark">
-  <div class="container" style="max-width:1300px;">
-    <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+<!-- TANLANGAN KESIMLAR -->
+<section class="bm-sec-dark">
+  <div class="container" style="max-width: 1280px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
       <div>
-        <span class="lp-section-label">Sarxil Mahsulotlar</span>
-        <h2 class="lp-section-h2">Yangi Luxury Meat Boutique</h2>
+        <span class="bm-sec-ey">Sarxil Mahsulotlar</span>
+        <h2 class="bm-sec-h2">Tanlangan Kesimlar</h2>
       </div>
-      <a href="{% url 'article_list' %}" style="background:rgba(212,168,83,0.1); color:#D4A853; border:1px solid rgba(212,168,83,0.3); padding:10px 22px; border-radius:30px; font-size:13px; font-weight:700; text-decoration:none;">
-        Barcha Mahsulotlar Katalogi в†’
+      <a href="{% url 'article_list' %}" class="bm-catalog-lnk">
+        <i class="bi bi-grid-3x3-gap"></i> Sarcho Mahsutator Katalog <i class="bi bi-arrow-right"></i>
       </a>
     </div>
+
     <div class="row g-4">
       {% for article in article_list|slice:":6" %}
       <div class="col-lg-4 col-md-6">
-        <div class="lp-prod-card">
-          <div class="lp-prod-img-wrap">
+        <div class="bm-pcard">
+          <div class="bm-pcard-img">
             {% if article.photo %}<img src="{{ article.photo.url }}" alt="{{ article.name }}">
             {% else %}<img src="{% static 'images/beef_card_bg.png' %}" alt="Go'sht">{% endif %}
-            <span class="lp-prod-type-badge">{{ article.animal_type }}</span>
+            <span class="bm-pcard-type">{{ article.animal_type }}</span>
           </div>
-          <div class="lp-prod-card-body">
-            <div class="lp-prod-cut">{{ article.cut_type }}</div>
-            <div class="lp-prod-name">{{ article.name }}</div>
-            <div class="lp-prod-footer">
-              <div class="lp-prod-price">{{ article.price|floatformat:0 }} <small>so'm/kg</small></div>
-              <a href="/pos/my-cabinet/" class="lp-add-btn"><i class="bi bi-cart-plus-fill"></i></a>
+          <div class="bm-pcard-body">
+            <div class="bm-pcard-cut">{{ article.cut_type }}</div>
+            <div class="bm-pcard-name">{{ article.name }}</div>
+            <div class="bm-pcard-desc">Sarxil qo'shimcha go'shtlar, fermerdan bevosita yetkazilgan.</div>
+            <div class="bm-pcard-foot">
+              <div class="bm-pcard-price">{{ article.price|floatformat:0 }} <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="bm-savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
             </div>
           </div>
         </div>
       </div>
       {% empty %}
-      {% for i in "123456" %}
+      <!-- 6 demo cards matching reference screenshots -->
       <div class="col-lg-4 col-md-6">
-        <div class="lp-prod-card">
-          <div class="lp-prod-img-wrap">
-            {% if forloop.counter == 1 %}<img src="{% static 'images/beef_card_bg.png' %}" alt="Mol Go'shti">
-            {% elif forloop.counter == 2 %}<img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Go'shti">
-            {% elif forloop.counter == 3 %}<img src="{% static 'images/WIN_20260612_09_02_49_Pro.jpg' %}" alt="Go'sht">
-            {% elif forloop.counter == 4 %}<img src="{% static 'images/rasm.jpg' %}" alt="Go'sht">
-            {% elif forloop.counter == 5 %}<img src="{% static 'images/beef_card_bg.png' %}" alt="Steak">
-            {% else %}<img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y">{% endif %}
-            <span class="lp-prod-type-badge">{% if forloop.counter <= 4 %}Mol{% else %}Qo'y{% endif %}</span>
+        <div class="bm-pcard">
+          <div class="bm-pcard-img">
+            <img src="{% static 'images/beef_card_bg.png' %}" alt="Mermer Mol Go'shti">
+            <span class="bm-pcard-type">Mol</span>
           </div>
-          <div class="lp-prod-card-body">
-            <div class="lp-prod-cut">{% cycle "Gourmet Steak" "Qovurg'a" "Dumg'aza" "Liver" "Ribeye" "Qo'y Qovurg'asi" %}</div>
-            <div class="lp-prod-name">{% cycle "Gourmet Steak вЂ” Dumg'aza" "Qovurg'a вЂ” Rib" "Ground Beef" "Liver" "Ribeye Premium" "Qo'y Qovurg'asi" %}</div>
-            <div class="lp-prod-footer">
-              <div class="lp-prod-price">{% cycle "70 000" "60 000" "70 000" "60 000" "80 000" "75 000" %} <small>so'm/kg</small></div>
-              <a href="/pos/my-cabinet/" class="lp-add-btn"><i class="bi bi-cart-plus-fill"></i></a>
+          <div class="bm-pcard-body">
+            <div class="bm-pcard-cut">Gourmet Steak</div>
+            <div class="bm-pcard-name">Mermer Mol Go'shti</div>
+            <div class="bm-pcard-desc">Sarxil qorinli, yangi mermer mol go'shti. Premium kesim.</div>
+            <div class="bm-pcard-foot">
+              <div class="bm-pcard-price">60 000 <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="bm-savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="bm-pcard">
+          <div class="bm-pcard-img">
+            <img src="{% static 'images/beef_card_bg.png' %}" alt="Ribeye">
+            <span class="bm-pcard-type">Mol</span>
+          </div>
+          <div class="bm-pcard-body">
+            <div class="bm-pcard-cut">Premium Cut</div>
+            <div class="bm-pcard-name">Ribeye</div>
+            <div class="bm-pcard-desc">Eng sara bel kesimi. Yangi fermer go'shti, premium sifat.</div>
+            <div class="bm-pcard-foot">
+              <div class="bm-pcard-price">70 000 <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="bm-savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="bm-pcard">
+          <div class="bm-pcard-img">
+            <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Qovurg'asi">
+            <span class="bm-pcard-type">Qo'y</span>
+          </div>
+          <div class="bm-pcard-body">
+            <div class="bm-pcard-cut">Qovurg'a</div>
+            <div class="bm-pcard-name">Qo'y Qovurg'asi</div>
+            <div class="bm-pcard-desc">Yangi qo'y qovurg'asi, halol sertifikatlangan mahsulot.</div>
+            <div class="bm-pcard-foot">
+              <div class="bm-pcard-price">80 000 <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="bm-savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="bm-pcard">
+          <div class="bm-pcard-img">
+            <img src="{% static 'images/WIN_20260612_09_02_49_Pro.jpg' %}" alt="Mo's Qovurg'asi">
+            <span class="bm-pcard-type">Mol</span>
+          </div>
+          <div class="bm-pcard-body">
+            <div class="bm-pcard-cut">Qovurg'a</div>
+            <div class="bm-pcard-name">Mo's Qovurg'asi</div>
+            <div class="bm-pcard-desc">Mol qovurg'asi, go'shtli va yog'li kesim, lazzatli taom uchun.</div>
+            <div class="bm-pcard-foot">
+              <div class="bm-pcard-price">70 000 <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="bm-savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="bm-pcard">
+          <div class="bm-pcard-img">
+            <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Qovurg'asi">
+            <span class="bm-pcard-type">Qo'y</span>
+          </div>
+          <div class="bm-pcard-body">
+            <div class="bm-pcard-cut">Qovurg'a</div>
+            <div class="bm-pcard-name">Qo'y Qovurg'asi</div>
+            <div class="bm-pcard-desc">Arzon narxda sifatli qo'y qovurg'asi. Fermerdan bevosita.</div>
+            <div class="bm-pcard-foot">
+              <div class="bm-pcard-price">40 000 <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="bm-savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="bm-pcard">
+          <div class="bm-pcard-img">
+            <img src="{% static 'images/rasm.jpg' %}" alt="Mol Dumg'aza">
+            <span class="bm-pcard-type">Mol</span>
+          </div>
+          <div class="bm-pcard-body">
+            <div class="bm-pcard-cut">Dumg'aza</div>
+            <div class="bm-pcard-name">Mol Dumg'aza</div>
+            <div class="bm-pcard-desc">Eng sara mol dumg'azasi, yangi va muzlatilmagan kesim.</div>
+            <div class="bm-pcard-foot">
+              <div class="bm-pcard-price">55 000 <small>so'm/kg</small></div>
+              <a href="/pos/my-cabinet/" class="bm-savatga"><i class="bi bi-cart-plus-fill"></i> Savatga qo'shish</a>
             </div>
           </div>
         </div>
       </div>
       {% endfor %}
-      {% endfor %}
     </div>
+
   </div>
 </section>
 
-<!-- WHY CHOOSE US -->
-<section class="lp-section-slate">
-  <div class="container" style="max-width:1300px;">
+<!-- NEGA BAXMAL MEAT -->
+<section class="bm-sec-slate">
+  <div class="container" style="max-width: 1280px;">
     <div class="text-center mb-5">
-      <span class="lp-section-label">Bizning Ustunliklarimiz</span>
-      <h2 class="lp-section-h2">Nega Baxmal Meat Tanlanadi?</h2>
+      <span class="bm-sec-ey">Bizning Ustunliklarimiz</span>
+      <h2 class="bm-sec-h2">Nega Baxmal Meat?</h2>
     </div>
     <div class="row g-4">
-      <div class="col-md-3 col-sm-6">
-        <div class="lp-feat-card">
-          <div class="lp-feat-icon" style="background:rgba(212,168,83,0.1); color:#D4A853;"><i class="bi bi-shield-check-fill"></i></div>
-          <div class="lp-feat-title">100% Halol &amp; Gigiyena</div>
-          <p class="lp-feat-desc">Barcha so'yimlar shariat qoidalari va veterinariya nazorati asosida amalga oshiriladi.</p>
+      <div class="col-md-3 col-6">
+        <div class="bm-feat">
+          <div class="bm-feat-icon" style="background:rgba(212,168,83,0.1); color:#D4A853;"><i class="bi bi-shield-check-fill"></i></div>
+          <div class="bm-feat-title">100% Halol</div>
+          <p class="bm-feat-desc">Shariat qoidalari va veterinariya nazorati asosida barcha so'yimlar amalga oshiriladi.</p>
         </div>
       </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="lp-feat-card">
-          <div class="lp-feat-icon" style="background:rgba(16,185,129,0.1); color:#10B981;"><i class="bi bi-cpu-fill"></i></div>
-          <div class="lp-feat-title">IoT Smart Tarozi</div>
-          <p class="lp-feat-desc">WiFi tarmog'iga ulangan raqamli tarozilar orqali 0.1 grammgacha to'g'ri va halol tortish.</p>
+      <div class="col-md-3 col-6">
+        <div class="bm-feat">
+          <div class="bm-feat-icon" style="background:rgba(16,185,129,0.1); color:#10B981;"><i class="bi bi-cpu-fill"></i></div>
+          <div class="bm-feat-title">IoT Smart Tarozi</div>
+          <p class="bm-feat-desc">WiFi ulangan raqamli tarozilar: 0.1 grammgacha aniq va halol o'lchash.</p>
         </div>
       </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="lp-feat-card">
-          <div class="lp-feat-icon" style="background:rgba(212,168,83,0.1); color:#D4A853;"><i class="bi bi-truck-front-fill"></i></div>
-          <div class="lp-feat-title">AI Kuryer Marketplace</div>
-          <p class="lp-feat-desc">Do'kondan manzilingizgacha bo'lgan masofani AI hisoblab 30вЂ“45 daqiqada yetkazadi.</p>
+      <div class="col-md-3 col-6">
+        <div class="bm-feat">
+          <div class="bm-feat-icon" style="background:rgba(212,168,83,0.1); color:#D4A853;"><i class="bi bi-truck-front-fill"></i></div>
+          <div class="bm-feat-title">30вЂ“45 min Delivery</div>
+          <p class="bm-feat-desc">Do'kondan manzilingizgacha AI kuryer hisobi bilan tezkor yetkazib berish.</p>
         </div>
       </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="lp-feat-card">
-          <div class="lp-feat-icon" style="background:rgba(16,185,129,0.1); color:#10B981;"><i class="bi bi-journal-check"></i></div>
-          <div class="lp-feat-title">Shaffof Hisob-Kitob</div>
-          <p class="lp-feat-desc">Barcha xaridlar va nasiya qarzlari elektron cheklar bilan shaxsiy kabinetda ko'rinadi.</p>
+      <div class="col-md-3 col-6">
+        <div class="bm-feat">
+          <div class="bm-feat-icon" style="background:rgba(16,185,129,0.1); color:#10B981;"><i class="bi bi-journal-check"></i></div>
+          <div class="bm-feat-title">Shaffof Hisob</div>
+          <p class="bm-feat-desc">Barcha xaridlar va nasiya qarzlari elektron chek bilan kabinetda ko'rinadi.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER STRIP -->
-<div style="background:#0A0A0A; border-top:1px solid rgba(255,255,255,0.05); padding:24px; text-align:center;">
+<!-- FOOTER -->
+<div style="background:#080808; border-top:1px solid rgba(255,255,255,0.05); padding:22px;">
   <div class="container d-flex align-items-center justify-content-center gap-3 flex-wrap">
-    <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro" style="width:36px; height:36px; border-radius:10px; object-fit:cover;">
-    <span style="color:#4B5563; font-size:13px;">В© 2025 <strong style="color:#D4A853;">Baxmal Meat</strong> | MeatFlow Pro Platform</span>
+    <img src="{% static 'images/meatflow_logo.jpg' %}" alt="MeatFlow Pro" style="width:34px; height:34px; border-radius:9px; object-fit:cover;">
+    <span style="color:#4B5563; font-size:12.5px;">В© 2025 <strong style="color:#D4A853;">Baxmal Meat</strong> | MeatFlow Pro Platform</span>
+    <span style="color:#D4A853; opacity:0.5; font-size:18px;">вњ¦</span>
   </div>
 </div>
 
 <script>
 function calculateHomeDelivery() {
-  const gpsText = document.getElementById('home-calc-result');
+  const box = document.getElementById('home-calc-result');
   if (!navigator.geolocation) {
-    gpsText.innerHTML = "<div class='calc-box'>Brauzeringiz GPS-ni qo'llab-quvvatlamaydi.</div>"; return;
+    box.innerHTML = "<div class='calc-box'>Brauzeringiz GPS-ni qo'llab-quvvatlamaydi.</div>"; return;
   }
-  gpsText.innerHTML = "<div class='calc-box'><span class='spinner-border spinner-border-sm me-2'></span>GPS lokatsiyangiz aniqlanmoqda...</div>";
+  box.innerHTML = "<div class='calc-box'><span class='spinner-border spinner-border-sm me-2'></span>GPS lokatsiyangiz aniqlanmoqda...</div>";
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
+    pos => {
       fetch(`/pos/api/calculate-delivery/?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&total_sum=150000`)
         .then(r => r.json())
-        .then(data => {
-          if (data.status === 'success') {
-            gpsText.innerHTML = `<div class="calc-box">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span style="color:#10B981; font-weight:700;"><i class="bi bi-geo-alt-fill me-1"></i>Do'kongacha: ${data.distance_km} km</span>
-                <span style="background:#D4A853; color:#0D0D0D; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800;">Kuryer: ${data.formatted_fee}</span>
+        .then(d => {
+          if (d.status === 'success') {
+            box.innerHTML = `<div class="calc-box">
+              <div class="d-flex justify-content-between align-items-center">
+                <span style="color:#10B981; font-weight:700;"><i class="bi bi-geo-alt-fill me-1"></i>Do'kongacha: ${d.distance_km} km</span>
+                <span style="background:#D4A853; color:#0C0C0C; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800;">Kuryer: ${d.formatted_fee}</span>
               </div>
-              <small style="color:#6B7280; font-size:11px;">рџ“Ќ ${data.store_name} (${data.store_address})</small>
+              <small style="color:#6B7280; font-size:11px; display:block; margin-top:4px;">рџ“Ќ ${d.store_name} (${d.store_address})</small>
             </div>`;
           }
-        }).catch(() => { gpsText.innerHTML = "<div class='calc-box'>Tarmoq xatosi yuz berdi.</div>"; });
+        }).catch(() => { box.innerHTML = "<div class='calc-box'>Tarmoq xatosi.</div>"; });
     },
-    () => { gpsText.innerHTML = "<div class='calc-box'>GPS lokatsiya berilmadi.</div>"; },
+    () => { box.innerHTML = "<div class='calc-box'>GPS berilmadi. Kabinetda manzil kiriting.</div>"; },
     { enableHighAccuracy: true, timeout: 10000 }
   );
 }
