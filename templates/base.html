@@ -542,8 +542,8 @@ body::after {
 <!-- Row 1: Utility top-bar -->
 <div class="top-bar-new">
   <div class="top-bar-info">
-    <span><i class="bi bi-shield-check text-success"></i> 100% Halol Kafolatli Go'sht Mahsulotlari</span>
-    <a href="tel:+998770824477" class="d-none d-md-inline"><i class="bi bi-telephone-fill"></i> +998 77 082 4477</a>
+    <span><i class="bi bi-shield-check text-success"></i> {% if store and store.announcement_text %}{{ store.announcement_text|safe }}{% else %}100% Halol Kafolatli Go'sht Mahsulotlari{% endif %}</span>
+    <a href="tel:+998770824477" class="d-none d-md-inline"><i class="bi bi-telephone-fill"></i> {% if store and store.phone_number %}{{ store.phone_number }}{% else %}+998 77 082 4477{% endif %}</a>
   </div>
   
   <div class="top-bar-actions">
@@ -756,11 +756,11 @@ function toggleMobileNavbar() {
 </script>
 
 <div class="main-wrapper">
-  {% if not user.is_superuser %}
+  {% if not user.is_superuser and store.promo_banner_text %}
   <!-- PROMOTIONAL ACCORDION/BANNER FOR BEEF -->
   <div class="promo-banner-wrapper animate__animated animate__fadeInDown" style="background: linear-gradient(135deg, #1B6B4A, #145438); color: #FFFFFF; padding: 12px 20px; font-size: 14px; text-align: center; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 10px; border-bottom: 2px solid #D4A853; position: relative; z-index: 100;">
     <span style="background: #D4A853; color: #1A1A2E; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 30px; text-transform: uppercase; letter-spacing: 1px;">Katta Aksiya</span>
-    <span>🔥 <strong>Mol go'shtidan buyurtma bering</strong> – Toshkent bo'ylab yetkazib berish mutlaqo bepul!</span>
+    <span>{{ store.promo_banner_text|safe }}</span>
     <a href="/pos/my-cabinet/" style="color: #81EFBB; font-weight: 700; text-decoration: underline; margin-left: 10px;">Buyurtma berish <i class="bi bi-arrow-right"></i></a>
   </div>
   {% endif %}
