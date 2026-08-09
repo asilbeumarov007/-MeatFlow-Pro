@@ -371,6 +371,44 @@ document.addEventListener("DOMContentLoaded", function() {
   margin-bottom: 20px;
 }
 
+/* 3D Hero Promo Ribbon */
+.mf-hero-promo-ribbon {
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.18), rgba(16, 185, 129, 0.12));
+  border: 1.5px solid rgba(212, 168, 83, 0.5);
+  border-radius: 18px;
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  transition: all 0.3s ease;
+}
+.mf-hero-promo-ribbon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 40px rgba(212, 168, 83, 0.25);
+  border-color: #D4A853;
+}
+.mf-promo-badge {
+  background: linear-gradient(135deg, #D4A853, #B38637);
+  color: #061E14;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 5px 14px;
+  border-radius: 30px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 12px rgba(212, 168, 83, 0.5);
+}
+.mf-promo-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.4;
+  flex: 1;
+}
+
 .mf-hero-h1 {
   font-size: clamp(32px, 4.2vw, 50px);
   font-weight: 900;
@@ -771,6 +809,20 @@ document.addEventListener("DOMContentLoaded", function() {
         <div class="mf-badge-halol">
           <i class="bi bi-shield-check"></i> 100% Halol &amp; Tog' Yaylovi Go'shtlari
         </div>
+
+        {% if store and store.promo_active and store.promo_banner_text %}
+        <!-- 3D Hero Promo Ribbon -->
+        <div class="mf-hero-promo-ribbon">
+          <span class="mf-promo-badge">{{ store.promo_badge_text|default:"🔥 KATTA AKSIYA" }}</span>
+          <div class="mf-promo-text">{{ store.promo_banner_text|safe }}</div>
+          {% if user.is_superuser %}
+          <a href="/admin/pos/storesetting/" class="btn btn-sm btn-outline-warning py-1 px-2 font-11 rounded-pill" style="font-size: 11px; white-space: nowrap;">
+            <i class="bi bi-gear-fill me-1"></i> Tahrirlash
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
+
         <h1 class="mf-hero-h1">
           Ishonchli Halol &amp;<br>
           <span>Sarxil Go'shtlar</span>
@@ -795,8 +847,25 @@ document.addEventListener("DOMContentLoaded", function() {
       <div class="mf-hero-slider-wrap">
         <div class="mf-hero-slider" id="heroBannerSlider">
           
-          <!-- Slide 1: Premium Mol Go'shti -->
+          {% if store and store.promo_active and store.promo_banner_text %}
+          <!-- Slide 0: Custom Admin Promo 3D Banner -->
           <div class="mf-hero-slide active">
+            {% if store.promo_image %}
+              <img src="{{ store.promo_image.url }}" alt="Aksiya Banneri">
+            {% else %}
+              <img src="{% static 'images/beef_card_bg.png' %}" alt="Aksiya Banneri">
+            {% endif %}
+            <div class="mf-slide-overlay" style="background: linear-gradient(180deg, rgba(212,168,83,0.25) 0%, rgba(6,26,19,0.85) 60%, rgba(6,26,19,0.95) 100%);"></div>
+            <div class="mf-slide-content">
+              <span class="mf-slide-tag" style="background: linear-gradient(135deg, #D4A853, #B38637); color: #061E14; font-weight: 900;">{{ store.promo_badge_text|default:"🔥 KATTA AKSIYA" }}</span>
+              <div class="mf-slide-title" style="color: #F59E0B; font-size: 22px;">{{ store.promo_banner_text|striptags|truncatechars:55 }}</div>
+              <div class="mf-slide-desc">Har qanday buyurtmangiz uchun yetkazib berish va 100% Halol sifat kafolati!</div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Slide 1: Premium Mol Go'shti -->
+          <div class="mf-hero-slide {% if not store or not store.promo_active or not store.promo_banner_text %}active{% endif %}">
             <img src="{% static 'images/beef_card_bg.png' %}" alt="Mol Go'shti">
             <div class="mf-slide-overlay"></div>
             <div class="mf-slide-content">

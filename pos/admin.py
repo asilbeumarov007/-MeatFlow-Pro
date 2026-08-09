@@ -69,8 +69,8 @@ class StoreSettingAdmin(admin.ModelAdmin):
         ("Do'kon Ma'lumotlari", {
             'fields': ('name', 'phone_number', 'address', 'is_active')
         }),
-        ("Bosh Sahifa Marketing Matnlari (Admin Boshqaradigan)", {
-            'fields': ('announcement_text', 'hero_title', 'hero_subtitle', 'promo_banner_text')
+        ("Bosh Sahifa Marketing Matnlari & Aksiya Banneri (Admin Boshqaradigan)", {
+            'fields': ('announcement_text', 'hero_title', 'hero_subtitle', 'promo_badge_text', 'promo_banner_text', 'promo_image', 'promo_active')
         }),
         ("GPS va Dostavka Tariflari", {
             'fields': ('latitude', 'longitude', 'base_delivery_fee', 'fee_per_km', 'min_free_delivery_amount')
