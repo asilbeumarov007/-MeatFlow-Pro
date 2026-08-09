@@ -244,15 +244,7 @@
       </div>
     </a>
 
-    <!-- Center: Pulsing Neon Promo Badge Button -->
-    {% if store and store.promo_banner_text %}
-    <button type="button" class="neon-promo-badge-btn" data-bs-toggle="modal" data-bs-target="#promoBannerModal">
-      <span class="neon-badge-pulse"></span>
-      <span class="neon-badge-tag">🔥 KATTA AKSIYA</span>
-      <span class="d-none d-md-inline opacity-90">{{ store.promo_banner_text|striptags|truncatechars:45 }}</span>
-      <i class="bi bi-arrow-right-short text-warning font-16 ms-1"></i>
-    </button>
-    {% endif %}
+
 
     <!-- Center-Right: Navigation Links (For Superuser / Admin) -->
     {% if user.is_superuser %}
