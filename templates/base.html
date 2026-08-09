@@ -217,15 +217,12 @@
       border-top: 1px solid rgba(255,255,255,0.1);
       padding: 16px 24px;
     }
-    .mobile-menu-drawer.show {
-      display: block;
-    }
-
     @media (max-width: 991px) {
       .header-links { display: none !important; }
       .mobile-toggle-btn { display: block !important; }
     }
   </style>
+  {% block extrahead %}{% endblock %}
 </head>
 <body>
 
@@ -445,6 +442,7 @@ function loadNotifications() {
     });
 }
 </script>
+{% block extrascripts %}{% endblock %}
 
 </body>
 </html>
