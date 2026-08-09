@@ -2,748 +2,377 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}MeatFlow Pro | Baxmal Meat Boutique{% endblock title %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MeatFlow Pro | Baxmal Meat Boutique{% endblock %}</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="{% static 'images/meatflow_logo.jpg' %}">
+  
+  <!-- Bootstrap 5 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #1B6B4A;
+      --primary-dark: #061E14;
+      --accent: #D4A853;
+      --text-main: #1A1A2E;
+      --text-muted: #6B7280;
+      --bg-light: #F4F6F5;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+      --font-serif: 'DM Serif Display', serif;
+    }
 
-<link rel="icon" type="image/jpeg" href="{% static 'images/meatflow_logo.jpg' %}">
-<link rel="shortcut icon" href="{% static 'images/meatflow_logo.jpg' %}">
-<link rel="apple-touch-icon" href="{% static 'images/meatflow_logo.jpg' %}">
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+    }
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    /* ── SINGLE UNIFIED LUXURY NAVBAR ── */
+    .unified-header {
+      background: linear-gradient(135deg, #051610 0%, #0A2B1E 60%, #061E14 100%);
+      border-bottom: 1px solid rgba(212, 168, 83, 0.25);
+      padding: 10px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 1050;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      backdrop-filter: blur(10px);
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
 
-<style>
-/* ══════════════════════════════════════
-   YANGI YORUG' PREMIUM DIZAYN
-══════════════════════════════════════ */
-:root {
-  --bg-main:       #F5F1EB;
-  --bg-surface:    #FFFFFF;
-  --bg-surface-2:  #F8F6F2;
-  --primary:       #1B6B4A;
-  --primary-light: #2D9B6E;
-  --primary-dark:  #145438;
-  --primary-gradient: linear-gradient(135deg, #1B6B4A, #2D9B6E);
-  --accent:        #D4A853;
-  --accent-light:  #E8C97A;
-  --accent-glow:   rgba(212, 168, 83, 0.18);
-  --text-main:     #1A1A2E;
-  --text-muted:    #6B7280;
-  --text-light:    #9CA3AF;
-  --danger:        #DC3545;
-  --success:       #28A745;
-  --warning:       #F59E0B;
-  --glass-bg:      rgba(255, 255, 255, 0.88);
-  --glass-border:  rgba(27, 107, 74, 0.10);
-  --border-color:  rgba(0, 0, 0, 0.07);
-  --shadow-sm:     0 2px 8px rgba(0,0,0,0.05);
-  --shadow-md:     0 4px 20px rgba(0,0,0,0.08);
-  --shadow-lg:     0 8px 40px rgba(0,0,0,0.10);
-  --font-sans:     'Inter', sans-serif;
-  --font-serif:    'DM Serif Display', serif;
-  --radius-sm:     10px;
-  --radius-md:     16px;
-  --radius-lg:     24px;
-  --radius-full:   100px;
-}
+    /* Brand Logo */
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .brand-logo-wrapper {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      padding: 2px;
+      background: linear-gradient(135deg, #10B981, #059669);
+      box-shadow: 0 4px 14px rgba(16,185,129,0.3);
+    }
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .brand-name {
+      font-family: var(--font-main);
+      font-size: 19px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.3px;
+      line-height: 1;
+    }
+    .brand-sub {
+      font-size: 9px;
+      color: var(--accent);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-top: 2px;
+      display: block;
+    }
 
-* { box-sizing: border-box; }
+    /* Pulsing Neon Promo Badge Button */
+    @keyframes neonGlow {
+      0% { box-shadow: 0 0 0 0 rgba(212, 168, 83, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(212, 168, 83, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(212, 168, 83, 0); }
+    }
+    .neon-promo-badge-btn {
+      background: linear-gradient(135deg, rgba(212,168,83,0.22), rgba(212,168,83,0.08));
+      border: 1px solid rgba(212, 168, 83, 0.6);
+      color: #FFFFFF;
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      animation: neonGlow 2.5s infinite;
+      text-decoration: none;
+    }
+    .neon-promo-badge-btn:hover {
+      background: rgba(212, 168, 83, 0.35);
+      border-color: #D4A853;
+      color: #FFFFFF !important;
+      transform: translateY(-1px);
+    }
+    .neon-badge-pulse {
+      width: 8px;
+      height: 8px;
+      background-color: #F59E0B;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px #F59E0B;
+    }
+    .neon-badge-tag {
+      color: #D4A853;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      font-size: 11px;
+      background: rgba(0,0,0,0.3);
+      padding: 2px 8px;
+      border-radius: 30px;
+    }
 
-body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-main);
-  background-image: linear-gradient(rgba(245, 241, 235, 0.88), rgba(245, 241, 235, 0.88)), url('/static/images/meatflow_logo.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-x: hidden;
-}
+    /* Links */
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .header-link-item {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 50px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-link-item:hover {
+      color: #FFFFFF !important;
+      background: rgba(255,255,255,0.08);
+    }
+    .header-link-item.active {
+      color: var(--accent) !important;
+      background: rgba(255,255,255,0.12);
+      font-weight: 700;
+    }
 
-/* Orqa fondagi yumshoq rang effektlari */
-body::before {
-  content: '';
-  position: fixed;
-  top: -15%; right: -10%;
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(27,107,74,0.06) 0%, transparent 65%);
-  filter: blur(80px);
-  z-index: -1;
-  animation: floatGreen 12s infinite alternate;
-}
-body::after {
-  content: '';
-  position: fixed;
-  bottom: -10%; left: -5%;
-  width: 400px; height: 400px;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 65%);
-  filter: blur(80px);
-  z-index: -1;
-  animation: floatGold 10s infinite alternate;
-}
-@keyframes floatGreen {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-40px, 40px); }
-}
-@keyframes floatGold {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(30px, -30px); }
-}
+    /* Script Switcher */
+    .script-toggle-compact {
+      display: inline-flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 30px;
+      padding: 2px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .script-btn-compact {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 30px;
+      transition: all 0.2s;
+    }
+    .script-btn-compact.active {
+      background: #10B981;
+      color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(16,185,129,0.4);
+    }
 
-/* ── NEW DUAL-ROW HEADER (OpenBudget Style) ── */
-.top-bar-new {
-  background: #FFFFFF;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  padding: 8px 24px;
-  font-size: 12px;
-  color: var(--text-muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.top-bar-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.top-bar-info a {
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.top-bar-info a:hover {
-  color: var(--primary);
-}
-.top-bar-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-.main-navbar-new {
-  background: var(--primary); /* Baxmal Meat green: #1B6B4A */
-  padding: 12px 24px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-.navbar-container-new {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.navbar-brand-new {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-.navbar-logo-wrapper {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  padding: 1px;
-  background: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.navbar-logo-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.navbar-brand-name {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 500;
-  color: #FFFFFF;
-  line-height: 1;
-}
-.navbar-brand-sub {
-  font-size: 9px;
-  color: var(--accent); /* Baxmal gold: #D4A853 */
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  font-weight: 700;
-  margin-top: 2px;
-  display: block;
-}
+    /* Mobile toggle */
+    .mobile-toggle-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: #FFFFFF;
+      font-size: 24px;
+      cursor: pointer;
+    }
 
-/* Links */
-.navbar-links-new {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.navbar-link-item {
-  color: rgba(255,255,255,0.85);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 50px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.navbar-link-item:hover {
-  color: #FFFFFF !important;
-  background: rgba(255,255,255,0.08);
-}
-.navbar-link-item.active {
-  color: var(--accent) !important;
-  background: rgba(255,255,255,0.12);
-  font-weight: 700;
-}
+    /* Mobile menu */
+    .mobile-menu-drawer {
+      display: none;
+      background: #061E14;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 16px 24px;
+    }
+    .mobile-menu-drawer.show {
+      display: block;
+    }
 
-/* Mobile Toggle */
-.navbar-toggle-new {
-  display: none;
-  background: transparent;
-  border: none;
-  color: #FFFFFF;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 4px;
-}
-
-/* Mobile dropdown */
-.mobile-dropdown-menu-new {
-  display: none;
-  background: var(--primary);
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding: 12px 24px;
-}
-.mobile-dropdown-menu-new.show {
-  display: block;
-}
-
-@media (max-width: 991px) {
-  .navbar-links-new {
-    display: none !important;
-  }
-  .navbar-toggle-new {
-    display: block !important;
-  }
-}
-
-@media (max-width: 576px) {
-  .top-bar-new {
-    padding: 8px 12px;
-  }
-  .top-bar-info {
-    display: none !important;
-  }
-  .top-bar-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .main-navbar-new {
-    padding: 10px 16px;
-  }
-  .navbar-brand-name {
-    font-size: 16px;
-  }
-  .navbar-brand-sub {
-    font-size: 8px;
-    letter-spacing: 1px;
-  }
-  .navbar-logo-wrapper {
-    width: 32px;
-    height: 32px;
-  }
-  .mobile-dropdown-menu-new {
-    padding: 12px 16px;
-  }
-}
-
-/* ── TUGMALAR VA O'TKAZGICHLAR ── */
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.script-toggle {
-  display: flex;
-  background: var(--bg-surface-2);
-  border: 1px solid var(--border-color);
-  border-radius: 30px;
-  padding: 3px;
-}
-.script-btn {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: 0.3s;
-}
-.script-btn.active {
-  background: var(--primary);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(27,107,74,0.25);
-}
-/* Custom Dropdown Styling */
-/* Custom Dropdown Styling */
-.dropdown-menu {
-  background: var(--bg-surface) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: var(--radius-md) !important;
-  padding: 8px !important;
-  box-shadow: var(--shadow-md) !important;
-}
-.dropdown-item {
-  color: var(--text-main) !important;
-  font-weight: 500;
-  font-size: 14.5px !important;
-  padding: 10px 20px !important;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.dropdown-item i {
-  font-size: 16px;
-}
-.dropdown-item:hover {
-  background: rgba(27, 107, 74, 0.06) !important;
-  color: var(--primary) !important;
-}
-.dropdown-item.active {
-  background: rgba(27, 107, 74, 0.08) !important;
-  color: var(--primary) !important;
-  font-weight: 700;
-}
-
-@media (min-width: 992px) {
-  .dropdown:hover .dropdown-menu {
-    display: block !important;
-    margin-top: 0 !important;
-  }
-}
-
-/* ── USER MENU ── */
-.user-btn {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  border-radius: 30px;
-  padding: 5px 14px 5px 5px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-  font-size: 14px;
-  transition: 0.3s;
-}
-.user-btn:hover, .user-btn[aria-expanded="true"] {
-  background: rgba(27,107,74,0.06);
-  border-color: var(--primary);
-}
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-}
-
-/* ── PREMIUM DROPDOWN ── */
-.premium-dropdown {
-  background: var(--bg-surface) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: var(--radius-lg) !important;
-  padding: 12px !important;
-  min-width: 280px;
-  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(27,107,74,0.05) !important;
-  margin-top: 12px !important;
-}
-.pd-header {
-  padding: 10px 15px 15px;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 10px;
-}
-.pd-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
-.pd-role { font-size: 11px; color: var(--primary); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px;}
-
-.pd-item {
-  display: flex !important;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px !important;
-  border-radius: var(--radius-sm) !important;
-  color: var(--text-muted) !important;
-  text-decoration: none;
-  transition: 0.2s !important;
-  background: transparent;
-  border: none;
-  width: 100%;
-  text-align: left;
-}
-.pd-item:hover {
-  background: rgba(27,107,74,0.06) !important;
-  color: var(--primary) !important;
-  transform: translateX(3px);
-}
-.pd-icon {
-  width: 36px; height: 36px;
-  border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(27,107,74,0.08);
-  font-size: 15px;
-  color: var(--primary);
-}
-.pd-text { display: flex; flex-direction: column; }
-.pd-title { font-size: 14px; font-weight: 500; color: var(--text-main); }
-.pd-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-.pd-divider { height: 1px; background: var(--border-color); margin: 8px 0; }
-.pd-danger:hover { background: rgba(220,53,69,0.08) !important; color: var(--danger) !important; }
-.pd-danger .pd-icon { color: var(--danger); background: rgba(220,53,69,0.08); }
-
-/* ── AUTH TUGMALARI ── */
-.btn-login {
-  color: var(--text-main);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 14px;
-  padding: 8px 16px;
-  transition: 0.3s;
-}
-.btn-login:hover { color: var(--primary); }
-.btn-signup {
-  background: var(--primary-gradient);
-  color: #fff !important;
-  padding: 10px 24px;
-  border-radius: 30px;
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-  transition: 0.3s;
-  box-shadow: 0 4px 12px rgba(27,107,74,0.25);
-}
-.btn-signup:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(27,107,74,0.35);
-  color: #fff !important;
-}
-
-/* ══════════════════════════════════════
-   ASOSIY KONTENT VA FOOTER
-══════════════════════════════════════ */
-.main-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.modern-footer {
-  margin-top: auto;
-  border-top: 1px solid var(--border-color);
-  padding: 30px 0;
-}
-.footer-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.footer-text {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-.footer-links a {
-  font-size: 13px;
-  color: var(--text-muted);
-  text-decoration: none;
-  margin-left: 24px;
-  transition: 0.2s;
-}
-.footer-links a:hover {
-  color: var(--primary);
-}
-
-/* ── RESPONSIVE RESPONSIVENESS ── */
-@media (max-width: 768px) {
-  .footer-inner { flex-direction: column; gap: 15px; text-align: center; }
-  .footer-links a { margin: 0 10px; }
-  /* Prevent iOS zoom on inputs globally */
-  input, select, textarea {
-    font-size: 16px !important;
-  }
-  /* Smooth scrolling everywhere */
-  html {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
-/* ── NOTIFICATION STYLES ── */
-.notif-item {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  transition: background 0.2s;
-  text-decoration: none;
-}
-.notif-item:hover {
-  background: var(--bg-surface-2);
-}
-.notif-item:last-child {
-  border-bottom: none;
-}
-.notif-icon-box {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-.notif-title {
-  font-weight: 700;
-  font-size: 12px;
-  color: var(--text-main);
-  margin-bottom: 2px;
-}
-.notif-body {
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.35;
-}
-}
-</style>
-
-{% block extrahead %}{% endblock %}
+    @media (max-width: 991px) {
+      .header-links { display: none !important; }
+      .mobile-toggle-btn { display: block !important; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Row 1: Utility top-bar -->
-<div class="top-bar-new">
-  <div class="top-bar-info">
-    <span><i class="bi bi-shield-check text-success"></i> {% if store and store.announcement_text %}{{ store.announcement_text|safe }}{% else %}100% Halol Kafolatli Go'sht Mahsulotlari{% endif %}</span>
-    <a href="tel:+998770824477" class="d-none d-md-inline"><i class="bi bi-telephone-fill"></i> {% if store and store.phone_number %}{{ store.phone_number }}{% else %}+998 77 082 4477{% endif %}</a>
-  </div>
-  
-  <div class="top-bar-actions">
-    <!-- Script Toggle -->
-    <div class="script-toggle">
-      <a href="/pos/switch-script/latin/" class="script-btn {% if request.session.script_mode == 'latin' or not request.session.script_mode %}active{% endif %}">Lotin</a>
-      <a href="/pos/switch-script/cyrillic/" class="script-btn {% if request.session.script_mode == 'cyrillic' %}active{% endif %}">Кирилл</a>
-    </div>
-
-    <!-- Notification Bell -->
-    {% if user.is_authenticated and user.is_superuser %}
-    <div class="dropdown me-2" id="notificationDropdownWrapper">
-      <button class="btn btn-sm btn-link text-decoration-none position-relative p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--text-main); font-size: 15px; display: flex; align-items: center;" onclick="loadNotifications()">
-        <i class="bi bi-bell-fill" style="color: var(--primary);"></i>
-        <span id="notif-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 8px; padding: 2px 4px; display: none; transform: translate(50%, -50%);">0</span>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end shadow-md p-2 mt-2" id="notificationDropdownMenu" style="width: 290px; border-radius: 12px; font-size: 12.5px; border: 1px solid rgba(0,0,0,0.08);">
-        <li class="dropdown-header border-bottom pb-2 fw-bold text-uppercase style-main" style="font-size: 11px; color: var(--primary);">🔔 Bildirishnomalar</li>
-        <div id="notif-list-container" style="max-height: 250px; overflow-y: auto;">
-          <li class="text-center py-3 text-muted">Yuklanmoqda...</li>
-        </div>
-      </ul>
-    </div>
-    {% endif %}
-
-    <!-- User profiles -->
-    {% if user.is_authenticated %}
-    <div class="dropdown">
-      <button class="btn btn-sm btn-link text-decoration-none dropdown-toggle p-0 d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" style="color: var(--text-main); font-weight: 600; font-size: 12.5px;">
-        <div class="user-avatar" style="width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">
-          {{ user.username|slice:":1"|upper }}
-        </div>
-        <span>{{ user.username }}</span>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); padding: 8px;">
-        <div class="px-3 py-2 border-bottom mb-2">
-          <div class="fw-bold style-main" style="font-size: 13px; color: var(--text-main);">{{ user.get_full_name|default:user.username }}</div>
-          <div class="text-muted" style="font-size: 11px;">{% if user.is_superuser %}Administrator{% else %}Mijoz{% endif %}</div>
-        </div>
-        {% if user.is_superuser %}
-        <li><a class="dropdown-item rounded-2" href="/admin/" style="font-size: 12.5px;"><i class="bi bi-database-check me-2"></i> Django Admin</a></li>
-        {% else %}
-        <li><a class="dropdown-item rounded-2" href="/pos/my-cabinet/" style="font-size: 12.5px;"><i class="bi bi-person-vcard me-2"></i> Shaxsiy Kabinet</a></li>
-        {% endif %}
-        <li><hr class="dropdown-divider"></li>
-        <li>
-          <form action="{% url 'logout' %}" method="post" class="m-0">
-            {% csrf_token %}
-            <button type="submit" class="dropdown-item text-danger rounded-2" style="font-size: 12.5px;"><i class="bi bi-box-arrow-right me-2"></i> Chiqish</button>
-          </form>
-        </li>
-      </ul>
-    </div>
-    {% else %}
-    <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 600; text-decoration: none; font-size: 12px;">Kirish</a>
-    <a href="{% url 'signup' %}" style="color: #FFFFFF; background: var(--primary); padding: 4px 12px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 12px;">Ro'yxatdan o'tish</a>
-    {% endif %}
-  </div>
-</div>
-
-<!-- Row 2: Main dark green navbar -->
-<header class="main-navbar-new">
-  <div class="navbar-container-new">
-    <a href="{% url 'home' %}" class="navbar-brand-new d-flex align-items-center gap-2">
-      <div class="navbar-logo-wrapper" style="width: 42px; height: 42px; border-radius: 12px; padding: 2px; background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.35);">
-        <img src="{% static 'images/meatflow_logo.jpg' %}" class="navbar-logo-img" alt="MeatFlow Pro" style="border-radius: 10px; object-fit: cover; width: 100%; height: 100%;">
+<!-- SINGLE UNIFIED LUXURY NAVBAR -->
+<header class="unified-header">
+  <div class="header-container">
+    
+    <!-- Left: Brand Logo -->
+    <a href="{% url 'home' %}" class="header-brand">
+      <div class="brand-logo-wrapper">
+        <img src="{% static 'images/meatflow_logo.jpg' %}" class="brand-logo-img" alt="MeatFlow Pro">
       </div>
       <div>
-        <span class="navbar-brand-name" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.3px;">MeatFlow <span style="color:#10B981;">Pro</span></span>
-        <span class="navbar-brand-sub" style="font-size: 9px; color: #D4A853; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700;">{{ store.name|default:"BAXMAL MEAT BOUTIQUE" }}</span>
+        <span class="brand-name">MeatFlow <span style="color:#10B981;">Pro</span></span>
+        <span class="brand-sub">{{ store.name|default:"BAXMAL MEAT BOUTIQUE" }}</span>
       </div>
     </a>
 
-    <!-- Desktop links (Uzbek) -->
+    <!-- Center: Pulsing Neon Promo Badge Button -->
+    {% if store and store.promo_banner_text %}
+    <button type="button" class="neon-promo-badge-btn" data-bs-toggle="modal" data-bs-target="#promoBannerModal">
+      <span class="neon-badge-pulse"></span>
+      <span class="neon-badge-tag">🔥 KATTA AKSIYA</span>
+      <span class="d-none d-md-inline opacity-90">{{ store.promo_banner_text|strip_tags|truncatechars:45 }}</span>
+      <i class="bi bi-arrow-right-short text-warning font-16 ms-1"></i>
+    </button>
+    {% endif %}
+
+    <!-- Center-Right: Navigation Links (For Superuser / Admin) -->
     {% if user.is_superuser %}
-    <div class="navbar-links-new">
-      <a href="{% url 'terminal' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
+    <div class="header-links">
+      <a href="{% url 'terminal' %}" class="header-link-item {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
         <i class="bi bi-display"></i> Savdo Terminali
       </a>
-      <a href="{% url 'ai_assistant_page' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'ai_assistant_page' %}active{% endif %}">
+      <a href="{% url 'ai_assistant_page' %}" class="header-link-item {% if request.resolver_match.url_name == 'ai_assistant_page' %}active{% endif %}">
         <i class="bi bi-cpu"></i> AI Yordamchi
       </a>
-      <a href="{% url 'customers' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'customers' %}active{% endif %}">
-        <i class="bi bi-people"></i> Mijozlar Bazasi
+      <a href="{% url 'customers' %}" class="header-link-item {% if request.resolver_match.url_name == 'customers' %}active{% endif %}">
+        <i class="bi bi-people"></i> Mijozlar
       </a>
-      <a href="{% url 'customer_chats_dashboard' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'customer_chats_dashboard' %}active{% endif %}">
-        <i class="bi bi-chat-dots"></i> Mijozlar Chati
-        <span id="pending-b2b-badge" class="badge bg-danger rounded-pill d-none ms-1" style="font-size: 9px; font-weight: 700; padding: 2px 5px;">0</span>
+      <a href="{% url 'article_list' %}" class="header-link-item {% if request.resolver_match.url_name == 'article_list' %}active{% endif %}">
+        <i class="bi bi-box-seam"></i> Ombor
       </a>
-      <a href="{% url 'article_list' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'article_list' or request.resolver_match.url_name == 'article_edit' or request.resolver_match.url_name == 'article_detail' %}active{% endif %}">
-        <i class="bi bi-box-seam"></i> Mahsulotlar
-      </a>
-
-      <!-- Dropdown button for all other sections -->
+      
+      <!-- More Dropdown -->
       <div class="dropdown d-inline-block">
-        <button class="navbar-link-item btn btn-link text-decoration-none dropdown-toggle border-0 d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: rgba(255,255,255,0.85); background: transparent; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 50px;">
-          <i class="bi bi-grid-3x3-gap"></i> Boshqa bo'limlar
+        <button class="header-link-item btn btn-link text-decoration-none dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-grid-3x3-gap"></i> Boshqa
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-md mt-2">
-          <li>
-            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'daily_report' %}active{% endif %}" href="{% url 'daily_report' %}">
-              <i class="bi bi-calendar-check me-2 text-info"></i> Kunlik Hisobot
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'global_analytics' %}active{% endif %}" href="{% url 'global_analytics' %}">
-              <i class="bi bi-graph-up-arrow me-2 text-primary"></i> Kengaytirilgan Analitika
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'cash_flow' %}active{% endif %}" href="{% url 'cash_flow' %}">
-              <i class="bi bi-cash-coin me-2 text-success"></i> Kirim-Chiqim
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'yield_loss' %}active{% endif %}" href="{% url 'yield_loss' %}">
-              <i class="bi bi-calculator me-2 text-warning"></i> Tannarx
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'debt_payment' %}active{% endif %}" href="{% url 'debt_payment' %}">
-              <i class="bi bi-wallet2 me-2 text-danger"></i> Qarz to'lovi
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'suppliers_dashboard' %}active{% endif %}" href="{% url 'suppliers_dashboard' %}">
-              <i class="bi bi-truck me-2 text-dark"></i> Ta'minotchilar
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'debt-migration' %}active{% endif %}" href="{% url 'debt-migration' %}">
-              <i class="bi bi-journal-arrow-up me-2 text-secondary"></i> Nasiya daftari (Ko'chirish)
-            </a>
-          </li>
+        <ul class="dropdown-menu dropdown-menu-end shadow-md mt-2" style="border-radius: 14px; border: 1px solid rgba(0,0,0,0.08);">
+          <li><a class="dropdown-item py-2" href="{% url 'daily_report' %}"><i class="bi bi-calendar-check me-2 text-info"></i> Kunlik Hisobot</a></li>
+          <li><a class="dropdown-item py-2" href="{% url 'global_analytics' %}"><i class="bi bi-graph-up-arrow me-2 text-primary"></i> Kengaytirilgan Analitika</a></li>
+          <li><a class="dropdown-item py-2" href="{% url 'cash_flow' %}"><i class="bi bi-cash-coin me-2 text-success"></i> Kirim-Chiqim</a></li>
+          <li><a class="dropdown-item py-2" href="{% url 'yield_loss' %}"><i class="bi bi-calculator me-2 text-warning"></i> Tannarx</a></li>
+          <li><a class="dropdown-item py-2" href="{% url 'debt_payment' %}"><i class="bi bi-wallet2 me-2 text-danger"></i> Qarz to'lovi</a></li>
+          <li><a class="dropdown-item py-2" href="{% url 'suppliers_dashboard' %}"><i class="bi bi-truck me-2 text-dark"></i> Ta'minotchilar</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item rounded-2 {% if request.resolver_match.url_name == 'article_new' %}active{% endif %}" href="{% url 'article_new' %}">
-              <i class="bi bi-plus-circle me-2 text-warning"></i> Yangi Go'sht qo'shish
-            </a>
-          </li>
+          <li><a class="dropdown-item py-2" href="{% url 'article_new' %}"><i class="bi bi-plus-circle me-2 text-warning"></i> Yangi Go'sht qo'shish</a></li>
         </ul>
       </div>
     </div>
     {% endif %}
 
-    <!-- Mobile toggle -->
-    <button class="navbar-toggle-new" onclick="toggleMobileNavbar()">
-      <i class="bi bi-list"></i>
-    </button>
+    <!-- Right: Utility Controls (Script Switcher, Phone, User Profile) -->
+    <div class="header-actions">
+      
+      <!-- Script Switcher -->
+      <div class="script-toggle-compact">
+        <a href="/pos/switch-script/latin/" class="script-btn-compact {% if request.session.script_mode == 'latin' or not request.session.script_mode %}active{% endif %}">Lotin</a>
+        <a href="/pos/switch-script/cyrillic/" class="script-btn-compact {% if request.session.script_mode == 'cyrillic' %}active{% endif %}">Кирилл</a>
+      </div>
+
+      <!-- Phone Link -->
+      <a href="tel:+998770824477" class="d-none d-xl-inline text-white-50 font-12 text-decoration-none" style="font-size: 12px;">
+        <i class="bi bi-telephone-fill text-warning me-1"></i> +998 77 082 4477
+      </a>
+
+      <!-- Notification Bell -->
+      {% if user.is_authenticated and user.is_superuser %}
+      <div class="dropdown" id="notificationDropdownWrapper">
+        <button class="btn btn-sm btn-link text-decoration-none position-relative p-0 text-white opacity-80" type="button" data-bs-toggle="dropdown" onclick="loadNotifications()">
+          <i class="bi bi-bell-fill font-16" style="color: #D4A853;"></i>
+          <span id="notif-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 8px; padding: 2px 4px; display: none;">0</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-md p-2 mt-2" id="notificationDropdownMenu" style="width: 290px; border-radius: 14px;">
+          <li class="dropdown-header border-bottom pb-2 fw-bold text-uppercase style-main" style="font-size: 11px; color: var(--primary);">🔔 Bildirishnomalar</li>
+          <div id="notif-list-container" style="max-height: 250px; overflow-y: auto;">
+            <li class="text-center py-3 text-muted">Yuklanmoqda...</li>
+          </div>
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- User Avatar / Profile Dropdown -->
+      {% if user.is_authenticated %}
+      <div class="dropdown">
+        <button class="btn btn-sm btn-link text-decoration-none dropdown-toggle p-0 d-flex align-items-center gap-2 text-white" type="button" data-bs-toggle="dropdown">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #10B981, #059669); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 1px solid rgba(255,255,255,0.3);">
+            {{ user.username|slice:":1"|upper }}
+          </div>
+          <span class="d-none d-md-inline" style="font-size: 13px; font-weight: 600;">{{ user.username }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: 14px; padding: 8px;">
+          <div class="px-3 py-2 border-bottom mb-2">
+            <div class="fw-bold" style="font-size: 13px;">{{ user.get_full_name|default:user.username }}</div>
+            <div class="text-muted" style="font-size: 11px;">{% if user.is_superuser %}Administrator{% else %}Mijoz{% endif %}</div>
+          </div>
+          {% if user.is_superuser %}
+          <li><a class="dropdown-item rounded-2 py-2" href="/admin/"><i class="bi bi-database-check me-2"></i> Django Admin</a></li>
+          {% else %}
+          <li><a class="dropdown-item rounded-2 py-2" href="/pos/my-cabinet/"><i class="bi bi-person-vcard me-2"></i> Shaxsiy Kabinet</a></li>
+          {% endif %}
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form action="{% url 'logout' %}" method="post" class="m-0">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item text-danger rounded-2 py-2"><i class="bi bi-box-arrow-right me-2"></i> Chiqish</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+      {% else %}
+      <a href="{% url 'login' %}" style="color: #FFFFFF; font-weight: 600; text-decoration: none; font-size: 12px;">Kirish</a>
+      <a href="{% url 'signup' %}" style="color: #061A13; background: #D4A853; padding: 5px 14px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 12px;">Ro'yxatdan o'tish</a>
+      {% endif %}
+
+      <!-- Mobile Toggle -->
+      <button class="mobile-toggle-btn" onclick="toggleMobileNavbar()">
+        <i class="bi bi-list"></i>
+      </button>
+
+    </div>
+
   </div>
 </header>
 
-<!-- Mobile Dropdown -->
-<div id="mobile-navbar-dropdown" class="mobile-dropdown-menu-new">
+<!-- Mobile Menu Drawer -->
+<div id="mobile-navbar-dropdown" class="mobile-menu-drawer">
   <div class="d-flex flex-column gap-2">
     {% if user.is_superuser %}
-    <a href="{% url 'terminal' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
-      <i class="bi bi-display"></i> Savdo Terminali
-    </a>
-    <a href="{% url 'ai_assistant_page' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'ai_assistant_page' %}active{% endif %}">
-      <i class="bi bi-cpu"></i> AI Yordamchi
-    </a>
-    <a href="{% url 'customers' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'customers' %}active{% endif %}">
-      <i class="bi bi-people"></i> Mijozlar Bazasi
-    </a>
-    <a href="{% url 'customer_chats_dashboard' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'customer_chats_dashboard' %}active{% endif %}">
-      <i class="bi bi-chat-dots"></i> Mijozlar Chati <span id="mobile-pending-b2b-badge" class="badge bg-danger rounded-pill d-none ms-2">0</span>
-    </a>
-    <a href="{% url 'article_list' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'article_list' %}active{% endif %}">
-      <i class="bi bi-box-seam"></i> Mahsulotlar
-    </a>
-    <hr class="my-1" style="border-color: rgba(255,255,255,0.15)">
-    <a href="{% url 'daily_report' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'daily_report' %}active{% endif %}">
-      <i class="bi bi-calendar-check"></i> Kunlik Hisobot
-    </a>
-    <a href="{% url 'global_analytics' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'global_analytics' %}active{% endif %}">
-      <i class="bi bi-graph-up-arrow"></i> Kengaytirilgan Analitika
-    </a>
-    <a href="{% url 'cash_flow' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'cash_flow' %}active{% endif %}">
-      <i class="bi bi-cash-coin"></i> Kirim-Chiqim
-    </a>
-    <a href="{% url 'yield_loss' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'yield_loss' %}active{% endif %}">
-      <i class="bi bi-calculator"></i> Tannarx
-    </a>
-    <a href="{% url 'debt_payment' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'debt_payment' %}active{% endif %}">
-      <i class="bi bi-wallet2"></i> Qarz to'lovi
-    </a>
-    <a href="{% url 'suppliers_dashboard' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'suppliers_dashboard' %}active{% endif %}">
-      <i class="bi bi-truck"></i> Ta'minotchilar
-    </a>
-    <a href="{% url 'debt-migration' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'debt-migration' %}active{% endif %}">
-      <i class="bi bi-journal-arrow-up"></i> Nasiya daftari (Ko'chirish)
-    </a>
-    <a href="{% url 'article_new' %}" class="navbar-link-item {% if request.resolver_match.url_name == 'article_new' %}active{% endif %}">
-      <i class="bi bi-plus-circle"></i> Yangi Go'sht qo'shish
-    </a>
+    <a href="{% url 'terminal' %}" class="header-link-item"><i class="bi bi-display"></i> Savdo Terminali</a>
+    <a href="{% url 'ai_assistant_page' %}" class="header-link-item"><i class="bi bi-cpu"></i> AI Yordamchi</a>
+    <a href="{% url 'customers' %}" class="header-link-item"><i class="bi bi-people"></i> Mijozlar Bazasi</a>
+    <a href="{% url 'customer_chats_dashboard' %}" class="header-link-item"><i class="bi bi-chat-dots"></i> Mijozlar Chati</a>
+    <a href="{% url 'article_list' %}" class="header-link-item"><i class="bi bi-box-seam"></i> Ombor</a>
     {% else %}
-    <a href="/pos/my-cabinet/" class="navbar-link-item">
-      <i class="bi bi-person-vcard"></i> Shaxsiy Kabinet
-    </a>
+    <a href="/pos/my-cabinet/" class="header-link-item"><i class="bi bi-person-vcard"></i> Shaxsiy Kabinet</a>
     {% endif %}
   </div>
 </div>
@@ -756,108 +385,74 @@ function toggleMobileNavbar() {
 </script>
 
 <div class="main-wrapper">
-  {% if not user.is_superuser and store.promo_banner_text %}
-  <!-- PROMOTIONAL ACCORDION/BANNER FOR BEEF -->
-  <div class="promo-banner-wrapper animate__animated animate__fadeInDown" style="background: linear-gradient(135deg, #1B6B4A, #145438); color: #FFFFFF; padding: 12px 20px; font-size: 14px; text-align: center; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 10px; border-bottom: 2px solid #D4A853; position: relative; z-index: 100;">
-    <span style="background: #D4A853; color: #1A1A2E; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 30px; text-transform: uppercase; letter-spacing: 1px;">Katta Aksiya</span>
-    <span>{{ store.promo_banner_text|safe }}</span>
-    <a href="/pos/my-cabinet/" style="color: #81EFBB; font-weight: 700; text-decoration: underline; margin-left: 10px;">Buyurtma berish <i class="bi bi-arrow-right"></i></a>
-  </div>
-  {% endif %}
   {% block content %}{% endblock content %}
 </div>
 
-<footer class="modern-footer">
-  <div class="footer-inner">
-    <div class="footer-text">
-      © 2026 <strong>Baxmal Meat</strong>. Barcha huquqlar himoyalangan.
+<!-- KATTA AKSIYA PROMO MODAL -->
+{% if store and store.promo_banner_text %}
+<div class="modal fade" id="promoBannerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; background: #FFFFFF;">
+      <div style="background: linear-gradient(135deg, #051610, #1B6B4A); color: #FFFFFF; padding: 24px; text-align: center; position: relative;">
+        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+        <span class="badge bg-warning text-dark font-monospace fw-bold mb-2 px-3 py-2" style="font-size: 11px; letter-spacing: 1px; border-radius: 30px;">🔥 KATTA AKSIYA & MAXSUS TAKLIF</span>
+        <h4 style="font-family: 'DM Serif Display', serif; margin: 8px 0 0; color: #D4A853;">Baxmal Meat Boutique</h4>
+      </div>
+      <div class="modal-body p-4 text-center">
+        <div style="font-size: 15px; color: #1A1A2E; line-height: 1.6; margin-bottom: 24px; font-weight: 500;">
+          {{ store.promo_banner_text|safe }}
+        </div>
+        <div style="background: rgba(16,185,129,0.08); border-radius: 12px; padding: 12px; font-size: 12.5px; color: #10B981; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i class="bi bi-truck-flatbed font-18"></i> 100% Halol Kafolatli va Tezkor Yetkazish!
+        </div>
+        <a href="/pos/my-cabinet/" class="btn btn-success rounded-pill fw-bold w-100 py-3 style-main" style="background: linear-gradient(135deg, #1B6B4A, #145438); border: none; font-size: 14px; box-shadow: 0 4px 15px rgba(27,107,74,0.3);">
+          Buyurtma Berish <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
     </div>
-    <div class="footer-links">
-      <a href="{% url 'home' %}">Bosh Sahifa</a>
-      {% if user.is_authenticated %}
-      <a href="{% url 'terminal' %}">Terminal</a>
-      <a href="{% url 'global_analytics' %}">Analitika</a>
-      {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<footer class="modern-footer" style="background: #051610; color: rgba(255,255,255,0.7); padding: 32px 24px; margin-top: 60px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 13px;">
+  <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div>
+      © 2026 <strong style="color: #FFFFFF;">Baxmal Meat Boutique</strong>. Barcha huquqlar himoyalangan.
+    </div>
+    <div style="display: flex; gap: 16px;">
+      <a href="tel:+998770824477" style="color: #D4A853; text-decoration: none;"><i class="bi bi-telephone me-1"></i> +998 77 082 4477</a>
+      <span style="color: rgba(255,255,255,0.2);">|</span>
+      <span>Toshkent shahri, Chilonzor tumani</span>
     </div>
   </div>
 </footer>
 
-{% if user.is_authenticated and user.is_superuser %}
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.bundle.min.js"></script>
+
 <script>
 function loadNotifications() {
-  const container = document.getElementById('notif-list-container');
-  if (!container) return;
-  
   fetch('/pos/api/notifications/')
-    .then(res => res.json())
+    .then(r => r.json())
     .then(data => {
-      container.innerHTML = '';
-      if (data.alerts && data.alerts.length > 0) {
-        data.alerts.forEach(alert => {
-          const li = document.createElement('li');
-          li.className = 'notif-item';
-          li.innerHTML = `
-            <div class="notif-icon-box" style="background: ${alert.type === 'low_stock' ? 'rgba(220,53,69,0.08)' : 'rgba(27,107,74,0.08)'};">
-              ${alert.icon}
-            </div>
-            <div style="flex: 1;">
-              <div class="notif-title">${alert.title}</div>
-              <div class="notif-body">${alert.body}</div>
-            </div>
-          `;
-          container.appendChild(li);
-        });
+      const container = document.getElementById('notif-list-container');
+      const badge = document.getElementById('notif-count-badge');
+      if (!container) return;
+      if (data.count > 0) {
+        if (badge) { badge.textContent = data.count; badge.style.display = 'block'; }
+        container.innerHTML = data.items.map(i => `
+          <li class="p-2 border-bottom hover-bg-light" style="font-size: 11.5px;">
+            <div class="fw-bold text-dark">${i.title}</div>
+            <div class="text-muted">${i.message}</div>
+          </li>
+        `).join('');
       } else {
-        container.innerHTML = '<li class="text-center py-4 text-muted"><i class="bi bi-check-circle text-success fs-4 d-block mb-2"></i>Hamma narsa joyida!</li>';
+        if (badge) badge.style.display = 'none';
+        container.innerHTML = '<li class="text-center py-3 text-muted">Yangi bildirishnoma yo'q</li>';
       }
-    })
-    .catch(err => {
-      console.error(err);
-      container.innerHTML = '<li class="text-center py-3 text-danger">Yuklashda xatolik!</li>';
     });
 }
-
-function checkNotificationCount() {
-  fetch('/pos/api/notifications/')
-    .then(res => res.json())
-    .then(data => {
-      const badge = document.getElementById('notif-count-badge');
-      if (badge) {
-        if (data.count > 0) {
-          badge.innerText = data.count;
-          badge.style.display = 'block';
-        } else {
-          badge.style.display = 'none';
-        }
-      }
-      
-      // Update B2B pending badge if exists
-      const b2bBadge = document.getElementById('pending-b2b-badge');
-      if (b2bBadge) {
-        if (data.pending_b2b > 0) {
-          b2bBadge.innerText = data.pending_b2b;
-          b2bBadge.classList.remove('d-none');
-        } else {
-          b2bBadge.classList.add('d-none');
-        }
-      }
-    })
-    .catch(err => console.error("Error checking counts:", err));
-}
-
-// Initial count check and set interval
-document.addEventListener("DOMContentLoaded", function() {
-  checkNotificationCount();
-  setInterval(checkNotificationCount, 30000);
-});
 </script>
-{% endif %}
 
-{% block modals %}{% endblock modals %}
-
-{% include 'b2b_notification_toast.html' %}
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-{% block extrascripts %}{% endblock %}
 </body>
 </html>
