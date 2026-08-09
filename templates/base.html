@@ -218,6 +218,11 @@
       border-top: 1px solid rgba(255,255,255,0.1);
       padding: 16px 24px;
     }
+    .dropdown-menu.show {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
     @media (max-width: 991px) {
       .header-links { display: none !important; }
       .mobile-toggle-btn { display: block !important; }
@@ -442,6 +447,27 @@ function loadNotifications() {
       }
     });
 }
+
+// Universal Dropdown Toggle Listener (Guarantees dropdowns open on click)
+document.addEventListener('click', function(e) {
+  const toggleBtn = e.target.closest('[data-bs-toggle="dropdown"], .dropdown-toggle, #boshqaDropdownBtn');
+  if (toggleBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const dropdownParent = toggleBtn.closest('.dropdown');
+    if (dropdownParent) {
+      const menu = dropdownParent.querySelector('.dropdown-menu');
+      if (menu) {
+        document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+          if (m !== menu) m.classList.remove('show');
+        });
+        menu.classList.toggle('show');
+      }
+    }
+  } else if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+  }
+});
 </script>
 {% block extrascripts %}{% endblock %}
 
