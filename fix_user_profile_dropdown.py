@@ -1,4 +1,7 @@
-{% load static %}
+# -*- coding: utf-8 -*-
+import sys
+
+base_html_code = '''{% load static %}
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -518,7 +521,7 @@ function loadNotifications() {
         `).join('');
       } else {
         if (badge) badge.style.display = 'none';
-        container.innerHTML = '<li class="text-center py-3 text-muted">Yangi bildirishnoma yo'q</li>';
+        container.innerHTML = '<li class="text-center py-3 text-muted">Yangi bildirishnoma yo\'q</li>';
       }
     });
 }
@@ -527,3 +530,8 @@ function loadNotifications() {
 
 </body>
 </html>
+'''
+
+with open('templates/base.html', 'w', encoding='utf-8') as f:
+    f.write(base_html_code)
+print("SUCCESSFULLY_FIXED_USER_PROFILE_DROPDOWN")
