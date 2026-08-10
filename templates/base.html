@@ -5,525 +5,595 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}MeatFlow Pro | Baxmal Meat Boutique{% endblock %}</title>
-  
-  <!-- Favicon -->
   <link rel="icon" type="image/jpeg" href="{% static 'images/meatflow_logo.jpg' %}">
-  
-  <!-- Bootstrap 5 CSS & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-  
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
   <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --primary: #1B6B4A;
-      --primary-dark: #061E14;
-      --accent: #D4A853;
-      --text-main: #1A1A2E;
-      --text-muted: #6B7280;
-      --bg-light: #F4F6F5;
-      --font-main: 'Plus Jakarta Sans', sans-serif;
-      --font-serif: 'DM Serif Display', serif;
+      --mfp-dark:    #061A10;
+      --mfp-green:   #10B981;
+      --mfp-gold:    #D4A853;
+      --mfp-bg:      #F1F5F2;
+      --font:        'Plus Jakarta Sans', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--mfp-bg); color: #1A1A2E; }
+
+    /* ─── HEADER ─── */
+    .mfp-header {
+      background: linear-gradient(135deg, #04110D 0%, #071F14 60%, #030E09 100%);
+      border-bottom: 1px solid rgba(212,168,83,.25);
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+      position: sticky; top: 0; z-index: 1040;
+    }
+    .mfp-navbar {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1440px; margin: 0 auto;
+      padding: 10px 20px; gap: 12px;
     }
 
-    body {
-      font-family: var(--font-main);
-      background-color: var(--bg-light);
-      color: var(--text-main);
-      margin: 0;
-      padding: 0;
+    /* Logo */
+    .mfp-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+    .mfp-logo-img { width: 42px; height: 42px; border-radius: 11px; object-fit: cover;
+      border: 2px solid rgba(212,168,83,.5); }
+    .mfp-logo-text { line-height: 1; }
+    .mfp-logo-text strong { display: block; color: #fff; font-size: 18px; font-weight: 800; }
+    .mfp-logo-text span { display: block; color: var(--mfp-gold); font-size: 8.5px;
+      letter-spacing: 1.8px; text-transform: uppercase; font-weight: 700; margin-top: 2px; }
+
+    /* Nav Pills */
+    .mfp-nav { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+    .mfp-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 50px;
+      font-size: 12.5px; font-weight: 700; white-space: nowrap;
+      text-decoration: none; transition: all .2s ease; border: 1px solid transparent;
+    }
+    .mfp-pill i { font-size: 13px; }
+    .mfp-pill:hover { transform: translateY(-1px); }
+
+    .pill-emerald { color: #10B981; background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.3); }
+    .pill-emerald:hover,.pill-emerald.active { background:#10B981; color:#04110D !important; box-shadow:0 4px 14px rgba(16,185,129,.4); }
+
+    .pill-sky { color: #38BDF8; background: rgba(56,189,248,.12); border-color: rgba(56,189,248,.3); }
+    .pill-sky:hover,.pill-sky.active { background:#0EA5E9; color:#fff !important; box-shadow:0 4px 14px rgba(14,165,233,.4); }
+
+    .pill-violet { color: #C084FC; background: rgba(192,132,252,.12); border-color: rgba(192,132,252,.3); }
+    .pill-violet:hover,.pill-violet.active { background:#A855F7; color:#fff !important; box-shadow:0 4px 14px rgba(168,85,247,.4); }
+
+    .pill-amber { color: #FCD34D; background: rgba(252,211,77,.12); border-color: rgba(252,211,77,.3); }
+    .pill-amber:hover,.pill-amber.active { background:#F59E0B; color:#04110D !important; box-shadow:0 4px 14px rgba(245,158,11,.4); }
+
+    .pill-indigo { color: #818CF8; background: rgba(129,140,248,.12); border-color: rgba(129,140,248,.3); }
+    .pill-indigo:hover,.pill-indigo.active { background:#6366F1; color:#fff !important; box-shadow:0 4px 14px rgba(99,102,241,.4); }
+
+    .pill-rose { color: #FB7185; background: rgba(251,113,133,.12); border-color: rgba(251,113,133,.3); }
+    .pill-rose:hover,.pill-rose.active { background:#F43F5E; color:#fff !important; box-shadow:0 4px 14px rgba(244,63,94,.4); }
+
+    /* Finance dropdown toggle */
+    .mfp-dropdown { position: relative; display: inline-block; }
+    .mfp-dropdown-menu {
+      display: none; position: absolute; top: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: #fff; border-radius: 16px; padding: 8px;
+      min-width: 230px; box-shadow: 0 12px 40px rgba(0,0,0,.18);
+      border: 1px solid rgba(0,0,0,.06); z-index: 2000;
+    }
+    .mfp-dropdown-menu.open { display: block; }
+    .mfp-dropdown-menu a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; border-radius: 10px;
+      font-size: 13px; font-weight: 600; color: #374151; text-decoration: none;
+      transition: background .15s;
+    }
+    .mfp-dropdown-menu a:hover { background: #F0FDF4; color: #10B981; }
+    .mfp-dropdown-menu a i { font-size: 14px; width: 18px; }
+
+    /* Right controls */
+    .mfp-controls { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    /* Script Toggle */
+    .mfp-script-toggle {
+      display: flex; background: rgba(255,255,255,.1); border-radius: 30px;
+      border: 1px solid rgba(212,168,83,.3); padding: 2px; overflow: hidden;
+    }
+    .mfp-script-btn {
+      color: rgba(255,255,255,.75); text-decoration: none;
+      font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 30px;
+      transition: all .2s;
+    }
+    .mfp-script-btn.active { background: #10B981; color: #fff; box-shadow: 0 2px 8px rgba(16,185,129,.5); }
+
+    /* Bell Button */
+    .mfp-bell-btn {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(212,168,83,.4);
+      background: rgba(212,168,83,.12); color: #D4A853;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      cursor: pointer; transition: all .2s; position: relative;
+    }
+    .mfp-bell-btn:hover { background: rgba(212,168,83,.3); transform: scale(1.05); }
+    .mfp-bell-badge {
+      position: absolute; top: -3px; right: -3px;
+      background: #EF4444; color: #fff; font-size: 9px; font-weight: 800;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: none; align-items: center; justify-content: center;
+      border: 2px solid #04110D;
     }
 
-    /* ── BULLETPROOF EXECUTIVE NAVBAR ── */
-    .unified-header {
-      background: linear-gradient(135deg, #04120C 0%, #08261A 50%, #04140D 100%);
-      border-bottom: 1px solid rgba(212, 168, 83, 0.35);
-      padding: 10px 0;
-      position: sticky;
-      top: 0;
-      z-index: 1050;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
-      backdrop-filter: blur(14px);
+    /* User Profile Button */
+    .mfp-user-btn {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+      background: rgba(255,255,255,.08); border: 1.5px solid rgba(212,168,83,.5);
+      border-radius: 50px; padding: 4px 12px 4px 5px;
+      transition: all .2s; position: relative;
     }
-    
-    /* Brand Logo */
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-    .brand-logo-wrapper {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      padding: 2px;
+    .mfp-user-btn:hover { background: rgba(212,168,83,.2); border-color: var(--mfp-gold); }
+    .mfp-user-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
       background: linear-gradient(135deg, #10B981, #D4A853);
-      box-shadow: 0 4px 16px rgba(16,185,129,0.35);
+      color: #04110D; font-weight: 900; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
     }
-    .brand-logo-img {
-      width: 100%;
-      height: 100%;
-      border-radius: 10px;
-      object-fit: cover;
+    .mfp-user-name { color: #fff; font-size: 13px; font-weight: 700; }
+    .mfp-user-menu {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: #fff; border-radius: 16px; padding: 8px;
+      min-width: 260px; box-shadow: 0 16px 48px rgba(0,0,0,.18);
+      border: 1px solid rgba(0,0,0,.07); z-index: 2000;
     }
-    .brand-name {
-      font-family: var(--font-main);
-      font-size: 19px;
-      font-weight: 800;
-      color: #FFFFFF;
-      letter-spacing: -0.3px;
-      line-height: 1;
+    .mfp-user-menu.open { display: block; }
+    .mfp-user-menu-header { padding: 10px 14px 12px; border-bottom: 1px solid #F3F4F6; margin-bottom: 6px; }
+    .mfp-user-menu-header .name { font-weight: 800; font-size: 14px; color: #111827; }
+    .mfp-user-menu-header .role { font-size: 11px; font-weight: 700; color: #10B981; margin-top: 2px; }
+    .mfp-user-menu a, .mfp-user-menu button {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      color: #374151; text-decoration: none; background: none; border: none;
+      cursor: pointer; transition: background .15s; text-align: left;
     }
-    .brand-sub {
-      font-size: 8.5px;
-      color: var(--accent);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      font-weight: 700;
-      margin-top: 2px;
-      display: block;
-    }
-
-    /* VIBRANT ACTION PILLS */
-    .nav-pill-item {
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 7px 15px;
-      border-radius: 50px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.22s ease;
-      white-space: nowrap;
-      border: 1px solid transparent;
-    }
-    .nav-pill-item:hover {
-      transform: translateY(-1px);
+    .mfp-user-menu a:hover, .mfp-user-menu button:hover { background: #F9FAFB; }
+    .mfp-user-menu a i, .mfp-user-menu button i { font-size: 14px; width: 18px; }
+    .mfp-user-menu .divider { height: 1px; background: #F3F4F6; margin: 6px 8px; }
+    .mfp-user-menu .logout-btn { color: #EF4444 !important; }
+    .mfp-user-menu .section-label {
+      font-size: 10px; font-weight: 800; color: #9CA3AF; text-transform: uppercase;
+      letter-spacing: 1px; padding: 4px 14px 2px;
     }
 
-    /* Pill Colors */
-    .pill-green {
-      color: #10B981;
-      background: rgba(16, 185, 129, 0.14);
-      border-color: rgba(16, 185, 129, 0.3);
-    }
-    .pill-green:hover, .pill-green.active {
-      background: #10B981;
-      color: #04120C !important;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    /* Mobile hamburger */
+    .mfp-hamburger {
+      display: none; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      color: #fff; width: 38px; height: 38px; border-radius: 10px;
+      align-items: center; justify-content: center; font-size: 18px; cursor: pointer;
     }
 
-    .pill-blue {
-      color: #60A5FA;
-      background: rgba(96, 165, 250, 0.14);
-      border-color: rgba(96, 165, 250, 0.3);
+    /* Notification dropdown */
+    .mfp-notif-wrapper { position: relative; }
+    .mfp-notif-menu {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: #fff; border-radius: 16px; padding: 0;
+      width: 310px; box-shadow: 0 16px 48px rgba(0,0,0,.18);
+      border: 1px solid rgba(0,0,0,.07); z-index: 2000; overflow: hidden;
     }
-    .pill-blue:hover, .pill-blue.active {
-      background: #3B82F6;
-      color: #FFFFFF !important;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    }
+    .mfp-notif-menu.open { display: block; }
+    .mfp-notif-menu-header { padding: 14px 16px; border-bottom: 1px solid #F3F4F6;
+      display: flex; justify-content: space-between; align-items: center; }
+    #mfp-notif-list { max-height: 280px; overflow-y: auto; padding: 8px; }
 
-    .pill-purple {
-      color: #C084FC;
-      background: rgba(192, 132, 252, 0.14);
-      border-color: rgba(192, 132, 252, 0.3);
+    /* Mobile menu drawer */
+    .mfp-mobile-drawer {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,.5); z-index: 2050; backdrop-filter: blur(4px);
     }
-    .pill-purple:hover, .pill-purple.active {
-      background: #A855F7;
-      color: #FFFFFF !important;
-      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+    .mfp-mobile-drawer.open { display: block; }
+    .mfp-mobile-panel {
+      background: #071F14; width: 290px; height: 100%; padding: 20px 16px;
+      overflow-y: auto; box-shadow: 8px 0 40px rgba(0,0,0,.4);
     }
+    .mfp-mobile-panel .close-btn {
+      color: rgba(255,255,255,.6); font-size: 22px; cursor: pointer;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+    .mfp-mobile-link {
+      display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+      border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 700;
+      margin-bottom: 4px; color: rgba(255,255,255,.85); transition: all .2s;
+    }
+    .mfp-mobile-link:hover, .mfp-mobile-link.active { background: rgba(16,185,129,.2); color: #10B981 !important; }
+    .mfp-mobile-link i { font-size: 16px; width: 20px; }
+    .mfp-mobile-divider { height: 1px; background: rgba(255,255,255,.08); margin: 10px 0; }
+    .mfp-mobile-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.35);
+      text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 14px 4px; }
 
-    .pill-amber {
-      color: #FBBF24;
-      background: rgba(251, 191, 36, 0.14);
-      border-color: rgba(251, 191, 36, 0.3);
+    @media (max-width: 1024px) {
+      .mfp-nav { display: none !important; }
+      .mfp-hamburger { display: flex !important; }
     }
-    .pill-amber:hover, .pill-amber.active {
-      background: #F59E0B;
-      color: #04120C !important;
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-    }
-
-    .pill-indigo {
-      color: #818CF8;
-      background: rgba(129, 140, 248, 0.14);
-      border-color: rgba(129, 140, 248, 0.3);
-    }
-    .pill-indigo:hover, .pill-indigo.active {
-      background: #6366F1;
-      color: #FFFFFF !important;
-      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-    }
-
-    .pill-pink {
-      color: #F472B6;
-      background: rgba(244, 114, 182, 0.14);
-      border-color: rgba(244, 114, 182, 0.3);
-    }
-    .pill-pink:hover, .pill-pink.active {
-      background: linear-gradient(135deg, #EC4899, #D946EF);
-      color: #FFFFFF !important;
-      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
-    }
-
-    /* Script Switcher */
-    .script-pill-toggle {
-      display: inline-flex;
-      background: rgba(255,255,255,0.12);
-      border-radius: 30px;
-      padding: 2px;
-      border: 1px solid rgba(212,168,83,0.3);
-    }
-    .script-pill {
-      color: rgba(255,255,255,0.85);
-      text-decoration: none;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: 30px;
-      transition: all 0.2s;
-    }
-    .script-pill.active {
-      background: #10B981;
-      color: #FFFFFF !important;
-      box-shadow: 0 2px 8px rgba(16,185,129,0.5);
-    }
-
-    /* User Profile Dropdown Button */
-    .btn-user-profile {
-      background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(212,168,83,0.25));
-      border: 1.5px solid #D4A853 !important;
-      color: #FFFFFF !important;
-      padding: 5px 14px 5px 6px;
-      border-radius: 50px;
-      font-size: 13.5px;
-      font-weight: 800;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      cursor: pointer;
-      user-select: none;
-    }
-    .btn-user-profile:hover {
-      background: rgba(212,168,83,0.4);
-      border-color: #F59E0B !important;
-      transform: translateY(-1px);
-    }
-    .btn-user-profile * {
-      pointer-events: none;
-    }
-    .user-avatar-circle {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #10B981, #D4A853);
-      color: #04120C;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 13.5px;
-    }
-    .dropdown-menu.show {
-      display: block !important;
-      opacity: 1 !important;
-      visibility: visible !important;
+    @media (max-width: 480px) {
+      .mfp-script-toggle { display: none; }
+      .mfp-bell-btn { display: none; }
     }
   </style>
   {% block extrahead %}{% endblock %}
 </head>
 <body>
 
-<!-- BULLETPROOF HEADER NAVBAR -->
-<header class="unified-header">
-  <div class="container-fluid px-lg-4">
-    <nav class="navbar navbar-expand-lg navbar-dark p-0">
-      
-      <!-- Left: Logo -->
-      <a href="{% url 'home' %}" class="header-brand me-3">
-        <div class="brand-logo-wrapper">
-          <img src="{% static 'images/meatflow_logo.jpg' %}" class="brand-logo-img" alt="MeatFlow Pro">
-        </div>
-        <div>
-          <span class="brand-name">MeatFlow <span style="color:#10B981;">Pro</span></span>
-          <span class="brand-sub">{{ store.name|default:"BAXMAL MEAT BOUTIQUE" }}</span>
-        </div>
-      </a>
+<!-- ══════════════════════ HEADER ══════════════════════ -->
+<header class="mfp-header">
+  <div class="mfp-navbar">
 
-      <!-- Mobile Hamburger Button -->
-      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainHeaderNavbar" aria-controls="mainHeaderNavbar" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <!-- Navbar Collapsible Menu -->
-      <div class="collapse navbar-collapse" id="mainHeaderNavbar">
-        
-        <!-- Center Links (Admin vs Customer) -->
-        <div class="navbar-nav mx-auto d-flex flex-wrap gap-2 my-2 my-lg-0">
-          {% if user.is_superuser %}
-            <a href="{% url 'home' %}" class="nav-pill-item pill-green {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-              <i class="bi bi-grid-1x2-fill"></i> Boshqaruv
-            </a>
-            <a href="{% url 'terminal' %}" class="nav-pill-item pill-blue {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
-              <i class="bi bi-display-fill"></i> Terminal (Kassa)
-            </a>
-            <a href="{% url 'customers' %}" class="nav-pill-item pill-purple {% if request.resolver_match.url_name == 'customers' or request.resolver_match.url_name == 'customer_chats_dashboard' %}active{% endif %}">
-              <i class="bi bi-people-fill"></i> Mijozlar
-            </a>
-            <a href="{% url 'article_list' %}" class="nav-pill-item pill-amber {% if 'article' in request.resolver_match.url_name %}active{% endif %}">
-              <i class="bi bi-box-seam-fill"></i> Ombor
-            </a>
-            
-            <div class="nav-item dropdown">
-              <a class="nav-pill-item pill-indigo dropdown-toggle text-decoration-none" href="#" role="button" onclick="toggleDropdownMenu(this, event)">
-                <i class="bi bi-bar-chart-line-fill"></i> Moliya &amp; Hisobot
-              </a>
-              <ul class="dropdown-menu shadow-lg border-0 rounded-4 p-2 mt-2">
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'cash_flow' %}"><i class="bi bi-cash-stack me-2 text-success"></i> Kirim-Chiqim (Kassa)</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'yield_loss' %}"><i class="bi bi-calculator-fill me-2 text-warning"></i> So'yim &amp; Tannarx</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'daily_report' %}"><i class="bi bi-calendar-check me-2 text-info"></i> Kunlik Hisob-kitob</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'global_analytics' %}"><i class="bi bi-graph-up-arrow me-2 text-primary"></i> Kengaytirilgan Analitika</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'debt_payment' %}"><i class="bi bi-wallet2 me-2 text-danger"></i> Qarzlar To'lovi</a></li>
-              </ul>
-            </div>
-
-            <a href="{% url 'ai_assistant_page' %}" class="nav-pill-item pill-pink {% if request.resolver_match.url_name == 'ai_assistant_page' %}active{% endif %}">
-              <i class="bi bi-robot"></i> AI Qassob
-            </a>
-          {% else %}
-            <a href="{% url 'home' %}" class="nav-pill-item pill-green {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-              <i class="bi bi-house-door-fill"></i> Bosh Sahifa
-            </a>
-            <a href="{% url 'article_list' %}" class="nav-pill-item pill-amber {% if 'article' in request.resolver_match.url_name %}active{% endif %}">
-              <i class="bi bi-shop"></i> Go'sht Katalogi
-            </a>
-            <a href="/pos/my-cabinet/" class="nav-pill-item pill-purple {% if 'cabinet' in request.path %}active{% endif %}">
-              <i class="bi bi-cart-check-fill"></i> Buyurtma &amp; Kabinet
-            </a>
-          {% endif %}
-        </div>
-
-        <!-- Right: Controls & User Profile -->
-        <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
-          
-          <!-- Script Switcher -->
-          <div class="script-pill-toggle">
-            <a href="/pos/switch-script/latin/" class="script-pill {% if request.session.script_mode != 'cyrillic' %}active{% endif %}">Lotin</a>
-            <a href="/pos/switch-script/cyrillic/" class="script-pill {% if request.session.script_mode == 'cyrillic' %}active{% endif %}">Кирилл</a>
-          </div>
-
-          <!-- Notification Bell (Superuser only) -->
-          {% if user.is_authenticated and user.is_superuser %}
-          <div class="dropdown">
-            <button class="btn btn-outline-warning btn-sm rounded-circle p-0" style="width:36px; height:36px;" type="button" onclick="loadNotifications(); toggleDropdownMenu(this, event)">
-              <i class="bi bi-bell-fill"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mt-2" style="width: 300px;">
-              <div class="px-3 py-2 border-bottom d-flex align-items-center justify-content-between mb-2">
-                <span class="fw-bold text-dark font-12 text-uppercase">🔔 Bildirishnomalar</span>
-                <span class="badge bg-success bg-opacity-10 text-success font-10">Real vaqt</span>
-              </div>
-              <div id="notif-list-container" style="max-height: 250px; overflow-y: auto;">
-                <li class="text-center py-3 text-muted">Yuklanmoqda...</li>
-              </div>
-            </ul>
-          </div>
-          {% endif %}
-
-          <!-- User Profile Dropdown -->
-          {% if user.is_authenticated %}
-          <div class="dropdown">
-            <button class="btn btn-user-profile border-0" type="button" onclick="toggleDropdownMenu(this, event)">
-              <div class="user-avatar-circle">
-                {{ user.username|slice:":1"|upper }}
-              </div>
-              <span>{{ user.username }}</span>
-              <i class="bi bi-chevron-down opacity-75 font-10 ms-1"></i>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mt-2" style="min-width: 260px;">
-              <div class="px-3 py-2 border-bottom mb-2">
-                <div class="fw-bold text-dark font-14">{{ user.get_full_name|default:user.username }}</div>
-                <div class="text-success font-11 fw-bold">{% if user.is_superuser %}⚡ Bosh Administrator{% else %}👤 Mijoz{% endif %}</div>
-              </div>
-              
-              {% if user.is_superuser %}
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'home' %}"><i class="bi bi-grid-1x2-fill me-2 text-success"></i> Boshqaruv Paneli</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'terminal' %}"><i class="bi bi-display-fill me-2 text-primary"></i> Savdo Terminali</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'customers' %}"><i class="bi bi-people-fill me-2 text-purple"></i> Mijozlar Bazasi &amp; CRM</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'article_list' %}"><i class="bi bi-box-seam-fill me-2 text-warning"></i> Ombor &amp; Go'shtlar</a></li>
-                <li><hr class="dropdown-divider my-2"></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="/admin/pos/storesetting/"><i class="bi bi-sliders me-2 text-warning"></i> Sarlavha &amp; Aksiya Sozlamalari</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'suppliers_dashboard' %}"><i class="bi bi-truck me-2 text-info"></i> Ta'minotchilar Portali</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'debt-migration' %}"><i class="bi bi-journal-arrow-up me-2 text-secondary"></i> Daftardan Qarz Ko'chirish</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="/admin/"><i class="bi bi-database-gear me-2 text-primary"></i> Django Admin</a></li>
-              {% else %}
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'home' %}"><i class="bi bi-house-door-fill me-2 text-success"></i> Bosh Sahifa</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="{% url 'article_list' %}"><i class="bi bi-shop me-2 text-warning"></i> Go'sht Katalogi</a></li>
-                <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="/pos/my-cabinet/"><i class="bi bi-person-vcard me-2 text-primary"></i> Shaxsiy Kabinet &amp; Buyurtmalarim</a></li>
-              {% endif %}
-
-              <li><hr class="dropdown-divider my-2"></li>
-              <li>
-                <form action="{% url 'logout' %}" method="post" class="m-0">
-                  {% csrf_token %}
-                  <button type="submit" class="dropdown-item text-danger rounded-3 py-2 fw-semibold"><i class="bi bi-box-arrow-right me-2"></i> Tizimdan Chiqish</button>
-                </form>
-              </li>
-            </ul>
-          </div>
-          {% else %}
-          <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm rounded-pill font-12 fw-bold px-3">Kirish</a>
-          <a href="{% url 'signup' %}" class="btn btn-warning btn-sm rounded-pill font-12 fw-bold px-3 text-dark">Ro'yxatdan o'tish</a>
-          {% endif %}
-
-        </div>
-
+    <!-- Logo -->
+    <a href="{% url 'home' %}" class="mfp-logo">
+      <img src="{% static 'images/meatflow_logo.jpg' %}" class="mfp-logo-img" alt="MeatFlow Pro">
+      <div class="mfp-logo-text">
+        <strong>MeatFlow <span style="color:#10B981;">Pro</span></strong>
+        <span>{{ store.name|default:"BAXMAL MEAT BOUTIQUE" }}</span>
       </div>
+    </a>
+
+    <!-- Center: Navigation Pills -->
+    {% if user.is_superuser %}
+    <nav class="mfp-nav" id="mfp-desktop-nav">
+      <a href="{% url 'home' %}" class="mfp-pill pill-emerald {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+        <i class="bi bi-grid-fill"></i> Boshqaruv
+      </a>
+      <a href="{% url 'terminal' %}" class="mfp-pill pill-sky {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
+        <i class="bi bi-display-fill"></i> Kassa
+      </a>
+      <a href="{% url 'customers' %}" class="mfp-pill pill-violet {% if request.resolver_match.url_name == 'customers' or request.resolver_match.url_name == 'customer_chats_dashboard' %}active{% endif %}">
+        <i class="bi bi-people-fill"></i> Mijozlar
+      </a>
+      <a href="{% url 'article_list' %}" class="mfp-pill pill-amber {% if 'article' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-box-seam-fill"></i> Ombor
+      </a>
+      <div class="mfp-dropdown">
+        <button class="mfp-pill pill-indigo" onclick="toggleMenu('finance-menu', event)" style="background:inherit;border-color:rgba(129,140,248,.3)">
+          <i class="bi bi-bar-chart-fill"></i> Moliya <i class="bi bi-chevron-down" style="font-size:9px;"></i>
+        </button>
+        <div class="mfp-dropdown-menu" id="finance-menu">
+          <a href="{% url 'cash_flow' %}"><i class="bi bi-cash-stack text-success"></i> Kirim-Chiqim Kassa</a>
+          <a href="{% url 'yield_loss' %}"><i class="bi bi-scissors text-warning"></i> So'yim &amp; Tannarx</a>
+          <a href="{% url 'daily_report' %}"><i class="bi bi-calendar-check text-info"></i> Kunlik Hisobot</a>
+          <a href="{% url 'global_analytics' %}"><i class="bi bi-graph-up-arrow text-primary"></i> Kengaytirilgan Analitika</a>
+          <a href="{% url 'debt_payment' %}"><i class="bi bi-wallet2 text-danger"></i> Qarzlar To'lovi</a>
+          <a href="{% url 'suppliers_dashboard' %}"><i class="bi bi-truck text-info"></i> Ta'minotchilar</a>
+        </div>
+      </div>
+      <a href="{% url 'ai_assistant_page' %}" class="mfp-pill pill-rose {% if request.resolver_match.url_name == 'ai_assistant_page' %}active{% endif %}">
+        <i class="bi bi-robot"></i> AI Qassob
+      </a>
     </nav>
+    {% else %}
+    <nav class="mfp-nav" id="mfp-desktop-nav">
+      <a href="{% url 'home' %}" class="mfp-pill pill-emerald {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+        <i class="bi bi-house-fill"></i> Bosh Sahifa
+      </a>
+      <a href="{% url 'article_list' %}" class="mfp-pill pill-amber {% if 'article' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-shop"></i> Go'sht Katalogi
+      </a>
+      <a href="/pos/my-cabinet/" class="mfp-pill pill-violet {% if 'cabinet' in request.path %}active{% endif %}">
+        <i class="bi bi-cart-check-fill"></i> Kabinet
+      </a>
+    </nav>
+    {% endif %}
+
+    <!-- Right: Controls -->
+    <div class="mfp-controls">
+      <!-- Script Toggle -->
+      <div class="mfp-script-toggle">
+        <a href="/pos/switch-script/latin/" class="mfp-script-btn {% if request.session.script_mode != 'cyrillic' %}active{% endif %}">Lotin</a>
+        <a href="/pos/switch-script/cyrillic/" class="mfp-script-btn {% if request.session.script_mode == 'cyrillic' %}active{% endif %}">Кирилл</a>
+      </div>
+
+      {% if user.is_authenticated and user.is_superuser %}
+      <!-- Bell -->
+      <div class="mfp-notif-wrapper">
+        <div class="mfp-bell-btn" onclick="loadNotifications(); toggleMenu('notif-menu', event)">
+          <i class="bi bi-bell-fill"></i>
+          <span class="mfp-bell-badge" id="notif-badge"></span>
+        </div>
+        <div class="mfp-notif-menu" id="notif-menu">
+          <div class="mfp-notif-menu-header">
+            <span class="fw-bold" style="font-size:13px;">🔔 Bildirishnomalar</span>
+            <span class="badge bg-success-subtle text-success" style="font-size:10px;">Real vaqt</span>
+          </div>
+          <div id="mfp-notif-list">
+            <div class="text-center py-4 text-muted" style="font-size:13px;">Yuklanmoqda...</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+      <!-- User Button -->
+      <div style="position:relative;">
+        <div class="mfp-user-btn" onclick="toggleMenu('user-menu', event)">
+          <div class="mfp-user-avatar">{{ user.username|slice:":1"|upper }}</div>
+          <span class="mfp-user-name d-none d-sm-inline">{{ user.username }}</span>
+          <i class="bi bi-chevron-down" style="color:rgba(255,255,255,.6);font-size:10px;"></i>
+        </div>
+        <div class="mfp-user-menu" id="user-menu">
+          <div class="mfp-user-menu-header">
+            <div class="name">{{ user.get_full_name|default:user.username }}</div>
+            <div class="role">{% if user.is_superuser %}⚡ Bosh Administrator{% else %}👤 Mijoz{% endif %}</div>
+          </div>
+          {% if user.is_superuser %}
+          <div class="section-label">Tezkor Havolalar</div>
+          <a href="{% url 'home' %}"><i class="bi bi-grid-fill text-success"></i> Boshqaruv Paneli</a>
+          <a href="{% url 'terminal' %}"><i class="bi bi-display-fill text-primary"></i> Savdo Terminali</a>
+          <a href="{% url 'customers' %}"><i class="bi bi-people-fill" style="color:#A855F7;"></i> Mijozlar CRM</a>
+          <a href="{% url 'article_list' %}"><i class="bi bi-box-seam-fill text-warning"></i> Ombor &amp; Go'shtlar</a>
+          <a href="{% url 'ai_assistant_page' %}"><i class="bi bi-robot text-danger"></i> AI Qassob</a>
+          <div class="divider"></div>
+          <div class="section-label">Sozlamalar</div>
+          <a href="/admin/pos/storesetting/"><i class="bi bi-sliders text-warning"></i> Do'kon Sozlamalari</a>
+          <a href="{% url 'debt-migration' %}"><i class="bi bi-journal-arrow-up text-secondary"></i> Qarz Ko'chirish</a>
+          <a href="/admin/"><i class="bi bi-database-gear text-primary"></i> Django Admin</a>
+          {% else %}
+          <a href="{% url 'home' %}"><i class="bi bi-house-fill text-success"></i> Bosh Sahifa</a>
+          <a href="{% url 'article_list' %}"><i class="bi bi-shop text-warning"></i> Go'sht Katalogi</a>
+          <a href="/pos/my-cabinet/"><i class="bi bi-person-vcard text-primary"></i> Shaxsiy Kabinet</a>
+          {% endif %}
+          <div class="divider"></div>
+          <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Tizimdan Chiqish</button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <a href="{% url 'login' %}" class="mfp-pill pill-emerald" style="padding:6px 16px;">Kirish</a>
+      <a href="{% url 'signup' %}" class="mfp-pill" style="background:#D4A853;color:#04110D;padding:6px 16px;font-weight:800;">Ro'yxat</a>
+      {% endif %}
+
+      <!-- Mobile Hamburger -->
+      <div class="mfp-hamburger" onclick="openMobileDrawer()">
+        <i class="bi bi-list"></i>
+      </div>
+    </div>
   </div>
 </header>
 
-<div class="main-wrapper">
-  {% block content %}{% endblock content %}
-</div>
-
-<!-- LUXURY FOOTER -->
-<footer style="background: #04120C; color: rgba(255,255,255,0.7); padding: 48px 24px 32px; border-top: 1px solid rgba(212,168,83,0.2); font-size: 13.5px; margin-top: 60px;">
-  <div style="max-width: 1440px; margin: 0 auto;" class="row g-4">
-    
-    <div class="col-lg-4 col-md-6">
-      <div class="d-flex align-items-center gap-2 mb-3">
-        <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #10B981, #D4A853); display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: 800;">M</div>
-        <span class="h5 fw-bold text-white mb-0">MeatFlow <span style="color:#10B981;">Pro</span></span>
-      </div>
-      <p style="color: rgba(255,255,255,0.6); line-height: 1.6; max-width: 340px;">
-        Baxmal Meat Boutique — Fermadan to'g'ridan-to'g'ri dasturxoningizga 100% Halol, muzlatilmagan sarxil mol va qo'y go'shtlari, shaffof tarozi va tezkor kuryerlik xizmati.
-      </p>
-      <div class="d-flex align-items-center gap-2 text-success font-12 fw-bold">
-        <i class="bi bi-patch-check-fill font-16"></i> 100% Halol &amp; Yaylov Sifat Kafolati
-      </div>
+<!-- ══════════════════════ MOBILE DRAWER ══════════════════════ -->
+<div class="mfp-mobile-drawer" id="mfp-mobile-drawer" onclick="closeMobileDrawerOnBackdrop(event)">
+  <div class="mfp-mobile-panel" id="mfp-mobile-panel">
+    <div class="close-btn" onclick="closeMobileDrawer()">
+      <i class="bi bi-x-lg"></i> <span style="font-size:14px;font-weight:700;">Yopish</span>
     </div>
 
     {% if user.is_superuser %}
-    <!-- Admin Footer Navigation -->
-    <div class="col-lg-3 col-md-6">
-      <h6 class="text-white fw-bold mb-3 text-uppercase font-12" style="letter-spacing: 1px; color: #D4A853 !important;">Boshqaruv Havolalari</h6>
-      <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
-        <li><a href="{% url 'home' %}" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right font-10 text-success me-1"></i> Boshqaruv Paneli</a></li>
-        <li><a href="{% url 'terminal' %}" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right font-10 text-success me-1"></i> Savdo Terminali (Kassa)</a></li>
-        <li><a href="{% url 'customers' %}" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right font-10 text-success me-1"></i> Mijozlar Bazasi &amp; CRM</a></li>
-        <li><a href="{% url 'article_list' %}" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right font-10 text-success me-1"></i> Ombor &amp; Go'sht Katalogi</a></li>
-      </ul>
-    </div>
-
-    <div class="col-lg-2 col-md-6">
-      <h6 class="text-white fw-bold mb-3 text-uppercase font-12" style="letter-spacing: 1px; color: #D4A853 !important;">Analitika &amp; Kassa</h6>
-      <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
-        <li><a href="{% url 'cash_flow' %}" class="text-white-50 text-decoration-none"><i class="bi bi-chevron-right font-10 text-warning me-1"></i> Kirim-Chiqim Kassa</a></li>
-        <li><a href="{% url 'yield_loss' %}" class="text-white-50 text-decoration-none"><i class="bi bi-chevron-right font-10 text-warning me-1"></i> So'yim &amp; Tannarx</a></li>
-        <li><a href="{% url 'daily_report' %}" class="text-white-50 text-decoration-none"><i class="bi bi-chevron-right font-10 text-warning me-1"></i> Analitika Hisoboti</a></li>
-        <li><a href="{% url 'ai_assistant_page' %}" class="text-white-50 text-decoration-none"><i class="bi bi-chevron-right font-10 text-warning me-1"></i> AI Qassob Maslahatchisi</a></li>
-      </ul>
-    </div>
+    <div class="mfp-mobile-label">Boshqaruv</div>
+    <a href="{% url 'home' %}" class="mfp-mobile-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+      <i class="bi bi-grid-fill"></i> Boshqaruv Paneli
+    </a>
+    <a href="{% url 'terminal' %}" class="mfp-mobile-link {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
+      <i class="bi bi-display-fill"></i> Savdo Terminali (Kassa)
+    </a>
+    <a href="{% url 'customers' %}" class="mfp-mobile-link">
+      <i class="bi bi-people-fill"></i> Mijozlar Bazasi &amp; CRM
+    </a>
+    <a href="{% url 'customer_chats_dashboard' %}" class="mfp-mobile-link">
+      <i class="bi bi-chat-dots-fill"></i> Mijozlar Chatlari
+    </a>
+    <a href="{% url 'article_list' %}" class="mfp-mobile-link">
+      <i class="bi bi-box-seam-fill"></i> Ombor &amp; Go'sht Katalogi
+    </a>
+    <div class="mfp-mobile-divider"></div>
+    <div class="mfp-mobile-label">Moliya</div>
+    <a href="{% url 'cash_flow' %}" class="mfp-mobile-link">
+      <i class="bi bi-cash-stack"></i> Kirim-Chiqim Kassa
+    </a>
+    <a href="{% url 'yield_loss' %}" class="mfp-mobile-link">
+      <i class="bi bi-scissors"></i> So'yim &amp; Tannarx
+    </a>
+    <a href="{% url 'daily_report' %}" class="mfp-mobile-link">
+      <i class="bi bi-calendar-check"></i> Kunlik Hisobot
+    </a>
+    <a href="{% url 'global_analytics' %}" class="mfp-mobile-link">
+      <i class="bi bi-graph-up-arrow"></i> Kengaytirilgan Analitika
+    </a>
+    <a href="{% url 'debt_payment' %}" class="mfp-mobile-link">
+      <i class="bi bi-wallet2"></i> Qarzlar To'lovi
+    </a>
+    <a href="{% url 'suppliers_dashboard' %}" class="mfp-mobile-link">
+      <i class="bi bi-truck"></i> Ta'minotchilar Portali
+    </a>
+    <div class="mfp-mobile-divider"></div>
+    <div class="mfp-mobile-label">AI va Sozlamalar</div>
+    <a href="{% url 'ai_assistant_page' %}" class="mfp-mobile-link">
+      <i class="bi bi-robot"></i> AI Qassob Maslahatchisi
+    </a>
+    <a href="/admin/pos/storesetting/" class="mfp-mobile-link">
+      <i class="bi bi-sliders"></i> Do'kon Sozlamalari
+    </a>
+    <a href="{% url 'debt-migration' %}" class="mfp-mobile-link">
+      <i class="bi bi-journal-arrow-up"></i> Qarz Ko'chirish
+    </a>
+    <a href="/admin/" class="mfp-mobile-link">
+      <i class="bi bi-database-gear"></i> Django Admin
+    </a>
     {% else %}
-    <!-- Customer Footer Navigation -->
-    <div class="col-lg-3 col-md-6">
-      <h6 class="text-white fw-bold mb-3 text-uppercase font-12" style="letter-spacing: 1px; color: #D4A853 !important;">Tezkor Havolalar</h6>
-      <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
-        <li><a href="{% url 'home' %}" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right font-10 text-success me-1"></i> Bosh Sahifa</a></li>
-        <li><a href="{% url 'article_list' %}" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right font-10 text-success me-1"></i> Sarxil Go'shtlar Katalogi</a></li>
-        <li><a href="/pos/my-cabinet/" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right font-10 text-success me-1"></i> Shaxsiy Kabinet &amp; Buyurtmalar</a></li>
-        <li><a href="tel:+998770824477" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right font-10 text-success me-1"></i> Biz Bilan Bog'lanish</a></li>
-      </ul>
-    </div>
-
-    <div class="col-lg-2 col-md-6">
-      <h6 class="text-white fw-bold mb-3 text-uppercase font-12" style="letter-spacing: 1px; color: #D4A853 !important;">Afzalliklarimiz</h6>
-      <ul class="list-unstyled d-flex flex-column gap-2 mb-0 text-white-50 font-13">
-        <li><i class="bi bi-check2-circle text-success me-1"></i> 100% Halol Yaylov Go'shti</li>
-        <li><i class="bi bi-check2-circle text-success me-1"></i> Shoshilinch Kuryerlik</li>
-        <li><i class="bi bi-check2-circle text-success me-1"></i> Shaffof Tarozi Hisobi</li>
-        <li><i class="bi bi-check2-circle text-success me-1"></i> Cashback &amp; Bonuslar</li>
-      </ul>
-    </div>
+    <div class="mfp-mobile-label">Navigatsiya</div>
+    <a href="{% url 'home' %}" class="mfp-mobile-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+      <i class="bi bi-house-fill"></i> Bosh Sahifa
+    </a>
+    <a href="{% url 'article_list' %}" class="mfp-mobile-link">
+      <i class="bi bi-shop"></i> Go'sht Katalogi
+    </a>
+    <a href="/pos/my-cabinet/" class="mfp-mobile-link">
+      <i class="bi bi-person-vcard"></i> Shaxsiy Kabinet
+    </a>
     {% endif %}
 
-    <div class="col-lg-3 col-md-6">
-      <h6 class="text-white fw-bold mb-3 text-uppercase font-12" style="letter-spacing: 1px; color: #D4A853 !important;">Bog'lanish</h6>
-      <div class="d-flex flex-column gap-2 text-white-50 font-13">
-        <div><i class="bi bi-telephone-fill text-warning me-2"></i> +998 77 082 4477</div>
-        <div><i class="bi bi-geo-alt-fill text-danger me-2"></i> Toshkent sh., Chilonzor t.</div>
-        <div><i class="bi bi-clock-fill text-info me-2"></i> Har kuni: 08:00 - 22:00</div>
+    {% if user.is_authenticated %}
+    <div class="mfp-mobile-divider"></div>
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="mfp-mobile-link w-100 border-0 cursor-pointer" style="background:rgba(239,68,68,.15);color:#EF4444;">
+        <i class="bi bi-box-arrow-right"></i> Tizimdan Chiqish
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ══════════════════════ MAIN CONTENT ══════════════════════ -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<footer style="background:linear-gradient(135deg,#04110D,#071F14);border-top:1px solid rgba(212,168,83,.2);padding:52px 20px 28px;margin-top:60px;">
+  <div style="max-width:1440px;margin:0 auto;">
+    <div class="row g-5 mb-4">
+      <!-- Brand -->
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <img src="{% static 'images/meatflow_logo.jpg' %}" style="width:44px;height:44px;border-radius:12px;border:2px solid rgba(212,168,83,.4);" alt="Logo">
+          <div>
+            <div style="color:#fff;font-size:20px;font-weight:800;">MeatFlow <span style="color:#10B981;">Pro</span></div>
+            <div style="color:#D4A853;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">Baxmal Meat Boutique</div>
+          </div>
+        </div>
+        <p style="color:rgba(255,255,255,.55);font-size:13.5px;line-height:1.7;max-width:320px;">
+          Fermadan to'g'ridan-to'g'ri dasturxoningizga: 100% Halol, muzlatilmagan sarxil mol va qo'y go'shtlari. Shaffof tarozi, tezkor kuryerlik.
+        </p>
+        <div style="color:#10B981;font-size:12.5px;font-weight:700;margin-top:12px;">
+          <i class="bi bi-patch-check-fill me-2"></i>100% Halol • Sifat Kafolati
+        </div>
+      </div>
+
+      {% if user.is_superuser %}
+      <!-- Admin Footer Links -->
+      <div class="col-lg-2 col-md-6">
+        <h6 style="color:#D4A853;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:16px;">Boshqaruv</h6>
+        <ul class="list-unstyled d-flex flex-column gap-2" style="font-size:13px;">
+          <li><a href="{% url 'home' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>Boshqaruv Paneli</a></li>
+          <li><a href="{% url 'terminal' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>Savdo Terminali</a></li>
+          <li><a href="{% url 'customers' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>Mijozlar CRM</a></li>
+          <li><a href="{% url 'article_list' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>Ombor</a></li>
+          <li><a href="{% url 'ai_assistant_page' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>AI Qassob</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-6">
+        <h6 style="color:#D4A853;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:16px;">Moliya</h6>
+        <ul class="list-unstyled d-flex flex-column gap-2" style="font-size:13px;">
+          <li><a href="{% url 'cash_flow' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#F59E0B'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-warning me-1" style="font-size:10px;"></i>Kirim-Chiqim</a></li>
+          <li><a href="{% url 'yield_loss' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#F59E0B'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-warning me-1" style="font-size:10px;"></i>So'yim &amp; Tannarx</a></li>
+          <li><a href="{% url 'daily_report' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#F59E0B'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-warning me-1" style="font-size:10px;"></i>Kunlik Hisobot</a></li>
+          <li><a href="{% url 'global_analytics' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#F59E0B'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-warning me-1" style="font-size:10px;"></i>Analitika</a></li>
+          <li><a href="{% url 'suppliers_dashboard' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#F59E0B'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-warning me-1" style="font-size:10px;"></i>Ta'minotchilar</a></li>
+        </ul>
+      </div>
+      {% else %}
+      <!-- Customer Footer Links -->
+      <div class="col-lg-2 col-md-6">
+        <h6 style="color:#D4A853;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:16px;">Tezkor Havolalar</h6>
+        <ul class="list-unstyled d-flex flex-column gap-2" style="font-size:13px;">
+          <li><a href="{% url 'home' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>Bosh Sahifa</a></li>
+          <li><a href="{% url 'article_list' %}" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>Go'sht Katalogi</a></li>
+          <li><a href="/pos/my-cabinet/" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>Shaxsiy Kabinet</a></li>
+          <li><a href="tel:+998770824477" style="color:rgba(255,255,255,.5);text-decoration:none;" onmouseover="this.style.color='#10B981'" onmouseout="this.style.color='rgba(255,255,255,.5)'"><i class="bi bi-chevron-right text-success me-1" style="font-size:10px;"></i>Bog'lanish</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-6">
+        <h6 style="color:#D4A853;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:16px;">Afzalliklarimiz</h6>
+        <ul class="list-unstyled d-flex flex-column gap-2 text-white-50" style="font-size:13px;">
+          <li><i class="bi bi-check2-circle text-success me-2"></i>100% Halol Go'sht</li>
+          <li><i class="bi bi-check2-circle text-success me-2"></i>Tez Kuryerlik</li>
+          <li><i class="bi bi-check2-circle text-success me-2"></i>Shaffof Tarozi</li>
+          <li><i class="bi bi-check2-circle text-success me-2"></i>Cashback Bonuslar</li>
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Contact -->
+      <div class="col-lg-3 col-md-6 ms-auto">
+        <h6 style="color:#D4A853;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:16px;">Bog'lanish</h6>
+        <div class="d-flex flex-column gap-3" style="font-size:13.5px;color:rgba(255,255,255,.55);">
+          <div><i class="bi bi-telephone-fill text-warning me-2"></i>+998 77 082 4477</div>
+          <div><i class="bi bi-geo-alt-fill text-danger me-2"></i>Toshkent sh., Chilonzor t.</div>
+          <div><i class="bi bi-clock-fill text-info me-2"></i>Har kuni: 08:00 – 22:00</div>
+        </div>
+        <div class="d-flex gap-2 mt-4">
+          <a href="tel:+998770824477" style="width:36px;height:36px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#10B981;text-decoration:none;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#10B981';this.style.color='#fff'" onmouseout="this.style.background='rgba(16,185,129,.2)';this.style.color='#10B981'"><i class="bi bi-telephone"></i></a>
+          <a href="#" style="width:36px;height:36px;background:rgba(212,168,83,.2);border:1px solid rgba(212,168,83,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#D4A853;text-decoration:none;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#D4A853';this.style.color='#fff'" onmouseout="this.style.background='rgba(212,168,83,.2)';this.style.color='#D4A853'"><i class="bi bi-instagram"></i></a>
+          <a href="#" style="width:36px;height:36px;background:rgba(56,189,248,.2);border:1px solid rgba(56,189,248,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#38BDF8;text-decoration:none;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#0EA5E9';this.style.color='#fff'" onmouseout="this.style.background='rgba(56,189,248,.2)';this.style.color='#38BDF8'"><i class="bi bi-telegram"></i></a>
+        </div>
       </div>
     </div>
 
-  </div>
-
-  <div style="max-width: 1440px; margin: 32px auto 0; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px;" class="d-flex justify-content-between align-items-center flex-wrap gap-2 font-12 text-white-50">
-    <div>© 2026 <strong>Baxmal Meat Boutique</strong>. Barcha huquqlar himoyalangan.</div>
-    <div>Sifatli va Isbotlangan Halol Mahsulotlar</div>
+    <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div style="color:rgba(255,255,255,.35);font-size:12px;">© 2026 <strong style="color:rgba(255,255,255,.6);">Baxmal Meat Boutique</strong>. Barcha huquqlar himoyalangan.</div>
+      <div style="color:rgba(255,255,255,.25);font-size:11px;">Sifatli • Halol • Ishonchli</div>
+    </div>
   </div>
 </footer>
 
-<!-- Single Bootstrap 5 JS Import at bottom -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap 5 JS (single, at bottom) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/bootstrap.bundle.min.js"></script>
 
 <script>
-function toggleDropdownMenu(btn, e) {
-  if (e) {
-    e.stopPropagation();
-    e.preventDefault();
-  }
-  const parent = btn.closest('.dropdown');
-  if (!parent) return;
-  const menu = parent.querySelector('.dropdown-menu');
+// ── Dropdown Toggle (pure vanilla, no conflicts) ──
+function toggleMenu(menuId, e) {
+  if (e) { e.stopPropagation(); }
+  const menu = document.getElementById(menuId);
   if (!menu) return;
-  const isShown = menu.classList.contains('show');
-  document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
-  if (!isShown) {
-    menu.classList.add('show');
-  }
+  const isOpen = menu.classList.contains('open');
+  closeAllMenus();
+  if (!isOpen) menu.classList.add('open');
 }
-
+function closeAllMenus() {
+  document.querySelectorAll('.mfp-dropdown-menu, .mfp-user-menu, .mfp-notif-menu').forEach(m => m.classList.remove('open'));
+}
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('.dropdown')) {
-    document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+  if (!e.target.closest('.mfp-dropdown') && !e.target.closest('.mfp-user-btn') && !e.target.closest('.mfp-bell-btn') && !e.target.closest('.mfp-notif-wrapper')) {
+    closeAllMenus();
   }
 });
 
+// ── Mobile Drawer ──
+function openMobileDrawer() {
+  document.getElementById('mfp-mobile-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileDrawer() {
+  document.getElementById('mfp-mobile-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeMobileDrawerOnBackdrop(e) {
+  if (e.target === document.getElementById('mfp-mobile-drawer')) closeMobileDrawer();
+}
+
+// ── Notifications ──
 function loadNotifications() {
   fetch('/pos/api/notifications/')
     .then(r => r.json())
     .then(data => {
-      const container = document.getElementById('notif-list-container');
-      const badge = document.getElementById('notif-count-badge');
-      if (!container) return;
+      const el = document.getElementById('mfp-notif-list');
+      const badge = document.getElementById('notif-badge');
+      if (!el) return;
       if (data.count > 0) {
-        if (badge) { badge.textContent = data.count; badge.style.display = 'block'; }
-        container.innerHTML = data.items.map(i => `
-          <li class="p-2 border-bottom hover-bg-light" style="font-size: 11.5px;">
-            <div class="fw-bold text-dark">${i.title}</div>
-            <div class="text-muted">${i.message}</div>
-          </li>
+        if (badge) { badge.textContent = data.count; badge.style.display = 'flex'; }
+        el.innerHTML = (data.items || []).map(i => `
+          <div style="padding:10px 14px;border-radius:10px;border-bottom:1px solid #F3F4F6;cursor:default;">
+            <div style="font-weight:700;font-size:12.5px;color:#111827;">${i.title}</div>
+            <div style="font-size:12px;color:#6B7280;margin-top:2px;">${i.message}</div>
+          </div>
         `).join('');
       } else {
         if (badge) badge.style.display = 'none';
-        container.innerHTML = '<li class="text-center py-3 text-muted">Yangi bildirishnoma yo'q</li>';
+        el.innerHTML = '<div style="text-align:center;padding:24px;color:#9CA3AF;font-size:13px;">Yangi bildirishnoma yo\'q</div>';
       }
-    });
+    }).catch(() => {});
 }
 </script>
 {% block extrascripts %}{% endblock %}
-
 </body>
 </html>
