@@ -35,20 +35,12 @@
     .mfp-navbar {
       display: flex; align-items: center; justify-content: space-between;
       max-width: 1440px; margin: 0 auto;
-      padding: 10px 20px; gap: 12px;
+      padding: 10px 20px; gap: 12px; flex-wrap: wrap;
     }
-
-    /* Logo */
-    .mfp-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
-    .mfp-logo-img { width: 42px; height: 42px; border-radius: 11px; object-fit: cover;
-      border: 2px solid rgba(212,168,83,.5); }
-    .mfp-logo-text { line-height: 1; }
-    .mfp-logo-text strong { display: block; color: #fff; font-size: 18px; font-weight: 800; }
-    .mfp-logo-text span { display: block; color: var(--mfp-gold); font-size: 8.5px;
-      letter-spacing: 1.8px; text-transform: uppercase; font-weight: 700; margin-top: 2px; }
-
-    /* Nav Pills */
-    .mfp-nav { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+    .mfp-nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    @media(max-width: 1100px) {
+      .mfp-nav { overflow-x: auto; max-width: 100%; padding-bottom: 4px; flex-wrap: nowrap; }
+    }
     .mfp-pill {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 7px 14px; border-radius: 50px;
@@ -94,6 +86,11 @@
     }
     .mfp-dropdown-menu a:hover { background: #F0FDF4; color: #10B981; }
     .mfp-dropdown-menu a i { font-size: 14px; width: 18px; }
+
+    /* Logo */
+    .mfp-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+    .mfp-logo-img { width: 42px !important; height: 42px !important; max-width: 42px !important; max-height: 42px !important; border-radius: 11px; object-fit: cover;
+      border: 2px solid rgba(212,168,83,.5); flex-shrink: 0; }
 
     /* Right controls */
     .mfp-controls { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -233,7 +230,6 @@
       <img src="{% static 'images/meatflow_logo.jpg' %}" class="mfp-logo-img" alt="MeatFlow Pro">
       <div class="mfp-logo-text">
         <strong>MeatFlow <span style="color:#10B981;">Pro</span></strong>
-        <span>{{ store.name|default:"BAXMAL MEAT BOUTIQUE" }}</span>
       </div>
     </a>
 
