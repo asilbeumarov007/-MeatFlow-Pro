@@ -470,65 +470,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 </script>
-
-{% else %}#10B981{% endif %}; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-            {{ alert.text|safe }}
-          </div>
-          {% empty %}
-          <div style="background: #F9FAFB; border-radius: 14px; padding: 16px; text-align: center; color: #6B7280; font-size: 13px;">
-            <i class="bi bi-check-circle text-success font-24 mb-2 d-block"></i>
-            Barcha ombor va kassa ko'rsatkichlari me'yorda!
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('debtTrendChart');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ week_days|safe }},
-                datasets: [{
-                    label: "Nasiya Qarz (ming so'm)",
-                    data: {{ debt_trend|safe }},
-                    borderColor: '#EF4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                    fill: true,
-                    tension: 0.35,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#EF4444'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { color: 'rgba(0,0,0,0.04)' } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-    }
-
-    // Dynamic greeting based on time of day
-    const hour = new Date().getHours();
-    const grElem = document.getElementById('dynamic-greeting');
-    if (grElem) {
-        if (hour >= 5 && hour < 12) grElem.textContent = "Xayrli tong";
-        else if (hour >= 12 && hour < 18) grElem.textContent = "Xayrli kun";
-        else grElem.textContent = "Xayrli kech";
-    }
-});
-</script>
-
 {% else %}
 
 <!-- ========================================================================
