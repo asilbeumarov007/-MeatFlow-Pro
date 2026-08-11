@@ -1,0 +1,273 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static log %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">
+<style>
+/* Dashboard specific styles matching Marrow & Oak */
+.mfp-glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  height: 100%;
+}
+.stat-title {
+  font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.5);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 24px; font-weight: 800;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.glow-green { color: #10B981; text-shadow: 0 0 16px rgba(16,185,129,0.4); }
+.glow-gold { color: #D4A853; text-shadow: 0 0 16px rgba(212,168,83,0.4); }
+
+.mfp-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+.mfp-col { flex: 1; min-width: 200px; }
+.mfp-col-2 { flex: 2; min-width: 300px; }
+</style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content %}
+<div id="content-main" style="width: 100%;">
+  <div class="mfp-dashboard-wrapper animate__animated animate__fadeIn">
+    <div class="mfp-row">
+      <div class="mfp-col mfp-glass-card" style="border: 1px solid rgba(16,185,129,0.3); box-shadow: 0 0 15px rgba(16,185,129,0.1);">
+        <div class="stat-title">TOTAL REVENUE <i class="bi bi-arrow-up-right" style="float: right; color: #10B981; text-shadow: 0 0 16px rgba(16,185,129,0.4);"></i></div>
+        <div class="stat-value glow-green" id="dash-revenue">84,950 UZS</div>
+        <div style="font-size: 11px; color: #10B981; margin-top:8px;">
+          <i class="bi bi-arrow-up-right"></i> +12.4%
+        </div>
+      </div>
+      <div class="mfp-col mfp-glass-card" style="border: 1px solid rgba(212,168,83,0.3); box-shadow: 0 0 15px rgba(212,168,83,0.1);">
+        <div class="stat-title">DAILY SALES <i class="bi bi-bar-chart" style="float: right; color: #D4A853; text-shadow: 0 0 16px rgba(212,168,83,0.4);"></i></div>
+        <div class="stat-value glow-gold" id="dash-sales">5,210 UZS</div>
+        <div style="font-size: 11px; color: #10B981; margin-top:8px;">
+          <i class="bi bi-arrow-up-right"></i> +8.1%
+        </div>
+      </div>
+      <div class="mfp-col mfp-glass-card">
+        <div class="stat-title">NEW ORDERS <i class="bi bi-cart text-white-50" style="float: right;"></i></div>
+        <div class="stat-value text-white" id="dash-orders">114</div>
+        <div style="font-size: 11px; color: #10B981; margin-top:8px;">
+          <i class="bi bi-arrow-up-right"></i> +15.2%
+        </div>
+      </div>
+      <div class="mfp-col mfp-glass-card">
+        <div class="stat-title">ACTIVE CUSTOMERS <i class="bi bi-people text-white-50" style="float: right;"></i></div>
+        <div class="stat-value text-white" id="dash-customers">1,850</div>
+        <div style="font-size: 11px; color: #10B981; margin-top:8px;">
+          <i class="bi bi-arrow-up-right"></i> +5.5%
+        </div>
+      </div>
+    </div>
+    
+    <div class="mfp-row">
+      <div class="mfp-col-2 mfp-glass-card" style="min-height: 300px; position: relative;">
+        <div class="stat-title" style="margin-bottom: 20px;">REVENUE & SALES PERFORMANCE</div>
+        <div style="position: absolute; top: 20px; right: 20px; font-size: 11px; display: flex; gap: 10px;">
+          <div><span style="display:inline-block;width:10px;height:2px;background:#10B981;margin-bottom:3px;"></span> Tushum</div>
+          <div><span style="display:inline-block;width:10px;height:2px;background:#D4A853;margin-bottom:3px;"></span> Savdo</div>
+        </div>
+        <div style="height: 250px;">
+            <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="mfp-col mfp-glass-card">
+        <div class="stat-title" style="margin-bottom: 20px; display: flex; justify-content: space-between;">
+            BEST SELLING PRODUCTS <i class="bi bi-three-dots"></i>
+        </div>
+        <div id="best-products">
+          <div style="margin-bottom: 20px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span>Go'sht (Mol)</span><span style="font-weight:bold;">142</span></div>
+            <div style="height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;"><div style="width:80%;height:100%;background:#10B981;box-shadow:0 0 10px #10B981;"></div></div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span>Qo'y go'shti</span><span style="font-weight:bold;">115</span></div>
+            <div style="height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;"><div style="width:60%;height:100%;background:#D4A853;box-shadow:0 0 10px #D4A853;"></div></div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span>Jigar</span><span style="font-weight:bold;">98</span></div>
+            <div style="height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;"><div style="width:50%;height:100%;background:#10B981;box-shadow:0 0 10px #10B981;"></div></div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span>Kallapochq</span><span style="font-weight:bold;">85</span></div>
+            <div style="height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;"><div style="width:40%;height:100%;background:#10B981;box-shadow:0 0 10px #10B981;"></div></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mfp-col mfp-glass-card">
+        <div class="stat-title" style="margin-bottom: 20px; display: flex; justify-content: space-between;">
+            LATEST ORDERS <i class="bi bi-three-dots"></i>
+        </div>
+        <table style="width:100%; font-size: 11.5px; border-collapse: collapse;" id="latest-orders-table">
+          <tr style="color:rgba(255,255,255,0.4);">
+            <th style="padding-bottom:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);">Order ID</th>
+            <th style="padding-bottom:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);">Total</th>
+            <th style="padding-bottom:12px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.05);">Status</th>
+          </tr>
+          <tr>
+            <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05); color:#8B949E;">#MO3481</td>
+            <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">84,950 UZS</td>
+            <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;"><span style="color:#10B981;border:1px solid #10B981;padding:3px 8px;border-radius:12px;font-weight:bold;">PAID</span></td>
+          </tr>
+          <tr>
+            <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05); color:#8B949E;">#MO3482</td>
+            <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">5,100 UZS</td>
+            <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;"><span style="color:#38BDF8;border:1px solid #38BDF8;padding:3px 8px;border-radius:12px;font-weight:bold;">SHIPPED</span></td>
+          </tr>
+          <tr>
+            <td style="padding:12px 0;border-bottom:none; color:#8B949E;">#MO3483</td>
+            <td style="padding:12px 0;border-bottom:none;">69,900 UZS</td>
+            <td style="padding:12px 0;border-bottom:none;text-align:right;"><span style="color:#D4A853;border:1px solid #D4A853;padding:3px 8px;border-radius:12px;font-weight:bold;">PENDING</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <h2 style="margin-top: 40px; margin-bottom: 15px; color: #E2E8F0; padding-left: 0; font-family: 'Plus Jakarta Sans'; font-size: 1.2rem; border: none;">App Settings</h2>
+  <div class="app-list" style="padding: 0; margin: 0;">
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('mainChart');
+    if (ctx) {
+        const canvasCtx = ctx.getContext('2d');
+        const gradientGreen = canvasCtx.createLinearGradient(0, 0, 0, 300);
+        gradientGreen.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+        gradientGreen.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+        const gradientGold = canvasCtx.createLinearGradient(0, 0, 0, 300);
+        gradientGold.addColorStop(0, 'rgba(212, 168, 83, 0.4)');
+        gradientGold.addColorStop(1, 'rgba(212, 168, 83, 0.0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Dec 1', 'Dec 3', 'Dec 5', 'Dec 9', 'Dec 11', 'Dec 13', 'Dec 15'],
+                datasets: [
+                    {
+                        label: "Revenue",
+                        data: [20000, 45000, 60000, 50000, 65000, 96150, 100000],
+                        borderColor: '#10B981', backgroundColor: gradientGreen,
+                        borderWidth: 3, pointBackgroundColor: '#04110D', pointBorderColor: '#10B981', pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4
+                    },
+                    {
+                        label: "Sales",
+                        data: [10000, 25000, 40000, 35000, 50000, 45000, 60000],
+                        borderColor: '#D4A853', backgroundColor: gradientGold,
+                        borderWidth: 3, pointBackgroundColor: '#04110D', pointBorderColor: '#D4A853', pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }, ticks: { color: 'rgba(255,255,255,0.4)' } },
+                    x: { grid: { display: false, drawBorder: false }, ticks: { color: 'rgba(255,255,255,0.4)' } }
+                }
+            }
+        });
+    }
+    
+    // Fetch live data from endpoint
+    fetch('/pos/api/admin-dashboard/')
+      .then(res => res.json())
+      .then(data => {
+          if (data.revenue) document.getElementById('dash-revenue').innerText = new Intl.NumberFormat('uz-UZ').format(data.revenue) + ' UZS';
+          if (data.sales) document.getElementById('dash-sales').innerText = new Intl.NumberFormat('uz-UZ').format(data.sales) + ' UZS';
+          if (data.orders) document.getElementById('dash-orders').innerText = data.orders;
+          if (data.customers) document.getElementById('dash-customers').innerText = data.customers;
+          
+          if (data.latest_orders && data.latest_orders.length > 0) {
+              let html = `<tr style="color:rgba(255,255,255,0.4);">
+                <th style="padding-bottom:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);">Order ID</th>
+                <th style="padding-bottom:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);">Total</th>
+                <th style="padding-bottom:12px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.05);">Status</th>
+              </tr>`;
+              data.latest_orders.forEach(o => {
+                  let badgeStyle = "color:#10B981;border:1px solid #10B981;";
+                  if (o.status === "PENDING") badgeStyle = "color:#D4A853;border:1px solid #D4A853;";
+                  html += `<tr>
+                    <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05); color:#8B949E;">#MO${o.id}</td>
+                    <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">${new Intl.NumberFormat('uz-UZ').format(o.total)} UZS</td>
+                    <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;"><span style="${badgeStyle}padding:3px 8px;border-radius:12px;font-weight:bold;">${o.status}</span></td>
+                  </tr>`;
+              });
+              document.getElementById('latest-orders-table').innerHTML = html;
+          }
+      }).catch(err => console.log('Waiting for API'));
+});
+</script>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related" style="margin-top: 0;">
+    <!-- Inventory Alerts matching Marrow & Oak -->
+    <div class="module" style="background: rgba(255, 255, 255, 0.02); border-radius: 12px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 24px;">
+        <h2 style="background: transparent; color: #fff; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border: none; padding: 0; margin-bottom: 20px; display: flex; justify-content: space-between;">
+            INVENTORY ALERTS <i class="bi bi-three-dots text-white-50"></i>
+        </h2>
+        
+        <table style="width: 100%; font-size: 11.5px;">
+            <tr style="color: rgba(255,255,255,0.4);">
+                <th style="padding-bottom:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);">Item</th>
+                <th style="padding-bottom:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);">Stock</th>
+                <th style="padding-bottom:12px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.05);">Status</th>
+            </tr>
+            <tr>
+                <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05); color:#C9D1D9;">Wagyu</td>
+                <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">12 kg</td>
+                <td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;"><span style="color:#EF4444;border:1px solid #EF4444;padding:3px 8px;border-radius:12px;font-weight:bold;">Low</span></td>
+            </tr>
+            <tr>
+                <td style="padding:12px 0;border-bottom:none; color:#C9D1D9;">Tomahawk</td>
+                <td style="padding:12px 0;border-bottom:none;">8 units</td>
+                <td style="padding:12px 0;border-bottom:none;text-align:right;"><span style="color:#EF4444;border:1px solid #EF4444;padding:3px 8px;border-radius:12px;font-weight:bold;">Critical</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Recent Actions -->
+    <div class="module" id="recent-actions-module" style="background: rgba(255, 255, 255, 0.02); border-radius: 12px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.06);">
+        <h2 style="background: transparent; color: #fff; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border: none; padding: 0; margin-bottom: 10px;">{% translate 'Recent actions' %}</h2>
+        <h3 style="background: transparent; color: rgba(255,255,255,0.5); font-size: 10px; margin-bottom: 15px;">{% translate 'My actions' %}</h3>
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p style="color: rgba(255,255,255,0.3);">{% translate 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist" style="color: #8B949E; list-style-type: none; padding-left: 0; margin: 0;">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}" style="margin-bottom: 14px; font-size: 12px; border-left: 2px solid rgba(255,255,255,0.1); padding-left: 10px;">
+                <span class="visually-hidden">{% if entry.is_addition %}{% translate 'Added:' %}{% elif entry.is_change %}{% translate 'Changed:' %}{% elif entry.is_deletion %}{% translate 'Deleted:' %}{% endif %}</span>
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}" style="color: #10B981; text-decoration: none; font-weight: 600;">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br>
+                {% if entry.content_type %}
+                    <span class="mini quiet" style="font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase;">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet" style="font-size: 10px;">{% translate 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -17,6 +17,8 @@ urlpatterns = [
     path('export-slaughters-excel/', views.export_slaughters_excel, name='export_slaughters_excel'),
     path('debt-payment/', views.debt_payment_view, name='debt_payment'),
     path('api/process-debt-payment/', views.process_debt_payment, name='process_debt_payment'),
+    path('api/admin-dashboard/', views.api_admin_dashboard, name='api_admin_dashboard'),
+    path('api/send-debt-reminder/<int:customer_id>/', views.send_debt_reminder_api, name='send_debt_reminder_api'),
     path('cash-flow/', views.cash_flow_view, name='cash_flow'),
     path('ai-assistant/', views.ai_assistant_view, name='ai_assistant_page'),
     path('api/process-cash-transaction/', views.process_cash_transaction, name='process_cash_transaction'),
@@ -94,4 +96,5 @@ urlpatterns = [
     path('api/courier/accept-order/', views_api.api_courier_accept_order, name='api_courier_accept_order'),
     path('api/courier/complete-order/', views_api.api_courier_complete_order, name='api_courier_complete_order'),
     path('api/run-decay/', views_api.api_trigger_stock_decay, name='api_run_decay'),
+    path('api/broadcast/', views.api_broadcast_message, name='api_broadcast_message'),
 ]
