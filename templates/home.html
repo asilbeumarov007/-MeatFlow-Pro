@@ -15,235 +15,349 @@
 
 {% if user.is_authenticated and user.is_superuser %}
 <!-- ========================================================================
-     MEATFLOW PRO: EXECUTIVE MANAGER DASHBOARD
+     MEATFLOW PRO: MARROW & OAK DARK GREEN GLASSMORPHISM DASHBOARD
      ======================================================================== -->
 <style>
-  body {
-    background-color: #F4F6F5 !important;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
-  .mfp-tab {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 18px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #4B5563;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .mfp-tab:hover {
-    color: #1B6B4A !important;
-    background: rgba(27,107,74,0.06);
-  }
-  .mfp-tab.active {
-    color: #1B6B4A !important;
-    background: rgba(27,107,74,0.12);
-    font-weight: 700;
-    box-shadow: inset 0 0 0 1px rgba(27,107,74,0.2);
-  }
+/* ── Reset body for dark dashboard ── */
+body, .mfp-header, .mfp-navbar {
+  background: #040D0A !important;
+}
 
-  .mfp-card {
-    background: #FFFFFF;
-    border-radius: 20px;
-    padding: 24px;
-    border: 1px solid rgba(0,0,0,0.05);
-    height: 100%;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .mfp-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
-  }
+/* ── Dashboard Shell ── */
+.oak-dashboard {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: radial-gradient(ellipse at 20% 0%, rgba(16,185,129,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 100%, rgba(16,185,129,0.04) 0%, transparent 50%),
+              #040D0A;
+  min-height: 100vh;
+  padding: 28px 32px 60px;
+  position: relative;
+  overflow: hidden;
+  color: #E2E8F0;
+}
 
-  .quick-action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 13px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  .quick-action-btn-primary {
-    background: linear-gradient(135deg, #1B6B4A, #145438);
-    color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(27,107,74,0.25);
-  }
-  .quick-action-btn-primary:hover {
-    box-shadow: 0 6px 20px rgba(27,107,74,0.35);
-    transform: translateY(-1px);
-  }
-  .quick-action-btn-secondary {
-    background: #FFFFFF;
-    color: #1A1A2E !important;
-    border: 1px solid rgba(0,0,0,0.1);
-  }
-  .quick-action-btn-secondary:hover {
-    background: #F9FAFB;
-    border-color: #1B6B4A;
-    color: #1B6B4A !important;
-  }
+/* ── Background Watermark Logo ── */
+.oak-dashboard::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: url('/static/images/meatflow_logo.jpg') center/contain no-repeat;
+  opacity: 0.025;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
+/* ── Glass Card ── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 22px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.glass-card:hover {
+  border-color: rgba(16, 185, 129, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px);
+}
+
+/* ── Stat KPI Cards (Top Row) ── */
+.stat-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.45);
+}
+.stat-number {
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+.stat-change {
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.stat-change.up { color: #10B981; }
+.stat-change.down { color: #EF4444; }
+.stat-icon {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 22px;
+  opacity: 0.7;
+}
+
+/* ── Green-bordered stat card ── */
+.stat-green {
+  border-left: 3px solid #10B981;
+  box-shadow: inset 4px 0 20px -10px rgba(16,185,129,0.3);
+}
+.stat-gold {
+  border-left: 3px solid #D4A853;
+  box-shadow: inset 4px 0 20px -10px rgba(212,168,83,0.3);
+}
+.stat-blue {
+  border-left: 3px solid #38BDF8;
+  box-shadow: inset 4px 0 20px -10px rgba(56,189,248,0.3);
+}
+.stat-red {
+  border-left: 3px solid #EF4444;
+  box-shadow: inset 4px 0 20px -10px rgba(239,68,68,0.3);
+}
+
+/* ── Neon Glow Text ── */
+.glow-green { color: #10B981; text-shadow: 0 0 20px rgba(16,185,129,0.5); }
+.glow-gold { color: #D4A853; text-shadow: 0 0 20px rgba(212,168,83,0.5); }
+.glow-blue { color: #38BDF8; text-shadow: 0 0 20px rgba(56,189,248,0.5); }
+.glow-red { color: #EF4444; text-shadow: 0 0 20px rgba(239,68,68,0.5); }
+
+/* ── Layout Grid ── */
+.oak-grid {
+  display: grid;
+  gap: 20px;
+}
+.oak-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.oak-grid-main {
+  grid-template-columns: 2fr 1fr;
+}
+
+/* ── Quick Action Buttons ── */
+.oak-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+.oak-btn-primary {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #fff !important;
+  box-shadow: 0 4px 15px rgba(16,185,129,0.35);
+}
+.oak-btn-primary:hover {
+  box-shadow: 0 6px 25px rgba(16,185,129,0.55);
+  transform: translateY(-2px);
+  color: #fff !important;
+}
+.oak-btn-glass {
+  background: rgba(255,255,255,0.05);
+  color: #D4A853 !important;
+  border: 1px solid rgba(212,168,83,0.25);
+}
+.oak-btn-glass:hover {
+  background: rgba(212,168,83,0.1);
+  border-color: #D4A853;
+  color: #D4A853 !important;
+}
+
+/* ── Section Title ── */
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.section-subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 500;
+}
+
+/* ── AI Alert Items ── */
+.ai-alert-item {
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #C9D1D9;
+  border-left: 3px solid #10B981;
+  transition: all 0.2s;
+}
+.ai-alert-item:hover {
+  background: rgba(16,185,129,0.05);
+}
+.ai-alert-danger { border-left-color: #EF4444; }
+.ai-alert-warning { border-left-color: #D4A853; }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .oak-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .oak-grid-main { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .oak-grid-4 { grid-template-columns: 1fr; }
+  .oak-dashboard { padding: 16px; }
+}
 </style>
 
-<div class="mfp-container animate__animated animate__fadeIn" style="max-width: 1440px; margin: 0 auto; padding: 28px 24px 60px; font-family: 'Inter', system-ui, sans-serif;">
-  
-  <!-- Executive Top Header -->
-  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+<div class="oak-dashboard animate__animated animate__fadeIn">
+
+  <!-- ── Top Header Row ── -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 28px;">
     <div>
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-        <h2 style="font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: #1A1A2E; margin: 0; font-weight: 400;">
-          <span id="dynamic-greeting">Xayrli kun</span>, {{ user.get_full_name|default:user.username }}! 👋
-        </h2>
-        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 rounded-pill" style="font-size: 11px; letter-spacing: 0.5px;">
-          <i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i> ONLAYN
-        </span>
-      </div>
-      <p style="margin: 0; color: #6B7280; font-size: 13.5px;">
-        Baxmal Meat Boutique — Real vaqtidagi boshqaruv paneli va savdo analitikasi
+      <h2 style="font-size: 26px; font-weight: 900; color: #fff; margin: 0 0 4px;">
+        <span id="dynamic-greeting">Xayrli kun</span>, {{ user.get_full_name|default:user.username }}! 👋
+      </h2>
+      <p style="margin: 0; color: rgba(255,255,255,0.35); font-size: 13px;">
+        MeatFlow Pro — Real vaqtidagi boshqaruv paneli
       </p>
     </div>
-
-    <!-- Quick Executive Actions -->
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-      <a href="/admin/pos/storesetting/" class="quick-action-btn quick-action-btn-secondary">
-        <i class="bi bi-sliders text-warning"></i> Sarlavha & Aksiya Sozlamalari
+      <a href="/admin/pos/storesetting/" class="oak-btn oak-btn-glass">
+        <i class="bi bi-sliders"></i> Sozlamalar
       </a>
-      <a href="/admin/pos/slaughter/add/" class="quick-action-btn quick-action-btn-primary">
+      <a href="/admin/pos/slaughter/add/" class="oak-btn oak-btn-primary">
         <i class="bi bi-plus-circle-fill"></i> So'yim Qo'shish
       </a>
     </div>
   </div>
 
+  <!-- ── 4x KPI Stat Cards ── -->
+  <div class="oak-grid oak-grid-4" style="margin-bottom: 24px;">
 
-
-  <!-- KPI Stat Grid -->
-  <div class="row g-4 mb-4">
-    <!-- Card 1: Revenue -->
-    <div class="col-xl-3 col-md-6">
-      <div class="mfp-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <span style="font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Bugungi Savdo</span>
-          <div style="width: 42px; height: 42px; border-radius: 14px; background: rgba(27,107,74,0.1); color: #1B6B4A; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-            <i class="bi bi-wallet2"></i>
-          </div>
+    <!-- KPI 1: Revenue -->
+    <div class="glass-card stat-green">
+      <div class="stat-kpi">
+        <span class="stat-label">Bugungi Savdo</span>
+        <div class="stat-number glow-green">
+          {{ today_revenue|default:0|floatformat:0 }}
+          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 4px;">so'm</span>
         </div>
-        <div style="font-size: 26px; font-weight: 800; color: #1A1A2E; letter-spacing: -0.5px;">
-          {{ today_revenue|default:0|floatformat:0 }} <span style="font-size: 14px; color: #6B7280; font-weight: 500;">so'm</span>
-        </div>
-        <div style="font-size: 12.5px; color: #10B981; font-weight: 600; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
-          <i class="bi bi-check-circle-fill"></i> {{ today_sales_count|default:0 }} ta savdo tranzaksiyasi
+        <div class="stat-change up">
+          <i class="bi bi-arrow-up-right"></i> {{ today_sales_count|default:0 }} ta savdo
         </div>
       </div>
+      <i class="bi bi-wallet2 stat-icon glow-green"></i>
     </div>
 
-    <!-- Card 2: Slaughter Yield -->
-    <div class="col-xl-3 col-md-6">
-      <div class="mfp-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <span style="font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">So'yim Chiqimi (Yield)</span>
-          <div style="width: 42px; height: 42px; border-radius: 14px; background: rgba(59,130,246,0.1); color: #3B82F6; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-            <i class="bi bi-pie-chart-fill"></i>
-          </div>
+    <!-- KPI 2: Daily Sales (Gold) -->
+    <div class="glass-card stat-gold">
+      <div class="stat-kpi">
+        <span class="stat-label">So'yim Chiqimi</span>
+        <div class="stat-number glow-gold">
+          {{ yield_percent|default:78 }}%
+          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 4px;">unumdorlik</span>
         </div>
-        <div style="font-size: 26px; font-weight: 800; color: #1A1A2E; letter-spacing: -0.5px;">
-          {{ yield_percent|default:78 }}% <span style="font-size: 14px; color: #6B7280; font-weight: 500;">unumdorlik</span>
-        </div>
-        <div style="font-size: 12.5px; color: #3B82F6; font-weight: 600; margin-top: 8px;">
-          <i class="bi bi-box-fill me-1"></i> {{ yield_processed|default:0|floatformat:1 }} kg toza go'sht olingan
+        <div class="stat-change up">
+          <i class="bi bi-box-fill"></i> {{ yield_processed|default:0|floatformat:1 }} kg toza go'sht
         </div>
       </div>
+      <i class="bi bi-pie-chart-fill stat-icon glow-gold"></i>
     </div>
 
-    <!-- Card 3: Customer Debts -->
-    <div class="col-xl-3 col-md-6">
-      <div class="mfp-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <span style="font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Umumiy Nasiya Qarzi</span>
-          <div style="width: 42px; height: 42px; border-radius: 14px; background: rgba(239,68,68,0.1); color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-            <i class="bi bi-journal-bookmark-fill"></i>
-          </div>
+    <!-- KPI 3: New Orders / Debts -->
+    <div class="glass-card stat-red">
+      <div class="stat-kpi">
+        <span class="stat-label">Umumiy Nasiya</span>
+        <div class="stat-number glow-red">
+          {{ total_debt_amount|default:0|floatformat:0 }}
+          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 4px;">so'm</span>
         </div>
-        <div style="font-size: 26px; font-weight: 800; color: #EF4444; letter-spacing: -0.5px;">
-          {{ total_debt_amount|default:0|floatformat:0 }} <span style="font-size: 14px; color: #6B7280; font-weight: 500;">so'm</span>
-        </div>
-        <div style="font-size: 12.5px; color: #EF4444; font-weight: 600; margin-top: 8px;">
-          <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ top_debtors|length }} ta qarzdor mijozlar ro'yxati
+        <div class="stat-change down">
+          <i class="bi bi-exclamation-triangle-fill"></i> {{ top_debtors|length }} ta qarzdor
         </div>
       </div>
+      <i class="bi bi-journal-bookmark-fill stat-icon glow-red"></i>
     </div>
 
-    <!-- Card 4: Inventory Stock -->
-    <div class="col-xl-3 col-md-6">
-      <div class="mfp-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <span style="font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Ombor Zaxirasi</span>
-          <div style="width: 42px; height: 42px; border-radius: 14px; background: rgba(245,158,11,0.1); color: #F59E0B; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-            <i class="bi bi-box2-fill"></i>
-          </div>
+    <!-- KPI 4: Inventory -->
+    <div class="glass-card stat-blue">
+      <div class="stat-kpi">
+        <span class="stat-label">Ombor Zaxirasi</span>
+        <div class="stat-number glow-blue">
+          {{ total_stock_qty|default:0|floatformat:1 }}
+          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 4px;">kg</span>
         </div>
-        <div style="font-size: 26px; font-weight: 800; color: #1A1A2E; letter-spacing: -0.5px;">
-          {{ total_stock_qty|default:0|floatformat:1 }} <span style="font-size: 14px; color: #6B7280; font-weight: 500;">kg</span>
-        </div>
-        <div style="font-size: 12.5px; color: #F59E0B; font-weight: 600; margin-top: 8px;">
-          <i class="bi bi-shield-fill-check me-1"></i> Mavjud tayyor va saralangan zaxira
+        <div class="stat-change up">
+          <i class="bi bi-shield-fill-check"></i> Tayyor zaxira
         </div>
       </div>
+      <i class="bi bi-box2-fill stat-icon glow-blue"></i>
     </div>
+
   </div>
 
-  <!-- Manager Charts & AI Notifications Row -->
-  <div class="row g-4">
-    <!-- Chart Col -->
-    <div class="col-lg-8">
-      <div class="mfp-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <div>
-            <h5 class="m-0" style="font-family: 'DM Serif Display', serif; font-size: 20px; color: #1A1A2E;">
-              Haftalik Nasiya & Qarz Risk dinamikasi
-            </h5>
-            <p style="margin: 4px 0 0; font-size: 12px; color: #6B7280;">Qarzlar qaytishi va yangi nasiya hajmi tendensiyasi</p>
+  <!-- ── Main Content: Chart + AI Insights ── -->
+  <div class="oak-grid oak-grid-main">
+
+    <!-- Chart Card -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+          <div class="section-title">
+            <i class="bi bi-graph-up-arrow glow-green"></i>
+            Haftalik Nasiya Dinamikasi
           </div>
-          <span class="badge bg-light text-dark font-monospace px-3 py-2" style="font-size: 11px; border: 1px solid rgba(0,0,0,0.08);">Mon - Sun</span>
+          <div class="section-subtitle">Qarzlar qaytishi va yangi nasiya hajmi</div>
         </div>
-        <div style="height: 300px; position: relative;">
-          <canvas id="debtTrendChart"></canvas>
-        </div>
+        <span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 5px 12px; font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 700;">Du — Ya</span>
+      </div>
+      <div style="height: 300px; position: relative;">
+        <canvas id="debtTrendChart"></canvas>
       </div>
     </div>
 
-    <!-- AI Insights Col -->
-    <div class="col-lg-4">
-      <div class="mfp-card">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="width: 36px; height: 36px; border-radius: 12px; background: rgba(212,168,83,0.15); color: #D4A853; display: flex; align-items: center; justify-content: center; font-size: 18px;">
-              <i class="bi bi-robot"></i>
-            </div>
-            <h5 class="m-0" style="font-family: 'DM Serif Display', serif; font-size: 20px; color: #1A1A2E;">AI Qassob Tahlili</h5>
+    <!-- AI Insights Card -->
+    <div class="glass-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div class="section-title">
+          <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(212,168,83,0.12); color: #D4A853; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+            <i class="bi bi-robot"></i>
           </div>
-          <span class="badge bg-warning bg-opacity-10 text-dark fw-bold" style="font-size: 10px;">PRO AI</span>
+          AI Qassob Tahlili
         </div>
-        
-        <div style="display: flex; flex-direction: column; gap: 14px;">
-          {% for alert in ai_alerts %}
-          <div style="background: #F8F6F2; border-radius: 14px; padding: 14px 16px; font-size: 13px; color: #1A1A2E; border-left: 4px solid {% if alert.level == 'danger' %}#EF4444{% elif alert.level == 'warning' %}#F59E0B{% else %}#10B981{% endif %}; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-            {{ alert.text|safe }}
-          </div>
-          {% empty %}
-          <div style="background: #F9FAFB; border-radius: 14px; padding: 16px; text-align: center; color: #6B7280; font-size: 13px;">
-            <i class="bi bi-check-circle text-success font-24 mb-2 d-block"></i>
-            Barcha ombor va kassa ko'rsatkichlari me'yorda!
-          </div>
-          {% endfor %}
+        <span style="background: linear-gradient(135deg, rgba(212,168,83,0.15), rgba(212,168,83,0.05)); border: 1px solid rgba(212,168,83,0.3); border-radius: 20px; padding: 4px 12px; font-size: 9px; font-weight: 900; color: #D4A853; letter-spacing: 1px;">PRO AI</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        {% for alert in ai_alerts %}
+        <div class="ai-alert-item {% if alert.level == 'danger' %}ai-alert-danger{% elif alert.level == 'warning' %}ai-alert-warning{% endif %}">
+          {{ alert.text|safe }}
         </div>
+        {% empty %}
+        <div style="text-align: center; padding: 30px 16px; color: rgba(255,255,255,0.3);">
+          <i class="bi bi-check-circle glow-green" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
+          <span style="font-size: 13px;">Barcha ko'rsatkichlar me'yorda!</span>
+        </div>
+        {% endfor %}
       </div>
     </div>
+
   </div>
 
 </div>
@@ -259,21 +373,53 @@ document.addEventListener("DOMContentLoaded", function() {
                 datasets: [{
                     label: "Nasiya Qarz (ming so'm)",
                     data: {{ debt_trend|safe }},
-                    borderColor: '#EF4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                    borderColor: '#10B981',
+                    backgroundColor: function(context) {
+                        const chart = context.chart;
+                        const {ctx: c, chartArea} = chart;
+                        if (!chartArea) return 'rgba(16,185,129,0.1)';
+                        const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                        gradient.addColorStop(0, 'rgba(16,185,129,0.25)');
+                        gradient.addColorStop(1, 'rgba(16,185,129,0)');
+                        return gradient;
+                    },
                     fill: true,
-                    tension: 0.35,
+                    tension: 0.4,
                     borderWidth: 3,
-                    pointBackgroundColor: '#EF4444'
+                    pointBackgroundColor: '#10B981',
+                    pointBorderColor: '#040D0A',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#10B981',
+                    pointHoverBorderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(4,13,10,0.9)',
+                        titleColor: '#10B981',
+                        bodyColor: '#E2E8F0',
+                        borderColor: 'rgba(16,185,129,0.3)',
+                        borderWidth: 1,
+                        cornerRadius: 10,
+                        padding: 12
+                    }
+                },
                 scales: {
-                    y: { grid: { color: 'rgba(0,0,0,0.04)' } },
-                    x: { grid: { display: false } }
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11, weight: 600 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11, weight: 600 } }
+                    }
                 }
             }
         });
