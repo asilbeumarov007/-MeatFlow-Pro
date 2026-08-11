@@ -240,9 +240,6 @@
     <!-- Center: Navigation Pills -->
     {% if user.is_superuser %}
     <nav class="mfp-nav" id="mfp-desktop-nav">
-      <a href="{% url 'home' %}" class="mfp-pill pill-emerald {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-        <i class="bi bi-grid-fill"></i> Boshqaruv
-      </a>
       <a href="{% url 'terminal' %}" class="mfp-pill pill-sky {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
         <i class="bi bi-display-fill"></i> Kassa
       </a>
@@ -271,9 +268,6 @@
     </nav>
     {% else %}
     <nav class="mfp-nav" id="mfp-desktop-nav">
-      <a href="{% url 'home' %}" class="mfp-pill pill-emerald {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-        <i class="bi bi-house-fill"></i> Bosh Sahifa
-      </a>
       <a href="{% url 'article_list' %}" class="mfp-pill pill-amber {% if 'article' in request.resolver_match.url_name %}active{% endif %}">
         <i class="bi bi-shop"></i> Go'sht Katalogi
       </a>
@@ -325,7 +319,6 @@
           </div>
           {% if user.is_superuser %}
           <div class="section-label">Tezkor Havolalar</div>
-          <a href="{% url 'home' %}"><i class="bi bi-grid-fill text-success"></i> Boshqaruv Paneli</a>
           <a href="{% url 'terminal' %}"><i class="bi bi-display-fill text-primary"></i> Savdo Terminali</a>
           <a href="{% url 'customers' %}"><i class="bi bi-people-fill" style="color:#A855F7;"></i> Mijozlar CRM</a>
           <a href="{% url 'article_list' %}"><i class="bi bi-box-seam-fill text-warning"></i> Ombor &amp; Go'shtlar</a>
@@ -336,7 +329,6 @@
           <a href="{% url 'debt-migration' %}"><i class="bi bi-journal-arrow-up text-secondary"></i> Qarz Ko'chirish</a>
           <a href="/admin/"><i class="bi bi-database-gear text-primary"></i> Django Admin</a>
           {% else %}
-          <a href="{% url 'home' %}"><i class="bi bi-house-fill text-success"></i> Bosh Sahifa</a>
           <a href="{% url 'article_list' %}"><i class="bi bi-shop text-warning"></i> Go'sht Katalogi</a>
           <a href="/pos/my-cabinet/"><i class="bi bi-person-vcard text-primary"></i> Shaxsiy Kabinet</a>
           {% endif %}
@@ -369,9 +361,6 @@
 
     {% if user.is_superuser %}
     <div class="mfp-mobile-label">Boshqaruv</div>
-    <a href="{% url 'home' %}" class="mfp-mobile-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-      <i class="bi bi-grid-fill"></i> Boshqaruv Paneli
-    </a>
     <a href="{% url 'terminal' %}" class="mfp-mobile-link {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
       <i class="bi bi-display-fill"></i> Savdo Terminali (Kassa)
     </a>
@@ -420,9 +409,6 @@
     </a>
     {% else %}
     <div class="mfp-mobile-label">Navigatsiya</div>
-    <a href="{% url 'home' %}" class="mfp-mobile-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-      <i class="bi bi-house-fill"></i> Bosh Sahifa
-    </a>
     <a href="{% url 'article_list' %}" class="mfp-mobile-link">
       <i class="bi bi-shop"></i> Go'sht Katalogi
     </a>
