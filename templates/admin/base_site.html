@@ -6,7 +6,7 @@
 <h1 id="site-name">
   <a href="{% url 'admin:index' %}" style="display: flex; align-items: center; gap: 8px;">
     <div style="width: 24px; height: 24px; background: linear-gradient(135deg, #10B981, #065F46); border-radius: 6px; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></div>
-    MeatFlow Pro
+    <span style="color: #ffffff !important;">MeatFlow Pro</span>
   </a>
 </h1>
 {% endblock %}
@@ -17,8 +17,12 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* FORCE FINTECH DARK THEME OVERRIDES */
-  html, body, [data-theme="light"], [data-theme="dark"], :root {
+  /* ==========================================================
+     NUCLEAR DARK THEME OVERRIDE (FIGHTS DJANGO'S LIGHT MODE)
+     ========================================================== */
+  
+  /* 1. Reset all theme variables forcibly */
+  :root, html, body, [data-theme="light"], [data-theme="dark"], .theme-light, .theme-dark {
     --primary: #10B981 !important;
     --secondary: #04110D !important;
     --accent: #D4A853 !important;
@@ -55,25 +59,29 @@
     --hairline-color: rgba(255,255,255,0.05) !important;
   }
   
-  body, #content {
+  /* 2. Force Backgrounds on Every Structural Element */
+  html, body, #container, #main, .main, #content-start, .content, #content, #content-main {
     background-color: #0B0E14 !important;
+    background: #0B0E14 !important;
     color: #C9D1D9 !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
   }
   
+  /* 3. Header */
   #header {
+    background-color: #04110D !important;
     background: #04110D !important;
     border-bottom: 1px solid rgba(255,255,255,0.05) !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
   }
   #header a:link, #header a:visited { color: #ffffff !important; }
   
+  /* 4. Sidebar */
   #nav-sidebar, .sticky {
     background-color: #04110D !important;
+    background: #04110D !important;
     border-right: 1px solid rgba(255,255,255,0.05) !important;
   }
-  
-  /* Make sidebar links look modern */
   .app-list th a, .app-list td a {
     color: #8B949E !important;
     font-weight: 500 !important;
@@ -85,17 +93,12 @@
   }
   .app-list .current-app th a { color: #10B981 !important; font-weight: 700 !important; }
   
-  caption {
-    background-color: rgba(16,185,129,0.05) !important;
-    color: #10B981 !important;
-    font-weight: 700 !important;
-    border-bottom: 1px solid rgba(16,185,129,0.1) !important;
-  }
+  /* 5. Modules, Tables, Inputs */
+  .module { background: #0B0E14 !important; background-color: #0B0E14 !important; }
   
-  /* Default tables in admin */
   table { border-collapse: separate !important; border-spacing: 0 !important; background: transparent !important; }
   thead th {
-    background: #061611 !important;
+    background: #061611 !important; background-color: #061611 !important;
     color: #8B949E !important;
     text-transform: uppercase;
     font-size: 11px;
@@ -103,23 +106,23 @@
     border-bottom: 1px solid rgba(255,255,255,0.05) !important;
   }
   tbody tr { background: #0B0E14 !important; transition: background 0.2s; }
-  tbody tr:nth-child(even) { background: #080A10 !important; }
+  tbody tr:nth-child(even) { background: #080A10 !important; background-color: #080A10 !important; }
   tbody tr:hover { background: rgba(16,185,129,0.05) !important; }
   td, th { border-bottom: 1px solid rgba(255,255,255,0.05) !important; color: #C9D1D9 !important;}
   
-  /* Input fields */
   input[type="text"], input[type="password"], input[type="email"], input[type="url"], input[type="number"], select, textarea {
-    background-color: #04110D !important;
+    background-color: #04110D !important; background: #04110D !important;
     border: 1px solid rgba(255,255,255,0.1) !important;
     color: #ffffff !important;
     border-radius: 6px !important;
   }
   input:focus, select:focus, textarea:focus { border-color: #10B981 !important; outline: none; box-shadow: 0 0 0 2px rgba(16,185,129,0.2) !important; }
 
-  /* Fix for sidebar module */
-  .module { background: #0B0E14 !important; }
-  
   /* Hide the theme toggle icon because we force dark */
   #theme-toggle { display: none !important; }
+  
+  /* Fix text readability globally */
+  h1, h2, h3, h4, h5, h6 { color: #E2E8F0 !important; }
+  a { color: #10B981 !important; }
 </style>
 {% endblock %}
