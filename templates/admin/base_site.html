@@ -17,55 +17,58 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Fintech Dark Theme Overrides for Django Admin */
-  :root {
-    --primary: #10B981;
-    --secondary: #04110D;
-    --accent: #D4A853;
+  /* FORCE FINTECH DARK THEME OVERRIDES */
+  html, body, [data-theme="light"], [data-theme="dark"], :root {
+    --primary: #10B981 !important;
+    --secondary: #04110D !important;
+    --accent: #D4A853 !important;
     
-    --body-fg: #C9D1D9;
-    --body-bg: #0B0E14;
-    --body-quiet-color: #8B949E;
-    --body-loud-color: #E2E8F0;
+    --body-fg: #C9D1D9 !important;
+    --body-bg: #0B0E14 !important;
+    --body-quiet-color: #8B949E !important;
+    --body-loud-color: #E2E8F0 !important;
     
-    --header-color: #04110D;
-    --header-branding-color: #ffffff;
-    --header-bg: #04110D;
-    --header-link-color: #10B981;
+    --header-color: #04110D !important;
+    --header-branding-color: #ffffff !important;
+    --header-bg: #04110D !important;
+    --header-link-color: #10B981 !important;
     
-    --breadcrumbs-fg: #C9D1D9;
-    --breadcrumbs-link-fg: #10B981;
-    --breadcrumbs-bg: #061611;
+    --breadcrumbs-fg: #C9D1D9 !important;
+    --breadcrumbs-link-fg: #10B981 !important;
+    --breadcrumbs-bg: #061611 !important;
     
-    --link-fg: #10B981;
-    --link-hover-color: #34D399;
-    --link-selected-fg: #10B981;
+    --link-fg: #10B981 !important;
+    --link-hover-color: #34D399 !important;
+    --link-selected-fg: #10B981 !important;
     
-    --button-bg: #10B981;
-    --button-hover-bg: #059669;
+    --button-bg: #10B981 !important;
+    --button-hover-bg: #059669 !important;
     
-    --object-tools-bg: #04110D;
-    --object-tools-hover-bg: #065F46;
+    --object-tools-bg: #04110D !important;
+    --object-tools-hover-bg: #065F46 !important;
     
-    --darkened-bg: #0B0E14;
-    --selected-bg: #065F46;
-    --selected-row: #065F46;
+    --darkened-bg: #0B0E14 !important;
+    --selected-bg: #065F46 !important;
+    --selected-row: #065F46 !important;
+    
+    --border-color: rgba(255,255,255,0.05) !important;
+    --hairline-color: rgba(255,255,255,0.05) !important;
   }
   
-  body {
-    background-color: var(--body-bg) !important;
-    color: var(--body-fg) !important;
+  body, #content {
+    background-color: #0B0E14 !important;
+    color: #C9D1D9 !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
   }
   
   #header {
-    background: var(--header-bg);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    background: #04110D !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
   }
-  #header a:link, #header a:visited { color: #ffffff; }
+  #header a:link, #header a:visited { color: #ffffff !important; }
   
-  #nav-sidebar {
+  #nav-sidebar, .sticky {
     background-color: #04110D !important;
     border-right: 1px solid rgba(255,255,255,0.05) !important;
   }
@@ -86,15 +89,11 @@
     background-color: rgba(16,185,129,0.05) !important;
     color: #10B981 !important;
     font-weight: 700 !important;
-    border-bottom: 1px solid rgba(16,185,129,0.1);
-  }
-  
-  #content {
-    background: var(--body-bg);
+    border-bottom: 1px solid rgba(16,185,129,0.1) !important;
   }
   
   /* Default tables in admin */
-  table { border-collapse: separate !important; border-spacing: 0 !important; }
+  table { border-collapse: separate !important; border-spacing: 0 !important; background: transparent !important; }
   thead th {
     background: #061611 !important;
     color: #8B949E !important;
@@ -106,15 +105,21 @@
   tbody tr { background: #0B0E14 !important; transition: background 0.2s; }
   tbody tr:nth-child(even) { background: #080A10 !important; }
   tbody tr:hover { background: rgba(16,185,129,0.05) !important; }
-  td, th { border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
+  td, th { border-bottom: 1px solid rgba(255,255,255,0.05) !important; color: #C9D1D9 !important;}
   
   /* Input fields */
   input[type="text"], input[type="password"], input[type="email"], input[type="url"], input[type="number"], select, textarea {
     background-color: #04110D !important;
     border: 1px solid rgba(255,255,255,0.1) !important;
     color: #ffffff !important;
-    border-radius: 6px;
+    border-radius: 6px !important;
   }
   input:focus, select:focus, textarea:focus { border-color: #10B981 !important; outline: none; box-shadow: 0 0 0 2px rgba(16,185,129,0.2) !important; }
+
+  /* Fix for sidebar module */
+  .module { background: #0B0E14 !important; }
+  
+  /* Hide the theme toggle icon because we force dark */
+  #theme-toggle { display: none !important; }
 </style>
 {% endblock %}
