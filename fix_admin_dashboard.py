@@ -3,9 +3,11 @@ import sys
 with open('templates/home.html', 'r', encoding='utf-8') as f:
     content = f.read()
 
+block_content_idx = content.find('{% block content %}')
 start_tag = '{% if user.is_authenticated and user.is_superuser %}'
 end_tag = '{% else %}'
-start_idx = content.find(start_tag)
+
+start_idx = content.find(start_tag, block_content_idx)
 end_idx = content.find(end_tag, start_idx)
 
 new_admin_block = '''{% if user.is_authenticated and user.is_superuser %}
@@ -472,4 +474,4 @@ new_content = content[:start_idx] + new_admin_block + content[end_idx:]
 with open('templates/home.html', 'w', encoding='utf-8') as f:
     f.write(new_content)
 
-print('Updated home.html successfully.')
+print('Updated home.html correctly.')
