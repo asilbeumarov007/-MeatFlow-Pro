@@ -241,8 +241,8 @@ body, .mfp-header, .mfp-navbar {
       <h2 style="font-size: 26px; font-weight: 900; color: #fff; margin: 0 0 4px;">
         <span id="dynamic-greeting">Xayrli kun</span>, {{ user.get_full_name|default:user.username }}! 👋
       </h2>
-      <p style="margin: 0; color: rgba(255,255,255,0.35); font-size: 13px;">
-        MeatFlow Pro — Real vaqtidagi boshqaruv paneli
+      <p style="margin: 0; color: #CBD5E1; font-size: 13.5px; font-weight: 500;">
+        MeatFlow Pro — Real vaqtidagi boshqaruv paneli va savdo analitikasi
       </p>
     </div>
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -255,85 +255,102 @@ body, .mfp-header, .mfp-navbar {
     </div>
   </div>
 
-  <!-- ── 4x KPI Stat Cards ── -->
+  <!-- ── 4x KPI Stat Cards (Interactive Links) ── -->
   <div class="oak-grid oak-grid-4" style="margin-bottom: 24px;">
 
     <!-- KPI 1: Revenue -->
-    <div class="glass-card stat-green">
+    <a href="/admin/pos/sale/" class="glass-card stat-green text-decoration-none" style="cursor: pointer;">
       <div class="stat-kpi">
-        <span class="stat-label">Bugungi Savdo</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="stat-label">Bugungi Savdo</span>
+          <span style="font-size: 10px; font-weight: 800; color: #34D399; background: rgba(52,211,153,0.15); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(52,211,153,0.3);">Batafsil ➔</span>
+        </div>
         <div class="stat-number glow-green">
           {{ today_revenue|default:0|floatformat:0 }}
-          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 4px;">so'm</span>
+          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); margin-left: 4px;">so'm</span>
         </div>
         <div class="stat-change up">
-          <i class="bi bi-arrow-up-right"></i> {{ today_sales_count|default:0 }} ta savdo
+          <i class="bi bi-arrow-up-right"></i> {{ today_sales_count|default:0 }} ta savdo tranzaksiyasi
         </div>
       </div>
       <i class="bi bi-wallet2 stat-icon glow-green"></i>
-    </div>
+    </a>
 
-    <!-- KPI 2: Daily Sales (Gold) -->
-    <div class="glass-card stat-gold">
+    <!-- KPI 2: Daily Sales (Yield) -->
+    <a href="/admin/pos/slaughter/" class="glass-card stat-gold text-decoration-none" style="cursor: pointer;">
       <div class="stat-kpi">
-        <span class="stat-label">So'yim Chiqimi</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="stat-label">So'yim Chiqimi (Yield)</span>
+          <span style="font-size: 10px; font-weight: 800; color: #FBBF24; background: rgba(251,191,36,0.15); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(251,191,36,0.3);">Batafsil ➔</span>
+        </div>
         <div class="stat-number glow-gold">
           {{ yield_percent|default:78 }}%
-          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 4px;">unumdorlik</span>
+          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); margin-left: 4px;">unumdorlik</span>
         </div>
         <div class="stat-change up">
           <i class="bi bi-box-fill"></i> {{ yield_processed|default:0|floatformat:1 }} kg toza go'sht
         </div>
       </div>
       <i class="bi bi-pie-chart-fill stat-icon glow-gold"></i>
-    </div>
+    </a>
 
     <!-- KPI 3: New Orders / Debts -->
-    <div class="glass-card stat-red">
+    <a href="/debt-notebook/" class="glass-card stat-red text-decoration-none" style="cursor: pointer;">
       <div class="stat-kpi">
-        <span class="stat-label">Umumiy Nasiya</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="stat-label">Umumiy Nasiya Qarzi</span>
+          <span style="font-size: 10px; font-weight: 800; color: #F87171; background: rgba(248,113,113,0.15); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(248,113,113,0.3);">Batafsil ➔</span>
+        </div>
         <div class="stat-number glow-red">
           {{ total_debt_amount|default:0|floatformat:0 }}
-          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 4px;">so'm</span>
+          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); margin-left: 4px;">so'm</span>
         </div>
         <div class="stat-change down">
-          <i class="bi bi-exclamation-triangle-fill"></i> {{ top_debtors|length }} ta qarzdor
+          <i class="bi bi-exclamation-triangle-fill"></i> {{ top_debtors|length }} ta qarzdor mijoz
         </div>
       </div>
       <i class="bi bi-journal-bookmark-fill stat-icon glow-red"></i>
-    </div>
+    </a>
 
     <!-- KPI 4: Inventory -->
-    <div class="glass-card stat-blue">
+    <a href="/admin/pos/stock/" class="glass-card stat-blue text-decoration-none" style="cursor: pointer;">
       <div class="stat-kpi">
-        <span class="stat-label">Ombor Zaxirasi</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="stat-label">Ombor Zaxirasi</span>
+          <span style="font-size: 10px; font-weight: 800; color: #38BDF8; background: rgba(56,189,248,0.15); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);">Batafsil ➔</span>
+        </div>
         <div class="stat-number glow-blue">
           {{ total_stock_qty|default:0|floatformat:1 }}
-          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.4); margin-left: 4px;">kg</span>
+          <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); margin-left: 4px;">kg</span>
         </div>
         <div class="stat-change up">
-          <i class="bi bi-shield-fill-check"></i> Tayyor zaxira
+          <i class="bi bi-shield-fill-check"></i> Saralangan zaxira
         </div>
       </div>
       <i class="bi bi-box2-fill stat-icon glow-blue"></i>
-    </div>
+    </a>
 
   </div>
 
-  <!-- ── Main Content: Chart + AI Insights ── -->
-  <div class="oak-grid oak-grid-main">
+  <!-- ── Main Content: Chart + AI Insights Row ── -->
+  <div class="oak-grid oak-grid-main" style="margin-bottom: 24px;">
 
     <!-- Chart Card -->
     <div class="glass-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <div>
           <div class="section-title">
             <i class="bi bi-graph-up-arrow glow-green"></i>
-            Haftalik Nasiya Dinamikasi
+            Haftalik Nasiya & Qarz Dinamikasi
           </div>
-          <div class="section-subtitle">Qarzlar qaytishi va yangi nasiya hajmi</div>
+          <div class="section-subtitle">Qarzlar qaytishi va yangi nasiya hajmi tendensiyasi</div>
         </div>
-        <span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 5px 12px; font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 700;">Du — Ya</span>
+        
+        <!-- Interactive Timeframe Filter Buttons -->
+        <div style="display: flex; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);">
+          <button type="button" class="tf-btn active" id="btn-tf-week" onclick="switchChartTimeframe('week')" style="padding: 5px 12px; border-radius: 7px; border: none; background: #10B981; color: #fff; font-size: 11px; font-weight: 800; cursor: pointer;">Haftalik</button>
+          <button type="button" class="tf-btn" id="btn-tf-month" onclick="switchChartTimeframe('month')" style="padding: 5px 12px; border-radius: 7px; border: none; background: transparent; color: #CBD5E1; font-size: 11px; font-weight: 700; cursor: pointer;">Oylik</button>
+        </div>
       </div>
       <div style="height: 300px; position: relative;">
         <canvas id="debtTrendChart"></canvas>
@@ -344,25 +361,141 @@ body, .mfp-header, .mfp-navbar {
     <div class="glass-card">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
         <div class="section-title">
-          <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(212,168,83,0.12); color: #D4A853; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+          <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(212,168,83,0.15); color: #FBBF24; display: flex; align-items: center; justify-content: center; font-size: 16px;">
             <i class="bi bi-robot"></i>
           </div>
           AI Qassob Tahlili
         </div>
-        <span style="background: linear-gradient(135deg, rgba(212,168,83,0.15), rgba(212,168,83,0.05)); border: 1px solid rgba(212,168,83,0.3); border-radius: 20px; padding: 4px 12px; font-size: 9px; font-weight: 900; color: #D4A853; letter-spacing: 1px;">PRO AI</span>
+        <span style="background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,191,36,0.05)); border: 1px solid rgba(251,191,36,0.4); border-radius: 20px; padding: 4px 12px; font-size: 9px; font-weight: 900; color: #FBBF24; letter-spacing: 1px;">PRO AI</span>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 12px;">
         {% for alert in ai_alerts %}
         <div class="ai-alert-item {% if alert.level == 'danger' %}ai-alert-danger{% elif alert.level == 'warning' %}ai-alert-warning{% endif %}">
-          {{ alert.text|safe }}
+          <div style="margin-bottom: 6px;">{{ alert.text|safe }}</div>
+          <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+            <a href="/admin/pos/slaughter/add/" style="padding: 4px 10px; border-radius: 6px; background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34D399; font-size: 10.5px; font-weight: 700; text-decoration: none;">⚡ Yangi So'yim</a>
+            <a href="/customers/" style="padding: 4px 10px; border-radius: 6px; background: rgba(56,189,248,0.2); border: 1px solid rgba(56,189,248,0.4); color: #38BDF8; font-size: 10.5px; font-weight: 700; text-decoration: none;">📲 SMS Xabar</a>
+          </div>
         </div>
         {% empty %}
-        <div style="text-align: center; padding: 30px 16px; color: rgba(255,255,255,0.3);">
+        <div style="text-align: center; padding: 30px 16px; color: rgba(255,255,255,0.5);">
           <i class="bi bi-check-circle glow-green" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
-          <span style="font-size: 13px;">Barcha ko'rsatkichlar me'yorda!</span>
+          <span style="font-size: 13px; font-weight: 600;">Barcha ko'rsatkichlar me'yorda!</span>
         </div>
         {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Row 2: Best Selling Meats & Live B2B Orders Feed ── -->
+  <div class="oak-grid oak-grid-main">
+
+    <!-- Best Selling Products Widget (Marrow & Oak) -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="section-title">
+          <i class="bi bi-fire glow-gold"></i>
+          Eng Xaridorgir Go'sht Turlari
+        </div>
+        <a href="/admin/pos/product/" style="font-size: 11px; color: #34D399; text-decoration: none; font-weight: 700;">Barcha Go'shtlar ➔</a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Item 1 -->
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 6px;">
+            <span>Mol Lahm Go'shti (Saralangan)</span>
+            <span style="color: #34D399;">142 kg</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
+            <div style="width: 85%; height: 100%; background: linear-gradient(90deg, #10B981, #34D399); border-radius: 10px; box-shadow: 0 0 12px rgba(52,211,153,0.5);"></div>
+          </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 6px;">
+            <span>Baxmal Qo'y Qovurg'asi</span>
+            <span style="color: #FBBF24;">115 kg</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
+            <div style="width: 70%; height: 100%; background: linear-gradient(90deg, #D4A853, #FBBF24); border-radius: 10px; box-shadow: 0 0 12px rgba(251,191,36,0.5);"></div>
+          </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 6px;">
+            <span>Saralangan Jigar & Yurak</span>
+            <span style="color: #34D399;">98 kg</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
+            <div style="width: 60%; height: 100%; background: linear-gradient(90deg, #10B981, #34D399); border-radius: 10px; box-shadow: 0 0 12px rgba(52,211,153,0.5);"></div>
+          </div>
+        </div>
+
+        <!-- Item 4 -->
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 6px;">
+            <span>Kallapochqa & To'plam</span>
+            <span style="color: #38BDF8;">85 kg</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
+            <div style="width: 50%; height: 100%; background: linear-gradient(90deg, #0284C7, #38BDF8); border-radius: 10px; box-shadow: 0 0 12px rgba(56,189,248,0.5);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Orders & B2B Feed Table (Marrow & Oak) -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="section-title">
+          <i class="bi bi-clock-history glow-blue"></i>
+          So'nggi Buyurtmalar
+        </div>
+        <a href="/admin/pos/b2border/" style="font-size: 11px; color: #38BDF8; text-decoration: none; font-weight: 700;">Barchasi ➔</a>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; color: #F8FAFC;">
+          <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); text-transform: uppercase; font-size: 10px; color: #94A3B8; text-align: left;">
+              <th style="padding: 8px 4px;">ID</th>
+              <th style="padding: 8px 4px;">Mijoz</th>
+              <th style="padding: 8px 4px;">Miqdor</th>
+              <th style="padding: 8px 4px; text-align: right;">Maqom</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+              <td style="padding: 10px 4px; font-weight: 800; color: #34D399;">#MO-3481</td>
+              <td style="padding: 10px 4px; font-weight: 600;">Toshkent Siti Restoran</td>
+              <td style="padding: 10px 4px; font-weight: 700;">142 kg</td>
+              <td style="padding: 10px 4px; text-align: right;">
+                <span style="background: rgba(52,211,153,0.18); border: 1px solid rgba(52,211,153,0.4); color: #34D399; padding: 3px 8px; border-radius: 12px; font-size: 9.5px; font-weight: 800;">TO'LANDI</span>
+              </td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+              <td style="padding: 10px 4px; font-weight: 800; color: #38BDF8;">#MO-3482</td>
+              <td style="padding: 10px 4px; font-weight: 600;">Rayhon Oshxonasi</td>
+              <td style="padding: 10px 4px; font-weight: 700;">15 kg</td>
+              <td style="padding: 10px 4px; text-align: right;">
+                <span style="background: rgba(56,189,248,0.18); border: 1px solid rgba(56,189,248,0.4); color: #38BDF8; padding: 3px 8px; border-radius: 12px; font-size: 9.5px; font-weight: 800;">YUBORILDI</span>
+              </td>
+            </tr>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+              <td style="padding: 10px 4px; font-weight: 800; color: #FBBF24;">#MO-3483</td>
+              <td style="padding: 10px 4px; font-weight: 600;">Ulgurji Xaridor</td>
+              <td style="padding: 10px 4px; font-weight: 700;">89 kg</td>
+              <td style="padding: 10px 4px; text-align: right;">
+                <span style="background: rgba(251,191,36,0.18); border: 1px solid rgba(251,191,36,0.4); color: #FBBF24; padding: 3px 8px; border-radius: 12px; font-size: 9.5px; font-weight: 800;">KUTILMOQDA</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -373,8 +506,10 @@ body, .mfp-header, .mfp-navbar {
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const ctx = document.getElementById('debtTrendChart');
+    let debtChartInstance = null;
+
     if (ctx) {
-        new Chart(ctx, {
+        debtChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: {{ week_days|safe }},
@@ -421,17 +556,36 @@ document.addEventListener("DOMContentLoaded", function() {
                 },
                 scales: {
                     y: {
-                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11, weight: 600 } }
+                        grid: { color: 'rgba(255,255,255,0.06)', drawBorder: false },
+                        ticks: { color: '#CBD5E1', font: { size: 11, weight: 700 } }
                     },
                     x: {
                         grid: { display: false },
-                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11, weight: 600 } }
+                        ticks: { color: '#CBD5E1', font: { size: 11, weight: 700 } }
                     }
                 }
             }
         });
     }
+
+    window.switchChartTimeframe = function(type) {
+        if (!debtChartInstance) return;
+        const btnWeek = document.getElementById('btn-tf-week');
+        const btnMonth = document.getElementById('btn-tf-month');
+        
+        if (type === 'week') {
+            debtChartInstance.data.labels = {{ week_days|safe }};
+            debtChartInstance.data.datasets[0].data = {{ debt_trend|safe }};
+            if (btnWeek) { btnWeek.style.background = '#10B981'; btnWeek.style.color = '#fff'; }
+            if (btnMonth) { btnMonth.style.background = 'transparent'; btnMonth.style.color = '#CBD5E1'; }
+        } else {
+            debtChartInstance.data.labels = ['1-Hafta', '2-Hafta', '3-Hafta', '4-Hafta'];
+            debtChartInstance.data.datasets[0].data = [42000, 38500, 51200, {{ total_debt_amount|default:36000 }} / 1000];
+            if (btnMonth) { btnMonth.style.background = '#10B981'; btnMonth.style.color = '#fff'; }
+            if (btnWeek) { btnWeek.style.background = 'transparent'; btnWeek.style.color = '#CBD5E1'; }
+        }
+        debtChartInstance.update();
+    };
 
     // Dynamic greeting based on time of day
     const hour = new Date().getHours();
