@@ -6,43 +6,61 @@
 <style>
 /* Dashboard specific styles matching Marrow & Oak */
 .mfp-glass-card {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
+  background: rgba(12, 30, 24, 0.65) !important;
+  border-radius: 16px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
 }
+.mfp-glass-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  box-shadow: inset 0 1px 2px 0 rgba(255, 255, 255, 0.4), 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(16, 185, 129, 0.25) !important;
+}
+
 .stat-title {
-  font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.5);
-  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+  font-size: 11px; font-weight: 800; color: #CBD5E1;
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px;
 }
 .stat-value {
-  font-size: 26px; font-weight: 800;
+  font-size: 28px; font-weight: 900; color: #FFFFFF;
   display: flex; align-items: center; justify-content: space-between;
 }
-.glow-green { color: #10B981; text-shadow: 0 0 16px rgba(16,185,129,0.4); }
-.glow-gold { color: #D4A853; text-shadow: 0 0 16px rgba(212,168,83,0.4); }
+.glow-green { color: #34D399; text-shadow: 0 0 20px rgba(52,211,153,0.6); }
+.glow-gold { color: #FBBF24; text-shadow: 0 0 20px rgba(251,191,36,0.6); }
 
-.mfp-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-.mfp-col { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 20px; }
-.mfp-col-2 { flex: 2; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
-.mfp-col-3 { flex: 3; min-width: 400px; display: flex; flex-direction: column; gap: 20px; }
+.mfp-row { display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+.mfp-col { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 24px; }
+.mfp-col-2 { flex: 2; min-width: 320px; display: flex; flex-direction: column; gap: 24px; }
+.mfp-col-3 { flex: 3; min-width: 420px; display: flex; flex-direction: column; gap: 24px; }
 .mfp-col-full { flex: 1 1 100%; width: 100%; display: block; }
 
 /* Nullify default django dashboard floats */
 #content-main { width: 100% !important; float: none !important; }
 
 /* Beautify the Django App List Tables */
-.app-list table { width: 100% !important; margin-bottom: 25px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-.app-list caption { font-size: 14px !important; padding: 15px 20px !important; text-align: left; background: rgba(16,185,129,0.1) !important; }
-.app-list caption a { font-size: 15px !important; font-weight: 700 !important; color: #10B981 !important; text-decoration: none; }
+.app-list table {
+  width: 100% !important;
+  margin-bottom: 25px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(12, 30, 24, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(24px);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+.app-list caption { font-size: 14px !important; padding: 15px 20px !important; text-align: left; background: rgba(16,185,129,0.18) !important; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.app-list caption a { font-size: 15px !important; font-weight: 800 !important; color: #34D399 !important; text-decoration: none; }
 .app-list th, .app-list td { padding: 14px 20px !important; font-size: 13px !important; vertical-align: middle; }
-.app-list tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+.app-list tr { border-bottom: 1px solid rgba(255,255,255,0.08); }
 .app-list tr:last-child { border-bottom: none; }
-.app-list a.addlink, .app-list a.changelink { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 20px; background: rgba(255,255,255,0.05); font-size: 12px !important; font-weight: 600 !important; color: #E2E8F0 !important; text-decoration: none; transition: 0.2s; }
-.app-list a.addlink:hover { background: rgba(16,185,129,0.2); color: #10B981 !important; }
-.app-list a.changelink:hover { background: rgba(56,189,248,0.2); color: #38BDF8 !important; }
+.app-list a.addlink, .app-list a.changelink { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); font-size: 12px !important; font-weight: 700 !important; color: #FFFFFF !important; text-decoration: none; transition: 0.2s; }
+.app-list a.addlink:hover { background: rgba(16,185,129,0.3); color: #34D399 !important; border-color: #34D399; }
+.app-list a.changelink:hover { background: rgba(56,189,248,0.3); color: #38BDF8 !important; border-color: #38BDF8; }
 </style>
 {% endblock %}
 
