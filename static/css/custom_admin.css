@@ -7,8 +7,8 @@ MEATFLOW PRO - FINTECH GLOWING NEON ADMIN THEME
 
 /* 1. Core Backgrounds & Fonts */
 body, .wrapper, .content-wrapper, .layout-fixed .wrapper .sidebar {
-    background: radial-gradient(circle at top left, #0A1C16, #020605) !important;
-    background-attachment: fixed !important;
+    background: linear-gradient(180deg, rgba(4, 13, 10, 0.82) 0%, rgba(2, 6, 5, 0.90) 100%),
+                url('/static/images/dark_bg.jpg') center/cover no-repeat fixed !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     color: #E2E8F0 !important;
 }
