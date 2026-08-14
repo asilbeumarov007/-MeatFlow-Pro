@@ -9,13 +9,15 @@ class SupplierAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price_per_kg', 'is_active', 'deduct_from')
+    list_display = ('id', 'name', 'price_per_kg', 'deduct_from', 'is_active')
+    list_editable = ('price_per_kg', 'is_active')
     list_filter = ('is_active',)
     search_fields = ('name',)
 
 @admin.register(Stock)
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('product', 'quantity', 'updated_at')
+    list_display = ('id', 'product', 'quantity', 'updated_at')
+    list_editable = ('quantity',)
     search_fields = ('product__name',)
 
 @admin.register(Slaughter)
@@ -64,7 +66,7 @@ from .models import CashTransaction, Notebook, B2BOrder, StockBatch, StoreSettin
 @admin.register(StoreSetting)
 class StoreSettingAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'phone_number', 'address', 'base_delivery_fee', 'fee_per_km', 'is_active')
-    list_editable = ('is_active',)
+    list_editable = ('base_delivery_fee', 'fee_per_km', 'is_active')
     fieldsets = (
         ("Do'kon Ma'lumotlari", {
             'fields': ('name', 'phone_number', 'address', 'is_active')

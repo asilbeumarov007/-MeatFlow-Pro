@@ -14,14 +14,15 @@ if env_file.exists():
                 os.environ[k.strip()] = v.strip().strip('"').strip("'")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%k58&vjw)ai010%@t$xhi6i#hxfej!b-#r1c%!2f6pihx*lleg'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-%k58&vjw)ai010%@t$xhi6i#hxfej!b-#r1c%!2f6pihx*lleg')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 't')
 
 # Vercel, Render va mahalliy xostlar uchun ruxsatlar
+allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '*')
+ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()] if allowed_hosts_env else ['*']
 
-ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -166,21 +167,69 @@ CSRF_TRUSTED_ORIGINS = [
 # ==========================================
 # JAZZMIN ADMIN PANEL SETTINGS
 # ==========================================
+# ==========================================
+# JAZZMIN ADMIN PANEL SETTINGS
+# ==========================================
 JAZZMIN_SETTINGS = {
-    "site_title": "MeatFlow Pro",
-    "site_header": "MeatFlow",
+    "site_title": "MeatFlow Pro — Boshqaruv Paneli",
+    "site_header": "MeatFlow Pro",
     "site_brand": "MeatFlow Pro",
-    "welcome_sign": "MeatFlow boshqaruv paneliga xush kelibsiz",
-    "copyright": "MeatFlow Pro Ltd",
-    
+    "site_logo": "images/icon.jpg",
+    "login_logo": "images/icon.jpg",
+    "site_icon": "images/icon.jpg",
+    "welcome_sign": "MeatFlow Pro Boshqaruv Paneliga Xush Kelibsiz",
+    "copyright": "MeatFlow Pro Ltd © 2026",
+    "search_model": ["pos.Customer", "pos.Sale", "pos.B2BOrder", "pos.Slaughter"],
+
     "topmenu_links": [
-        {"name": "Bosh sahifa", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "POS Terminal", "url": "/pos/"},
+        {"name": "💻 POS Kassa", "url": "/pos/", "new_window": False},
+        {"name": "📊 Dashboard", "url": "/", "new_window": False},
+        {"name": "🤖 AI Qassob", "url": "/pos/ai/", "new_window": False},
+        {"name": "👥 Mijozlar CRM", "url": "/customers/", "new_window": False},
     ],
-    
+
     "show_sidebar": True,
     "navigation_expanded": True,
-    
+    "hide_models": ["auth.Group", "pos.AIChatMessage"],
+
+    "icons": {
+        "accounts.CustomUser": "fas fa-user-shield",
+        "pos.B2BOrder": "fas fa-truck-loading",
+        "pos.Sale": "fas fa-cash-register",
+        "pos.Customer": "fas fa-users",
+        "pos.Slaughter": "fas fa-drumstick-bite",
+        "pos.Product": "fas fa-boxes",
+        "pos.Stock": "fas fa-cubes",
+        "pos.StockBatch": "fas fa-layer-group",
+        "pos.Supplier": "fas fa-truck",
+        "pos.CashTransaction": "fas fa-wallet",
+        "pos.PaymentProof": "fas fa-file-invoice-dollar",
+        "pos.Notebook": "fas fa-book-open",
+        "pos.CustomerLog": "fas fa-history",
+        "pos.StoreSetting": "fas fa-sliders-h",
+        "pos.PaymentSetting": "fas fa-credit-card",
+        "articles.Article": "fas fa-newspaper",
+        "comments.Comment": "fas fa-comments",
+    },
+
+    "order_with_respect_to": [
+        "pos.B2BOrder",
+        "pos.Sale",
+        "pos.Customer",
+        "pos.Slaughter",
+        "pos.Product",
+        "pos.Stock",
+        "pos.StockBatch",
+        "pos.Supplier",
+        "pos.CashTransaction",
+        "pos.PaymentProof",
+        "pos.Notebook",
+        "pos.CustomerLog",
+        "pos.StoreSetting",
+        "pos.PaymentSetting",
+        "accounts.CustomUser",
+    ],
+
     "custom_css": "css/custom_admin.css",
 }
 
@@ -200,7 +249,6 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar": "sidebar-dark-success",
     "sidebar_nav_small_text": False,
     "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": True,
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
@@ -215,3 +263,11 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success"
     }
 }
+
+# ─── ESKIZ.UZ / SMS GATEWAY SETTINGS ───
+SMS_PROVIDER = os.environ.get('SMS_PROVIDER', 'eskiz')
+SMS_API_LOGIN = os.environ.get('ESKIZ_EMAIL', '')
+SMS_API_PASSWORD = os.environ.get('ESKIZ_PASSWORD', '')
+ESKIZ_EMAIL = SMS_API_LOGIN
+ESKIZ_PASSWORD = SMS_API_PASSWORD
+
