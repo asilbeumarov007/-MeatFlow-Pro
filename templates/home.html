@@ -22,19 +22,19 @@
 
 /* ── Reset body for dark dashboard ── */
 body, .mfp-header, .mfp-navbar {
-  background: #040D0A !important;
+  background: #06140F !important;
 }
 
 /* ── Dashboard Shell ── */
 .oak-dashboard {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background: linear-gradient(180deg, rgba(4, 13, 10, 0.78) 0%, rgba(2, 6, 5, 0.88) 100%),
+  background: linear-gradient(180deg, rgba(6, 18, 14, 0.60) 0%, rgba(3, 10, 8, 0.72) 100%),
               url('/static/images/dark_bg.jpg') center/cover no-repeat fixed !important;
   min-height: 100vh;
   padding: 28px 32px 60px;
   position: relative;
   overflow: hidden;
-  color: #E2E8F0;
+  color: #F8FAFC;
 }
 
 /* ── Background Watermark Logo ── */
@@ -47,26 +47,28 @@ body, .mfp-header, .mfp-navbar {
   width: 550px;
   height: 550px;
   background: url('/static/images/meatflow_logo.jpg') center/contain no-repeat;
-  opacity: 0.05;
+  opacity: 0.07;
   pointer-events: none;
-  filter: drop-shadow(0 0 30px rgba(16, 185, 129, 0.3));
+  filter: drop-shadow(0 0 30px rgba(16, 185, 129, 0.4));
 }
 
 /* ── Glass Card ── */
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 16px;
   padding: 22px;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 .glass-card:hover {
-  border-color: rgba(16, 185, 129, 0.15);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: inset 0 1px 2px 0 rgba(255, 255, 255, 0.4), 0 12px 36px rgba(0, 0, 0, 0.45);
   transform: translateY(-2px);
 }
 
@@ -77,11 +79,11 @@ body, .mfp-header, .mfp-navbar {
   gap: 4px;
 }
 .stat-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: rgba(255,255,255,0.45);
+  color: #CBD5E1;
 }
 .stat-number {
   font-size: 28px;
@@ -91,46 +93,46 @@ body, .mfp-header, .mfp-navbar {
   line-height: 1.1;
 }
 .stat-change {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 4px;
   margin-top: 4px;
 }
-.stat-change.up { color: #10B981; }
-.stat-change.down { color: #EF4444; }
+.stat-change.up { color: #34D399; }
+.stat-change.down { color: #F87171; }
 .stat-icon {
   position: absolute;
   top: 18px;
   right: 18px;
   font-size: 22px;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 /* ── Green-bordered stat card ── */
 .stat-green {
-  border-left: 3px solid #10B981;
-  box-shadow: inset 4px 0 20px -10px rgba(16,185,129,0.3);
+  border-left: 4px solid #10B981;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), inset 6px 0 20px -10px rgba(16,185,129,0.4);
 }
 .stat-gold {
-  border-left: 3px solid #D4A853;
-  box-shadow: inset 4px 0 20px -10px rgba(212,168,83,0.3);
+  border-left: 4px solid #FBBF24;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), inset 6px 0 20px -10px rgba(251,191,36,0.4);
 }
 .stat-blue {
-  border-left: 3px solid #38BDF8;
-  box-shadow: inset 4px 0 20px -10px rgba(56,189,248,0.3);
+  border-left: 4px solid #38BDF8;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), inset 6px 0 20px -10px rgba(56,189,248,0.4);
 }
 .stat-red {
-  border-left: 3px solid #EF4444;
-  box-shadow: inset 4px 0 20px -10px rgba(239,68,68,0.3);
+  border-left: 4px solid #F87171;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), inset 6px 0 20px -10px rgba(248,113,113,0.4);
 }
 
 /* ── Neon Glow Text ── */
-.glow-green { color: #10B981; text-shadow: 0 0 20px rgba(16,185,129,0.5); }
-.glow-gold { color: #D4A853; text-shadow: 0 0 20px rgba(212,168,83,0.5); }
-.glow-blue { color: #38BDF8; text-shadow: 0 0 20px rgba(56,189,248,0.5); }
-.glow-red { color: #EF4444; text-shadow: 0 0 20px rgba(239,68,68,0.5); }
+.glow-green { color: #34D399; text-shadow: 0 0 20px rgba(52,211,153,0.6); }
+.glow-gold { color: #FBBF24; text-shadow: 0 0 20px rgba(251,191,36,0.6); }
+.glow-blue { color: #38BDF8; text-shadow: 0 0 20px rgba(56,189,248,0.6); }
+.glow-red { color: #F87171; text-shadow: 0 0 20px rgba(248,113,113,0.6); }
 
 /* ── Layout Grid ── */
 .oak-grid {
@@ -151,7 +153,7 @@ body, .mfp-header, .mfp-navbar {
   gap: 8px;
   padding: 10px 20px;
   border-radius: 10px;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 12px;
   text-decoration: none;
   text-transform: uppercase;
@@ -163,27 +165,28 @@ body, .mfp-header, .mfp-navbar {
 .oak-btn-primary {
   background: linear-gradient(135deg, #10B981, #059669);
   color: #fff !important;
-  box-shadow: 0 4px 15px rgba(16,185,129,0.35);
+  box-shadow: 0 4px 18px rgba(16,185,129,0.45);
 }
 .oak-btn-primary:hover {
-  box-shadow: 0 6px 25px rgba(16,185,129,0.55);
+  box-shadow: 0 6px 25px rgba(16,185,129,0.65);
   transform: translateY(-2px);
   color: #fff !important;
 }
 .oak-btn-glass {
-  background: rgba(255,255,255,0.05);
-  color: #D4A853 !important;
-  border: 1px solid rgba(212,168,83,0.25);
+  background: rgba(255,255,255,0.12);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
 }
 .oak-btn-glass:hover {
-  background: rgba(212,168,83,0.1);
-  border-color: #D4A853;
-  color: #D4A853 !important;
+  background: rgba(255,255,255,0.2);
+  border-color: #FFFFFF;
+  color: #FFFFFF !important;
 }
 
 /* ── Section Title ── */
 .section-title {
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 800;
   color: #ffffff;
   display: flex;
@@ -192,21 +195,27 @@ body, .mfp-header, .mfp-navbar {
   margin-bottom: 4px;
 }
 .section-subtitle {
-  font-size: 11px;
-  color: rgba(255,255,255,0.35);
-  font-weight: 500;
+  font-size: 12px;
+  color: #94A3B8;
+  font-weight: 600;
 }
 
 /* ── AI Alert Items ── */
 .ai-alert-item {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 14px 16px;
   font-size: 13px;
-  color: #C9D1D9;
-  border-left: 3px solid #10B981;
+  color: #F8FAFC;
+  border-left: 4px solid #10B981;
   transition: all 0.2s;
 }
+.ai-alert-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.ai-alert-danger { border-left-color: #F87171; }
+.ai-alert-warning { border-left-color: #FBBF24; }
 .ai-alert-item:hover {
   background: rgba(16,185,129,0.05);
 }

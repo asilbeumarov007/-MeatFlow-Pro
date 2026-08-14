@@ -7,10 +7,10 @@ MEATFLOW PRO - FINTECH GLOWING NEON ADMIN THEME
 
 /* 1. Core Backgrounds & Fonts */
 body, .wrapper, .content-wrapper, .layout-fixed .wrapper .sidebar {
-    background: linear-gradient(180deg, rgba(4, 13, 10, 0.82) 0%, rgba(2, 6, 5, 0.90) 100%),
+    background: linear-gradient(180deg, rgba(6, 18, 14, 0.62) 0%, rgba(3, 10, 8, 0.75) 100%),
                 url('/static/images/dark_bg.jpg') center/cover no-repeat fixed !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    color: #E2E8F0 !important;
+    color: #F8FAFC !important;
 }
 
 h1, h2, h3, h4, h5, h6, .card-title {
@@ -21,34 +21,34 @@ h1, h2, h3, h4, h5, h6, .card-title {
 
 /* 2. Top Header (Glassmorphism) */
 .main-header.navbar {
-    background: rgba(4, 13, 10, 0.5) !important;
-    backdrop-filter: blur(15px) !important;
-    -webkit-backdrop-filter: blur(15px) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5) !important;
+    background: rgba(6, 18, 14, 0.65) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* 3. Sidebar (Glassmorphism) */
 .main-sidebar, .brand-link {
-    background: rgba(2, 8, 6, 0.4) !important;
-    backdrop-filter: blur(15px) !important;
-    -webkit-backdrop-filter: blur(15px) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(4, 13, 10, 0.55) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 .brand-link {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 .sidebar-dark-success .nav-sidebar > .nav-item > .nav-link.active, 
 .sidebar-light-success .nav-sidebar > .nav-item > .nav-link.active {
-    background-color: rgba(16, 185, 129, 0.15) !important;
-    color: #10B981 !important;
-    border-left: 3px solid #10B981;
+    background-color: rgba(16, 185, 129, 0.25) !important;
+    color: #34D399 !important;
+    border-left: 4px solid #10B981;
     border-radius: 0 8px 8px 0;
     box-shadow: inset 20px 0 20px -20px rgba(16,185,129,0.5);
 }
 .nav-sidebar .nav-link {
-    color: #A3B8B0 !important;
-    font-weight: 500 !important;
+    color: #CBD5E1 !important;
+    font-weight: 600 !important;
     transition: all 0.2s ease;
 }
 .nav-sidebar .nav-link:hover {
@@ -62,12 +62,12 @@ h1, h2, h3, h4, h5, h6, .card-title {
 
 /* 4. Cards (Glassmorphism) */
 .card {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
     border-radius: 16px !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
 }
 .card-header {
     background: transparent !important;
