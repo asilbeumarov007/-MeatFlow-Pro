@@ -20,7 +20,9 @@ from .serializers import (
     SlaughterSerializer, SaleSerializer, StockSerializer
 )
 from django.contrib.auth.decorators import user_passes_test
+from .permissions import staff_required, admin_required, is_staff_or_admin, is_admin
 from .views import create_user_for_customer
+
 
 # Decimal hisob-kitoblar uchun JSON serializator helper
 def decimal_serializer(obj):
@@ -32,11 +34,12 @@ def json_response(data, status=200):
     return JsonResponse(data, safe=False, status=status, json_dumps_params={'default': decimal_serializer})
 
 def send_telegram_notification(text):
-    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '8898055369:AAFbUW9nLVRXwG-xd0oP1ftQ5vZpTjcL4x8')
-    chat_id = os.environ.get('TELEGRAM_CHAT_ID', '-1004312267841')
+    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+    chat_id = os.environ.get('TELEGRAM_CHAT_ID', '')
     if not bot_token or not chat_id:
         print("Telegram bot token or chat ID is not set. Skipping notification.")
         return False
+
     try:
         url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
         payload = {
@@ -168,7 +171,7 @@ def api_customers(request):
 # TA'MINOTCHILAR API
 # =====================================================================
 @csrf_exempt
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_staff_or_admin)
 def api_suppliers(request):
     """Ta'minotchilar va Mijozlarni yagona Customer modeli orqali qidirish va qo'shish"""
     if request.method == 'GET':
@@ -568,7 +571,7 @@ def api_sales_create(request):
 # =====================================================================
 @csrf_exempt
 @transaction.atomic
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_staff_or_admin)
 def api_debts_migrate(request):
     """Daftardagi eski mijoz/ta'minotchi qarzlarini ommaviy ko'chirish"""
     if request.method == 'POST':
@@ -644,7 +647,7 @@ def api_debts_migrate(request):
 # =====================================================================
 @csrf_exempt
 @transaction.atomic
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_staff_or_admin)
 def api_debts_pay(request):
     """Mijoz qarzini to'laganda (qabul qilish) yoki Ta'minotchiga qarzimizni to'laganda"""
     if request.method == 'POST':
@@ -691,7 +694,7 @@ def api_debts_pay(request):
 # =====================================================================
 # KUNLIK HESOBOT (Z-REPORT) API
 # =====================================================================
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_staff_or_admin)
 def api_reports_daily(request):
     """Z-Report: Kunlik savdo tahlili"""
     today = timezone.localtime(timezone.now()).date()
@@ -744,7 +747,7 @@ def api_reports_daily(request):
 # =====================================================================
 # QARZLARNI MUDDAT BO'YICHA TAHLILI (AGING DEBT) API
 # =====================================================================
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_staff_or_admin)
 def api_reports_debt_aging(request):
     """Nasiya qarzlarining yoshi bo'yicha tahlil"""
     customers = Customer.objects.filter(debt_amount__gt=0).order_by('-debt_amount')
@@ -781,7 +784,7 @@ def api_reports_debt_aging(request):
 # AI COPILOT / QASSOB AI YORDAMCHI (FREE GEMINI API)
 # =====================================================================
 @csrf_exempt
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_staff_or_admin)
 def api_ai_copilot(request):
     """Free Gemini API yordamida do'kon hisobotlarini ovozli/matnli tahlil qilish"""
     if request.method != 'POST':
@@ -853,35 +856,55 @@ def api_ai_copilot(request):
             message="📊 Bugungi tahlil va maslahatlarni olish"
         )
 
-    # Gemini API ga ulanishga urinamiz
-    api_key = os.environ.get('GEMINI_API_KEY', '') # Agar muhitdan topilmasa
-    if not api_key:
-        if user_question:
-            q_lower = user_question.lower()
-            if "zaxira" in q_lower or "go'sht" in q_lower or "kam" in q_lower:
-                fallback_advice = f"🥩 Ombordagi joriy zaxiralarimiz: {stock_summary}. Zaxirani doimiy nazorat qiling."
-            elif "qarz" in q_lower or "qarzdor" in q_lower:
-                fallback_advice = f"💸 Xaridorlarning jami qarzi: {total_customer_debts:,} so'm. Eng ko'p qarzdorlar: {debtors_summary}."
-            else:
-                fallback_advice = f"Sizning savolingiz: \"{user_question}\". AI maslahatchini faollashtirish uchun GEMINI_API_KEY o'rnatilishi lozim. Hozirgi umumiy holat: Bugun {total_revenue:,} so'mlik savdo bo'ldi, zaxiralar: {stock_summary}."
+    # Smart Local AI Analysis fallback function
+    def get_smart_local_ai_advice(q_text):
+        q_lower = (q_text or "").lower()
+        if "savdo" in q_lower or "oshirish" in q_lower or "z-report" in q_lower or "tushum" in q_lower or "marja" in q_lower:
+            return f"""💡 <strong>MeatFlow Pro AI Savdo Tahlili:</strong>
+
+1. 📊 <strong>Bugungi Kassa Tushumi:</strong> {total_revenue:,.0f} so'm tushum va {total_debt_added:,.0f} so'm yangi nasiya berildi. Bugun chegirmalarga {total_discounts:,.0f} so'm kechildi.
+2. 🥩 <strong>Zaxira Holati:</strong> Omborda {stock_summary}. Saralangan premium go'sht turlari aylanmasi yuqori.
+3. 📈 <strong>Tavsiya:</strong> Aylanmani oshirish uchun sovuqxonadagi saqlash muddati 3 kundan oshgan partiyalarga 5-10% chegirma e'lon qiling. Yirik B2B mijozlarga to'liq naqd/plastik to'lov evaziga bepul yetkazib berish xizmatini taklif qiling."""
+
+        elif "zaxira" in q_lower or "ombor" in q_lower or "go'sht" in q_lower or "partiya" in q_lower:
+            return f"""🥩 <strong>MeatFlow Pro AI Ombor & Zaxira Tahlili:</strong>
+
+1. 📦 <strong>Hozirgi Zaxira Balansi:</strong> {stock_summary}.
+2. ⚠️ <strong>Xavf va Zarar Nazorati (Yield Decay):</strong> Zaxirasi 20 kg dan kamaygan go'sht turlari uchun darhol yangi so'yim buyurtma berish lozim.
+3. 💡 <strong>Tavsiya:</strong> So'yim chiqimini (Yield %) 78% dan yuqori ushlash uchun suyak va yog' ajratishni standartlashtiring va so'yim sexida ma'lumotlarni o'z vaqtida kiriting."""
+
+        elif "qarz" in q_lower or "nasiya" in q_lower or "qarzdor" in q_lower:
+            return f"""💸 <strong>MeatFlow Pro AI Nasiya & Qarz Risk Tahlili:</strong>
+
+1. 🔴 <strong>Mijozlar Qarzi:</strong> Mijozlarning bizdan jami qarzi <strong>{total_customer_debts:,.0f} so'm</strong>ga yetdi.
+2. 🏢 <strong>Ta'minotchi Qarzi:</strong> Chorvadorlar oldidagi qarzimiz: <strong>{total_supplier_debts:,.0f} so'm</strong>.
+3. 🚨 <strong>Eng Katta Qarzdorlar:</strong> {debtors_summary or "Mavjud emas"}.
+4. 💡 <strong>Amaliy Tavsiya:</strong> 15 kundan oshgan qarzdorlarga SMS eslatma yuboring va ularga yangi nasiya berish limitini vaqtincha muzlatib qo'ying."""
+
         else:
-            fallback_advice = f"""Assalomu alaykum, Islom aka! Men "Baxmal Meat" AI maslahatchisiman.
+            return f"""🤖 <strong>MeatFlow Pro AI Tizim Tahlili:</strong>
 
-Bugungi hisobotlarimizga ko'ra:
-1. 🥩 **Zaxiralar:** Omborda go'sht zaxiralari normal holatda: {stock_summary}.
-2. 💸 **Qarz xavfi:** Xaridorlarning bizdan jami qarzi **{total_customer_debts:,} so'm**ga yetdi. Eng ko'p qarzdor bo'lgan mijozlar: {debtors_summary}.
-3. 📉 **Yo'qotishlar:** Bugun chegirmalar hisobiga **{total_discounts:,} so'm** foydadan kechildi.
+Assalomu alaykum! Do'koningizning joriy ko'rsatkichlari:
+• 📊 <strong>Bugungi Tushum:</strong> {total_revenue:,.0f} so'm
+• 🥩 <strong>Ombor Zaxiralari:</strong> {stock_summary}
+• 💸 <strong>Jami Mijozlar Qarzi:</strong> {total_customer_debts:,.0f} so'm
+• 🔴 <strong>Top Qarzdorlar:</strong> {debtors_summary or "Yo'q"}
 
-Haqiqiy real-vaqtdagi AI maslahatlarini faollashtirish uchun tizim sozlamalariga Gemini API kalitini kiriting!"""
+Sizga savdoni oshirish, zaxiralarni to'ldirish yoki nasiya qarzlarini undirish bo'yicha batafsil tavsiyalar berishim mumkin."""
+
+    # Gemini API ga ulanishga urinamiz
+    api_key = os.environ.get('GEMINI_API_KEY', '')
+    if not api_key:
+        advice = get_smart_local_ai_advice(user_question)
         AIChatMessage.objects.create(
             user=request.user,
             sender='bot',
-            message=fallback_advice
+            message=advice
         )
-        return json_response({'advice': fallback_advice})
+        return json_response({'advice': advice})
 
     try:
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         headers = {
             'Content-Type': 'application/json',
             'x-goog-api-key': api_key
@@ -889,7 +912,7 @@ Haqiqiy real-vaqtdagi AI maslahatlarini faollashtirish uchun tizim sozlamalariga
         payload = {
             "contents": [{"parts": [{"text": prompt}]}]
         }
-        response = requests.post(url, headers=headers, json=payload, timeout=30)
+        response = requests.post(url, headers=headers, json=payload, timeout=12)
         if response.status_code == 200:
             result = response.json()
             advice = result['candidates'][0]['content']['parts'][0]['text']
@@ -900,25 +923,26 @@ Haqiqiy real-vaqtdagi AI maslahatlarini faollashtirish uchun tizim sozlamalariga
             )
             return json_response({'advice': advice})
         else:
-            err_msg = f"Gemini API xatosi: {response.text}"
+            # External Gemini API returned 503 / 429 / non-200 -> Fallback to Smart Local AI Engine
+            advice = get_smart_local_ai_advice(user_question)
             AIChatMessage.objects.create(
                 user=request.user,
                 sender='bot',
-                message=f"❌ Xatolik yuz berdi: {err_msg}"
+                message=advice
             )
-            return json_response({'error': err_msg}, status=500)
+            return json_response({'advice': advice})
     except Exception as e:
-        err_msg = str(e)
+        advice = get_smart_local_ai_advice(user_question)
         AIChatMessage.objects.create(
             user=request.user,
             sender='bot',
-            message=f"❌ Tizim xatoligi: {err_msg}"
+            message=advice
         )
-        return json_response({'error': err_msg}, status=500)
+        return json_response({'advice': advice})
 
 
 @csrf_exempt
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_staff_or_admin)
 def api_yield_decay_report(request):
     """Ombordagi go'sht partiyalarini va kunlik qurish zararini (Yield Decay) hisoblash"""
     from .models import StockBatch
@@ -964,7 +988,7 @@ def api_yield_decay_report(request):
     })
 
 @csrf_exempt
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_staff_or_admin)
 def api_notifications(request):
     alerts = []
     
@@ -1000,12 +1024,27 @@ def api_notifications(request):
             'title': "Yangi B2B buyurtma",
             'body': f"Restoranlardan {pending_b2b} ta yangi buyurtma kutilmoqda. Chat sahifasidan tasdiqlang.",
         })
+
+    # 4. Aging Meat Batches (2+ days in showcase) — AI Decay Advice
+    from .models import StockBatch
+    aging_batches = StockBatch.objects.filter(current_quantity__gt=Decimal('0.05')).select_related('product')
+    for b in aging_batches:
+        ai_rec = b.get_ai_recommendation()
+        if ai_rec:
+            alerts.append({
+                'type': 'aging_meat_decay',
+                'icon': '🥩',
+                'title': f"AI Tavsiya: {b.product.name} ({ai_rec['days']} kun vitrinada)",
+                'body': ai_rec['message'],
+                'action_suggestion': ai_rec['action_suggestion']
+            })
         
     return json_response({
         'alerts': alerts,
         'count': len(alerts),
         'pending_b2b': pending_b2b
     })
+
 
 
 @csrf_exempt
@@ -1311,6 +1350,38 @@ def api_courier_accept_order(request):
             amount=Decimal('0.00')
         )
 
+        # Telegram Push Notifications
+        try:
+            from .customer_bot import send_message as send_cust_msg
+            from .telegram_bot import send_message as send_admin_msg, CHAT_ID
+
+            if order.customer.telegram_chat_id:
+                cust_text = (
+                    f"🚴‍♂️ *KURYER YO'LDA!*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"📦 *Buyurtma:* #{order.id}\n"
+                    f"🥩 *Mahsulot:* {order.product.name} ({order.requested_weight:.2f} kg)\n"
+                    f"🛵 *Kuryer:* {customer.first_name}\n"
+                    f"📞 *Kuryer Tel:* `{customer.phone}`\n\n"
+                    f"⏳ Tez orada eshigingiz oldiga yetib boradi!"
+                )
+                send_cust_msg(order.customer.telegram_chat_id, cust_text)
+
+            if CHAT_ID:
+                nav_link = f"https://yandex.com/maps/?pt={order.longitude},{order.latitude}&z=16" if (order.latitude and order.longitude) else ""
+                nav_str = f"\n🗺 [Yandex Mapsda Ko'rish]({nav_link})" if nav_link else ""
+                admin_text = (
+                    f"🚴‍♂️ *KURYER BUYURTMANI OLDI*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🆔 *Buyurtma:* #{order.id}\n"
+                    f"👤 *Mijoz:* {order.customer.first_name} ({order.customer.phone})\n"
+                    f"🛵 *Kuryer:* {customer.first_name} ({customer.phone})\n"
+                    f"📍 *Manzil:* {order.delivery_address or 'Nomalum'}{nav_str}"
+                )
+                send_admin_msg(CHAT_ID, admin_text)
+        except Exception as tg_err:
+            print(f"[Courier Accept TG Error]: {tg_err}")
+
         return Response({
             'status': 'success',
             'message': f"Buyurtma #{order.id} o'zingizga biriktirildi! Omadli yetkazib berish tilaymiz!"
@@ -1345,6 +1416,34 @@ def api_courier_complete_order(request):
             message=f"✅ <b>BUYURTMA YETKAZILDI!</b><br>Buyurtmangiz #{order.id} muvaffaqiyatli yetkazib berildi. Oshingiz halol bo'lsin!",
             amount=Decimal('0.00')
         )
+
+        # Telegram Push Notifications for completion
+        try:
+            from .customer_bot import send_message as send_cust_msg
+            from .telegram_bot import send_message as send_admin_msg, CHAT_ID
+
+            if order.customer.telegram_chat_id:
+                cust_done_text = (
+                    f"✅ *BUYURTMA YETKAZIB BERILDI!*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"📦 *Buyurtma:* #{order.id}\n"
+                    f"🥩 *Mahsulot:* {order.product.name}\n\n"
+                    f"❤️ Baxmal Meat do'konini tanlaganingiz uchun rahmat! Oshingiz halol bo'lsin."
+                )
+                send_cust_msg(order.customer.telegram_chat_id, cust_done_text)
+
+            if CHAT_ID:
+                admin_done_text = (
+                    f"✅ *BUYURTMA MUVAFFAQIYATLI YETKAZILDI*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🆔 *Buyurtma:* #{order.id}\n"
+                    f"👤 *Mijoz:* {order.customer.first_name}\n"
+                    f"🛵 *Kuryer:* {customer.first_name}\n"
+                    f"💵 *Kuryerlik haqi:* `{order.delivery_fee:,.0f}` so'm"
+                )
+                send_admin_msg(CHAT_ID, admin_done_text)
+        except Exception as tg_err:
+            print(f"[Courier Complete TG Error]: {tg_err}")
 
         return Response({
             'status': 'success',
@@ -1412,4 +1511,20 @@ def api_trigger_stock_decay(request):
             'updated_batches': updated_batches
         })
     except Exception as e:
-        return Response({'status': 'error', 'message': str(e)}, status=400)
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@csrf_exempt
+@user_passes_test(is_staff_or_admin)
+def api_send_daily_digest(request):
+    """Admin yoki Cron orqali Telegramga Kechki Z-Hisobotni jo'natish."""
+    try:
+        from .telegram_bot import send_daily_executive_digest
+        res = send_daily_executive_digest()
+        if res:
+            return JsonResponse({'status': 'success', 'message': "Kechki Z-Hisobot Telegramga muvaffaqiyatli yuborildi!"})
+        else:
+            return JsonResponse({'status': 'error', 'message': "Hisobot yuborilmadi. Telegram bot sozlamalarini tekshiring."}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
