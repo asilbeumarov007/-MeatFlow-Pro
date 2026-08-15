@@ -403,49 +403,17 @@ body, .mfp-header, .mfp-navbar {
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 16px;">
-        <!-- Item 1 -->
+        {% for item in best_sellers %}
         <div>
           <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 6px;">
-            <span>Mol Lahm Go'shti (Saralangan)</span>
-            <span style="color: #34D399;">142 kg</span>
+            <span>{{ item.name }}</span>
+            <span style="color: {{ item.color }};">{{ item.weight|floatformat:1 }} kg</span>
           </div>
           <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
-            <div style="width: 85%; height: 100%; background: linear-gradient(90deg, #10B981, #34D399); border-radius: 10px; box-shadow: 0 0 12px rgba(52,211,153,0.5);"></div>
+            <div style="width: {{ item.percent }}%; height: 100%; background: linear-gradient(90deg, {{ item.color }}, {{ item.color }}); border-radius: 10px; box-shadow: 0 0 12px {{ item.color }};"></div>
           </div>
         </div>
-
-        <!-- Item 2 -->
-        <div>
-          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 6px;">
-            <span>Baxmal Qo'y Qovurg'asi</span>
-            <span style="color: #FBBF24;">115 kg</span>
-          </div>
-          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
-            <div style="width: 70%; height: 100%; background: linear-gradient(90deg, #D4A853, #FBBF24); border-radius: 10px; box-shadow: 0 0 12px rgba(251,191,36,0.5);"></div>
-          </div>
-        </div>
-
-        <!-- Item 3 -->
-        <div>
-          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 6px;">
-            <span>Saralangan Jigar & Yurak</span>
-            <span style="color: #34D399;">98 kg</span>
-          </div>
-          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
-            <div style="width: 60%; height: 100%; background: linear-gradient(90deg, #10B981, #34D399); border-radius: 10px; box-shadow: 0 0 12px rgba(52,211,153,0.5);"></div>
-          </div>
-        </div>
-
-        <!-- Item 4 -->
-        <div>
-          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 6px;">
-            <span>Kallapochqa & To'plam</span>
-            <span style="color: #38BDF8;">85 kg</span>
-          </div>
-          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden;">
-            <div style="width: 50%; height: 100%; background: linear-gradient(90deg, #0284C7, #38BDF8); border-radius: 10px; box-shadow: 0 0 12px rgba(56,189,248,0.5);"></div>
-          </div>
-        </div>
+        {% endfor %}
       </div>
     </div>
 
@@ -470,30 +438,20 @@ body, .mfp-header, .mfp-navbar {
             </tr>
           </thead>
           <tbody>
+            {% for item in recent_feed %}
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-              <td style="padding: 10px 4px; font-weight: 800; color: #34D399;">#MO-3481</td>
-              <td style="padding: 10px 4px; font-weight: 600;">Toshkent Siti Restoran</td>
-              <td style="padding: 10px 4px; font-weight: 700;">142 kg</td>
+              <td style="padding: 10px 4px; font-weight: 800; color: {{ item.text_color }};">{{ item.id }}</td>
+              <td style="padding: 10px 4px; font-weight: 600;">{{ item.customer }}</td>
+              <td style="padding: 10px 4px; font-weight: 700;">{{ item.weight }}</td>
               <td style="padding: 10px 4px; text-align: right;">
-                <span style="background: rgba(52,211,153,0.18); border: 1px solid rgba(52,211,153,0.4); color: #34D399; padding: 3px 8px; border-radius: 12px; font-size: 9.5px; font-weight: 800;">TO'LANDI</span>
+                <span style="background: {{ item.bg_color }}; border: 1px solid {{ item.border_color }}; color: {{ item.text_color }}; padding: 3px 8px; border-radius: 12px; font-size: 9.5px; font-weight: 800;">{{ item.status_label }}</span>
               </td>
             </tr>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-              <td style="padding: 10px 4px; font-weight: 800; color: #38BDF8;">#MO-3482</td>
-              <td style="padding: 10px 4px; font-weight: 600;">Rayhon Oshxonasi</td>
-              <td style="padding: 10px 4px; font-weight: 700;">15 kg</td>
-              <td style="padding: 10px 4px; text-align: right;">
-                <span style="background: rgba(56,189,248,0.18); border: 1px solid rgba(56,189,248,0.4); color: #38BDF8; padding: 3px 8px; border-radius: 12px; font-size: 9.5px; font-weight: 800;">YUBORILDI</span>
-              </td>
+            {% empty %}
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 15px; color: rgba(255,255,255,0.5);">Buyurtmalar yo'q</td>
             </tr>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-              <td style="padding: 10px 4px; font-weight: 800; color: #FBBF24;">#MO-3483</td>
-              <td style="padding: 10px 4px; font-weight: 600;">Ulgurji Xaridor</td>
-              <td style="padding: 10px 4px; font-weight: 700;">89 kg</td>
-              <td style="padding: 10px 4px; text-align: right;">
-                <span style="background: rgba(251,191,36,0.18); border: 1px solid rgba(251,191,36,0.4); color: #FBBF24; padding: 3px 8px; border-radius: 12px; font-size: 9.5px; font-weight: 800;">KUTILMOQDA</span>
-              </td>
-            </tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>

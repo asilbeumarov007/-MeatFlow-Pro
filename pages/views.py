@@ -161,33 +161,61 @@ class HomePageView(TemplateView):
                         }
                     })
             
-            if not ai_alerts:
-                # Fallback warnings if database is empty/fresh
-                ai_alerts = [
-                    {
-                        'type': 'b2b_recommend',
-                        'level': 'info',
-                        'text': "💡 <strong>B2B Tavsiya</strong>: 'The Steakhouse' uchun **Striploin (45 kg)** buyurtma loyihasini yaratish.",
-                        'action': {
-                            'customer_name': 'The Steakhouse',
-                            'product_name': 'Striploin',
-                            'weight': 45.0
-                        }
-                    },
-                    {
-                        'type': 'tip',
-                        'level': 'info',
-                        'text': "Optimize cuts for Cattle #412: Focus on Ribeye/Sirloin to maximize profit",
-                        'action': None
-                    },
-                    {
-                        'type': 'tip',
-                        'level': 'info',
-                        'text': "Seasonal trend: Increase Lamb rack stock for weekend boutique sales",
-                        'action': None
-                    }
-                ]
+            # 8. Real Best-Selling Products Widget (Aggregated from SaleItem)
+            from pos.models import SaleItem
+            best_sellers_qs = SaleItem.objects.values('product__name').annotate(total_kg=Sum('quantity')).order_by('-total_kg')[:4]
             
+            best_sellers = []
+            if best_sellers_qs:
+                max_kg = best_sellers_qs[0]['total_kg'] or Decimal('1.0')
+                colors = ['#34D399', '#FBBF24', '#34D399', '#38BDF8']
+                for idx, item in enumerate(best_sellers_qs):
+                    pct = int(round((item['total_kg'] / max_kg) * 100)) if max_kg > 0 else 50
+                    best_sellers.append({
+                        'name': item['product__name'],
+                        'weight': float(item['total_kg']),
+                        'percent': max(pct, 15),
+                        'color': colors[idx % len(colors)]
+                    })
+            
+            if not best_sellers:
+                best_sellers = [
+                    {'name': 'Mol Lahm Go\'shti (Saralangan)', 'weight': 142.0, 'percent': 85, 'color': '#34D399'},
+                    {'name': 'Baxmal Qo\'y Qovurg\'asi', 'weight': 115.0, 'percent': 70, 'color': '#FBBF24'},
+                    {'name': 'Saralangan Jigar & Yurak', 'weight': 98.0, 'percent': 60, 'color': '#34D399'},
+                    {'name': 'Kallapochqa & To\'plam', 'weight': 85.0, 'percent': 50, 'color': '#38BDF8'},
+                ]
+            context['best_sellers'] = best_sellers
+            
+            # 9. Real Live Orders Feed (Recent B2B & Sales)
+            real_b2b = B2BOrder.objects.select_related('customer', 'product').order_by('-created_at')[:4]
+            recent_feed = []
+            for b in real_b2b:
+                st_map = {
+                    'pending': ('KUTILMOQDA', 'rgba(251,191,36,0.18)', '#FBBF24', 'rgba(251,191,36,0.4)'),
+                    'assigned': ('KURYERDA', 'rgba(56,189,248,0.18)', '#38BDF8', 'rgba(56,189,248,0.4)'),
+                    'delivered': ('ETKAZILDI', 'rgba(52,211,153,0.18)', '#34D399', 'rgba(52,211,153,0.4)'),
+                    'cancelled': ('BEKOR QILINDI', 'rgba(248,113,113,0.18)', '#F87171', 'rgba(248,113,113,0.4)')
+                }
+                st_info = st_map.get(b.status, ('KUTILMOQDA', 'rgba(251,191,36,0.18)', '#FBBF24', 'rgba(251,191,36,0.4)'))
+                recent_feed.append({
+                    'id': f"#B2B-{b.id}",
+                    'customer': f"{b.customer.first_name} {b.customer.last_name or ''}".strip(),
+                    'weight': f"{float(b.requested_weight):.1f} kg",
+                    'status_label': st_info[0],
+                    'bg_color': st_info[1],
+                    'text_color': st_info[2],
+                    'border_color': st_info[3]
+                })
+            
+            if not recent_feed:
+                recent_feed = [
+                    {'id': '#MO-3481', 'customer': 'Toshkent Siti Restoran', 'weight': '142 kg', 'status_label': "TO'LANDI", 'bg_color': 'rgba(52,211,153,0.18)', 'text_color': '#34D399', 'border_color': 'rgba(52,211,153,0.4)'},
+                    {'id': '#MO-3482', 'customer': 'Rayhon Oshxonasi', 'weight': '15 kg', 'status_label': 'YUBORILDI', 'bg_color': 'rgba(56,189,248,0.18)', 'text_color': '#38BDF8', 'border_color': 'rgba(56,189,248,0.4)'},
+                    {'id': '#MO-3483', 'customer': 'Ulgurji Xaridor', 'weight': '89 kg', 'status_label': 'KUTILMOQDA', 'bg_color': 'rgba(251,191,36,0.18)', 'text_color': '#FBBF24', 'border_color': 'rgba(251,191,36,0.4)'},
+                ]
+            context['recent_feed'] = recent_feed
+
             context['ai_alerts'] = ai_alerts
             
         from pos.models import StoreSetting
