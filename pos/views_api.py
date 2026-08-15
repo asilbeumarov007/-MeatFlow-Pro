@@ -894,10 +894,9 @@ Sizga savdoni oshirish, zaxiralarni to'ldirish yoki nasiya qarzlarini undirish b
 
     # Gemini API ga ulanishga urinamiz
     from django.conf import settings
-    api_key = os.environ.get('GEMINI_API_KEY', '') or getattr(settings, 'GEMINI_API_KEY', '')
+    api_key = os.environ.get('GEMINI_API_KEY', '').strip() or getattr(settings, 'GEMINI_API_KEY', '').strip()
     
-    if api_key and not api_key.startswith('AQ.'):
-        # Gemini models to cycle through
+    if api_key and len(api_key) > 10:
         models_to_try = [
             "gemini-2.0-flash",
             "gemini-1.5-flash",
@@ -920,6 +919,7 @@ Sizga savdoni oshirish, zaxiralarni to'ldirish yoki nasiya qarzlarini undirish b
                     # Convert markdown formatting to HTML for clean display
                     formatted_advice = raw_advice.replace('\n', '<br>')
                     formatted_advice = formatted_advice.replace('**', '<strong>').replace('**', '</strong>')
+                    formatted_advice = f"<span class='badge bg-success mb-2' style='font-size: 10px;'>✨ Live Google Gemini ({model_name})</span><br>" + formatted_advice
                     
                     AIChatMessage.objects.create(
                         user=request.user,
@@ -931,7 +931,7 @@ Sizga savdoni oshirish, zaxiralarni to'ldirish yoki nasiya qarzlarini undirish b
                 continue
 
     # Fallback to Smart Local AI Engine
-    advice = get_smart_local_ai_advice(user_question)
+    advice = f"<span class='badge bg-warning text-dark mb-2' style='font-size: 10px;'>⚡ MeatFlow Local AI Engine</span><br>" + get_smart_local_ai_advice(user_question)
     AIChatMessage.objects.create(
         user=request.user,
         sender='bot',
