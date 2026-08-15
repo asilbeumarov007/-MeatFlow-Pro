@@ -163,7 +163,7 @@ class HomePageView(TemplateView):
             
             # 8. Real Best-Selling Products Widget (Aggregated from SaleItem)
             from pos.models import SaleItem
-            best_sellers_qs = SaleItem.objects.values('product__name').annotate(total_kg=Sum('quantity')).order_by('-total_kg')[:4]
+            best_sellers_qs = SaleItem.objects.values('product__name').annotate(total_kg=Sum('weight')).order_by('-total_kg')[:4]
             
             best_sellers = []
             if best_sellers_qs:
