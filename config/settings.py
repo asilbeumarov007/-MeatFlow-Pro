@@ -184,8 +184,8 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
         {"name": "💻 POS Kassa", "url": "/pos/", "new_window": False},
         {"name": "📊 Dashboard", "url": "/", "new_window": False},
-        {"name": "🤖 AI Qassob", "url": "/pos/ai/", "new_window": False},
-        {"name": "👥 Mijozlar CRM", "url": "/customers/", "new_window": False},
+        {"name": "🤖 AI Qassob", "url": "/pos/ai-assistant/", "new_window": False},
+        {"name": "👥 Mijozlar CRM", "url": "/pos/customers/", "new_window": False},
     ],
 
     "show_sidebar": True,
