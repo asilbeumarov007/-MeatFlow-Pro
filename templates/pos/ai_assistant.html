@@ -329,7 +329,11 @@ function appendFullChatMessage(sender, text) {
   
   const bubble = document.createElement('div');
   bubble.className = `ai-chat-bubble ${sender}`;
-  bubble.innerText = text;
+  if (sender === 'bot') {
+    bubble.innerHTML = text;
+  } else {
+    bubble.innerText = text;
+  }
   container.appendChild(bubble);
   container.scrollTop = container.scrollHeight;
 }

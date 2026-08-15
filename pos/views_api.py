@@ -893,52 +893,51 @@ Assalomu alaykum! Do'koningizning joriy ko'rsatkichlari:
 Sizga savdoni oshirish, zaxiralarni to'ldirish yoki nasiya qarzlarini undirish bo'yicha batafsil tavsiyalar berishim mumkin."""
 
     # Gemini API ga ulanishga urinamiz
-    api_key = os.environ.get('GEMINI_API_KEY', '')
-    if not api_key:
-        advice = get_smart_local_ai_advice(user_question)
-        AIChatMessage.objects.create(
-            user=request.user,
-            sender='bot',
-            message=advice
-        )
-        return json_response({'advice': advice})
+    from django.conf import settings
+    api_key = os.environ.get('GEMINI_API_KEY', '') or getattr(settings, 'GEMINI_API_KEY', '')
+    
+    if api_key and not api_key.startswith('AQ.'):
+        # Gemini models to cycle through
+        models_to_try = [
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
+            "gemini-pro"
+        ]
+        
+        for model_name in models_to_try:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                headers = {'Content-Type': 'application/json'}
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}]
+                }
+                response = requests.post(url, headers=headers, json=payload, timeout=10)
+                if response.status_code == 200:
+                    result = response.json()
+                    raw_advice = result['candidates'][0]['content']['parts'][0]['text']
+                    
+                    # Convert markdown formatting to HTML for clean display
+                    formatted_advice = raw_advice.replace('\n', '<br>')
+                    formatted_advice = formatted_advice.replace('**', '<strong>').replace('**', '</strong>')
+                    
+                    AIChatMessage.objects.create(
+                        user=request.user,
+                        sender='bot',
+                        message=formatted_advice
+                    )
+                    return json_response({'advice': formatted_advice})
+            except Exception:
+                continue
 
-    try:
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-        headers = {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': api_key
-        }
-        payload = {
-            "contents": [{"parts": [{"text": prompt}]}]
-        }
-        response = requests.post(url, headers=headers, json=payload, timeout=12)
-        if response.status_code == 200:
-            result = response.json()
-            advice = result['candidates'][0]['content']['parts'][0]['text']
-            AIChatMessage.objects.create(
-                user=request.user,
-                sender='bot',
-                message=advice
-            )
-            return json_response({'advice': advice})
-        else:
-            # External Gemini API returned 503 / 429 / non-200 -> Fallback to Smart Local AI Engine
-            advice = get_smart_local_ai_advice(user_question)
-            AIChatMessage.objects.create(
-                user=request.user,
-                sender='bot',
-                message=advice
-            )
-            return json_response({'advice': advice})
-    except Exception as e:
-        advice = get_smart_local_ai_advice(user_question)
-        AIChatMessage.objects.create(
-            user=request.user,
-            sender='bot',
-            message=advice
-        )
-        return json_response({'advice': advice})
+    # Fallback to Smart Local AI Engine
+    advice = get_smart_local_ai_advice(user_question)
+    AIChatMessage.objects.create(
+        user=request.user,
+        sender='bot',
+        message=advice
+    )
+    return json_response({'advice': advice})
 
 
 @csrf_exempt
