@@ -1519,81 +1519,98 @@
   </div>
 </div>
 
-<!-- 3. ONLINE PAYMENT MODAL -->
+<!-- 3. ONLINE PAYMENT & PROOF UPLOAD MODAL -->
 <div class="modal fade" id="payModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
-    <div class="modal-content">
-      <div class="modal-header"
-        style="background:linear-gradient(135deg,#C53030,#E53E3E); color:#fff; border-bottom:none;">
-        <h5 class="modal-title fw-bold" style="display:flex;align-items:center;gap:8px;">
-          <i class="bi bi-shield-check text-warning"></i> Qarzni To'lash
+  <div class="modal-dialog modal-dialog-centered" style="max-width:520px;">
+    <div class="modal-content" style="background: #081C15; color: #FFFFFF; border: 1px solid rgba(52,211,153,0.35); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.7);">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(212,168,83,0.2)); border-bottom: 1px solid rgba(255,255,255,0.12); padding: 18px 24px;">
+        <h5 class="modal-title fw-bold" style="display:flex; align-items:center; gap:10px; font-size: 18px; color: #FFFFFF;">
+          <i class="bi bi-qr-code-scan text-warning" style="font-size: 22px;"></i> Qarzni To'lash va Chek Yuklash
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-        <!-- Step 1: Form -->
-        <div id="pay-step-1">
+
+      <div class="modal-body" style="padding: 24px;">
+        
+        <!-- Debt summary badge -->
+        <div style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 14px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 12px; color: #FCA5A5; font-weight: 700;">SIZNING NASIYA QARZINGIZ:</span>
+          <span style="font-size: 18px; color: #F87171; font-weight: 900;">{{ net_balance_abs|floatformat:0 }} so'm</span>
+        </div>
+
+        <!-- 1. OFFICIAL BANK CARDS & QR SECTION -->
+        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #94A3B8; letter-spacing: 1px; margin-bottom: 12px;">
+          💳 1. DO'KON KARTA REKVIZITLARI & QR KOD
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+          {% for setting in payment_settings %}
+          <div style="background: rgba(12,30,24,0.85); border: 1px solid rgba(255,255,255,0.18); border-radius: 16px; padding: 16px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 13px; font-weight: 800; color: #34D399;"><i class="bi bi-credit-card-fill me-1"></i> {{ setting.title }}</span>
+              <span style="font-size: 10px; background: rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.4); color: #34D399; padding: 2px 8px; border-radius: 10px; font-weight: 800;">RASMIY</span>
+            </div>
+            
+            <!-- Card Number & Copy -->
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px;">
+              <span style="font-family: monospace; font-size: 17px; font-weight: 900; color: #FFFFFF; letter-spacing: 1.5px;">{{ setting.card_number|default:"8600 5304 8877 4477" }}</span>
+              <button type="button" class="btn btn-sm" style="background: linear-gradient(135deg, #10B981, #059669); color: #fff; font-size: 11px; font-weight: 800; border-radius: 8px; padding: 6px 12px; border: none;" onclick="copyCardNumber('{{ setting.card_number|default:"8600530488774477" }}', this)">
+                <i class="bi bi-copy me-1"></i> Nusxalash
+              </button>
+            </div>
+
+            <div style="font-size: 11px; color: #CBD5E1; display: flex; justify-content: space-between; align-items: center;">
+              <span>Karta egasi: <strong style="color: #FFF;">{{ setting.card_holder|default:"Baxmal Meat LLC" }}</strong></span>
+              {% if setting.qr_code %}
+              <a href="{{ setting.qr_code.url }}" target="_blank" style="color: #FBBF24; font-size: 11px; font-weight: 700; text-decoration: none;"><i class="bi bi-qr-code"></i> QR Kod</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- 2. UPLOAD RECEIPT FORM -->
+        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #94A3B8; letter-spacing: 1px; margin-bottom: 12px;">
+          📸 2. TO'LOV CHEKINI YUKLASH
+        </div>
+
+        <form id="paymentProofUploadForm" onsubmit="handlePaymentProofSubmit(event)" enctype="multipart/form-data">
+          {% csrf_token %}
           <div class="mb-3">
-            <label
-              style="font-size:12px; font-weight:700; color:var(--cab-muted); display:block; margin-bottom:8px;">TO'LOV
-              SUMMASI</label>
-            <input type="number" id="online-pay-amount" class="cab-input fw-bold" style="font-size:18px; color:#E53E3E;"
-              placeholder="0">
-            <div id="payment-debt-hint" style="font-size:11px; color:#6B7280; margin-top:6px;"></div>
+            <label style="font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 6px; display: block;">To'langan Summa (so'm):</label>
+            <input type="number" name="amount" id="proofFormAmount" class="form-control" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #FFF; font-weight: 800; font-size: 16px; border-radius: 12px; padding: 10px 14px;" value="{{ net_balance_abs|floatformat:0 }}" required>
           </div>
-          <label
-            style="font-size:12px; font-weight:700; color:var(--cab-muted); display:block; margin-bottom:10px;">TO'LOV
-            TIZIMI</label>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-            <div class="pay-provider-card active" id="prov-click" onclick="selectProvider('click')">
-              <div style="font-weight:900; font-size:18px; color:#0099FF; letter-spacing:-1px;">CLICK</div>
-              <div style="font-size:10px; color:#6B7280; font-weight:600; margin-top:2px;">Tezkor</div>
-              <i class="bi bi-check-circle-fill prov-check"
-                style="color:var(--cab-green); position:absolute; top:8px; right:8px; font-size:14px;"></i>
-            </div>
-            <div class="pay-provider-card" id="prov-payme" onclick="selectProvider('payme')">
-              <div style="font-weight:900; font-size:18px; color:#19D2C4; letter-spacing:-1px;">PAYME</div>
-              <div style="font-size:10px; color:#6B7280; font-weight:600; margin-top:2px;">Xavfsiz</div>
-              <i class="bi bi-check-circle-fill prov-check d-none"
-                style="color:var(--cab-green); position:absolute; top:8px; right:8px; font-size:14px;"></i>
+
+          <div class="mb-3">
+            <label style="font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 6px; display: block;">To'lov Tizimi:</label>
+            <select name="provider" class="form-select" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #FFF; font-weight: 700; border-radius: 12px; padding: 10px 14px;">
+              <option value="click" selected>CLICK (Karta o'tkazma)</option>
+              <option value="payme">PAYME (Karta o'tkazma)</option>
+              <option value="uzcard">UZCARD / HUMO (Bank ilovasi)</option>
+              <option value="naqd">Naqd to'lov</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label style="font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 6px; display: block;">To'lov Cheki / Skrinshot (Rasm):</label>
+            <input type="file" name="image" id="proofFormFile" class="form-control" accept="image/*" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #FFF; border-radius: 12px; padding: 8px 12px;" required onchange="previewProofImage(event)">
+            <div id="proofImagePreviewContainer" class="mt-2 d-none text-center">
+              <img id="proofImagePreview" src="" alt="Chek rasmi" style="max-height: 140px; border-radius: 10px; border: 1px solid rgba(52,211,153,0.5);">
             </div>
           </div>
-          <button class="btn-cab-danger w-100" onclick="startPayment()">
-            Tasdiqlash va To'lash <i class="bi bi-arrow-right-short fs-5"></i>
-          </button>
-        </div>
-        <!-- Step 2: Processing -->
-        <div id="pay-step-2" class="d-none text-center py-4">
-          <div class="spinner-border" style="width:3rem;height:3rem;color:var(--cab-green);" role="status"></div>
-          <h5 class="fw-bold mt-4" style="color:var(--cab-text);">To'lov tizimiga ulanmoqda...</h5>
-          <p style="font-size:12px; color:#6B7280;">Sahifani yopmang.</p>
-        </div>
-        <!-- Step 3: SMS -->
-        <div id="pay-step-3" class="d-none">
-          <div class="text-center mb-4">
-            <i class="bi bi-shield-lock-fill" style="font-size:48px; color:var(--cab-green);"></i>
-            <h5 class="fw-bold mt-3">Tasdiqlash Kodi</h5>
-            <p style="font-size:12px; color:#6B7280; margin:0;">Telefoningizga yuborilgan 4 xonali SMS kodni kiriting.
-            </p>
+
+          <div class="mb-3">
+            <label style="font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 6px; display: block;">Izoh (ixtiyoriy):</label>
+            <input type="text" name="note" class="form-control" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #FFF; border-radius: 12px; padding: 8px 12px;" placeholder="Masalan: Klikdan {{ net_balance_abs|floatformat:0 }} so'm o'tkazdim">
           </div>
-          <input type="text" id="online-sms-code" class="cab-input text-center fw-bold"
-            style="font-size:24px; letter-spacing:8px; height:56px;" placeholder="••••" maxlength="4">
-          <button class="btn-cab-primary w-100 mt-3" id="verifySmsBtn" onclick="verifyPayment()">
-            To'lovni Yakunlash <i class="bi bi-shield-check fs-5"></i>
+
+          <button type="submit" id="proofSubmitBtn" class="btn w-100 py-3 font-weight-bold" style="background: linear-gradient(135deg, #10B981, #059669); color: #FFF; border-radius: 14px; font-size: 15px; font-weight: 800; box-shadow: 0 4px 20px rgba(16,185,129,0.4); border: none;">
+            <i class="bi bi-cloud-upload-fill me-2"></i> Chekni Yuborish va Qarzni Yopish
           </button>
-        </div>
-        <!-- Step 4: Success -->
-        <div id="pay-step-4" class="d-none text-center py-3">
-          <div
-            style="width:80px;height:80px;border-radius:50%;background:rgba(27,107,74,0.1);border:2px solid var(--cab-green);display:inline-flex;align-items:center;justify-content:center;font-size:40px;color:var(--cab-green);margin-bottom:16px;">
-            <i class="bi bi-check-lg"></i>
-          </div>
-          <h4 class="fw-bold" style="color:var(--cab-green);">To'lov Muvaffaqiyatli!</h4>
-          <p style="font-size:13px; color:#6B7280;" id="pay-success-desc">To'lov qabul qilindi.</p>
-          <button class="btn-cab-primary mt-2" onclick="location.reload()">
-            <i class="bi bi-arrow-clockwise"></i> Yangilash
-          </button>
-        </div>
+        </form>
+
       </div>
     </div>
   </div>
@@ -2102,45 +2119,92 @@
       });
     }
 
-    function copyStoreCardNumber() {
-      const cardNum = "8600123456789012";
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(cardNum).then(() => {
-          showToast("Karta raqami nusxalandi: 8600 1234 5678 9012", 'success');
-        }).catch(() => {
-          showToast("Karta raqami: 8600 1234 5678 9012", 'info');
-        });
-      } else {
-        showToast("Karta raqami: 8600 1234 5678 9012", 'info');
+    // ── PAYMENT MODAL & PROOF UPLOAD ───────────────────
+    function openPayModal() {
+      const modalEl = document.getElementById('payModal');
+      if (modalEl) {
+        new bootstrap.Modal(modalEl).show();
       }
     }
 
-    // ── PAYMENT MODAL ───────────────────
-    function openPayModal() {
-      document.getElementById('online-pay-amount').value = MAX_DEBT;
-      document.getElementById('payment-debt-hint').innerText = `Maksimal: ${Number(MAX_DEBT).toLocaleString()} so'm`;
-      ['pay-step-1', 'pay-step-2', 'pay-step-3', 'pay-step-4'].forEach((id, i) => {
-        document.getElementById(id).classList.toggle('d-none', i !== 0);
-      });
-      new bootstrap.Modal(document.getElementById('payModal')).show();
+    function copyCardNumber(cardNum, btn) {
+      const cleanNum = cardNum.replace(/\s+/g, '');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cleanNum).then(() => {
+          const origHTML = btn.innerHTML;
+          btn.innerHTML = '<i class="bi bi-check-lg"></i> Nusxalandi!';
+          btn.style.background = '#34D399';
+          setTimeout(() => {
+            btn.innerHTML = origHTML;
+            btn.style.background = '';
+          }, 2200);
+          showToast("Karta raqami nusxalandi: " + cleanNum, 'success');
+        }).catch(() => {
+          showToast("Karta raqami: " + cleanNum, 'info');
+        });
+      } else {
+        showToast("Karta raqami: " + cleanNum, 'info');
+      }
     }
 
-    function selectProvider(p) {
-      currentProvider = p;
-      ['click', 'payme'].forEach(id => {
-        const card = document.getElementById('prov-' + id);
-        const check = card.querySelector('.prov-check');
-        if (id === p) { card.classList.add('active'); check.classList.remove('d-none'); }
-        else { card.classList.remove('active'); check.classList.add('d-none'); }
-      });
+    function previewProofImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.getElementById('proofImagePreview');
+          const container = document.getElementById('proofImagePreviewContainer');
+          if (img && container) {
+            img.src = e.target.result;
+            container.classList.remove('d-none');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     }
 
-    function startPayment() {
-      paymentAmount = parseFloat(document.getElementById('online-pay-amount').value) || 0;
-      if (paymentAmount <= 0) { showToast("Summa kiriting!", 'error'); return; }
-      if (paymentAmount > MAX_DEBT) { showToast("Summa qarzdan katta bo'la olmaydi!", 'error'); return; }
-      document.getElementById('pay-step-1').classList.add('d-none');
-      document.getElementById('pay-step-2').classList.remove('d-none');
+    function handlePaymentProofSubmit(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      const btn = document.getElementById('proofSubmitBtn');
+      
+      if (!form.querySelector('input[name="image"]').files[0]) {
+        showToast("Iltimos, to'lov cheki rasmini yuklang!", 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Chek yuborilmoqda...';
+
+      fetch('/pos/api/upload-payment-proof/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-cloud-upload-fill me-2"></i> Chekni Yuborish va Qarzni Yopish';
+        if (data.status === 'success') {
+          showToast(data.message || "Chek muvaffaqiyatli yuklandi!", 'success');
+          const modalEl = document.getElementById('payModal');
+          if (modalEl) {
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+          }
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showToast(data.message || "Xatolik yuz berdi!", 'error');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-cloud-upload-fill me-2"></i> Chekni Yuborish va Qarzni Yopish';
+        showToast("Tarmoq xatoligi yuz berdi", 'error');
+      });
+    }
       setTimeout(() => {
         document.getElementById('pay-step-2').classList.add('d-none');
         document.getElementById('pay-step-3').classList.remove('d-none');
