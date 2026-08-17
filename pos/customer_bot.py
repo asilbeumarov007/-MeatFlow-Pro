@@ -13,11 +13,11 @@ from django.db.models import Q
 from .models import Customer, Product, Sale, SaleItem, CustomerLog, B2BOrder
 from .translit import latin_to_cyrillic, cyrillic_to_latin
 
-CUSTOMER_BOT_TOKEN = os.environ.get('CUSTOMER_BOT_TOKEN', '8728579523:AAG9mtvfeVd95svVNVJ-NnGUOTknTzPkDg8')
-ADMIN_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8898055369:AAFbUW9nLVRXwG-xd0oP1ftQ5vZpTjcL4x8')
-ADMIN_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '-1004312267841')
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
-SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')  # Production da o'zgartiring
+CUSTOMER_BOT_TOKEN = os.environ.get('CUSTOMER_BOT_TOKEN', '')
+ADMIN_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+ADMIN_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+SITE_URL = os.environ.get('SITE_URL', 'https://baxmalmeat.uz')  # Production rasmiy domeningiz
 
 API_URL = f"https://api.telegram.org/bot{CUSTOMER_BOT_TOKEN}"
 
@@ -167,6 +167,135 @@ def send_admin_text_notification(text, reply_markup=None):
         print(f"[Admin TG Bot Text Send Error]: {e}")
 
 
+def query_gemini_meat_assistant(prompt):
+    """AI Go'sht Maslahatchisi — Gemini AI + O'zbek milliy retseptlar intellektual yordamchi."""
+    import re
+    prompt_lower = prompt.lower()
+    from pos.models import Product
+
+    # Get active products in store
+    products = Product.objects.filter(is_active=True).select_related('stock')
+    prod_list = []
+    for p in products:
+        qty = p.stock.quantity if hasattr(p, 'stock') else 0
+        prod_list.append(f"• *{p.name}* — `{p.price_per_kg:,.0f}` so'm/kg (Zaxira: {qty:.1f} kg)")
+    prod_text = "\n".join(prod_list) if prod_list else "• Mahsulotlar mavjud"
+
+    # Extract person count if mentioned (e.g. "4 kishi", "10 odam", "2 kishiga")
+    person_match = re.search(r'(\d+)\s*(kishi|odam|kishilik)', prompt_lower)
+    person_count = int(person_match.group(1)) if person_match else None
+
+    # 1. Try Gemini API if GEMINI_API_KEY is configured
+    from django.conf import settings
+    api_key = os.environ.get('GEMINI_API_KEY', '').strip() or getattr(settings, 'GEMINI_API_KEY', '').strip() or GEMINI_API_KEY
+    if api_key:
+        models_to_try = ['gemini-3-flash-preview', 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.5-flash-lite', 'gemma-4-31b-it']
+        products_str = ", ".join([f"{p.name} ({p.price_per_kg:,.0f} so'm/kg)" for p in products])
+        system_instruction = (
+            "Siz Baxmal Meat go'sht do'konining professional AI maslahatchisisiz. "
+            "Mijozlarga retseptlar, osh/shashlik/qozonkabob/jarkob uchun necha kg go'sht kerakligi va qaysi qism mos kelishi bo'yicha "
+            f"do'konda mavjud mahsulotlar ({products_str}) asosida qisqa, xushmuomala va o'zbek tilida maslahat bering."
+        )
+        for model_name in models_to_try:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                payload = {
+                    "contents": [{"parts": [{"text": f"{system_instruction}\n\nMijoz savoli: {prompt}"}]}]
+                }
+                r = requests.post(url, json=payload, timeout=8)
+                if r.status_code == 200:
+                    res_data = r.json()
+                    text = res_data['candidates'][0]['content']['parts'][0]['text']
+                    return f"{text}\n\n🛒 *Baxmal Meat Do'konida Mavjud:* \n{prod_text}"
+            except Exception as e:
+                continue
+
+    # 2. Rule-Based Smart NLP & Math Engine
+    # Jarkop / Jarkob / Qovurma
+    if any(w in prompt_lower for w in ['jarkob', 'jarkop', 'jarkov', 'zharkop', 'jarkovda']):
+        n_persons = person_count or 4
+        meat_kg = n_persons * 0.25
+        potatoes_g = n_persons * 200
+        return (
+            f"🥘 *JARKOP (JARKOB) UCHUN ANIQ ME'YOR VA TAVSIYA:*\n\n"
+            f"👤 *Insonlar soni:* **{n_persons} kishi**\n"
+            f"🥩 *Kerakli toza go'sht:* **{meat_kg:.1f} kg** (Mol son lahm yoki biqin qismi)\n"
+            f"🥔 *Qo'shimchalar:* **{potatoes_g}g** kartoshka, 2 ta piyoz, **150g** dumba yog'i\n\n"
+            f"💡 *Pishirish siri:* Go'sht va dumbani o'rtacha olovda qizartirib qovurib olib, keyin past olovda dimlasangiz, jarkop o'ta sersharbat va mazzali chiqadi.\n\n"
+            f"🛒 *Baxmal Meat Do'konida Mavjud:* \n{prod_text}"
+        )
+    # Osh / Palov / Plov
+    elif any(w in prompt_lower for w in ['osh', 'palov', 'plov', 'guruch']):
+        n_persons = person_count or 6
+        rice_kg = n_persons * 0.15
+        meat_kg = rice_kg * 1.1
+        return (
+            f"🍚 *OSH VA PALOV UCHUN MUKAMMAL TAVSIYA:*\n\n"
+            f"👤 *Hisob-kitob:* **{n_persons} kishi** uchun (~{rice_kg:.1f} kg guruch)\n"
+            f"🥩 *Kerakli go'sht:* **{meat_kg:.1f} kg** (Mol son lahm + 1-2 bo'lak qobirg'a suyagi)\n"
+            f"🧈 *Dumba yog'i:* **{n_persons * 40}g** dumba yog'i\n\n"
+            f"💡 *Pishirish siri:* Osh lazzatli bo'lishi uchun son go'shti (lahm) bilan birga biroz qobirg'a suyagi va dumba solish maslahat beriladi.\n\n"
+            f"🛒 *Baxmal Meat Do'konida Mavjud:* \n{prod_text}"
+        )
+    # Shashlik / Kabob
+    elif any(w in prompt_lower for w in ['kabob', 'shashlik', 'gijda']):
+        n_persons = person_count or 4
+        meat_kg = n_persons * 0.3
+        fat_g = n_persons * 50
+        return (
+            f"🥩 *SHASHLIK VA KABOB UCHUN TAVSIYA:*\n\n"
+            f"👤 *Insonlar soni:* **{n_persons} kishi**\n"
+            f"🥩 *Kerakli go'sht:* **{meat_kg:.1f} kg** (Mol son lahm yoki Qo'y qobirg'asi)\n"
+            f"🧈 *Dumba yog'i:* **{fat_g}g** dumba yog'i\n\n"
+            f"💡 *Pishirish siri:* Go'shtni piyoz va mineral suv bilan 2 soat marinovka qilsangiz, sho'rva va shashlik juda yumshoq chiqadi.\n\n"
+            f"🛒 *Baxmal Meat Do'konida Mavjud:* \n{prod_text}"
+        )
+    # Steik / Bifshteks
+    elif any(w in prompt_lower for w in ['steik', 'steyk', 'steak', 'bifshteks']):
+        n_persons = person_count or 2
+        meat_kg = n_persons * 0.35
+        return (
+            f"🥩 *STEYK (STEAK) UCHUN TAVSIYA:*\n\n"
+            f"👤 *Insonlar soni:* **{n_persons} kishi**\n"
+            f"🥩 *Kerakli go'sht:* **{meat_kg:.1f} kg** (Mol antrekot, ribeye yoki lahm qismi)\n\n"
+            f"💡 *Pishirish siri:* Tovada har bir tomonini 3-4 daqiqa sariyog' va rozmarin bilan qovursangiz, mazzasi a'lo bo'ladi.\n\n"
+            f"🛒 *Baxmal Meat Do'konida Mavjud:* \n{prod_text}"
+        )
+    # Qozonkabob / Dimlama / Qovurma
+    elif any(w in prompt_lower for w in ['qozon', 'dimlama', 'qovurma', 'jiz']):
+        n_persons = person_count or 4
+        meat_kg = n_persons * 0.3
+        return (
+            f"🍲 *QOZONKABOB VA DIMLAMA UCHUN TAVSIYA:*\n\n"
+            f"👤 *Insonlar soni:* **{n_persons} kishi**\n"
+            f"🥩 *Kerakli go'sht:* **{meat_kg:.1f} kg** (Mol biqin/qobirg'a va suyakli go'shtlar)\n\n"
+            f"💡 *Pishirish siri:* Go'sht biroz yog'liroq va suyakli bo'lsa, qozonkabob o'ta sersharbat chiqadi.\n\n"
+            f"🛒 *Baxmal Meat Do'konida Mavjud:* \n{prod_text}"
+        )
+    # Sho'rva / Manti / Somsa / Lag'mon
+    elif any(w in prompt_lower for w in ['shorva', "sho'rva", 'manti', 'somsa', 'lagmon', "lag'mon"]):
+        n_persons = person_count or 4
+        meat_kg = n_persons * 0.25
+        return (
+            f"🍜 *SHO'RVA, MANTI VA SOMSA UCHUN TAVSIYA:*\n\n"
+            f"👤 *Insonlar soni:* **{n_persons} kishi**\n"
+            f"🥩 *Kerakli go'sht:* **{meat_kg:.1f} kg** (Mol ko'krak/qobirg'a va lahm go'sht)\n\n"
+            f"🛒 *Baxmal Meat Do'konida Mavjud:* \n{prod_text}"
+        )
+    else:
+        n_persons = person_count or 4
+        meat_kg = n_persons * 0.25
+        return (
+            f"🥩 *BAXMAL MEAT — AI MASLAHATCHISI:*\n\n"
+            f"👤 *Insonlar soni:* **{n_persons} kishi** uchun taxminiy go'sht me'yori: **{meat_kg:.1f} kg**\n\n"
+            f"Siz so'ragan taom bo'yicha tavsiyamiz:\n"
+            f"1. *Jarkop va Qozonkabob:* {n_persons} kishi uchun ~1.0 kg mol lahm/qobirg'a va 800g kartoshka.\n"
+            f"2. *Osh va Palov:* 1 kg oshga 1.2 kg son lahm va 250g dumba tavsiya etiladi.\n"
+            f"3. *Shashlik:* {n_persons} kishi uchun ~1.2 kg mol son lahm va dumba yog'i.\n\n"
+            f"🛒 *Baxmal Meat Do'konidagi Joriy Narxlar va Zaxira:* \n{prod_text}"
+        )
+
+
 # ══════════════════════════════════════════════════════════
 # KEYBOARD BUILDERS
 # ══════════════════════════════════════════════════════════
@@ -183,39 +312,41 @@ def registration_keyboard():
 
 
 def main_menu_reply_keyboard():
-    """Asosiy mijoz menyusi — Telegram + Sayt birlashtirilgan."""
     return {
         'keyboard': [
-            [{'text': "🛒 Go'sht Buyurtma Qilish"}, {'text': '📌 Buyurtma Statusi (Live)'}],
-            [{'text': "💳 Qarz To'lash (Karta)"}, {'text': "📸 To'lov Chekini Yuborish"}],
-            [{'text': '👤 Shaxsiy Kabinet (Balans)'}, {'text': '💰 Qarz va Kredit'}],
-            [{'text': "🥩 AI Go'sht Maslahatchisi"}, {'text': '🧾 Xaridlar Tarixi'}],
-            [{'text': '💬 Admin bilan Aloqa'}, {'text': "🌐 Veb-saytga O'tish"}]
+            [{'text': "🛒 Go'sht Buyurtma Qilish"}, {'text': '📦 Buyurtmalarim'}],
+            [{'text': "💳 Qarz To'lash / Chek Yuborish"}, {'text': '👤 Shaxsiy Kabinet'}],
+            [{'text': '🧾 Xaridlar Tarixi'}, {'text': "🥩 AI Maslahatchisi"}],
+            [{'text': '🏪 Do\'kon Haqida'}, {'text': '💬 Admin bilan Aloqa'}]
         ],
         'resize_keyboard': True
     }
 
 
 def render_telegram_stepper_bar(status):
-    """Telegram bot uchun 4 bosqichli Live Progress Bar."""
     if status == 'rejected':
-        return "❌ *STATUS:* Rad etildi"
+        return "❌ ━━━━━━━━━━━━━━━━ RAD ETILDI"
     
-    s1 = "🟢 Qabul" if status in ['pending', 'payment_uploaded', 'approved', 'preparing', 'shipping', 'completed'] else "⚪️ Qabul"
-    s2 = "🟢 Qadoqlash" if status in ['approved', 'preparing', 'shipping', 'completed'] else "⚪️ Qadoqlash"
-    s3 = "🟢 Yo'lda" if status in ['shipping', 'completed'] else "⚪️ Yo'lda"
-    s4 = "🟢 Yetkazildi" if status == 'completed' else "⚪️ Yetkazildi"
-
-    return f"{s1} ➔ {s2} ➔ {s3} ➔ {s4}"
+    steps = [
+        ('Qabul', status in ['pending', 'payment_uploaded', 'approved', 'preparing', 'shipping', 'completed']),
+        ('Tasdiq', status in ['approved', 'preparing', 'shipping', 'completed']),
+        ('Qadoq', status in ['preparing', 'shipping', 'completed']),
+        ('Yetkazish', status in ['shipping', 'completed']),
+        ('Tayyor', status == 'completed'),
+    ]
+    parts = []
+    for name, active in steps:
+        parts.append(f"{'🟢' if active else '⚪'} {name}")
+    return " ➜ ".join(parts)
 
 
 def location_reply_keyboard():
-    """Lokatsiya yuborish tugmasi."""
+    """Lokatsiya va yetkazib berish turi tugmalari."""
     return {
         'keyboard': [
             [{'text': '📍 Manzilni (GPS) Yuborish', 'request_location': True}],
             [{'text': '🏃 Samovivoz (Do\'kondan olib ketish)'}],
-            [{'text': '🏠 Asosiy Menyu'}]
+            [{'text': '❌ Buyurtmani bekor qilish'}, {'text': '🏠 Asosiy Menyu'}]
         ],
         'resize_keyboard': True
     }
@@ -235,30 +366,7 @@ def mask_phone(phone):
 # AI & GEMINI HELPERS
 # ══════════════════════════════════════════════════════════
 
-def query_gemini_meat_assistant(user_prompt):
-    """Gemini AI orqali go'sht va retseptlar bo'yicha maslahat olish."""
-    if not GEMINI_API_KEY:
-        return "🥩 Baxmal Meat: Shashlik uchun mol va qo'y go'shtining yumshoq qismlari, qozonkabob uchun esa qobirg'a va biqin qismlari eng yaxshi tanlovdir!"
-
-    products_str = ", ".join([f"{p.name} ({p.price_per_kg:,.0f} so'm/kg)" for p in Product.objects.filter(is_active=True)])
-    system_instruction = (
-        "Siz Baxmal Meat go'sht do'konining professional AI maslahatchisisiz. "
-        "Mijozlarga retseptlar, shashlik/qozonkabob uchun necha kg go'sht kerakligi va qaysi qism mos kelishi bo'yicha "
-        f"do'konda mavjud mahsulotlar ({products_str}) asosida qisqa, xushmuomala va o'zbek tilida maslahat bering."
-    )
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
-    payload = {
-        "contents": [{"parts": [{"text": f"{system_instruction}\n\nMijoz savoli: {user_prompt}"}]}]
-    }
-    try:
-        r = requests.post(url, json=payload, timeout=12)
-        res_data = r.json()
-        text = res_data['candidates'][0]['content']['parts'][0]['text']
-        return text
-    except Exception as e:
-        print(f"[Gemini AI Error]: {e}")
-        return "🥩 *Baxmal Meat Maslahati:* Shashlik va kabob uchun yumshoq son va qobirg'a go'shtlari eng yaxshi tanlovdir. Bir kishiga o'rtacha 300-400 gramm go'sht hisoblanadi."
+# (Duplicate query_gemini_meat_assistant removed, main implementation is above)
 
 
 def find_customer_candidates(query):
@@ -297,6 +405,75 @@ def get_customer_by_chat_id(chat_id):
 
 def handle_customer_update(update):
     """Telegram Update-ni qayta ishlash."""
+
+    # A. Inline Tugma Bosilganda (Callback Query)
+    if 'callback_query' in update:
+        cb = update['callback_query']
+        chat_id = str(cb['from']['id'])
+        data = cb.get('data', '')
+        cb_id = cb['id']
+        answer_callback(cb_id)
+
+        customer = get_customer_by_chat_id(chat_id)
+        if not customer:
+            from_user = cb.get('from', {})
+            first_name = from_user.get('first_name') or 'Mijoz'
+            last_name = from_user.get('last_name') or ''
+            chat_suffix = chat_id[-6:] if len(chat_id) >= 6 else chat_id
+            customer, _ = Customer.objects.get_or_create(
+                telegram_chat_id=chat_id,
+                defaults={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'phone': f"+998{chat_suffix.zfill(9)}",
+                    'custom_id': f"M-{chat_suffix}"
+                }
+            )
+
+        if data.startswith('claim_profile_'):
+            cust_id = int(data.replace('claim_profile_', ''))
+            target_cust = Customer.objects.filter(id=cust_id).first()
+            if target_cust:
+                target_cust.telegram_chat_id = chat_id
+                target_cust.save()
+                send_message(chat_id, f"✅ Profil muvaffaqiyatli ulandi! Xush kelibsiz, *{target_cust.first_name}*!", reply_markup=main_menu_reply_keyboard())
+
+        elif data.startswith('order_prod_'):
+            prod_id = int(data.replace('order_prod_', ''))
+            product = Product.objects.filter(id=prod_id).first()
+            if product:
+                USER_STATES[chat_id] = {'action': 'awaiting_weight', 'prod_id': product.id}
+                msg = (
+                    f"🥩 *{product.name}*\n"
+                    f"💵 Narxi: `{product.price_per_kg:,.0f}` so'm/kg\n\n"
+                    f"Iltimos, necha kg sotib olmoqchi bo'lsangiz vaznini yozib yuboring:\n"
+                    f"✍️ *Misol:* `2` yoki `1.5` yoki `5`"
+                )
+                send_message(chat_id, msg)
+
+        elif data == 'upload_proof_now':
+            USER_STATES[chat_id] = 'awaiting_payment_proof'
+            msg = (
+                "📸 *TO'LOV CHEKINI YUBORISH*\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "💳 *Do'kon Karta Raqami:* `8600123456789012` (Baxmal Meat)\n\n"
+                "Iltimos, to'lov kvitansiyasi (skrinshot/foto)ni ushbu chatga yuboring.\n\n"
+                "📌 *Foto kelishi bilan admin paneli hamda balansingizga avtomatik biriktiriladi!*"
+            )
+            send_message(chat_id, msg)
+
+        elif data.startswith('cancel_order_'):
+            order_id = int(data.replace('cancel_order_', ''))
+            order = B2BOrder.objects.filter(id=order_id, status='pending').first()
+            if order:
+                order.status = 'rejected'
+                order.save()
+            USER_STATES.pop(chat_id, None)
+            send_message(chat_id, "❌ *Buyurtma bekor qilindi.*", reply_markup=main_menu_reply_keyboard())
+
+        return
+
+    # B. Xabar Kelganda (Message)
     if 'message' in update:
         message = update['message']
         chat_id = str(message['chat']['id'])
@@ -306,6 +483,35 @@ def handle_customer_update(update):
         photo = message.get('photo')
 
         customer = get_customer_by_chat_id(chat_id)
+
+        # Auto-create profile if user sends /start or uses bot for the first time
+        if not customer:
+            from_user = message.get('from', {})
+            first_name = from_user.get('first_name') or 'Mijoz'
+            last_name = from_user.get('last_name') or ''
+            chat_suffix = chat_id[-6:] if len(chat_id) >= 6 else chat_id
+            customer, _ = Customer.objects.get_or_create(
+                telegram_chat_id=chat_id,
+                defaults={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'phone': f"+998{chat_suffix.zfill(9)}",
+                    'custom_id': f"M-{chat_suffix}"
+                }
+            )
+
+        # Handle explicit cancellation requests
+        if text in ["❌ Buyurtmani bekor qilish", "❌ Bekor qilish", "bekor qilish"]:
+            st = USER_STATES.pop(chat_id, None)
+            if isinstance(st, dict) and st.get('order_id'):
+                order = B2BOrder.objects.filter(id=st['order_id'], status='pending').first()
+                if order:
+                    order.status = 'rejected'
+                    order.save()
+                    send_message(chat_id, f"❌ *Buyurtma #{order.id} bekor qilindi.*", reply_markup=main_menu_reply_keyboard())
+                    return
+            send_message(chat_id, "❌ *Jarayon bekor qilindi.*", reply_markup=main_menu_reply_keyboard())
+            return
 
         # 1. Kontakt yuborilganda (Avtorizatsiya)
         if contact:
@@ -319,59 +525,120 @@ def handle_customer_update(update):
                 msg = f"✅ *Muvaffaqiyatli ulandiz!*\n\nHurmatli *{matched_customer.first_name} {matched_customer.last_name or ''}*, profilingiz Baxmal Meat botiga biriktirildi."
                 send_message(chat_id, msg, reply_markup=main_menu_reply_keyboard())
             else:
-                msg = f"⚠️ *Afsuski, telefon raqamingiz (+{phone_num}) bazadan topilmadi.*\n\nQarz daftardagi ismingiz yoki izohingizni matn ko'rinishida yozib yuboring (masalan: *Abduxaliq tog'a* yoki *Qo'shni Eshmat*)."
-                send_message(chat_id, msg, reply_markup=registration_keyboard())
-            return
-
-        # 2. Ulash so'rovi holatidagi yoki ro'yxatdan o'tmagan foydalanuvchi
-        if not customer and not text.startswith('claim_'):
-            if text == '🔍 Daftardan qidirish (Ism/Izoh)' or text.startswith('/start'):
-                msg = (
-                    "🥩 *Baxmal Meat — Akkauntni Ulash*\n\n"
-                    "Iltimos, pastdagi *'📱 Telefon raqamni yuborish'* tugmasini bosing yoki "
-                    "qarz daftarda ismingiz/izohingiz qanday yozilgan bo'lsa shuni matn qilib yuboring:\n\n"
-                    "✍️ *Misol:* `Abduxaliq tog'a` yoki `901234567`"
-                )
-                send_message(chat_id, msg, reply_markup=registration_keyboard())
-                return
-
-            # AI Smart Candidate Search
-            candidates = find_customer_candidates(text)
-            if candidates:
-                send_message(chat_id, f"🔍 *'{text}'* bo'yicha bazadan {len(candidates)} ta mos profil topildi.\nO'zingizga tegishlisini tanlang:")
-                for c in candidates:
-                    is_barter = hasattr(c, 'supplier_profile') and c.supplier_profile is not None
-                    role_tag = " [Chorvador / Ta'minotchi]" if is_barter else ""
-                    note_tag = f"\n📝 *Daftardagi izoh:* {c.note}" if c.note else ""
-                    
-                    card_msg = (
-                        f"👤 *{c.first_name} {c.last_name or ''}*{role_tag}\n"
-                        f"🆔 *ID:* `{c.custom_id}`\n"
-                        f"📞 *Tel:* `{mask_phone(c.phone)}` {note_tag}\n"
-                        f"💰 *Joriy Qarz:* `{c.debt_amount:,.0f}` so'm | ⭐ *Skoring:* {c.get_credit_score()}"
-                    )
-                    reply_markup = {
-                        'inline_keyboard': [
-                            [{'text': f"✅ Shu menman (ID: {c.custom_id})", 'callback_data': f"claim_profile_{c.id}"}]
-                        ]
-                    }
-                    send_message(chat_id, card_msg, reply_markup=reply_markup)
-            else:
-                msg = (
-                    f"⚠️ *'{text}'* bo'yicha ma'lumotlar bazasidan hech narsa topilmadi.\n\n"
-                    "Iltimos, ismingizni boshqacha yozib ko'ring yoki *'📱 Telefon raqamni yuborish'* tugmasini bosing."
-                )
-                send_message(chat_id, msg, reply_markup=registration_keyboard())
+                msg = f"✅ *Profil saqlandi!*\n\nHurmatli *{customer.first_name}*, profilingiz bot bilan bog'landi."
+                send_message(chat_id, msg, reply_markup=main_menu_reply_keyboard())
             return
 
         # Handle '🏠 Asosiy Menyu' reset
         if text == '🏠 Asosiy Menyu' or text == '/start':
-            USER_STATES.pop(chat_id, None)
-            send_message(chat_id, f"👋 Xush kelibsiz, *{customer.first_name if customer else 'Mijoz'}*!", reply_markup=main_menu_reply_keyboard())
+            st = USER_STATES.pop(chat_id, None)
+            if isinstance(st, dict) and st.get('order_id'):
+                B2BOrder.objects.filter(id=st['order_id'], status='pending').update(status='rejected')
+            
+            name = customer.first_name if customer else 'Mijoz'
+            debt = customer.debt_amount if customer else Decimal('0.00')
+            score = customer.get_credit_score() if customer else 'Yangi'
+            
+            debt_line = f"💰 Qarzingiz: `{debt:,.0f}` so'm" if debt > 0 else "✅ Qarzingiz yo'q"
+            
+            msg = (
+                f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🏪 *BAXMAL MEAT — DO'KON BOTI*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"👋 Assalomu alaykum, *{name}*!\n\n"
+                f"📊 *Sizning ma'lumotlaringiz:*\n"
+                f"{debt_line}\n"
+                f"⭐ Ishonchlilik: *{score}*\n\n"
+                f"🔽 *Quyidagi tugmalardan birini tanlang:*\n\n"
+                f"🛒 Go'sht buyurtma qilish\n"
+                f"📦 Buyurtmalar holatini kuzatish\n"
+                f"💳 Qarz to'lash va chek yuborish\n"
+                f"👤 Shaxsiy kabinet va statistika\n"
+                f"🧾 Xaridlar tarixi\n"
+                f"🥩 AI Go'sht Maslahatchisi\n"
+                f"🏪 Do'kon haqida ma'lumot\n"
+                f"💬 Admin bilan bog'lanish\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"⏰ Ish vaqti: *07:00 — 20:00*\n"
+                f"📞 Tel: *+998 XX XXX XX XX*\n"
+                f"🌐 Sayt: baxmalmeat.uz"
+            )
+            send_message(chat_id, msg, reply_markup=main_menu_reply_keyboard())
+            return
+
+        # Handle weight input for product ordering
+        if chat_id in USER_STATES and isinstance(USER_STATES[chat_id], dict) and USER_STATES[chat_id].get('action') == 'awaiting_weight':
+            prod_id = USER_STATES[chat_id].get('prod_id')
+            product = Product.objects.filter(id=prod_id).first()
+            if product:
+                try:
+                    weight_val = Decimal(text.replace(',', '.'))
+                    if weight_val <= 0:
+                        raise ValueError()
+
+                    order = B2BOrder.objects.create(
+                        customer=customer,
+                        product=product,
+                        requested_weight=weight_val,
+                        status='pending'
+                    )
+
+                    USER_STATES[chat_id] = {'action': 'awaiting_location', 'order_id': order.id}
+                    total_price = weight_val * product.price_per_kg
+
+                    msg = (
+                        f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"🛍 *BUYURTMA TAYYORLANDI!* (Buyurtma #{order.id})\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                        f"🥩 *Mahsulot:* {product.name}\n"
+                        f"⚖️ *Vazni:* `{weight_val}` kg\n"
+                        f"💵 *Jami Summa:* `{total_price:,.0f}` so'm\n\n"
+                        f"👇 *Endi yetkazib berish uchun pastdagi tugmalardan birini tanlang:*"
+                    )
+                    send_message(chat_id, msg, reply_markup=location_reply_keyboard())
+                    return
+                except:
+                    send_message(chat_id, "⚠️ Iltimos, faqat raqam shaklida to'g'ri vazn kiriting (masalan: `2` yoki `1.5`):")
+                    return
+
+        # Handle pickup selection when awaiting_location
+        if text in ["🏃 Samovivoz (Do'kondan olib ketish)", "🏃 Samovivoz"] and chat_id in USER_STATES and isinstance(USER_STATES[chat_id], dict) and USER_STATES[chat_id].get('action') == 'awaiting_location':
+            order_id = USER_STATES[chat_id].get('order_id')
+            try:
+                order = B2BOrder.objects.get(id=order_id)
+                order.delivery_type = 'pickup'
+                order.delivery_address = "Do'kondan olib ketish (Samovivoz)"
+                order.save()
+
+                USER_STATES[chat_id] = {'action': 'awaiting_payment_proof', 'order_id': order.id}
+
+                total_sum = order.requested_weight * order.product.price_per_kg
+                pay_details, qr_images = get_active_payment_settings_details()
+
+                msg = (
+                    f"💳 *TO'LOVNI AMALGA OSHIRISH*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"📦 *Mahsulot:* {order.product.name} ({order.requested_weight} kg)\n"
+                    f"🏃 *Topshirish:* Do'kondan olib ketish (Samovivoz)\n"
+                    f"💵 *Jami Summa:* `{total_sum:,.0f}` so'm\n\n"
+                    f"{pay_details}\n\n"
+                    f"📸 *To'lovni amalga oshirgach, to'lov cheki (kvitansiya/skrinshot) fotosini ushbu chatga yuboring!*"
+                )
+                inline_cancel = {
+                    'inline_keyboard': [
+                        [{'text': "❌ Buyurtmani Bekor Qilish", 'callback_data': f"cancel_order_{order.id}"}]
+                    ]
+                }
+                send_message(chat_id, msg, reply_markup=inline_cancel)
+
+                for qr_title, qr_path in qr_images:
+                    send_customer_photo(chat_id, qr_path, caption=f"📲 *{qr_title} QR Kodi* — Telefon kamerasi orqali skaner qilib to'lang")
+            except Exception as e:
+                send_message(chat_id, f"⚠️ Xato: {e}")
             return
 
         # 3. Lokatsiya kelganda (Delivery address)
-        if location and chat_id in USER_STATES and USER_STATES[chat_id].get('action') == 'awaiting_location':
+        if location and chat_id in USER_STATES and isinstance(USER_STATES[chat_id], dict) and USER_STATES[chat_id].get('action') == 'awaiting_location':
             order_id = USER_STATES[chat_id].get('order_id')
             lat = location.get('latitude')
             lng = location.get('longitude')
@@ -398,7 +665,12 @@ def handle_customer_update(update):
                     f"{pay_details}\n\n"
                     f"📸 *To'lovni amalga oshirgach, to'lov cheki (kvitansiya/skrinshot) fotosini ushbu chatga yuboring!*"
                 )
-                send_message(chat_id, msg)
+                inline_cancel = {
+                    'inline_keyboard': [
+                        [{'text': "❌ Buyurtmani Bekor Qilish", 'callback_data': f"cancel_order_{order.id}"}]
+                    ]
+                }
+                send_message(chat_id, msg, reply_markup=inline_cancel)
 
                 # Send QR code photos if available
                 for qr_title, qr_path in qr_images:
@@ -439,6 +711,7 @@ def handle_customer_update(update):
                         )
 
                         total_price = order.requested_weight * order.product.price_per_kg
+                        deliv_addr_text = order.delivery_address if order.delivery_address else "Do'kondan olib ketish"
 
                         # Build Admin Notification Card with Inline Action Buttons
                         admin_caption = (
@@ -449,7 +722,7 @@ def handle_customer_update(update):
                             f"⭐ *Skoring:* {customer.get_credit_score()}\n\n"
                             f"🥩 *Mahsulot:* {order.product.name} ({order.requested_weight} kg)\n"
                             f"🚗 *Turi:* {order.get_delivery_type_display()}\n"
-                            f"📍 *Manzil:* {order.delivery_address or 'Do\'kondan olib ketish'}\n"
+                            f"📍 *Manzil:* {deliv_addr_text}\n"
                             f"💵 *To'lov Summasi:* `{total_price:,.0f}` so'm"
                         )
                         reply_markup = {
@@ -504,52 +777,80 @@ def handle_customer_update(update):
                 send_message(chat_id, "⚠️ Hozirda sotuvda mahsulotlar mavjud emas.")
                 return
 
+            msg_lines = [
+                "━━━━━━━━━━━━━━━━━━━━━━━",
+                "🥩 *BAXMAL MEAT — MAHSULOTLAR*",
+                "━━━━━━━━━━━━━━━━━━━━━━━",
+                ""
+            ]
             inline_keyboard = []
             for p in products:
-                inline_keyboard.append([
-                    {'text': f"{p.name} — {p.price_per_kg:,.0f} so'm/kg", 'callback_data': f"order_prod_{p.id}"}
-                ])
+                stock_kg = getattr(p, 'stock_kg', 0) or 0
+                stock_badge = f"🟢 {stock_kg:.0f} kg" if stock_kg > 0 else "🔴 Tugagan"
+                msg_lines.append(
+                    f"🥩 *{p.name}*\n"
+                    f"   💵 Narxi: `{p.price_per_kg:,.0f}` so'm/kg\n"
+                    f"   📦 Zaxira: {stock_badge}\n"
+                )
+                if stock_kg > 0:
+                    inline_keyboard.append([
+                        {'text': f"🛒 {p.name} — {p.price_per_kg:,.0f} so'm/kg", 'callback_data': f"order_prod_{p.id}"}
+                    ])
+
+            msg_lines.append("━━━━━━━━━━━━━━━━━━━━━━━")
+            msg_lines.append("👇 *Buyurtma uchun mahsulotni tanlang:*")
 
             reply_markup = {'inline_keyboard': inline_keyboard}
-            send_message(chat_id, "🥩 *Buyurtma qilmoqchi bo'lgan go'sht turini tanlang:*", reply_markup=reply_markup)
+            send_message(chat_id, "\n".join(msg_lines), reply_markup=reply_markup)
 
-        elif text == '📌 Buyurtma Statusi (Live)':
-            orders = B2BOrder.objects.filter(customer=customer).order_by('-created_at')[:3]
+        elif text in ['📌 Buyurtma Statusi (Live)', '📦 Buyurtmalarim']:
+            orders = B2BOrder.objects.filter(customer=customer).order_by('-created_at')[:5]
             if not orders.exists():
-                send_message(chat_id, "ℹ️ Sizda aktiv buyurtmalar mavjud emas.")
+                send_message(chat_id, "━━━━━━━━━━━━━━━━━━━━━━━\n📦 *BUYURTMALARIM*\n━━━━━━━━━━━━━━━━━━━━━━━\n\nℹ️ Sizda hozircha buyurtmalar mavjud emas.\n\n💡 _Buyurtma berish uchun_ *'🛒 Go'sht Buyurtma Qilish'* _tugmasini bosing._", reply_markup=main_menu_reply_keyboard())
                 return
 
-            lines = ["📌 *JONLI BUYURTMA STATUSLARI (LIVE TRACKING):*", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"]
+            lines = [
+                "━━━━━━━━━━━━━━━━━━━━━━━",
+                "📦 *BUYURTMALARIM — JONLI TRACKING*",
+                "━━━━━━━━━━━━━━━━━━━━━━━",
+                ""
+            ]
             for o in orders:
-                status_emoji = {
-                    'pending': '⏳ Chek kutilmoqda',
-                    'payment_uploaded': '📸 Chek tekshirilmoqda',
-                    'approved': '✅ Admin tasdiqladi',
-                    'preparing': '🥩 Go\'sht tortilmoqda/Qadoqlanmoqda',
-                    'shipping': '🚚 Kuryer yo\'lda',
-                    'completed': '🎉 Yetkazib berildi',
-                    'rejected': '❌ Rad etildi'
-                }.get(o.status, o.get_status_display())
+                status_info = {
+                    'pending': ('⏳', 'Chek kutilmoqda'),
+                    'payment_uploaded': ('📸', 'Chek tekshirilmoqda'),
+                    'approved': ('✅', 'Admin tasdiqladi'),
+                    'preparing': ('🥩', 'Qadoqlanmoqda'),
+                    'shipping': ('🚚', 'Kuryer yo\'lda'),
+                    'completed': ('🎉', 'Yetkazib berildi'),
+                    'rejected': ('❌', 'Rad etildi')
+                }.get(o.status, ('❔', o.get_status_display()))
 
                 total_price = o.requested_weight * o.product.price_per_kg
                 stepper_bar = render_telegram_stepper_bar(o.status)
+                delivery_text = '🏃 Samovivoz' if o.delivery_type == 'pickup' else '🚗 Yetkazish'
+                
                 lines.append(
-                    f"📦 *Buyurtma #{o.id}:* {o.product.name} ({o.requested_weight} kg)\n"
-                    f"💵 Jami: `{total_price:,.0f}` so'm ({o.get_delivery_type_display()})\n"
-                    f"{stepper_bar}\n"
-                    f"📊 *Holat:* *{status_emoji}*\n"
-                    f"📅 {o.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+                    f"┌─── 📦 *Buyurtma #{o.id}* ───┐\n"
+                    f"│ 🥩 {o.product.name} ({o.requested_weight} kg)\n"
+                    f"│ 💵 Jami: `{total_price:,.0f}` so'm\n"
+                    f"│ {delivery_text}\n"
+                    f"│ {status_info[0]} *{status_info[1]}*\n"
+                    f"│ {stepper_bar}\n"
+                    f"│ 📅 {o.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+                    f"└──────────────────────┘\n"
                 )
             send_message(chat_id, "\n".join(lines), reply_markup=main_menu_reply_keyboard())
 
-        elif text in ["💳 Qarz To'lash (Karta)", '💳 Karta va Rekvizitlar', '💳 Karta Rekviziti', "💳 Qarz To'lash"]:
+        elif text in ["💳 Qarz To'lash / Chek Yuborish", "💳 Qarz To'lash (Karta)", '💳 Karta va Rekvizitlar', '💳 Karta Rekviziti', "💳 Qarz To'lash"]:
             pay_details, qr_images = get_active_payment_settings_details()
             debt_sum = customer.debt_amount if customer else Decimal('0.00')
             debt_str = f"💰 *Sizning Joriy Qarzingiz:* `{debt_sum:,.0f}` so'm\n\n" if debt_sum > 0 else "💰 *Sizda hozircha qarz mavjud emas.*\n\n"
 
             msg = (
+                "━━━━━━━━━━━━━━━━━━━━━━━\n"
                 "💳 *QARZ TO'LASH VA KARTA REKVIZITLARI*\n"
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 f"👤 *Mijoz:* {customer.first_name if customer else 'Mijoz'} ({customer.custom_id if customer else ''})\n"
                 f"{debt_str}"
                 "🏦 *Do'kon Plastik Karta Raqami:*\n"
@@ -557,7 +858,8 @@ def handle_customer_update(update):
                 "Ega: *Baxmal Meat Enterprise*\n"
                 "To'lov Turlari: *Click / Payme / Bank Ilovasi*\n\n"
                 f"{pay_details}\n\n"
-                "📸 *To'lovni amalga oshirgach, pastdagi '📸 To'lov Chekini Yuborish' tugmasini bosing va chek fotosini chatga yuboring!*"
+                "📸 *To'lovni amalga oshirgach, to'lov kvitansiyasi (skrinshot/foto)ni shu chatga yuboring!*\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━"
             )
             inline_kb = {
                 'inline_keyboard': [
@@ -580,39 +882,78 @@ def handle_customer_update(update):
             )
             send_message(chat_id, msg)
 
-        elif text == '👤 Shaxsiy Kabinet (Balans)':
+        elif text in ['👤 Shaxsiy Kabinet & Qarz', '👤 Shaxsiy Kabinet (Balans)', '💰 Qarz va Kredit', '👤 Shaxsiy Kabinet']:
             smart_score = customer.calculate_smart_score()
             credit_score = customer.get_credit_score()
+            
+            # Loyalty level
+            if smart_score >= 90:
+                level = '👑 OLTIN Darajali Mijoz'
+                level_emoji = '👑'
+            elif smart_score >= 70:
+                level = '💎 KUMUSH Darajali Mijoz'
+                level_emoji = '💎'
+            elif smart_score >= 50:
+                level = '🥉 BRONZA Darajali Mijoz'
+                level_emoji = '🥉'
+            else:
+                level = '🆕 Yangi Mijoz'
+                level_emoji = '🆕'
+            
+            # Debt progress bar
+            limit_used_pct = 0
+            if customer.debt_limit > 0:
+                limit_used_pct = min(100, int(customer.debt_amount / customer.debt_limit * 100))
+            filled = limit_used_pct // 10
+            bar = '▓' * filled + '░' * (10 - filled)
+            
+            score_color = '🟢' if smart_score >= 80 else ('🟡' if smart_score >= 50 else '🔴')
+            
             barter_info = ""
             if hasattr(customer, 'supplier_profile') and customer.supplier_profile:
                 sup_debt = customer.supplier_profile.our_debt
                 barter_info = f"\n🚜 *Bizning sizdan qarzimiz:* `{sup_debt:,.0f}` so'm"
-
+            
             msg = (
-                f"👤 *SHAXSIY KABINET*\n"
-                f"━━━━━━━━━━━━━━━━━━━\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"{level_emoji} *SHAXSIY KABINET*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 f"👤 *F.I.SH:* {customer.first_name} {customer.last_name or ''}\n"
                 f"🆔 *Mijoz ID:* `{customer.custom_id}`\n"
-                f"📞 *Telefon:* `{customer.phone}`\n\n"
+                f"📞 *Telefon:* `{mask_phone(customer.phone)}`\n"
+                f"🏅 *Daraja:* {level}\n\n"
+                f"━━━━ 💰 *MOLIYAVIY MA'LUMOTLAR* ━━━━\n\n"
                 f"💰 *Joriy Qarz:* `{customer.debt_amount:,.0f}` so'm\n"
                 f"💳 *Kredit Limiti:* `{customer.debt_limit:,.0f}` so'm\n"
+                f"📊 *Limitdan foydalanish:* `{limit_used_pct}%`\n"
+                f"   `{bar}` {limit_used_pct}%\n\n"
                 f"💎 *Bonus Ballar:* `{customer.bonus_points}` ball\n"
-                f"⭐ *Ishonchlilik Darajasi:* *{credit_score}* ({smart_score}/100 ball)"
-                f"{barter_info}"
+                f"{score_color} *Kredit Skoring:* *{credit_score}* ({smart_score}/100)\n"
+                f"{barter_info}\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"{'⚠️ _Diqqat: Kredit limitingiz tugab qolmoqda!_' if limit_used_pct > 80 else '✅ _Kredit holatingiz yaxshi._'}\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━"
             )
-            send_message(chat_id, msg, reply_markup=main_menu_reply_keyboard())
+            inline_kb = {
+                'inline_keyboard': [
+                    [{'text': "💳 Qarzni Hozir To'lash", 'callback_data': 'pay_debt_now'}],
+                    [{'text': '🌐 Veb-saytda Kabinetni Ochish', 'url': f"{SITE_URL}/pos/my-cabinet/"}]
+                ]
+            }
+            send_message(chat_id, msg, reply_markup=inline_kb)
 
         elif text == '🥩 AI Go\'sht Maslahatchisi':
             USER_STATES[chat_id] = {'action': 'awaiting_ai_prompt'}
             msg = (
                 "🤖 *Baxmal Meat — AI Maslahatchisi*\n\n"
-                "Manga go'sht retseptlari, shashlik/qozonkabob uchun necha kg go'sht va qaysi qism mos kelishi haqida istalgan savolingizni berishingiz mumkin:\n\n"
-                "✍️ *Misol:* `10 kishi shashlik uchun necha kg go'sht kerak?`"
+                "Manga go'sht retseptlari, shashlik/qozonkabob/osh uchun necha kg go'sht va qaysi qism mos kelishi haqida istalgan savolingizni berishingiz mumkin:\n\n"
+                "✍️ *Misol:* `10 kishi shashlik uchun necha kg go'sht kerak?` yoki `1kg oshga qaysi go'sht mos?`"
             )
             send_message(chat_id, msg)
 
-        elif isinstance(USER_STATES.get(chat_id), dict) and USER_STATES[chat_id].get('action') == 'awaiting_ai_prompt':
-            USER_STATES.pop(chat_id, None)
+        elif (isinstance(USER_STATES.get(chat_id), dict) and USER_STATES[chat_id].get('action') == 'awaiting_ai_prompt') or any(kw in text.lower() for kw in ['osh', 'palov', 'plov', 'kabob', 'shashlik', 'dimlama', 'qozon', 'shorva', "sho'rva", 'manti', 'somsa', 'lagmon', "lag'mon", 'jarkob', 'jarkop', 'jarkov', 'steik', 'steyk', 'retsept', 'maslahat', 'pishir', 'kishi']):
+            if isinstance(USER_STATES.get(chat_id), dict):
+                USER_STATES.pop(chat_id, None)
             send_message(chat_id, "🤖 *AI o'ylanmoqda...* ⏳")
             ai_reply = query_gemini_meat_assistant(text)
             send_message(chat_id, f"🥩 *AI Maslahatchi Javobi:*\n\n{ai_reply}", reply_markup=main_menu_reply_keyboard())
@@ -659,36 +1000,44 @@ def handle_customer_update(update):
             send_admin_text_notification(admin_msg)
             send_message(chat_id, "✅ Xabaringiz adminga yetkazildi va saytdagi chatda ham ko'rinadi. Tez orada javob beramiz!", reply_markup=main_menu_reply_keyboard())
 
-        elif text == '💰 Qarz va Kredit':
-            smart_score = customer.calculate_smart_score()
-            credit_score = customer.get_credit_score()
-            limit_used_pct = 0
-            if customer.debt_limit > 0:
-                limit_used_pct = min(100, int(customer.debt_amount / customer.debt_limit * 100))
-
-            # Progress bar for credit limit usage
-            filled = limit_used_pct // 10
-            bar = '█' * filled + '░' * (10 - filled)
-
-            score_emoji = '🟢' if smart_score >= 80 else ('🟡' if smart_score >= 50 else '🔴')
+        elif text == '🏪 Do\'kon Haqida':
             msg = (
-                f"💰 *QARZ VA KREDIT MA'LUMOTLARI*\n"
-                f"━━━━━━━━━━━━━━━━━━━\n"
-                f"💳 *Joriy Qarz:* `{customer.debt_amount:,.0f}` so'm\n"
-                f"🏦 *Kredit Limiti:* `{customer.debt_limit:,.0f}` so'm\n"
-                f"📊 *Limitdan foydalanish:* `{limit_used_pct}%`\n"
-                f"`{bar}` {limit_used_pct}%\n\n"
-                f"💎 *Bonus Ballar:* `{customer.bonus_points}` ball\n"
-                f"{score_emoji} *Kredit Skoring:* `{credit_score}`\n"
-                f"📈 *Smart Skoring:* `{smart_score}/100 ball`\n\n"
-                f"{'⚠️ Diqqat: Kredit limitingiz tugab qolmoqda!' if limit_used_pct > 80 else '✅ Kredit holatiz yaxshi.'}"
+                "━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "🏪 *BAXMAL MEAT — DO'KON MA'LUMOTLARI*\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                "🥩 *Baxmal Meat* — yangi, sifatli va halol\n"
+                "go'sht mahsulotlari do'koni.\n\n"
+                "━━━━ 📋 *ASOSIY MA'LUMOTLAR* ━━━━\n\n"
+                "⏰ *Ish vaqti:* Har kuni 07:00 — 20:00\n"
+                "📞 *Telefon:* +998 XX XXX XX XX\n"
+                "🌐 *Veb-sayt:* baxmalmeat.uz\n"
+                "📍 *Manzil:* Sangzor tumani\n\n"
+                "━━━━ 🥩 *XIZMATLARIMIZ* ━━━━\n\n"
+                "✅ Yangi so'yilgan mol go'shti\n"
+                "✅ Qo'y va echki go'shti\n"
+                "✅ Tovuq go'shti\n"
+                "✅ Jigar, yurak va boshqa ichki organlar\n"
+                "✅ Yetkazib berish xizmati (Delivery)\n"
+                "✅ Nasiya (kredit) bilan sotib olish\n"
+                "✅ AI Go'sht Maslahatchisi\n\n"
+                "━━━━ 🏆 *AFZALLIKLARIMIZ* ━━━━\n\n"
+                "🔬 Veterinar nazorati ostida\n"
+                "❄️ Sovuq zanjir (Cold Chain) saqlash\n"
+                "📱 24/7 Telegram Bot xizmati\n"
+                "💳 Naqd va Karta orqali to'lov\n"
+                "🚚 Bepul yetkazib berish (5 kg dan)\n\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "_Biz bilan doimo sifatli go'sht!_ 🥩"
             )
             inline_kb = {
                 'inline_keyboard': [
-                    [{'text': "💳 Qarzni Hozir To'lash (Karta)", 'callback_data': 'pay_debt_now'}]
+                    [{'text': '🌐 Veb-saytni Ochish', 'url': f"{SITE_URL}"}],
+                    [{'text': '📍 Do\'kon Lokatsiyasi (Xarita)', 'url': 'https://maps.google.com/?q=Sangzor+Baxmal+Meat'}]
                 ]
             }
             send_message(chat_id, msg, reply_markup=inline_kb)
+
+
 
         elif text == "🌐 Veb-saytga O'tish":
             cabinet_url = f"{SITE_URL}/pos/my-cabinet/"
