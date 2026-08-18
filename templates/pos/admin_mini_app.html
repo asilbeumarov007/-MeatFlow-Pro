@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Baxmal Meat — Admin & Kassa Mini App</title>
+  
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- Google Fonts & Bootstrap Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --tg-bg: linear-gradient(160deg, #ECFDF5 0%, #F0FDFA 30%, #F5F3FF 60%, #FDF2F8 100%);
+      --tg-text: #064E3B;
+      --tg-hint: #6B7280;
+      --primary-green: #10B981;
+      --primary-green-deep: #059669;
+      --accent-mint: #34D399;
+      --accent-gold: #F59E0B;
+      --card-bg: rgba(255, 255, 255, 0.65);
+      --border-color: rgba(52, 211, 153, 0.2);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+      --glass-shadow: 0 10px 30px rgba(16, 185, 129, 0.08), 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--tg-bg);
+      color: var(--tg-text);
+      margin: 0;
+      padding: 0;
+      padding-bottom: 95px;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ── ANIMATED AURORA BACKGROUND BLOBS ────────── */
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      z-index: -1;
+      animation: auroraFloatMini 12s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    body::before {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, #A7F3D0 0%, #6EE7B7 50%, transparent 70%);
+      top: -50px;
+      right: -60px;
+    }
+
+    body::after {
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, #BAE6FD 0%, #93C5FD 50%, transparent 70%);
+      bottom: 15%;
+      left: -50px;
+      animation-delay: -6s;
+    }
+
+    @keyframes auroraFloatMini {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(20px, -15px) scale(1.06); }
+      100% { transform: translate(-10px, 10px) scale(0.96); }
+    }
+
+    /* ── 3D GLASS TOP BANNER ─── */
+    .admin-hero {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.85) 50%, rgba(52, 211, 153, 0.75) 100%);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      color: #fff;
+      padding: 22px 18px 28px;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      box-shadow:
+        0 16px 40px rgba(16, 185, 129, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .admin-hero::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: heroShimmer 6s infinite alternate;
+    }
+
+    @keyframes heroShimmer {
+      0% { transform: scale(0.9); opacity: 0.3; }
+      100% { transform: scale(1.15); opacity: 0.6; }
+    }
+
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .hero-metric-box {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    /* ── SEGMENTED GLASS NAVIGATION TABS ─── */
+    .admin-tabs-container {
+      display: flex;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1.5px solid rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      padding: 6px;
+      gap: 6px;
+      margin: -16px 14px 18px;
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.1);
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+    }
+
+    .admin-tabs-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .admin-tab-btn {
+      flex: 0 0 auto;
+      border: none;
+      background: transparent;
+      padding: 9px 16px;
+      border-radius: 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--tg-hint);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .admin-tab-btn.active {
+      background: linear-gradient(135deg, var(--primary-green), var(--primary-green-deep));
+      color: #FFFFFF;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
+      transform: scale(1.02);
+    }
+
+    .badge-count {
+      background: #EF4444;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+    }
+
+    /* ── 3D GLASS CARDS ─── */
+    .admin-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      border: var(--glass-border);
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--glass-shadow);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .admin-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(16, 185, 129, 0.12);
+    }
+
+    .stat-kpi-card {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: var(--glass-border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      text-align: left;
+      box-shadow: var(--glass-shadow);
+      transition: all 0.25s;
+    }
+
+    .stat-kpi-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-kpi-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary-green-deep);
+      line-height: 1.2;
+    }
+
+    .stat-kpi-lbl {
+      font-size: 11px;
+      color: #4B5563;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 3px;
+    }
+
+    /* ── ACTION BUTTONS ─── */
+    .btn-action-appr {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 14px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+      transition: all 0.2s;
+    }
+    .btn-action-appr:active { transform: scale(0.96); }
+
+    .btn-action-prep {
+      background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 14px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+      transition: all 0.2s;
+    }
+
+    .btn-action-ship {
+      background: linear-gradient(135deg, #0284C7, #0369A1);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 14px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+      transition: all 0.2s;
+    }
+
+    .btn-action-rej {
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 14px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+      transition: all 0.2s;
+    }
+
+    /* ── COURIER 1-TAP NAVIGATOR PILLS ─── */
+    .btn-nav-yandex {
+      background: #FFCC00;
+      color: #1A1A2E;
+      font-weight: 800;
+      border: none;
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      box-shadow: 0 3px 8px rgba(255, 204, 0, 0.3);
+      transition: transform 0.15s;
+    }
+    .btn-nav-yandex:hover { color: #000; transform: translateY(-1px); }
+
+    .btn-nav-google {
+      background: #4285F4;
+      color: #FFFFFF;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      box-shadow: 0 3px 8px rgba(66, 133, 244, 0.3);
+      transition: transform 0.15s;
+    }
+    .btn-nav-google:hover { color: #fff; transform: translateY(-1px); }
+
+    .btn-nav-call {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--primary-green-deep);
+      font-weight: 700;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-nav-call:hover { background: var(--primary-green); color: #fff; }
+
+    /* ── FLOATING GLASS BOTTOM BAR ─── */
+    .admin-bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 10px 14px;
+      z-index: 1000;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #6B7280;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-decoration: none;
+      background: transparent;
+      border: none;
+      gap: 2px;
+      transition: color 0.2s;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--primary-green-deep);
+    }
+
+    .modal-backdrop.show {
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO BANNER -->
+  <div class="admin-hero">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="hero-title">
+        <span>🥩</span> Baxmal Meat Admin
+      </h1>
+      <span class="badge bg-success bg-opacity-75 rounded-pill px-3 py-1 text-white" style="font-size:11px; font-weight:700;">
+        🟢 Jonli Tizim
+      </span>
+    </div>
+
+    <div class="hero-metric-box">
+      <div>
+        <div style="font-size:11px; opacity:0.8; font-weight:600;">BUGUNGI JAMI SAVDO</div>
+        <div style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800;">
+          {{ revenue_total|floatformat:0 }} <span style="font-size:13px; font-weight:600;">so'm</span>
+        </div>
+      </div>
+      <div class="text-end">
+        <div style="font-size:11px; opacity:0.8; font-weight:600;">SOTILGAN GO'SHT</div>
+        <div style="font-family:'Outfit',sans-serif; font-size:1.4rem; font-weight:800; color:#FDE047;">
+          {{ total_weight_sold|floatformat:1 }} <span style="font-size:13px; font-weight:600;">kg</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGMENTED TABS -->
+  <div class="admin-tabs-container">
+    <button class="admin-tab-btn active" id="tab-btn-kassa" onclick="switchTab('kassa')">
+      <i class="bi bi-speedometer2"></i> Kassa
+    </button>
+    <button class="admin-tab-btn" id="tab-btn-orders" onclick="switchTab('orders')">
+      <i class="bi bi-bag-check-fill"></i> Buyurtmalar
+      {% if pending_orders_count > 0 %}<span class="badge-count">{{ pending_orders_count }}</span>{% endif %}
+    </button>
+    <button class="admin-tab-btn" id="tab-btn-proofs" onclick="switchTab('proofs')">
+      <i class="bi bi-camera-fill"></i> To'lov Cheklari
+      {% if pending_proofs_count > 0 %}<span class="badge-count">{{ pending_proofs_count }}</span>{% endif %}
+    </button>
+    <button class="admin-tab-btn" id="tab-btn-products" onclick="switchTab('products')">
+      <i class="bi bi-tags-fill"></i> Zaxira & Narxlar
+    </button>
+    <button class="admin-tab-btn" id="tab-btn-debtors" onclick="switchTab('debtors')">
+      <i class="bi bi-people-fill"></i> Qarzdorlar
+    </button>
+  </div>
+
+  <!-- MAIN CONTENT SECTIONS -->
+  <div class="container-fluid px-3">
+
+    <!-- 1. SECTION KASSA -->
+    <div id="sec-kassa" class="tab-section">
+      <div class="row g-2 mb-3">
+        <div class="col-6">
+          <div class="stat-kpi-card">
+            <div class="stat-kpi-val text-success">{{ naqd_total|floatformat:0 }}</div>
+            <div class="stat-kpi-lbl">💵 Naqd Tushum</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="stat-kpi-card">
+            <div class="stat-kpi-val text-primary">{{ karta_total|floatformat:0 }}</div>
+            <div class="stat-kpi-lbl">💳 Plastik Karta</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="stat-kpi-card">
+            <div class="stat-kpi-val text-warning">{{ nasiya_total|floatformat:0 }}</div>
+            <div class="stat-kpi-lbl">📋 Nasiya (Qarz)</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="stat-kpi-card">
+            <div class="stat-kpi-val" style="color:#8B5CF6;">{{ total_sales_count }} ta</div>
+            <div class="stat-kpi-lbl">👥 Xaridorlar Soni</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0"><i class="bi bi-clock-history text-success me-1"></i> Kassa Smenasi</h6>
+          <span class="badge {% if current_shift %}bg-success{% else %}bg-secondary{% endif %} rounded-pill px-3 py-1">
+            {% if current_shift %}🟢 Ochiq (#{{ current_shift.id }}){% else %}🔴 Yopilgan{% endif %}
+          </span>
+        </div>
+        <p class="text-muted mb-3" style="font-size:12px;">Kassa smenasi ochilgan vaqt: {{ current_shift.opened_at|date:"d.m.Y H:i"|default:"Mavjud emas" }}</p>
+        
+        <div class="d-flex gap-2">
+          <a href="/pos/global-report/" class="btn btn-outline-success btn-sm rounded-3 flex-fill fw-bold py-2">
+            <i class="bi bi-bar-chart-fill me-1"></i> To'liq Analitika
+          </a>
+          <a href="/pos/terminal/" class="btn btn-success btn-sm rounded-3 flex-fill fw-bold py-2">
+            <i class="bi bi-laptop me-1"></i> POS Kassa
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. SECTION ORDERS -->
+    <div id="sec-orders" class="tab-section d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">📦 Buyurtmalar ({{ orders|length }} ta)</h6>
+        <span class="text-muted" style="font-size:11px;">Avtomatik yangilanadi</span>
+      </div>
+
+      {% for order in orders %}
+      <div class="admin-card" id="order-card-{{ order.id }}">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <span class="badge bg-light text-dark border fw-bold" style="font-size:11px;">#{{ order.id }}</span>
+            <span class="fw-bold ms-1" style="font-size:14px;">{{ order.product.name }}</span>
+            <div class="text-muted" style="font-size:11px;">{{ order.created_at|date:"d.m.Y H:i" }}</div>
+          </div>
+          <span class="badge {% if order.status == 'approved' %}bg-success{% elif order.status == 'shipping' %}bg-info text-white{% elif order.status == 'completed' %}bg-primary{% elif order.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %} rounded-pill px-3 py-1" style="font-size:10px;">
+            {{ order.get_status_display }}
+          </span>
+        </div>
+
+        <div class="p-2 rounded-3 mb-2" style="background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); border:1px solid rgba(52,211,153,0.15); font-size:12px;">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted">Mijoz:</span>
+            <span class="fw-bold text-dark">{{ order.customer.first_name }} ({{ order.customer.phone }})</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted">Vazn / Narx:</span>
+            <span class="fw-bold text-success">{{ order.requested_weight }} kg × {{ order.product.price_per_kg|floatformat:0 }} so'm</span>
+          </div>
+          {% if order.delivery_address %}
+          <div class="d-flex justify-content-between align-items-start mt-1">
+            <span class="text-muted">Manzil:</span>
+            <span class="fw-semibold text-end" style="max-width:210px; color:#1F2937;">{{ order.delivery_address }}</span>
+          </div>
+          {% endif %}
+          {% if order.assigned_courier %}
+          <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top" style="border-color:rgba(52,211,153,0.15) !important;">
+            <span class="text-muted">🚴‍♂️ Kuryer:</span>
+            <span class="fw-bold text-primary">{{ order.assigned_courier.first_name }} ({{ order.assigned_courier.phone }})</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- 1-TAP NAVIGATOR & LOGISTICS TOOLSET -->
+        <div class="d-flex gap-1 flex-wrap mb-2">
+          {% if order.latitude and order.longitude %}
+          <a href="https://yandex.uz/maps/?rtext=~{{ order.latitude }},{{ order.longitude }}" target="_blank" class="btn-nav-yandex flex-fill justify-content-center">
+            <i class="bi bi-geo-alt-fill"></i> Yandex Nav
+          </a>
+          <a href="https://maps.google.com/?q={{ order.latitude }},{{ order.longitude }}" target="_blank" class="btn-nav-google flex-fill justify-content-center">
+            <i class="bi bi-compass-fill"></i> Google Maps
+          </a>
+          {% elif order.delivery_address %}
+          <a href="https://yandex.uz/maps/?text={{ order.delivery_address|urlencode }}" target="_blank" class="btn-nav-yandex flex-fill justify-content-center">
+            <i class="bi bi-geo-alt-fill"></i> Yandex Xarita
+          </a>
+          {% endif %}
+          
+          {% if order.customer.phone %}
+          <a href="tel:{{ order.customer.phone }}" class="btn-nav-call">
+            <i class="bi bi-telephone-fill"></i> Tel
+          </a>
+          {% endif %}
+          <a href="/pos/chats/?selected_customer={{ order.customer.id }}" class="btn btn-sm btn-outline-success rounded-3 px-2 d-inline-flex align-items-center" title="Chat ochish">
+            <i class="bi bi-chat-dots-fill"></i>
+          </a>
+        </div>
+
+        <!-- Action Stepper Buttons -->
+        <div class="d-flex gap-1 flex-wrap">
+          {% if order.status == 'pending' or order.status == 'payment_uploaded' %}
+          <button class="btn btn-action-appr flex-fill" onclick="updateOrderStatusMini('{{ order.id }}', 'approved')">
+            <i class="bi bi-check-lg"></i> Tasdiqlash
+          </button>
+          <button class="btn btn-action-rej" onclick="updateOrderStatusMini('{{ order.id }}', 'rejected')">
+            <i class="bi bi-x-lg"></i>
+          </button>
+          {% elif order.status == 'approved' %}
+          <button class="btn btn-action-prep flex-fill" onclick="updateOrderStatusMini('{{ order.id }}', 'preparing')">
+            <i class="bi bi-box-seam me-1"></i> Qadoqlash
+          </button>
+          {% elif order.status == 'preparing' %}
+          <button class="btn btn-action-ship flex-fill" onclick="openAssignCourierModal('{{ order.id }}')">
+            <i class="bi bi-truck me-1"></i> Kuryerga berish
+          </button>
+          {% elif order.status == 'shipping' %}
+          <button class="btn btn-success flex-fill fw-bold btn-sm py-2" onclick="updateOrderStatusMini('{{ order.id }}', 'completed')">
+            <i class="bi bi-check2-all me-1"></i> Yakunlandi (Topshirildi)
+          </button>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox fs-1 opacity-25"></i>
+        <p class="mt-2" style="font-size:13px;">Hozircha buyurtmalar yo'q</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- 3. SECTION PAYMENT PROOFS -->
+    <div id="sec-proofs" class="tab-section d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">📸 To'lov Cheklari ({{ proofs|length }} ta)</h6>
+        <span class="text-muted" style="font-size:11px;">Tasdiqlash & Qarz Yopish</span>
+      </div>
+
+      {% for proof in proofs %}
+      <div class="admin-card" id="proof-card-{{ proof.id }}">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <span class="fw-bold" style="font-size:14px;">{{ proof.customer.first_name }}</span>
+            <div class="text-muted" style="font-size:11px;">{{ proof.created_at|date:"d.m.Y H:i" }} | {{ proof.provider|upper }}</div>
+          </div>
+          <span class="fw-extrabold text-success fs-5">{{ proof.amount|floatformat:0 }} so'm</span>
+        </div>
+
+        {% if proof.image %}
+        <div class="position-relative mb-2 rounded-3 overflow-hidden" style="height:140px; background:#000; cursor:pointer;" onclick="openImageZoom('{{ proof.image.url }}', '{{ proof.customer.first_name }} — {{ proof.amount|floatformat:0 }} so\'m')">
+          <img src="{{ proof.image.url }}" alt="Chek" style="width:100%; height:100%; object-fit:contain;">
+          <div class="position-absolute bottom-0 end-0 m-2 badge bg-dark bg-opacity-75">
+            <i class="bi bi-arrows-fullscreen me-1"></i> Kattalashtirish
+          </div>
+        </div>
+        {% endif %}
+
+        {% if not proof.is_verified %}
+        <div class="d-flex gap-2">
+          <button class="btn btn-success btn-sm flex-fill fw-bold py-2" onclick="approveProofMini('{{ proof.id }}')">
+            <i class="bi bi-check-circle-fill me-1"></i> Tasdiqlash & Qarzni Yopish
+          </button>
+          <button class="btn btn-outline-danger btn-sm px-3" onclick="rejectProofMini('{{ proof.id }}')">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        {% else %}
+        <div class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 w-100 py-2 fw-bold" style="font-size:12px;">
+          ✅ Qarzdan yopilgan (Tasdiqlangan)
+        </div>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-images fs-1 opacity-25"></i>
+        <p class="mt-2" style="font-size:13px;">To'lov cheklari mavjud emas</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- 4. SECTION PRODUCTS & PRICES -->
+    <div id="sec-products" class="tab-section d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">🥩 Go'sht Narxlari & Zaxiralar</h6>
+        <span class="text-muted" style="font-size:11px;">1-bosishda tahrirlash</span>
+      </div>
+
+      {% for p in products %}
+      <div class="admin-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <h6 class="fw-bold mb-0" style="font-size:15px;">{{ p.name }}</h6>
+            <span class="badge bg-success bg-opacity-10 text-success" style="font-size:11px;">
+              🟢 Qoldiq: {{ p.stock.quantity|default:0|floatformat:1 }} kg
+            </span>
+          </div>
+          <div class="text-end">
+            <div class="fw-extrabold text-success fs-5">{{ p.price_per_kg|floatformat:0 }} <span style="font-size:10px; color:#6B7280;">so'm/kg</span></div>
+          </div>
+        </div>
+
+        <button class="btn btn-outline-success btn-sm w-100 rounded-3 fw-bold py-1 mt-1" onclick="openEditProductModal('{{ p.id }}', '{{ p.name|escapejs }}', '{{ p.price_per_kg|floatformat:0 }}', '{{ p.stock.quantity|default:0|floatformat:1 }}')">
+          <i class="bi bi-pencil-square me-1"></i> Narx yoki Qoldiqni O'zgartirish
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- 5. SECTION DEBTORS -->
+    <div id="sec-debtors" class="tab-section d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">👥 Qarzdorlar (Jami: {{ total_debt_all|floatformat:0 }} so'm)</h6>
+      </div>
+
+      {% for d in debtors %}
+      <div class="admin-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <h6 class="fw-bold mb-0" style="font-size:14px;">{{ d.first_name }} {{ d.last_name|default:"" }}</h6>
+            <div class="text-muted" style="font-size:11px;">ID: {{ d.custom_id }} | {{ d.phone }}</div>
+          </div>
+          <span class="fw-extrabold text-danger fs-5">{{ d.debt_amount|floatformat:0 }} so'm</span>
+        </div>
+
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-outline-primary btn-sm flex-fill rounded-3 fw-bold" onclick="sendDebtReminderTG('{{ d.id }}')">
+            <i class="bi bi-telegram me-1"></i> Telegram Eslatma
+          </button>
+          <a href="tel:{{ d.phone }}" class="btn btn-outline-success btn-sm px-3 rounded-3">
+            <i class="bi bi-telephone-fill"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <!-- FLOATING BOTTOM NAVIGATION BAR -->
+  <div class="admin-bottom-nav">
+    <button class="bottom-nav-item active" id="bnav-kassa" onclick="switchTab('kassa')">
+      <i class="bi bi-speedometer2"></i>
+      <span>Kassa</span>
+    </button>
+    <button class="bottom-nav-item" id="bnav-orders" onclick="switchTab('orders')">
+      <i class="bi bi-bag-check-fill"></i>
+      <span>Buyurtmalar</span>
+    </button>
+    <button class="bottom-nav-item" id="bnav-proofs" onclick="switchTab('proofs')">
+      <i class="bi bi-camera-fill"></i>
+      <span>Cheklar</span>
+    </button>
+    <button class="bottom-nav-item" id="bnav-products" onclick="switchTab('products')">
+      <i class="bi bi-tags-fill"></i>
+      <span>Narxlar</span>
+    </button>
+    <button class="bottom-nav-item" id="bnav-debtors" onclick="switchTab('debtors')">
+      <i class="bi bi-people-fill"></i>
+      <span>Qarzlar</span>
+    </button>
+  </div>
+
+  <!-- EDIT PRODUCT MODAL -->
+  <div class="modal fade" id="editProductModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 p-3 shadow">
+        <h5 class="fw-bold mb-3" id="edit-prod-title">Go'sht Narxini Tahrirlash</h5>
+        <input type="hidden" id="edit-prod-id">
+        <div class="mb-3">
+          <label class="form-label text-muted" style="font-size:12px;">Narxi (1 kg uchun, so'm):</label>
+          <input type="number" step="500" class="form-control fw-bold" id="edit-prod-price">
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted" style="font-size:12px;">Qoldiq miqdori (kg):</label>
+          <input type="number" step="0.1" class="form-control fw-bold" id="edit-prod-stock">
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-secondary btn-sm flex-fill rounded-3" data-bs-dismiss="modal">Bekor qilish</button>
+          <button class="btn btn-success btn-sm flex-fill rounded-3 fw-bold" onclick="saveProductEdit()">Saqlash</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGN COURIER MODAL -->
+  <div class="modal fade" id="assignCourierModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 p-3 shadow">
+        <h5 class="fw-bold mb-3">🚴‍♂️ Kuryerga Biriktirish</h5>
+        <input type="hidden" id="assign-order-id">
+        <div class="mb-3">
+          <label class="form-label text-muted" style="font-size:12px;">Kuryerni tanlang:</label>
+          <select class="form-select fw-bold" id="assign-courier-select">
+            {% for c in couriers %}
+            <option value="{{ c.id }}">{{ c.first_name }} ({{ c.phone }})</option>
+            {% empty %}
+            <option value="">Kuryerlar ro'yxatdan o'tmagan</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-secondary btn-sm flex-fill rounded-3" data-bs-dismiss="modal">Bekor qilish</button>
+          <button class="btn btn-primary btn-sm flex-fill rounded-3 fw-bold" onclick="submitCourierAssign()">Biriktirish & Yuborish</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE ZOOM MODAL -->
+  <div class="modal fade" id="imageZoomModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-black rounded-4 border-0 p-2 text-center">
+        <div class="d-flex justify-content-between p-2 text-white">
+          <span id="zoom-title" class="fw-bold" style="font-size:13px;"></span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <img id="zoom-img" src="" style="width:100%; max-height:80vh; object-fit:contain; border-radius:12px;">
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Telegram WebApp Initialization
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+      if (Telegram.WebApp.enableClosingConfirmation) {
+        Telegram.WebApp.enableClosingConfirmation();
+      }
+    }
+
+    function haptic(type = 'light') {
+      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+        if (type === 'success') Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        else if (type === 'error') Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+        else Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      }
+    }
+
+    function switchTab(tabId) {
+      haptic('light');
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.add('d-none'));
+      document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+
+      const sec = document.getElementById('sec-' + tabId);
+      if (sec) sec.classList.remove('d-none');
+      const topBtn = document.getElementById('tab-btn-' + tabId);
+      if (topBtn) topBtn.classList.add('active');
+      const botBtn = document.getElementById('bnav-' + tabId);
+      if (botBtn) botBtn.classList.add('active');
+    }
+
+    function updateOrderStatusMini(orderId, status) {
+      haptic('light');
+      if (!confirm(`Buyurtma statusini o'zgartirmoqchimisiz?`)) return;
+
+      fetch(`/pos/api/b2b-orders/update/${orderId}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: status })
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.status === 'success') {
+          haptic('success');
+          alert("✅ " + d.message);
+          location.reload();
+        } else {
+          haptic('error');
+          alert("Xatolik: " + d.message);
+        }
+      });
+    }
+
+    function approveProofMini(proofId) {
+      haptic('light');
+      if (!confirm("To'lov chekini tasdiqlab, qarzni yopishni xohlaysizmi?")) return;
+
+      fetch(`/pos/api/payment-proofs/approve/${proofId}/`, {
+        method: 'POST'
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.status === 'success') {
+          haptic('success');
+          alert("✅ " + d.message);
+          location.reload();
+        } else {
+          haptic('error');
+          alert("Xatolik: " + d.message);
+        }
+      });
+    }
+
+    function rejectProofMini(proofId) {
+      haptic('light');
+      if (!confirm("To'lov chekini rad etmoqchimisiz?")) return;
+
+      fetch(`/pos/api/payment-proofs/reject/${proofId}/`, {
+        method: 'POST'
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.status === 'success') {
+          haptic('success');
+          alert("To'lov cheki rad etildi!");
+          location.reload();
+        } else {
+          haptic('error');
+          alert("Xatolik: " + d.message);
+        }
+      });
+    }
+
+    function openEditProductModal(id, name, price, stock) {
+      haptic('light');
+      document.getElementById('edit-prod-id').value = id;
+      document.getElementById('edit-prod-title').textContent = `${name} Narxi & Qoldig'i`;
+      document.getElementById('edit-prod-price').value = price;
+      document.getElementById('edit-prod-stock').value = stock;
+      new bootstrap.Modal(document.getElementById('editProductModal')).show();
+    }
+
+    function saveProductEdit() {
+      const id = document.getElementById('edit-prod-id').value;
+      const price = document.getElementById('edit-prod-price').value;
+      const stock = document.getElementById('edit-prod-stock').value;
+
+      fetch('/pos/api/admin/update-product-price-stock/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: id, price_per_kg: price, stock_quantity: stock })
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.status === 'success') {
+          haptic('success');
+          alert("✅ " + d.message);
+          location.reload();
+        } else {
+          haptic('error');
+          alert("Xatolik: " + d.message);
+        }
+      });
+    }
+
+    function openAssignCourierModal(orderId) {
+      haptic('light');
+      document.getElementById('assign-order-id').value = orderId;
+      new bootstrap.Modal(document.getElementById('assignCourierModal')).show();
+    }
+
+    function submitCourierAssign() {
+      const orderId = document.getElementById('assign-order-id').value;
+      const courierId = document.getElementById('assign-courier-select').value;
+      if (!courierId) {
+        alert("Kuryerni tanlang!");
+        return;
+      }
+
+      fetch('/pos/api/admin/assign-order-courier/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId, courier_id: courierId })
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.status === 'success') {
+          haptic('success');
+          alert("✅ " + d.message);
+          location.reload();
+        } else {
+          haptic('error');
+          alert("Xatolik: " + d.message);
+        }
+      });
+    }
+
+    function openImageZoom(url, title) {
+      haptic('light');
+      document.getElementById('zoom-img').src = url;
+      document.getElementById('zoom-title').textContent = title;
+      new bootstrap.Modal(document.getElementById('imageZoomModal')).show();
+    }
+
+    function sendDebtReminderTG(customerId) {
+      haptic('light');
+      fetch(`/pos/api/send-debt-reminder/${customerId}/`, {
+        method: 'POST'
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.status === 'success') {
+          haptic('success');
+          alert("✅ " + d.message);
+        } else {
+          haptic('error');
+          alert("Xatolik: " + d.message);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

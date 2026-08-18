@@ -19,17 +19,23 @@ API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 # ══════════════════════════════════════════════════════════
 
 def send_message(chat_id, text, reply_markup=None, parse_mode='Markdown'):
-    """Telegramga xabar yuborish."""
+    """Telegramga xabar yuborish (Markdown xato bo'lsa oddiy matnda yuboradi)."""
     payload = {
         'chat_id': chat_id,
         'text': text,
-        'parse_mode': parse_mode,
     }
+    if parse_mode:
+        payload['parse_mode'] = parse_mode
     if reply_markup:
         payload['reply_markup'] = reply_markup
     try:
         r = requests.post(f"{API_URL}/sendMessage", json=payload, timeout=10)
-        return r.json()
+        res = r.json()
+        if not res.get('ok') and parse_mode:
+            payload.pop('parse_mode', None)
+            r2 = requests.post(f"{API_URL}/sendMessage", json=payload, timeout=10)
+            return r2.json()
+        return res
     except Exception as e:
         print(f"[TG Bot] Xabar yuborishda xato: {e}")
         return None
@@ -66,16 +72,101 @@ def edit_message(chat_id, message_id, text, reply_markup=None, parse_mode='Markd
         'chat_id': chat_id,
         'message_id': message_id,
         'text': text,
-        'parse_mode': parse_mode,
     }
+    if parse_mode:
+        payload['parse_mode'] = parse_mode
     if reply_markup:
         payload['reply_markup'] = reply_markup
     try:
         r = requests.post(f"{API_URL}/editMessageText", json=payload, timeout=10)
-        return r.json()
+        res = r.json()
+        if not res.get('ok') and parse_mode:
+            payload.pop('parse_mode', None)
+            r2 = requests.post(f"{API_URL}/editMessageText", json=payload, timeout=10)
+            return r2.json()
+        return res
     except Exception as e:
         print(f"[TG Bot] Xabar tahrirlashda xato: {e}")
         return None
+
+
+def send_photo(chat_id, photo_path_or_url, caption="", reply_markup=None, parse_mode='Markdown'):
+    """Telegramga rasm yuborish (fayl yoki URL orqali, xavfsiz retry bilan)."""
+    import json
+    url = f"{API_URL}/sendPhoto"
+    data = {
+        'chat_id': chat_id,
+        'caption': caption,
+    }
+    if parse_mode:
+        data['parse_mode'] = parse_mode
+    if reply_markup:
+        data['reply_markup'] = json.dumps(reply_markup) if isinstance(reply_markup, dict) else reply_markup
+
+    try:
+        if os.path.exists(str(photo_path_or_url)):
+            with open(photo_path_or_url, 'rb') as f:
+                files = {'photo': f}
+                r = requests.post(url, data=data, files=files, timeout=20)
+                res = r.json()
+                if not res.get('ok') and parse_mode:
+                    data.pop('parse_mode', None)
+                    f.seek(0)
+                    r2 = requests.post(url, data=data, files={'photo': f}, timeout=20)
+                    return r2.json()
+                return res
+        else:
+            data['photo'] = str(photo_path_or_url)
+            r = requests.post(url, data=data, timeout=20)
+            res = r.json()
+            if not res.get('ok') and parse_mode:
+                data.pop('parse_mode', None)
+                r2 = requests.post(url, data=data, timeout=20)
+                return r2.json()
+            return res
+    except Exception as e:
+        print(f"[TG Bot Photo Send Error]: {e}")
+        return None
+
+
+def send_payment_proof_photo(proof):
+    """Mijoz yuklagan to'lov chekini Admin Telegram botiga rasm va tasdiqlash tugmalari bilan yuborish."""
+    if not CHAT_ID:
+        return None
+    customer = proof.customer
+    caption = (
+        f"📸 *YANGI ONLAYN TO'LOV CHEKI YUKLANDI*\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"👤 *Mijoz:* {customer.first_name} {customer.last_name or ''}\n"
+        f"📞 *Telefon:* `{customer.phone}`\n"
+        f"🆔 *Mijoz ID:* `{customer.custom_id}`\n"
+        f"💳 *To'lov tizimi:* {proof.provider.upper()}\n"
+        f"💰 *To'langan Summa:* `{proof.amount:,.0f} so'm`\n"
+        f"📉 *Joriy Qarzdorlik:* `{customer.debt_amount:,.0f} so'm`\n"
+        f"📝 *Izoh:* {proof.note or 'Kiritilmagan'}\n"
+        f"⏳ *Holat:* Kutilmoqda (Admin tasdiqlashi lozim)\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    )
+    reply_markup = {
+        'inline_keyboard': [
+            [
+                {'text': "✅ Qarzni Yopish (Tasdiqlash)", 'callback_data': f"adm_proof_appr_{proof.id}"},
+                {'text': "❌ Rad etish", 'callback_data': f"adm_proof_rej_{proof.id}"}
+            ]
+        ]
+    }
+    try:
+        if proof.image:
+            if hasattr(proof.image, 'path') and os.path.exists(proof.image.path):
+                return send_photo(CHAT_ID, proof.image.path, caption=caption, reply_markup=reply_markup)
+            elif hasattr(proof.image, 'url'):
+                site_url = os.environ.get('SITE_URL', 'https://baxmalmeat.uz')
+                full_img_url = proof.image.url if proof.image.url.startswith('http') else f"{site_url}{proof.image.url}"
+                return send_photo(CHAT_ID, full_img_url, caption=caption, reply_markup=reply_markup)
+    except Exception as e:
+        print(f"[TG Bot Payment Proof Image Error]: {e}")
+
+    return send_message(CHAT_ID, caption, reply_markup=reply_markup)
 
 
 # ══════════════════════════════════════════════════════════
@@ -84,10 +175,18 @@ def edit_message(chat_id, message_id, text, reply_markup=None, parse_mode='Markd
 
 def main_menu_keyboard():
     """Asosiy menyu tugmalari."""
+    site_url = os.environ.get('SITE_URL', 'https://baxmalmeat.uz')
     return {
         'inline_keyboard': [
             [
+                {'text': '📱 Admin Boshqaruv (Mini App)', 'web_app': {'url': f'{site_url}/pos/admin-mini-app/'}}
+            ],
+            [
+                {'text': '🌙 Kechki Z-Hisobot', 'callback_data': 'cmd_z_report'},
                 {'text': '📊 Bugungi Hisobot', 'callback_data': 'cmd_hisobot'},
+            ],
+            [
+                {'text': '🥩 Vitrina & Qurish (AI)', 'callback_data': 'cmd_decay'},
                 {'text': '💰 Qarzdorlar', 'callback_data': 'cmd_qarz'},
             ],
             [
@@ -107,18 +206,22 @@ def main_menu_keyboard():
 
 def main_menu_reply_keyboard():
     """Klaviatura o'rnidagi doimiy tugmalar (Reply Keyboard)."""
+    site_url = os.environ.get('SITE_URL', 'https://baxmalmeat.uz')
     return {
         'keyboard': [
-            [{'text': '📊 Bugungi Hisobot'}, {'text': '💰 Qarzdorlar'}],
+            [{'text': '📱 Admin Boshqaruv (Mini App)', 'web_app': {'url': f'{site_url}/pos/admin-mini-app/'}}],
+            [{'text': '🌙 Kechki Z-Hisobot'}, {'text': '📊 Bugungi Hisobot'}],
+            [{'text': '🥩 Vitrina & Qurish (AI)'}, {'text': '💰 Qarzdorlar'}],
             [{'text': '📦 Zaxira (Ombor)'}, {'text': '🚜 Ta\'minotchilar'}],
             [{'text': '🏪 Shift Holati'}, {'text': '💎 Bonus Liderlar'}],
             [{'text': '👥 Mijozlar Ro\'yxati'}, {'text': '📑 Oxirgi Savdolar'}],
-            [{'text': '📅 Kechagi Hisobot'}, {'text': '🐮 Oxirgi So\'yimlar'}],
             [{'text': '❓ Yordam'}]
         ],
         'resize_keyboard': True,
         'one_time_keyboard': False
     }
+
+
 
 
 def send_customer_excel_backup(chat_id=None):
@@ -262,9 +365,10 @@ def handle_oxirgi_soyimlar(chat_id):
         else:
             partner = "Nomalum hamkor"
             
+        animal_type_str = "Mol" if s.animal_type == 'mol' else "Qo'y"
         text += (
             f"🔹 **So'yim #{s.id}** ({time_str})\n"
-            f"🐄 Turi: {'Mol' if s.animal_type == 'mol' else 'Qo\'y'}\n"
+            f"🐄 Turi: {animal_type_str}\n"
             f"⚖️ Og'irlik: {s.total_weight:.3f} kg\n"
             f"💰 Narxi: {s.purchase_price_per_kg:,.0f} so'm/kg\n"
             f"🤝 Jami qiymat: {s.total_cost:,.0f} so'm\n"
@@ -657,6 +761,102 @@ def check_low_stock_alert(product_name, remaining_qty):
 # DISPATCHER — Buyruq va callback'larni yo'naltirish
 # ══════════════════════════════════════════════════════════
 
+def handle_reklama(chat_id, text_raw):
+    """Barcha mijozlarga ommaviy reklama/bildirishnoma yuborish."""
+    parts = text_raw.split(maxsplit=1)
+    if len(parts) < 2:
+        msg = (
+            "📢 *OMMAVIY REKLAMA YUBORISH*\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "Foydalanish: `/reklama [Sizning reklama yoki e'lon matningiz]`\n\n"
+            "Misol:\n"
+            "`/reklama 🥩 Bugun do'konimizga yangi so'yilgan yosh mol go'shti keldi! Zaxira chegaralangan, bot orqali buyurtma bering.`"
+        )
+        send_message(chat_id, msg)
+        return
+
+    broadcast_text = parts[1].strip()
+    from pos.models import Customer
+    from pos.customer_bot import send_message as send_cust_msg
+
+    customers = Customer.objects.filter(telegram_chat_id__isnull=False).exclude(telegram_chat_id='')
+    total_count = customers.count()
+    if total_count == 0:
+        send_message(chat_id, "ℹ️ Telegram botga ulangan mijozlar topilmadi.")
+        return
+
+    sent_count = 0
+    fail_count = 0
+
+    kb = {
+        'inline_keyboard': [
+            [{'text': '🛒 Hozir Buyurtma Berish', 'callback_data': 'cmd_order'}]
+        ]
+    }
+
+    send_message(chat_id, f"⏳ {total_count} ta mijozga reklama yuborilmoqda...")
+
+    for cust in customers:
+        try:
+            res = send_cust_msg(cust.telegram_chat_id, f"📢 *BAXMAL MEAT — E'LON*\n\n{broadcast_text}", reply_markup=kb)
+            if res and res.get('ok'):
+                sent_count += 1
+            else:
+                fail_count += 1
+        except Exception:
+            fail_count += 1
+
+    report = (
+        f"✅ *OMMAVIY REKLAMA YUBORILDI*\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"👥 *Jami mijozlar:* {total_count} ta\n"
+        f"🟢 *Muvaffaqiyatli yetkazildi:* {sent_count} ta\n"
+        f"🔴 *Yetkazilmadi (bloklangan):* {fail_count} ta"
+    )
+    send_message(chat_id, report)
+
+
+def handle_decay(chat_id, message_id=None):
+    """Vitrinada 2 kundan ortiq turgan go'sht partiyalari bo'yicha AI tavsiya."""
+    from pos.models import StockBatch
+    batches = StockBatch.objects.filter(current_quantity__gt=Decimal('0.05')).select_related('product').order_by('created_at')
+    
+    ai_recs = []
+    for b in batches:
+        rec = b.get_ai_recommendation()
+        if rec:
+            ai_recs.append(rec)
+            
+    if not ai_recs:
+        text = (
+            "🥩 *VITRINA & ZAXIRA HOLATI*\n\n"
+            "✅ *Barcha partiyalar yangi!* Vitrinada 2 kundan ortiq turib qolgan go'sht partiyalari mavjud emas."
+        )
+    else:
+        text = (
+            "🥩 *VITRINA & QURISH ZARARI — AI TAVSIYALARI*\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "Do'kon mudiriga diqqat! Vitrinada 2 kundan ortiq turgan partiyalar aniqlandi:\n\n"
+        )
+        for idx, w in enumerate(ai_recs, 1):
+            text += (
+                f"{idx}. ⚠️ *{w['product_name']}* (Partiya #{w['batch_id']})\n"
+                f"   ⏳ *Turgan vaqti:* `{w['days']} kun` | 📦 *Qoldiq:* `{w['quantity']:.2f} kg`\n"
+                f"   📉 *Taxminiy yo'qotish:* `{w['decay_loss_kg']:.3f} kg` (~`{w['decay_loss_sum']:,.0f}` so'm)\n"
+                f"   💡 *AI Maslahat:* _{w['message']}_\n\n"
+            )
+        text += (
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "⚡ *Tavsiya:* Zararni kamaytirish uchun ushbu partiyalarni qiymaga aylantiring yoki maxsus chegirma e'lon qiling."
+        )
+        
+    kb = back_button_keyboard()
+    if message_id:
+        edit_message(chat_id, message_id, text, reply_markup=kb)
+    else:
+        send_message(chat_id, text, reply_markup=kb)
+
+
 def dispatch_command(chat_id, text_raw):
     """Matnli buyruqlarni tegishli handlerga yo'naltirish."""
     text = text_raw.strip().lower()
@@ -667,8 +867,14 @@ def dispatch_command(chat_id, text_raw):
 
     if text == '/start':
         handle_start(chat_id)
+    elif text in ['/z_report', '🌙 kechki z-hisobot', '/digest']:
+        send_daily_executive_digest(chat_id=chat_id)
+    elif text in ['/decay', '/qurish', '🥩 vitrina nazorati', '📉 vitrina & qurish']:
+        handle_decay(chat_id)
     elif text in ['/hisobot', '📊 bugungi hisobot']:
         handle_hisobot(chat_id)
+
+
     elif text in ['/qarz', '💰 qarzdorlar']:
         handle_qarz(chat_id)
     elif text in ['/zaxira', '📦 zaxira (ombor)', '📦 zaxira']:
@@ -687,6 +893,8 @@ def dispatch_command(chat_id, text_raw):
         handle_oxirgi_soyimlar(chat_id)
     elif text in ['/yordam', '/help', '❓ yordam']:
         handle_yordam(chat_id)
+    elif text.startswith('/reklama') or text.startswith('/broadcast'):
+        handle_reklama(chat_id, text_raw)
     elif text == '📅 kechagi hisobot':
         yesterday = timezone.localdate() - timedelta(days=1)
         handle_hisobot(chat_id, target_date=yesterday)
@@ -700,12 +908,168 @@ def dispatch_command(chat_id, text_raw):
                 send_message(chat_id, "❌ Noto'g'ri sana formati!\n\nTo'g'ri format: `/savdo 2026-07-20`")
         else:
             handle_hisobot(chat_id)
+    else:
+        # 🎙️ GEMINI OVOZLI VA MATNLI AI QASSOB / BIZNES YORDAMCHISI
+        send_message(chat_id, "🧠 *AI Qassob tahlil qilmoqda...*")
+        from .voice_ai_service import query_gemini_ai_qassob
+        reply = query_gemini_ai_qassob(user_prompt=text_raw)
+        send_message(chat_id, reply)
+
+
+def dispatch_voice_message(chat_id, voice_file_id):
+    """Do'kon egasining ovozli xabarini qabul qilib, Gemini AI orqali tahlil qilish."""
+    send_message(chat_id, "🎙️ *Ovozingiz tinglanmoqda va do'kon ma'lumotlari tahlil qilinmoqda...*")
+    from .voice_ai_service import handle_telegram_voice_message
+    ai_reply = handle_telegram_voice_message(chat_id, voice_file_id)
+    send_message(chat_id, ai_reply)
+
+
+def edit_photo_caption(chat_id, message_id, caption, reply_markup=None, parse_mode='HTML'):
+    """Foto xabar tagidagi matnni tahrirlash va tugmalarni yangilash/o'chirish."""
+    import json
+    payload = {
+        'chat_id': chat_id,
+        'message_id': message_id,
+        'caption': caption,
+        'parse_mode': parse_mode,
+        'reply_markup': json.dumps(reply_markup if reply_markup is not None else {'inline_keyboard': []})
+    }
+    try:
+        r = requests.post(f"{API_URL}/editMessageCaption", json=payload, timeout=10)
+        return r.json()
+    except Exception as e:
+        print(f"[TG Bot editMessageCaption Error]: {e}")
+        return None
+
+
+def handle_proof_approval(chat_id, message_id, proof_id, callback_query_id):
+    """To'lov chekini tasdiqlab qarzni yopish."""
+    try:
+        from pos.models import PaymentProof, CashTransaction, CustomerLog
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        admin_user = User.objects.filter(is_superuser=True).first()
+
+        proof = PaymentProof.objects.get(id=proof_id)
+        if proof.is_verified:
+            answer_callback(callback_query_id, "Ushbu to'lov allaqachon tasdiqlangan!")
+            return
+
+        customer = proof.customer
+        proof.is_verified = True
+        proof.save()
+
+        # Deduct debt
+        customer.debt_amount -= proof.amount
+        customer.save()
+
+        # Record cash transaction
+        CashTransaction.objects.create(
+            transaction_type='in',
+            amount=proof.amount,
+            category='debt_pay',
+            payment_method='karta' if str(proof.provider).lower() in ['click', 'payme', 'karta', 'card'] else 'naqd',
+            description=f"Onlayn to'lov ({proof.provider.upper()}) tasdiqlandi. Mijoz: {customer.first_name} ({customer.custom_id})",
+            created_by=admin_user,
+            customer=customer
+        )
+
+        # Record customer log
+        CustomerLog.objects.create(
+            customer=customer,
+            log_type='debt_pay',
+            title=f"💳 To'lov Tasdiqlandi ({proof.provider.upper()})",
+            message=f"To'lovingiz ({proof.amount:,.0f} so'm) admin tomonidan tasdiqlandi va qarzingizdan yopildi. Qolgan qarz: {customer.debt_amount:,.0f} so'm",
+            amount=proof.amount
+        )
+
+        # Send customer Telegram push
+        if customer.telegram_chat_id:
+            try:
+                from pos.customer_bot import send_message as send_cust_msg
+                cust_text = (
+                    f"🎉 *TO'LOVINGIZ TASDIQLANDI!*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💰 *Qabul qilingan summa:* `{proof.amount:,.0f} so'm`\n"
+                    f"💳 *Tizim:* {proof.provider.upper()}\n"
+                    f"📉 *Qolgan qarzingiz:* `{customer.debt_amount:,.0f} so'm`\n\n"
+                    f"Rahmat! Xaridingiz barakali bo'lsin! 🥩✨"
+                )
+                send_cust_msg(customer.telegram_chat_id, cust_text)
+            except Exception as tg_cust_err:
+                print(f"[Cust TG Error]: {tg_cust_err}")
+
+        success_caption = (
+            f"✅ <b>TO'LOV TASDIQLANDI VA QARZDAN YOPILDI!</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"👤 <b>Mijoz:</b> {customer.first_name} ({customer.phone})\n"
+            f"💰 <b>To'langan summa:</b> {proof.amount:,.0f} so'm\n"
+            f"📉 <b>Qolgan qarz:</b> {customer.debt_amount:,.0f} so'm\n"
+            f"⚡ <b>Kassa tushumi qayd etildi.</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        )
+        edit_photo_caption(chat_id, message_id, success_caption, reply_markup={'inline_keyboard': []})
+        answer_callback(callback_query_id, "✅ To'lov tasdiqlandi va qarz yopildi!")
+    except Exception as e:
+        print(f"[Proof Approve Error]: {e}")
+        answer_callback(callback_query_id, f"Xato: {str(e)[:50]}")
+
+
+def handle_proof_rejection(chat_id, message_id, proof_id, callback_query_id):
+    """To'lov chekini rad etish."""
+    try:
+        from pos.models import PaymentProof, CustomerLog
+        proof = PaymentProof.objects.get(id=proof_id)
+        customer = proof.customer
+
+        CustomerLog.objects.create(
+            customer=customer,
+            log_type='debt_pay',
+            title="❌ To'lov Cheki Rad Etildi",
+            message=f"{proof.amount:,.0f} so'mlik to'lov cheki admin tomonidan qabul qilinmadi. Iltimos, qayta tekshiring.",
+            amount=Decimal('0.00')
+        )
+
+        if customer.telegram_chat_id:
+            try:
+                from pos.customer_bot import send_message as send_cust_msg
+                cust_text = (
+                    f"❌ *TO'LOV CHEKI RAD ETILDI*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💰 *Summa:* `{proof.amount:,.0f} so'm`\n"
+                    f"Iltimos, to'lov chekini qayta yuklang yoki do'kon bilan bog'laning."
+                )
+                send_cust_msg(customer.telegram_chat_id, cust_text)
+            except Exception as tg_cust_err:
+                pass
+
+        reject_caption = (
+            f"❌ <b>TO'LOV CHEKI RAD ETILDI</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"👤 <b>Mijoz:</b> {customer.first_name} ({customer.phone})\n"
+            f"💰 <b>Summa:</b> {proof.amount:,.0f} so'm\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        )
+        edit_photo_caption(chat_id, message_id, reject_caption, reply_markup={'inline_keyboard': []})
+        answer_callback(callback_query_id, "❌ To'lov cheki rad etildi.")
+    except Exception as e:
+        print(f"[Proof Reject Error]: {e}")
+        answer_callback(callback_query_id, f"Xato: {str(e)[:50]}")
+
+
+def safe_edit_message_or_caption(chat_id, message_id, text, reply_markup=None):
+    """Matn yoki rasm xabarini xavfsiz tahrirlash."""
+    res = edit_message(chat_id, message_id, text, reply_markup=reply_markup)
+    if not res or not res.get('ok'):
+        return edit_photo_caption(chat_id, message_id, text, reply_markup=reply_markup, parse_mode='HTML')
+    return res
 
 
 def dispatch_callback(chat_id, message_id, callback_data, callback_query_id):
     """Inline tugma callback'larini tegishli handlerga yo'naltirish."""
     answer_callback(callback_query_id, "⏳ Bajarilmoqda...")
-    from pos.models import B2BOrder
+    from pos.models import B2BOrder, CustomerLog
+    from decimal import Decimal
 
     if callback_data.startswith('adm_appr_'):
         order_id = int(callback_data.replace('adm_appr_', ''))
@@ -713,8 +1077,38 @@ def dispatch_callback(chat_id, message_id, callback_data, callback_query_id):
             order = B2BOrder.objects.get(id=order_id)
             order.status = 'approved'
             order.save()
+            
+            CustomerLog.objects.create(
+                customer=order.customer,
+                log_type='bonus',
+                title="Do'kon xabari",
+                message=f"✅ Buyurtmangiz (#{order.id}) do'kon tomonidan tasdiqlandi va tayyorlanmoqda!",
+                details={'source': 'telegram_admin', 'order_id': order.id, 'new_status': 'approved'},
+                amount=Decimal('0.00')
+            )
             notify_customer_order_status(order, "✅ Admin tomonidan tasdiqlandi")
-            edit_message(chat_id, message_id, f"✅ *BUYURTMA #{order.id} TASDIQLANDI!*\n\nMijoz ({order.customer.first_name}) ga xabar yuborildi.")
+            
+            next_kb = {
+                'inline_keyboard': [
+                    [
+                        {'text': '🥩 Qadoqlashga o\'tkazish', 'callback_data': f'adm_prep_{order_id}'},
+                        {'text': '🚚 Kuryerga berish', 'callback_data': f'adm_ship_{order_id}'}
+                    ],
+                    [
+                        {'text': '❌ Rad etish', 'callback_data': f'adm_rej_{order_id}'}
+                    ]
+                ]
+            }
+            caption = (
+                f"✅ <b>BUYURTMA #{order.id} TASDIQLANDI!</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👤 <b>Mijoz:</b> {order.customer.first_name} ({order.customer.phone})\n"
+                f"📦 <b>Mahsulot:</b> {order.product.name} ({order.requested_weight} kg)\n"
+                f"💰 <b>Summa:</b> {int(order.requested_weight * order.product.price_per_kg):,} so'm\n\n"
+                f"<i>Mijoz Telegramiga tasdiqlash xabari yuborildi.</i>"
+            )
+            safe_edit_message_or_caption(chat_id, message_id, caption, reply_markup=next_kb)
+            answer_callback(callback_query_id, "✅ Buyurtma tasdiqlandi!")
         except Exception as e:
             send_message(chat_id, f"⚠️ Xato: {e}")
 
@@ -724,8 +1118,31 @@ def dispatch_callback(chat_id, message_id, callback_data, callback_query_id):
             order = B2BOrder.objects.get(id=order_id)
             order.status = 'preparing'
             order.save()
+            
+            CustomerLog.objects.create(
+                customer=order.customer,
+                log_type='bonus',
+                title="Do'kon xabari",
+                message=f"🥩 Buyurtmangiz (#{order.id}) go'sht tortilib qadoqlanmoqda!",
+                details={'source': 'telegram_admin', 'order_id': order.id, 'new_status': 'preparing'},
+                amount=Decimal('0.00')
+            )
             notify_customer_order_status(order, "🥩 Go'sht tortilmoqda / Qadoqlanmoqda")
-            edit_message(chat_id, message_id, f"🥩 *BUYURTMA #{order.id} QADOQLANMOQDA!*")
+            
+            next_kb = {
+                'inline_keyboard': [
+                    [{'text': '🚚 Kuryerga berish', 'callback_data': f'adm_ship_{order_id}'}],
+                    [{'text': '❌ Rad etish', 'callback_data': f'adm_rej_{order_id}'}]
+                ]
+            }
+            caption = (
+                f"🥩 <b>BUYURTMA #{order.id} QADOQLANMOQDA!</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👤 <b>Mijoz:</b> {order.customer.first_name} ({order.customer.phone})\n"
+                f"📦 <b>Mahsulot:</b> {order.product.name} ({order.requested_weight} kg)"
+            )
+            safe_edit_message_or_caption(chat_id, message_id, caption, reply_markup=next_kb)
+            answer_callback(callback_query_id, "🥩 Qadoqlashga o'tkazildi!")
         except Exception as e:
             send_message(chat_id, f"⚠️ Xato: {e}")
 
@@ -735,8 +1152,77 @@ def dispatch_callback(chat_id, message_id, callback_data, callback_query_id):
             order = B2BOrder.objects.get(id=order_id)
             order.status = 'shipping'
             order.save()
+            
+            CustomerLog.objects.create(
+                customer=order.customer,
+                log_type='bonus',
+                title="Do'kon xabari",
+                message=f"🚚 Buyurtmangiz (#{order.id}) kuryerga topshirildi va manzil tomon yo'lga chiqdi!",
+                details={'source': 'telegram_admin', 'order_id': order.id, 'new_status': 'shipping'},
+                amount=Decimal('0.00')
+            )
             notify_customer_order_status(order, "🚚 Kuryer yo'lda (Yetkazib berilmoqda)")
-            edit_message(chat_id, message_id, f"🚚 *BUYURTMA #{order.id} KURYERGA TOPSHIRILDI!*")
+            
+            nav_buttons = []
+            if order.latitude and order.longitude:
+                nav_buttons.append({'text': '🚗 Yandex Navigator', 'url': f"https://yandex.uz/maps/?rtext=~{order.latitude},{order.longitude}"})
+                nav_buttons.append({'text': '🗺️ Google Maps', 'url': f"https://maps.google.com/?q={order.latitude},{order.longitude}"})
+            elif order.delivery_address:
+                import urllib.parse
+                encoded_addr = urllib.parse.quote(order.delivery_address)
+                nav_buttons.append({'text': '🚗 Yandex Xarita', 'url': f"https://yandex.uz/maps/?text={encoded_addr}"})
+
+            call_btn = []
+            if order.customer.phone:
+                clean_phone = order.customer.phone.replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+                call_btn.append({'text': f"📞 Tel: {order.customer.phone}", 'url': f"tel:{clean_phone}"})
+
+            inline_rows = [
+                [{'text': '🎉 Topshirildi (Yakunlash)', 'callback_data': f'adm_comp_{order_id}'}]
+            ]
+            if nav_buttons:
+                inline_rows.append(nav_buttons)
+            if call_btn:
+                inline_rows.append(call_btn)
+
+            next_kb = {'inline_keyboard': inline_rows}
+            caption = (
+                f"🚚 <b>BUYURTMA #{order.id} KURYERGA TOPSHIRILDI!</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👤 <b>Mijoz:</b> {order.customer.first_name} ({order.customer.phone})\n"
+                f"📦 <b>Mahsulot:</b> {order.product.name} ({order.requested_weight} kg)\n"
+                f"📍 <b>Manzil:</b> {order.delivery_address or 'Belgilanmagan'}\n\n"
+                f"<i>Quyidagi 1-bosishda Navigator tugmalari orqali marshrutni ochishingiz mumkin.</i>"
+            )
+            safe_edit_message_or_caption(chat_id, message_id, caption, reply_markup=next_kb)
+            answer_callback(callback_query_id, "🚚 Kuryerga berildi! Navigator tayyor.")
+        except Exception as e:
+            send_message(chat_id, f"⚠️ Xato: {e}")
+
+    elif callback_data.startswith('adm_comp_'):
+        order_id = int(callback_data.replace('adm_comp_', ''))
+        try:
+            order = B2BOrder.objects.get(id=order_id)
+            order.status = 'completed'
+            order.save()
+            
+            CustomerLog.objects.create(
+                customer=order.customer,
+                log_type='bonus',
+                title="Do'kon xabari",
+                message=f"🎉 Buyurtmangiz (#{order.id}) muvaffaqiyatli yetkazildi! Xaridingiz barakali bo'lsin!",
+                details={'source': 'telegram_admin', 'order_id': order.id, 'new_status': 'completed'},
+                amount=Decimal('0.00')
+            )
+            notify_customer_order_status(order, "🎉 Yetkazildi (Yakunlandi)")
+            caption = (
+                f"🎉 <b>BUYURTMA #{order.id} YAKUNLANDI (TOPSHIRILDI)!</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👤 <b>Mijoz:</b> {order.customer.first_name} ({order.customer.phone})\n"
+                f"<i>Buyurtma muvaffaqiyatli topshirildi va yopildi.</i>"
+            )
+            safe_edit_message_or_caption(chat_id, message_id, caption, reply_markup={'inline_keyboard': []})
+            answer_callback(callback_query_id, "🎉 Buyurtma yakunlandi!")
         except Exception as e:
             send_message(chat_id, f"⚠️ Xato: {e}")
 
@@ -746,16 +1232,44 @@ def dispatch_callback(chat_id, message_id, callback_data, callback_query_id):
             order = B2BOrder.objects.get(id=order_id)
             order.status = 'rejected'
             order.save()
+            
+            CustomerLog.objects.create(
+                customer=order.customer,
+                log_type='bonus',
+                title="Do'kon xabari",
+                message=f"❌ Buyurtmangiz (#{order.id}) do'kon tomonidan rad etildi.",
+                details={'source': 'telegram_admin', 'order_id': order.id, 'new_status': 'rejected'},
+                amount=Decimal('0.00')
+            )
             notify_customer_order_status(order, "❌ Rad etildi (To'lov cheki mos kelmadi)")
-            edit_message(chat_id, message_id, f"❌ *BUYURTMA #{order.id} RAD ETILDI.*")
+            caption = (
+                f"❌ <b>BUYURTMA #{order.id} RAD ETILDI.</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👤 <b>Mijoz:</b> {order.customer.first_name} ({order.customer.phone})"
+            )
+            safe_edit_message_or_caption(chat_id, message_id, caption, reply_markup={'inline_keyboard': []})
+            answer_callback(callback_query_id, "❌ Buyurtma rad etildi.")
         except Exception as e:
             send_message(chat_id, f"⚠️ Xato: {e}")
+
+    elif callback_data.startswith('adm_proof_appr_'):
+        proof_id = int(callback_data.replace('adm_proof_appr_', ''))
+        handle_proof_approval(chat_id, message_id, proof_id, callback_query_id)
+
+    elif callback_data.startswith('adm_proof_rej_'):
+        proof_id = int(callback_data.replace('adm_proof_rej_', ''))
+        handle_proof_rejection(chat_id, message_id, proof_id, callback_query_id)
 
     elif callback_data == 'cmd_menu':
         handle_start_edit(chat_id, message_id)
     elif callback_data == 'cmd_hisobot':
         handle_hisobot(chat_id, message_id=message_id)
+    elif callback_data == 'cmd_z_report':
+        send_daily_executive_digest(chat_id=chat_id)
+    elif callback_data == 'cmd_decay':
+        handle_decay(chat_id, message_id=message_id)
     elif callback_data == 'cmd_qarz':
+
         handle_qarz(chat_id, message_id=message_id)
     elif callback_data == 'cmd_zaxira':
         handle_zaxira(chat_id, message_id=message_id)
@@ -799,3 +1313,137 @@ def handle_start_edit(chat_id, message_id):
         "Quyidagi tugmalardan birini tanlang:"
     )
     edit_message(chat_id, message_id, text, reply_markup=main_menu_keyboard())
+
+
+def send_daily_executive_digest(chat_id=None, target_date=None):
+    """Do'kon egasi va rahbariyat uchun kechki avtomatik Z-Hisobot (Executive Digest)."""
+    from pos.models import Sale, SaleItem, CashierShift, CashTransaction, Stock, Slaughter, StoreSetting
+    
+    if target_date is None:
+        target_date = timezone.localdate()
+    if not chat_id:
+        chat_id = CHAT_ID
+    if not chat_id:
+        print("[Daily Digest Error]: TELEGRAM_CHAT_ID is not configured.")
+        return False
+
+    date_str = target_date.strftime('%d.%m.%Y')
+    sales = Sale.objects.filter(created_at__date=target_date)
+    total_sales_count = sales.count()
+    
+    total_revenue = sales.aggregate(s=Sum('total_amount'))['s'] or Decimal('0.00')
+    naqd_total = sales.filter(payment_method='naqd').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    karta_total = sales.filter(payment_method='karta').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    qr_total = sales.filter(payment_method='qr').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    nasiya_total = sales.filter(payment_method='nasiya').aggregate(s=Sum('debt_added'))['s'] or Decimal('0.00')
+    bonus_used_total = sales.aggregate(s=Sum('bonus_used'))['s'] or Decimal('0.00')
+    discount_total = sales.aggregate(s=Sum('discount_amount'))['s'] or Decimal('0.00')
+
+    # Sold meat breakdown
+    sale_items = SaleItem.objects.filter(sale__created_at__date=target_date)
+    total_weight_sold = sale_items.aggregate(w=Sum('weight'))['w'] or Decimal('0.000')
+    
+    top_products = sale_items.values('product__name').annotate(
+        weight=Sum('weight'),
+        total=Sum('item_total')
+    ).order_by('-total')[:5]
+
+    product_lines = ""
+    for idx, p in enumerate(top_products, 1):
+        product_lines += f"  {idx}. *{p['product__name']}*: `{p['weight']:.1f} kg` — `{int(p['total']):,}` so'm\n"
+
+    # Cash Transactions (Kirim / Chiqim)
+    cash_ins = CashTransaction.objects.filter(created_at__date=target_date, transaction_type='in').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
+    cash_outs = CashTransaction.objects.filter(created_at__date=target_date, transaction_type='out').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
+
+    # Shifts today
+    shifts = CashierShift.objects.filter(opened_at__date=target_date)
+    shift_status_lines = ""
+    for sh in shifts:
+        status_icon = "🟢 Ochiq" if sh.is_open else "🔴 Yopilgan"
+        diff_str = f"(Farq: `{sh.cash_difference:,.0f}` so'm)" if not sh.is_open else ""
+        shift_status_lines += f"  • Shift #{sh.id} ({sh.cashier.username}): {status_icon} {diff_str}\n"
+
+    # Low stock alerts (< 5 kg)
+    low_stocks = Stock.objects.filter(product__is_active=True, quantity__lte=Decimal('5.000')).select_related('product')
+    low_stock_lines = ""
+    for ls in low_stocks[:4]:
+        low_stock_lines += f"  ⚠️ *{ls.product.name}*: faqat `{ls.quantity:.3f} kg` qoldi!\n"
+
+    # Slaughters today
+    slaughters_today = Slaughter.objects.filter(created_at__date=target_date)
+    slaughter_count = slaughters_today.count()
+    slaughter_weight = slaughters_today.aggregate(w=Sum('total_weight'))['w'] or Decimal('0.000')
+
+    # Total stock weight
+    total_stock_weight = Stock.objects.filter(product__is_active=True).aggregate(s=Sum('quantity'))['s'] or Decimal('0.000')
+
+    store = StoreSetting.objects.filter(is_active=True).first()
+    store_title = store.name.upper() if store else "BAXMAL MEAT"
+
+    msg = (
+        f"🌙 *{store_title} — KUNLIK Z-HISOBOT (21:00)*\n"
+        f"📅 *Sana:* `{date_str}`\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"💰 *Jami tushum:* `{int(total_revenue):,}` so'm (Naqd: `{int(naqd_total):,}`, Karta: `{int(karta_total):,}`, Nasiya: `{int(nasiya_total):,}`)\n"
+        f"🥩 *Sotilgan go'sht:* `{total_weight_sold:.1f} kg`\n"
+        f"👥 *Xaridorlar soni:* `{total_sales_count} ta`\n"
+        f"📉 *Ombordagi qoldiq:* `{total_stock_weight:.1f} kg`\n\n"
+        f"📊 *To'lovlar Taqsimoti:*\n"
+        f"  💵 *Naqd:* `{int(naqd_total):,}` so'm\n"
+        f"  💳 *Plastik Karta:* `{int(karta_total):,}` so'm\n"
+        f"  📱 *QR To'lov:* `{int(qr_total):,}` so'm\n"
+        f"  📋 *Nasiya (Qarz):* `{int(nasiya_total):,}` so'm\n"
+        f"  💎 *Bonus sarflandi:* `{int(bonus_used_total):,}` so'm\n"
+        f"  🏷️ *Chegirmalar:* `{int(discount_total):,}` so'm\n\n"
+        f"💸 *Kassa Kirim / Chiqim:*\n"
+        f"  📥 Qo'shimcha Kirim: `+{int(cash_ins):,}` so'm\n"
+        f"  📤 Chiqim / Xarajat: `-{int(cash_outs):,}` so'm\n\n"
+        f"🏆 *Eng ko'p sotilgan go'shtlar:*\n"
+        f"{product_lines or '  Savdo bo`lmadi'}\n"
+    )
+
+
+    if slaughter_count > 0:
+        msg += f"🐂 *Bugungi so'yim:* `{slaughter_count} bosh` ({slaughter_weight:.1f} kg toza go'sht)\n\n"
+
+    if shift_status_lines:
+        msg += f"🏪 *Kassa Smenalari:*\n{shift_status_lines}\n"
+
+    if low_stock_lines:
+        msg += f"📦 *Kam qolgan zaxiralar:*\n{low_stock_lines}\n"
+
+    # Vitrinada 2+ kun turgan partiyalar bo'yicha AI tavsiya
+    try:
+        from .models import StockBatch
+        aging_batches = StockBatch.objects.filter(current_quantity__gt=Decimal('0.05')).select_related('product')
+        ai_decay_lines = ""
+        for ab in aging_batches:
+            ai_rec = ab.get_ai_recommendation()
+            if ai_rec:
+                ai_decay_lines += f"  ⚠️ *{ai_rec['product_name']}* (#{ai_rec['batch_id']}): vitrinada `{ai_rec['days']} kun` turibdi (`{ai_rec['quantity']:.1f} kg`). _Qiymaga aylantirish yoki tezroq sotish tavsiya etiladi!_\n"
+        if ai_decay_lines:
+            msg += f"🧠 *Vitrina & Qurish Zarari — AI Tavsiya:*\n{ai_decay_lines}\n"
+    except Exception as e:
+        print(f"[AI Decay Digest Error]: {e}")
+
+    msg += (
+        f"━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"✨ *MeatFlow Pro Executive Intelligence*"
+    )
+
+
+    site_url = os.environ.get('SITE_URL', 'https://baxmalmeat.uz')
+    reply_markup = {
+        'inline_keyboard': [
+            [
+                {'text': '📊 Global Analitika (Veb)', 'url': f"{site_url}/pos/global-report/"},
+                {'text': '👥 Qarzdorlar', 'callback_data': 'cmd_qarz'}
+            ],
+            [
+                {'text': '🔄 Qayta Yangilash', 'callback_data': 'cmd_z_report'}
+            ]
+        ]
+    }
+    return send_message(chat_id, msg, reply_markup=reply_markup)
+
