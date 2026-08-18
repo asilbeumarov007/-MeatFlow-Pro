@@ -5,6 +5,7 @@
 {% block title %}👤 Shaxsiy Kabinet — Baxmal Meat{% endblock title %}
 
 {% block content %}
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link
   href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap"
@@ -12,49 +13,135 @@
 
 <style>
   :root {
-    --cab-green: #1B6B4A;
-    --cab-green-light: #2D9B6E;
-    --cab-gold: #D4A853;
-    --cab-red: #E53E3E;
-    --cab-blue: #3B82F6;
-    --cab-bg: #FAF9F5;
-    --cab-card: #FFFFFF;
-    --cab-border: rgba(27, 107, 74, 0.08);
-    --cab-text: #1A1A2E;
-    --cab-muted: #7A828A;
-    --cab-shadow: 0 8px 30px rgba(27, 107, 74, 0.04);
+    --cab-green: #34D399;
+    --cab-green-deep: #10B981;
+    --cab-green-dark: #059669;
+    --cab-green-light: #A7F3D0;
+    --cab-gold: #FBBF24;
+    --cab-red: #F87171;
+    --cab-blue: #60A5FA;
+    --cab-bg: linear-gradient(160deg, #ECFDF5 0%, #F0FDFA 30%, #F5F3FF 60%, #FDF2F8 100%);
+    --cab-card: rgba(255, 255, 255, 0.55);
+    --cab-border: rgba(52, 211, 153, 0.18);
+    --cab-text: #064E3B;
+    --cab-muted: #6B7280;
+    --glass-blur: 20px;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.45);
+    --glass-shadow: 0 8px 32px rgba(16, 185, 129, 0.08), 0 2px 8px rgba(0,0,0,0.04);
+    --glass-shadow-hover: 0 16px 48px rgba(16, 185, 129, 0.14), 0 4px 12px rgba(0,0,0,0.06);
   }
 
   body {
     background: var(--cab-bg);
     font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    position: relative;
   }
 
-  /* ── HERO BANNER ─────────────────────────────── */
+  /* ── ANIMATED AURORA BACKGROUND BLOBS ────────── */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.4;
+    z-index: -1;
+    animation: auroraFloat 15s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  body::before {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #A7F3D0 0%, #6EE7B7 40%, transparent 70%);
+    top: -80px;
+    right: -100px;
+  }
+
+  body::after {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, #BAE6FD 0%, #93C5FD 40%, transparent 70%);
+    bottom: 10%;
+    left: -80px;
+    animation-delay: -7s;
+  }
+
+  @keyframes auroraFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, -20px) scale(1.08); }
+    100% { transform: translate(-15px, 15px) scale(0.95); }
+  }
+
+  /* ── 3D GLASS HERO BANNER ───────────────────── */
   .cab-hero {
-    background: linear-gradient(135deg, #09301F 0%, #1B6B4A 60%, #2D9B6E 100%);
-    border-radius: 24px;
-    padding: 24px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(52, 211, 153, 0.75) 40%, rgba(110, 231, 183, 0.65) 100%);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-radius: 28px;
+    padding: 26px;
     position: relative;
     overflow: hidden;
     margin-top: 15px;
-    border: 1px solid rgba(212, 168, 83, 0.2);
-    box-shadow: 0 10px 30px rgba(27, 107, 74, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    box-shadow:
+      0 20px 60px rgba(16, 185, 129, 0.15),
+      0 4px 16px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transform: perspective(1000px) rotateX(0.5deg);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cab-hero:hover {
+    transform: perspective(1000px) rotateX(0deg) translateY(-2px);
+    box-shadow:
+      0 28px 80px rgba(16, 185, 129, 0.2),
+      0 6px 20px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
   }
 
   .cab-hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(255, 255, 255, 0.25) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(167, 243, 208, 0.3) 0%, transparent 40%);
+    pointer-events: none;
+  }
+
+  .cab-hero::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: glassShine 8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes glassShine {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.15); }
   }
 
   .cab-hero-avatar {
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    border: 2.5px solid rgba(255, 255, 255, 0.4);
+    border: 3px solid rgba(255, 255, 255, 0.6);
     object-fit: cover;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .cab-hero-avatar:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 28px rgba(16, 185, 129, 0.35);
   }
 
   .cab-hero-name {
@@ -62,23 +149,27 @@
     font-weight: 800;
     color: #fff;
     margin: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .cab-hero-id {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255, 255, 255, 0.95);
     font-size: 11px;
     font-weight: 700;
-    padding: 2px 10px;
+    padding: 3px 12px;
     border-radius: 20px;
     letter-spacing: 0.5px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     display: inline-flex;
     align-items: center;
   }
 
   .cab-hero-badge-black {
-    background: #E53E3E;
+    background: rgba(248, 113, 113, 0.85);
+    backdrop-filter: blur(8px);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
@@ -89,12 +180,12 @@
     align-items: center;
   }
 
-  /* ── STAT CARDS ──────────────────────────────── */
+  /* ── 3D GLASS STAT CARDS ────────────────────── */
   .cab-stats-row {
     margin-top: 24px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 14px;
   }
 
   @media (min-width: 768px) {
@@ -104,40 +195,60 @@
   }
 
   .cab-stat-card {
-    background: #fff;
-    border-radius: 20px;
+    background: var(--cab-card);
+    backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    border-radius: 22px;
     padding: 20px 16px;
-    box-shadow: var(--cab-shadow);
-    border: 1.5px solid var(--cab-border);
+    box-shadow: var(--glass-shadow);
+    border: var(--glass-border);
     text-align: center;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    transform: perspective(800px) rotateX(0deg);
+  }
+
+  .cab-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--cab-green), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .cab-stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(27, 107, 74, 0.08);
+    transform: perspective(800px) rotateX(-2deg) translateY(-6px);
+    box-shadow: var(--glass-shadow-hover);
+  }
+
+  .cab-stat-card:hover::before {
+    opacity: 1;
   }
 
   .cab-stat-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 21px;
     margin: 0 auto 10px;
-    transition: transform 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   }
 
   .cab-stat-card:hover .cab-stat-icon {
-    transform: scale(1.1);
+    transform: scale(1.12) rotate(-3deg);
   }
 
   .cab-stat-val {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 800;
     color: var(--cab-text);
     line-height: 1.2;
@@ -159,23 +270,31 @@
     margin: 0 auto;
   }
 
-  /* ── SECTION CARD ────────────────────────────── */
+  /* ── 3D GLASS SECTION CARD ──────────────────── */
   .cab-section {
     background: var(--cab-card);
-    border-radius: 24px;
-    border: 1.5px solid var(--cab-border);
-    box-shadow: var(--cab-shadow);
+    backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    border-radius: 26px;
+    border: var(--glass-border);
+    box-shadow: var(--glass-shadow);
     overflow: hidden;
     margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .cab-section:hover {
+    box-shadow: var(--glass-shadow-hover);
   }
 
   .cab-section-header {
     padding: 18px 24px;
-    border-bottom: 1.5px solid var(--cab-border);
+    border-bottom: 1px solid rgba(52, 211, 153, 0.12);
     display: flex;
     align-items: center;
     gap: 12px;
-    background: #FAFAF9;
+    background: rgba(236, 253, 245, 0.5);
+    backdrop-filter: blur(8px);
   }
 
   .cab-section-title {
@@ -189,49 +308,61 @@
     margin-left: auto;
     font-size: 11px;
     font-weight: 700;
-    color: var(--cab-green);
-    background: rgba(27, 107, 74, 0.08);
+    color: var(--cab-green-dark);
+    background: rgba(52, 211, 153, 0.12);
     padding: 3px 10px;
     border-radius: 12px;
   }
 
-  /* ── SEGMENTED NAV TABS ──────────────────────── */
+  /* ── GLASS NAV TABS ───────────────────────────── */
   .cab-nav-tabs-container {
     display: flex;
-    background: rgba(27, 107, 74, 0.04);
-    border: 1.5px solid rgba(27, 107, 74, 0.08);
-    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
     padding: 6px;
-    gap: 4px;
-    margin-bottom: 28px;
+    gap: 6px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.06);
+  }
+
+  .cab-nav-tabs-container::-webkit-scrollbar {
+    display: none;
   }
 
   .cab-nav-tab {
-    flex: 1;
+    flex: 0 0 auto;
     text-align: center;
     font-size: 13px;
     font-weight: 700;
-    padding: 12px 16px;
-    border-radius: 12px;
+    padding: 10px 20px;
+    border-radius: 14px;
     border: none;
     background: transparent;
     color: var(--cab-muted);
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
 
   .cab-nav-tab.active {
-    background: #FFFFFF;
-    color: var(--cab-green);
-    box-shadow: 0 4px 15px rgba(27, 107, 74, 0.1);
+    background: linear-gradient(135deg, var(--cab-green), var(--cab-green-deep));
+    color: #FFFFFF;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+    transform: scale(1.02);
   }
 
   .cab-nav-tab:hover:not(.active) {
-    color: var(--cab-green);
-    background: rgba(27, 107, 74, 0.05);
+    color: var(--cab-green-dark);
+    background: rgba(52, 211, 153, 0.08);
   }
 
   /* ── TABLE SUB-TABS ──────────────────────────── */
@@ -247,24 +378,27 @@
     font-weight: 700;
     padding: 6px 14px;
     border-radius: 16px;
-    border: 1.5px solid var(--cab-border);
-    background: transparent;
+    border: 1.5px solid rgba(52, 211, 153, 0.2);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
     color: var(--cab-muted);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s;
     text-transform: uppercase;
     letter-spacing: 0.3px;
   }
 
   .cab-tab.active {
-    background: var(--cab-green);
+    background: linear-gradient(135deg, var(--cab-green), var(--cab-green-deep));
     color: #fff;
-    border-color: var(--cab-green);
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
   }
 
   .cab-tab:hover:not(.active) {
     border-color: var(--cab-green);
-    color: var(--cab-green);
+    color: var(--cab-green-dark);
+    background: rgba(52, 211, 153, 0.06);
   }
 
   /* ── TRANSACTIONS TABLE ──────────────────────── */
@@ -280,14 +414,14 @@
     letter-spacing: 0.8px;
     color: var(--cab-muted);
     padding: 12px 24px;
-    background: #F9F9F7;
-    border-bottom: 1.5px solid var(--cab-border);
+    background: rgba(236, 253, 245, 0.4);
+    border-bottom: 1px solid rgba(52, 211, 153, 0.1);
     white-space: nowrap;
   }
 
   .cab-tx-table td {
     padding: 14px 24px;
-    border-bottom: 1px solid rgba(27, 107, 74, 0.04);
+    border-bottom: 1px solid rgba(52, 211, 153, 0.06);
     vertical-align: middle;
   }
 
@@ -296,7 +430,7 @@
   }
 
   .cab-tx-table tr:hover td {
-    background: rgba(27, 107, 74, 0.02);
+    background: rgba(52, 211, 153, 0.04);
   }
 
   .tx-type-badge {
@@ -308,26 +442,27 @@
     padding: 4px 10px;
     border-radius: 20px;
     white-space: nowrap;
+    backdrop-filter: blur(6px);
   }
 
   .tx-sale {
-    background: rgba(59, 130, 246, 0.08);
+    background: rgba(96, 165, 250, 0.12);
     color: #2563EB;
   }
 
   .tx-debt_add {
-    background: rgba(229, 62, 62, 0.08);
-    color: #C53030;
+    background: rgba(248, 113, 113, 0.12);
+    color: #DC2626;
   }
 
   .tx-debt_pay {
-    background: rgba(27, 107, 74, 0.08);
-    color: var(--cab-green);
+    background: rgba(52, 211, 153, 0.12);
+    color: var(--cab-green-dark);
   }
 
   .tx-bonus {
-    background: rgba(212, 168, 83, 0.12);
-    color: #92650A;
+    background: rgba(251, 191, 36, 0.15);
+    color: #92400E;
   }
 
   .tx-amount {
@@ -348,7 +483,7 @@
     font-weight: 500;
   }
 
-  /* ── PAYMENT PROOF CARDS ─────────────────────── */
+  /* ── GLASS PAYMENT PROOF CARDS ────────────────── */
   .proof-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -357,18 +492,20 @@
   }
 
   .proof-card {
-    border-radius: 18px;
+    border-radius: 20px;
     overflow: hidden;
-    border: 1.5px solid var(--cab-border);
-    background: #FFFFFF;
+    border: var(--glass-border);
+    background: var(--cab-card);
+    backdrop-filter: blur(12px);
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    box-shadow: var(--glass-shadow);
   }
 
   .proof-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(27, 107, 74, 0.08);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--glass-shadow-hover);
   }
 
   .proof-card img {
@@ -380,7 +517,7 @@
 
   .proof-card-info {
     padding: 10px 12px;
-    border-top: 1px solid var(--cab-border);
+    border-top: 1px solid rgba(52, 211, 153, 0.1);
   }
 
   .proof-card-amt {
@@ -399,82 +536,86 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    background: var(--cab-green);
+    background: linear-gradient(135deg, var(--cab-green), var(--cab-green-deep));
     color: #fff;
     font-size: 10px;
     font-weight: 800;
     padding: 3px 9px;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(27, 107, 74, 0.3);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   }
 
   .proof-pending-badge {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: var(--cab-gold);
-    color: #1A1A2E;
+    background: linear-gradient(135deg, var(--cab-gold), #F59E0B);
+    color: #064E3B;
     font-size: 10px;
     font-weight: 800;
     padding: 3px 9px;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(212, 168, 83, 0.3);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
   }
 
   .b2b-prod-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
-    border-color: rgba(59, 130, 246, 0.3) !important;
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.1);
+    border-color: rgba(52, 211, 153, 0.35) !important;
   }
 
-  /* ── UPLOAD DROP ZONE ────────────────────────── */
+  /* ── GLASS UPLOAD DROP ZONE ──────────────────── */
   .drop-zone {
-    border: 2px dashed rgba(27, 107, 74, 0.25);
-    border-radius: 20px;
+    border: 2px dashed rgba(52, 211, 153, 0.35);
+    border-radius: 22px;
     padding: 36px 20px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
-    background: rgba(27, 107, 74, 0.01);
+    transition: all 0.3s;
+    background: rgba(236, 253, 245, 0.3);
+    backdrop-filter: blur(8px);
   }
 
   .drop-zone:hover,
   .drop-zone.drag-over {
     border-color: var(--cab-green);
-    background: rgba(27, 107, 74, 0.04);
+    background: rgba(52, 211, 153, 0.08);
+    box-shadow: 0 0 30px rgba(52, 211, 153, 0.1);
   }
 
   .drop-zone.has-file {
     border-color: var(--cab-green);
-    background: rgba(27, 107, 74, 0.04);
+    background: rgba(52, 211, 153, 0.06);
   }
 
-  /* ── FORM CONTROLS ───────────────────────────── */
+  /* ── GLASS FORM CONTROLS ──────────────────────── */
   .cab-input {
     width: 100%;
-    border: 1.5px solid rgba(27, 107, 74, 0.12);
-    border-radius: 14px;
+    border: 1.5px solid rgba(52, 211, 153, 0.2);
+    border-radius: 16px;
     padding: 12px 18px;
     font-size: 14px;
     font-family: 'Inter', sans-serif;
     color: var(--cab-text);
-    background: #fff;
-    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(8px);
+    transition: all 0.25s;
     outline: none;
   }
 
   .cab-input:focus {
     border-color: var(--cab-green);
-    box-shadow: 0 0 0 3px rgba(27, 107, 74, 0.1);
+    box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.12), 0 4px 16px rgba(16, 185, 129, 0.08);
+    background: rgba(255, 255, 255, 0.85);
   }
 
-  /* ── BUTTONS ─────────────────────────────────── */
+  /* ── 3D GLASS BUTTONS ──────────────────────────── */
   .btn-cab-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
-    background: linear-gradient(135deg, var(--cab-green), var(--cab-green-light));
+    background: linear-gradient(135deg, var(--cab-green-deep), var(--cab-green));
     color: #fff;
     font-weight: 700;
     font-size: 14px;
@@ -482,15 +623,32 @@
     border-radius: 16px;
     padding: 12px 24px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
-    box-shadow: 0 4px 16px rgba(27, 107, 74, 0.2);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-cab-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
   }
 
   .btn-cab-primary:hover {
-    box-shadow: 0 6px 24px rgba(27, 107, 74, 0.3);
-    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
     color: #fff;
+  }
+
+  .btn-cab-primary:hover::before {
+    left: 100%;
   }
 
   .btn-cab-secondary {
@@ -498,21 +656,24 @@
     align-items: center;
     justify-content: center;
     gap: 7px;
-    background: #fff;
-    color: var(--cab-green);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    color: var(--cab-green-dark);
     font-weight: 700;
     font-size: 14px;
-    border: 1.5px solid var(--cab-green);
+    border: 1.5px solid rgba(52, 211, 153, 0.3);
     border-radius: 16px;
     padding: 11px 24px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s;
     text-decoration: none;
   }
 
   .btn-cab-secondary:hover {
-    background: rgba(27, 107, 74, 0.06);
-    color: var(--cab-green);
+    background: rgba(52, 211, 153, 0.08);
+    border-color: var(--cab-green);
+    color: var(--cab-green-dark);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
   }
 
   .btn-cab-gold {
@@ -520,21 +681,21 @@
     align-items: center;
     justify-content: center;
     gap: 7px;
-    background: linear-gradient(135deg, var(--cab-gold), #B8922E);
-    color: #1A1A2E;
+    background: linear-gradient(135deg, var(--cab-gold), #F59E0B);
+    color: #78350F;
     font-weight: 700;
     font-size: 14px;
     border: none;
     border-radius: 16px;
     padding: 12px 24px;
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(212, 168, 83, 0.25);
+    transition: all 0.25s;
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .btn-cab-gold:hover {
-    box-shadow: 0 6px 24px rgba(212, 168, 83, 0.35);
-    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(251, 191, 36, 0.35);
+    transform: translateY(-2px);
   }
 
   .btn-cab-danger {
@@ -542,7 +703,7 @@
     align-items: center;
     justify-content: center;
     gap: 7px;
-    background: var(--cab-red);
+    background: linear-gradient(135deg, #F87171, #EF4444);
     color: #fff;
     font-weight: 700;
     font-size: 13px;
@@ -550,38 +711,38 @@
     border-radius: 14px;
     padding: 10px 20px;
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 14px rgba(229, 62, 62, 0.2);
+    transition: all 0.25s;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .btn-cab-danger:hover {
-    box-shadow: 0 6px 20px rgba(229, 62, 62, 0.35);
-    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(239, 68, 68, 0.35);
+    transform: translateY(-2px);
   }
 
   /* ── B2B STATUS BADGES ───────────────────────── */
   .b2b-pending {
-    background: rgba(245, 158, 11, 0.08);
+    background: rgba(251, 191, 36, 0.1);
     color: #D97706;
-    border: 1px solid rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(251, 191, 36, 0.2);
   }
 
   .b2b-approved {
-    background: rgba(59, 130, 246, 0.08);
+    background: rgba(96, 165, 250, 0.1);
     color: #2563EB;
-    border: 1px solid rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.2);
   }
 
   .b2b-rejected {
-    background: rgba(229, 62, 62, 0.08);
-    color: #C53030;
-    border: 1px solid rgba(229, 62, 62, 0.15);
+    background: rgba(248, 113, 113, 0.1);
+    color: #DC2626;
+    border: 1px solid rgba(248, 113, 113, 0.2);
   }
 
   .b2b-completed {
-    background: rgba(27, 107, 74, 0.08);
-    color: var(--cab-green);
-    border: 1px solid rgba(27, 107, 74, 0.15);
+    background: rgba(52, 211, 153, 0.1);
+    color: var(--cab-green-dark);
+    border: 1px solid rgba(52, 211, 153, 0.2);
   }
 
   .b2b-badge {
@@ -589,6 +750,7 @@
     font-weight: 800;
     padding: 4px 12px;
     border-radius: 20px;
+    backdrop-filter: blur(6px);
   }
 
   /* ── EMPTY STATE ─────────────────────────────── */
@@ -600,7 +762,8 @@
   .cab-empty-icon {
     font-size: 54px;
     margin-bottom: 16px;
-    opacity: 0.35;
+    opacity: 0.3;
+    filter: drop-shadow(0 4px 8px rgba(52, 211, 153, 0.2));
   }
 
   .cab-empty-text {
@@ -619,24 +782,25 @@
   }
 
   .cab-table-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(27, 107, 74, 0.15);
+    background: rgba(52, 211, 153, 0.2);
     border-radius: 10px;
   }
 
-  /* ── TOAST ───────────────────────────────────── */
+  /* ── GLASS TOAST ─────────────────────────────── */
   #cabToast {
     position: fixed;
     bottom: 24px;
     left: 50%;
     transform: translateX(-50%) translateY(80px);
     z-index: 9999;
-    background: #1A1A2E;
+    background: rgba(6, 78, 59, 0.9);
+    backdrop-filter: blur(16px) saturate(150%);
     color: #fff;
     padding: 14px 28px;
-    border-radius: 20px;
+    border-radius: 22px;
     font-size: 14px;
     font-weight: 600;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -644,6 +808,7 @@
     min-width: 280px;
     justify-content: center;
     pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   #cabToast.show {
@@ -651,35 +816,37 @@
   }
 
   #cabToast.toast-success {
-    background: var(--cab-green);
+    background: rgba(16, 185, 129, 0.92);
   }
 
   #cabToast.toast-error {
-    background: var(--cab-red);
+    background: rgba(239, 68, 68, 0.92);
   }
 
-  /* ── BACK BUTTON TOP ─────────────────────────── */
+  /* ── GLASS BACK BUTTON ─────────────────────── */
   .btn-back-cab {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     font-size: 13px;
     font-weight: 700;
     text-decoration: none;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 8px 16px;
     border-radius: 14px;
-    transition: all 0.2s;
+    transition: all 0.25s;
   }
 
   .btn-back-cab:hover {
-    background: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.3);
     color: #fff;
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
   }
 
-  /* ── WHATSAPP-STYLE CHAT LAYOUT ──────────────── */
+  /* ── CHAT LAYOUT ──────────────────────────────── */
   .timeline-box-holder {
     display: flex;
     flex-direction: column;
@@ -687,30 +854,34 @@
     max-height: 460px;
     overflow-y: auto;
     padding: 16px 20px;
-    background: #FAF9F6;
+    background: rgba(236, 253, 245, 0.3);
     border-radius: 20px;
-    border: 1px solid var(--cab-border);
+    border: 1px solid rgba(52, 211, 153, 0.1);
   }
 
   .msg-bubble-premium {
     max-width: 80%;
     border-radius: 20px;
     padding: 12px 18px;
-    box-shadow: 0 2px 6px rgba(27, 107, 74, 0.03);
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.06);
     position: relative;
+    backdrop-filter: blur(6px);
   }
 
   .msg-bubble-premium.client-bubble {
-    background: linear-gradient(135deg, #1B6B4A, #2C9067) !important;
+    background: linear-gradient(135deg, var(--cab-green-deep), var(--cab-green)) !important;
     color: #FFFFFF !important;
     border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
   }
 
   .msg-bubble-premium.store-bubble {
-    background: #FFFFFF !important;
-    color: #1A1A2E !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px) !important;
+    color: var(--cab-text) !important;
     border-bottom-left-radius: 4px;
-    border: 1.5px solid var(--cab-border) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   }
 
   .msg-time-premium {
@@ -728,11 +899,12 @@
   .cab-chat-row {
     display: flex;
     align-items: flex-end;
-    background: #FFFFFF;
-    border: 1.5px solid rgba(27, 107, 74, 0.12);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(52, 211, 153, 0.2);
     border-radius: 24px;
     padding: 4px 6px 4px 18px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.06);
   }
 
   .cab-chat-row .cab-input {
@@ -744,6 +916,7 @@
     font-size: 13px;
     font-family: 'Inter', sans-serif;
     line-height: 1.4;
+    backdrop-filter: none;
   }
 
   .cab-chat-row .btn-cab-primary {
@@ -755,7 +928,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: none !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
   }
 
   .timeline-box-holder::-webkit-scrollbar {
@@ -763,7 +936,7 @@
   }
 
   .timeline-box-holder::-webkit-scrollbar-thumb {
-    background: rgba(27, 107, 74, 0.15);
+    background: rgba(52, 211, 153, 0.2);
     border-radius: 10px;
   }
 
@@ -773,14 +946,14 @@
   }
 
   #cab-chat-stream::-webkit-scrollbar-thumb {
-    background: rgba(27, 107, 74, 0.15);
+    background: rgba(52, 211, 153, 0.2);
     border-radius: 10px;
   }
 
   .chat-bubble-wrap {
     display: flex;
     max-width: 85%;
-    animation: fadeInUp 0.25s ease;
+    animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .chat-bubble-wrap.mine {
@@ -800,19 +973,21 @@
     word-break: break-word;
     position: relative;
     max-width: 100%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   }
 
   .bubble-mine {
-    background: var(--cab-green);
+    background: linear-gradient(135deg, var(--cab-green-deep), var(--cab-green));
     color: #fff;
     border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
   }
 
   .bubble-theirs {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
     color: var(--cab-text);
-    border: 1.5px solid var(--cab-border);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     border-bottom-left-radius: 4px;
   }
 
@@ -831,7 +1006,7 @@
   }
 
   .bubble-theirs .bubble-sender-tag {
-    color: var(--cab-green);
+    color: var(--cab-green-dark);
   }
 
   .bubble-body {
@@ -859,7 +1034,7 @@
   @keyframes fadeInUp {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(10px);
     }
 
     to {
@@ -882,14 +1057,74 @@
       opacity: 1;
     }
   }
+
+  /* ── MOBILE RESPONSIVE ──────────────────────── */
+  @media (max-width: 768px) {
+    .cab-hero {
+      padding: 16px;
+      border-radius: 22px;
+    }
+    .cab-hero-avatar {
+      width: 52px;
+      height: 52px;
+    }
+    .cab-hero-name {
+      font-size: 1.1rem;
+    }
+    .cab-body {
+      padding: 14px 8px 90px;
+    }
+    .cab-stats-row {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .cab-stat-card {
+      padding: 12px 10px;
+      border-radius: 18px;
+    }
+    .cab-stat-val {
+      font-size: 1.05rem;
+    }
+    .cab-stat-lbl {
+      font-size: 10px;
+    }
+    .btn-back-cab {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+    .shop-product-item .card {
+      margin-bottom: 6px;
+    }
+    #floating-cart-bar {
+      width: calc(100% - 20px) !important;
+      margin-bottom: 12px !important;
+      padding: 10px 14px !important;
+    }
+    .modal-dialog {
+      margin: 10px auto;
+      max-width: calc(100vw - 20px) !important;
+    }
+    .modal-content {
+      border-radius: 22px !important;
+      background: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(20px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    }
+    body::before,
+    body::after {
+      opacity: 0.25;
+    }
+  }
 </style>
+
 
 {% if error_message %}
 <!-- ERROR STATE -->
 <div style="min-height:80vh; display:flex; align-items:center; justify-content:center; padding:20px;">
   <div style="max-width:400px; width:100%; text-align:center;">
     <div style="font-size:72px; margin-bottom:16px;">🔒</div>
-    <h3 style="font-family:'DM Serif Display',serif; font-size:1.6rem; color:#1A1A2E; margin-bottom:10px;">Profil
+    <h3 style="font-family:'DM Serif Display',serif; font-size:1.6rem; color:var(--cab-text); margin-bottom:10px;">Profil
       Topilmadi</h3>
     <p style="color:#6B7280; font-size:14px; line-height:1.6; margin-bottom:28px;">{{ error_message }}</p>
     <a href="{% url 'home' %}" class="btn-cab-primary" style="text-decoration:none;">
@@ -899,17 +1134,19 @@
 </div>
 
 {% else %}
+
 <!-- MAIN CABINET -->
 
 <!-- HERO BANNER -->
 <div class="cab-hero d-flex justify-content-between align-items-center flex-wrap gap-3">
   <!-- Left Side: Profile -->
   <div class="d-flex align-items-center gap-3" style="position:relative; z-index:2;">
+    {% if customer %}
     <img
       src="{% if customer.image %}{{ customer.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}"
       class="cab-hero-avatar" alt="Avatar">
     <div>
-      <h2 class="cab-hero-name">{{ customer.first_name }} {{ customer.last_name|default:'' }}</h2>
+      <h2 class="cab-hero-name" id="hero-customer-name">{{ customer.first_name }} {{ customer.last_name|default:'' }}</h2>
       <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
         <span class="cab-hero-id"><i class="bi bi-person-badge me-1"></i>ID: {{ customer.custom_id }}</span>
         {% if customer.is_blacklisted %}
@@ -920,21 +1157,39 @@
         </span>
       </div>
     </div>
+    {% else %}
+    <div style="width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:32px; border:2px solid rgba(255,255,255,0.3);">
+      🥩
+    </div>
+    <div>
+      <h2 class="cab-hero-name" id="hero-customer-name">Xush kelibsiz! 👋</h2>
+      <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+        <span class="cab-hero-id"><i class="bi bi-shop me-1"></i>Baxmal Meat Onlayn Do'koni</span>
+        <span style="color:rgba(255,255,255,0.85); font-size:12px; margin-left:4px;">
+          <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Halol & Sarxil Go'sht
+        </span>
+      </div>
+    </div>
+    {% endif %}
   </div>
 
   <!-- Right Side: Action Button -->
-  <div style="position:relative; z-index:2;">
+  <div style="position:relative; z-index:2;" class="d-flex gap-2">
+    <a href="https://t.me/@sangzordokonbot" target="_blank" class="btn-back-cab" style="background:#0088cc; border-color:#0088cc;">
+      <i class="bi bi-telegram"></i> Telegram Bot
+    </a>
     <a href="{% url 'home' %}" class="btn-back-cab">
-      <i class="bi bi-arrow-left-short fs-5"></i> Orqaga
+      <i class="bi bi-arrow-left-short fs-5"></i> Bosh sahifa
     </a>
   </div>
 </div>
 
 <!-- FLOATING STAT CARDS -->
 <div class="cab-stats-row">
+  {% if customer %}
   <!-- CARD 1: SLAUGHTER TOTAL (Shop's Debt to Supplier) -->
   <div class="cab-stat-card">
-    <div class="cab-stat-icon" style="background:rgba(27,107,74,0.1);">
+    <div class="cab-stat-icon" style="background:rgba(52,211,153,0.1);">
       <i class="bi bi-safe-fill" style="color:var(--cab-green);"></i>
     </div>
     <div class="cab-stat-val" style="color:var(--cab-green);">{{ slaughter_total|floatformat:0 }}<span
@@ -945,14 +1200,15 @@
   <!-- CARD 2: DRAWINGS TOTAL (Supplier's drawings from shop) -->
   <div class="cab-stat-card">
     <div class="cab-stat-icon" style="background:rgba(229,62,62,0.1);">
-      <i class="bi bi-bag-check" style="color:#E53E3E;"></i>
+      <i class="bi bi-bag-check" style="color:#EF4444;"></i>
     </div>
-    <div class="cab-stat-val" style="color:#E53E3E;">{{ drawings_total|floatformat:0 }}<span
+    <div class="cab-stat-val" style="color:#EF4444;">{{ drawings_total|floatformat:0 }}<span
         style="font-size:11px; font-weight:500;"> so'm</span></div>
     <div class="cab-stat-lbl d-flex align-items-center justify-content-center gap-1">
       Jami Olganlari
       <button class="btn btn-link p-0 text-decoration-none d-flex align-items-center"
-        onclick="openReconciliationModal()" style="font-size:12px; color:#E53E3E; outline:none; border:none;"
+        data-bs-toggle="modal" data-bs-target="#reconciliationModal"
+        onclick="openReconciliationModal()" style="font-size:12px; color:#EF4444; outline:none; border:none;"
         title="Tafsilotlarni ko'rish">
         <i class="bi bi-info-circle-fill"></i>
       </button>
@@ -962,19 +1218,19 @@
   <!-- CARD 3: NET RECONCILIATION BALANCE -->
   <div class="cab-stat-card">
     {% if net_balance > 0 %}
-    <div class="cab-stat-icon" style="background:rgba(27,107,74,0.12);">
-      <i class="bi bi-arrow-left-right" style="color:#1B6B4A;"></i>
+    <div class="cab-stat-icon" style="background:rgba(52,211,153,0.12);">
+      <i class="bi bi-arrow-left-right" style="color:#10B981;"></i>
     </div>
-    <div class="cab-stat-val" style="color:#1B6B4A;">{{ net_balance_abs|floatformat:0 }}<span
+    <div class="cab-stat-val" style="color:#10B981;">{{ net_balance_abs|floatformat:0 }}<span
         style="font-size:11px; font-weight:500;"> so'm</span></div>
     <div class="cab-stat-lbl">Bizning sizdan barter qarzimiz ✅</div>
     {% elif net_balance < 0 %} <div class="cab-stat-icon" style="background:rgba(229,62,62,0.1);">
-      <i class="bi bi-credit-card-2-front" style="color:#E53E3E;"></i>
+      <i class="bi bi-credit-card-2-front" style="color:#EF4444;"></i>
   </div>
-  <div class="cab-stat-val" style="color:#E53E3E;">{{ net_balance_abs|floatformat:0 }}<span
+  <div class="cab-stat-val" style="color:#EF4444;">{{ net_balance_abs|floatformat:0 }}<span
       style="font-size:11px; font-weight:500;"> so'm</span></div>
   <div class="cab-stat-lbl">Siz do'kondan qarzsiz (Nasiya)</div>
-  <button class="btn-cab-danger mt-2 w-100" style="font-size:11px; padding:6px;" onclick="openPayModal()">
+  <button class="btn-cab-danger mt-2 w-100" style="font-size:11px; padding:6px;" data-bs-toggle="modal" data-bs-target="#payModal" onclick="openPayModal()">
     Qarzni to'lash
   </button>
   {% else %}
@@ -991,10 +1247,40 @@
   <div class="cab-stat-icon" style="background:rgba(212,168,83,0.12);">
     <i class="bi bi-gem" style="color:var(--cab-gold);"></i>
   </div>
-  <div class="cab-stat-val" style="color:var(--cab-gold);">{{ customer.bonus_points }}<span
+  <div class="cab-stat-val" style="color:var(--cab-gold);">{{ customer.bonus_points|default:0 }}<span
       style="font-size:11px; font-weight:500;"> ball</span></div>
   <div class="cab-stat-lbl">Bonus Ballar</div>
 </div>
+{% else %}
+  <div class="cab-stat-card">
+    <div class="cab-stat-icon" style="background:rgba(52,211,153,0.1);">
+      <i class="bi bi-patch-check-fill" style="color:var(--cab-green);"></i>
+    </div>
+    <div class="cab-stat-val" style="color:var(--cab-green);">100% Halol</div>
+    <div class="cab-stat-lbl">Sifat Kafolati</div>
+  </div>
+  <div class="cab-stat-card">
+    <div class="cab-stat-icon" style="background:rgba(59,130,246,0.1);">
+      <i class="bi bi-truck" style="color:#3B82F6;"></i>
+    </div>
+    <div class="cab-stat-val" style="color:#3B82F6;">Tezkor</div>
+    <div class="cab-stat-lbl">Dostavka Xizmati</div>
+  </div>
+  <div class="cab-stat-card">
+    <div class="cab-stat-icon" style="background:rgba(212,168,83,0.12);">
+      <i class="bi bi-credit-card-2-front" style="color:var(--cab-gold);"></i>
+    </div>
+    <div class="cab-stat-val" style="color:var(--cab-gold);">Click / Payme</div>
+    <div class="cab-stat-lbl">Qulay To'lov</div>
+  </div>
+  <div class="cab-stat-card">
+    <div class="cab-stat-icon" style="background:rgba(239,68,68,0.1);">
+      <i class="bi bi-gift-fill" style="color:#EF4444;"></i>
+    </div>
+    <div class="cab-stat-val" style="color:#EF4444;">2% Keshbek</div>
+    <div class="cab-stat-lbl">Har Bir Xariddan</div>
+  </div>
+{% endif %}
 </div>
 
 <!-- BODY -->
@@ -1002,7 +1288,10 @@
 
   <!-- CAB TABS NAVIGATION -->
   <div class="cab-nav-tabs-container">
-    <button class="cab-nav-tab active" id="btn-tab-chat" onclick="switchCabinetSection('chat')">
+    <button class="cab-nav-tab {% if is_guest or request.GET.tab == 'shop' %}active{% endif %}" id="btn-tab-shop" onclick="switchCabinetSection('shop')">
+      <i class="bi bi-shop me-1 text-success"></i> 🥩 Onlayn Do'kon
+    </button>
+    <button class="cab-nav-tab {% if not is_guest and request.GET.tab != 'shop' %}active{% endif %}" id="btn-tab-chat" onclick="switchCabinetSection('chat')">
       <i class="bi bi-chat-left-text-fill me-2"></i> Muloqot (Chat)
     </button>
     <button class="cab-nav-tab" id="btn-tab-billing" onclick="switchCabinetSection('billing')">
@@ -1020,14 +1309,77 @@
       <i class="bi bi-clock-history me-1"></i> Ariza Kutilmoqda ⏳
     </button>
     {% else %}
-    <button class="cab-nav-tab text-success fw-bold" onclick="openCourierApplyModal()">
+    <button class="cab-nav-tab text-success fw-bold" data-bs-toggle="modal" data-bs-target="#courierApplyModal" onclick="openCourierApplyModal()">
       <i class="bi bi-bicycle me-1"></i> Kuryer Bo'lish 🚴‍♂️
     </button>
     {% endif %}
-    <button class="cab-nav-tab" id="btn-tab-ai" onclick="openAIModal()"
-      style="background: linear-gradient(135deg, rgba(212,168,83,0.12), rgba(27,107,74,0.12)); border: 1px solid rgba(212,168,83,0.4); color: #92650A; font-weight:700;">
+    <button class="cab-nav-tab" id="btn-tab-ai" data-bs-toggle="modal" data-bs-target="#aiAssistantModal" onclick="openAIModal()"
+      style="background: linear-gradient(135deg, rgba(212,168,83,0.12), rgba(52,211,153,0.12)); border: 1px solid rgba(212,168,83,0.4); color: #92400E; font-weight:700;">
       <i class="bi bi-robot me-1" style="color:var(--cab-gold);"></i> AI Maslahatchi
     </button>
+  </div>
+
+  <!-- SECTION 0: ONLAYN DO'KON (VITRINA) -->
+  <div id="sec-shop" class="cab-sec-content {% if not is_guest and request.GET.tab != 'shop' %}d-none{% endif %}">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+      <div class="position-relative flex-grow-1" style="max-width: 380px;">
+        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+        <input type="text" id="shop-search-input" class="form-control rounded-pill ps-5 border-0 shadow-sm" placeholder="Go'sht turini qidirish (mol, qo'y, qiyma)..." oninput="filterShopProducts()">
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 active shop-cat-btn" onclick="filterShopCategory('all', this)">Barchasi</button>
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 shop-cat-btn" onclick="filterShopCategory('mol', this)">Mol go'shti</button>
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 shop-cat-btn" onclick="filterShopCategory('qoy', this)">Qo'y go'shti</button>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="row g-3" id="shop-product-grid">
+      {% for product in products %}
+      {% with stock_qty=product.stock.quantity|default:0 %}
+      <div class="col-12 col-md-6 col-lg-4 shop-product-item" data-name="{{ product.name|lower }}" data-cat="{% if 'mol' in product.name|lower %}mol{% elif 'qo' in product.name|lower or 'qoy' in product.name|lower %}qoy{% else %}other{% endif %}">
+        <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden" style="background:#fff; border: 1.5px solid rgba(52,211,153,0.1) !important;">
+          <div class="position-relative" style="height:160px; background:#F8FAFC; overflow:hidden;">
+            <img src="{% if product.image %}{{ product.image.url }}{% elif 'mol' in product.name|lower %}/static/images/beef_card_bg.png{% elif 'qo' in product.name|lower %}/static/images/mutton_card_bg.png{% else %}/static/images/beef_card_bg.png{% endif %}" alt="{{ product.name }}" style="width:100%; height:100%; object-fit:cover;">
+            <div class="position-absolute top-0 end-0 m-2">
+              {% if stock_qty > 0 %}
+              <span class="badge bg-success bg-opacity-95 rounded-pill px-3 py-1 shadow-sm" style="font-size:10px;">🟢 Zaxira: {{ stock_qty|floatformat:1 }} kg</span>
+              {% else %}
+              <span class="badge bg-danger bg-opacity-95 rounded-pill px-3 py-1 shadow-sm" style="font-size:10px;">🔴 Yangi so'yimdan</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="card-body p-3 d-flex flex-column justify-content-between">
+            <div>
+              <h5 class="fw-bold text-dark mb-1" style="font-size:15px;">{{ product.name }}</h5>
+              <div class="text-success fw-extrabold fs-5 mb-2">{{ product.price_per_kg|floatformat:0 }} <span style="font-size:11px; font-weight:600; color:#6B7280;">so'm / kg</span></div>
+            </div>
+            
+            <div class="mt-2">
+              <div class="d-flex align-items-center gap-1 mb-2">
+                <button class="btn btn-sm btn-light border flex-fill py-1 fw-bold" style="font-size:10px; border-radius:8px;" onclick="setCardWeight('{{ product.id }}', 0.5)">0.5 kg</button>
+                <button class="btn btn-sm btn-light border flex-fill py-1 fw-bold" style="font-size:10px; border-radius:8px;" onclick="setCardWeight('{{ product.id }}', 1.0)">1.0 kg</button>
+                <button class="btn btn-sm btn-light border flex-fill py-1 fw-bold" style="font-size:10px; border-radius:8px;" onclick="setCardWeight('{{ product.id }}', 2.0)">2.0 kg</button>
+                <button class="btn btn-sm btn-light border flex-fill py-1 fw-bold" style="font-size:10px; border-radius:8px;" onclick="setCardWeight('{{ product.id }}', 5.0)">5.0 kg</button>
+              </div>
+              
+              <div class="d-flex align-items-center gap-2">
+                <div class="input-group input-group-sm" style="max-width:110px;">
+                  <button class="btn btn-outline-secondary px-2" type="button" onclick="adjustCardWeight('{{ product.id }}', -0.5)">-</button>
+                  <input type="number" step="0.1" min="0.1" id="prod-weight-{{ product.id }}" value="1.0" class="form-control text-center fw-bold px-1" style="font-size:12px;">
+                  <button class="btn btn-outline-secondary px-2" type="button" onclick="adjustCardWeight('{{ product.id }}', 0.5)">+</button>
+                </div>
+                <button class="btn btn-sm btn-success rounded-3 fw-bold flex-grow-1 py-2 d-flex align-items-center justify-content-center gap-1" onclick="addToCartFromCard('{{ product.id }}', '{{ product.name|escapejs }}', {{ product.price_per_kg }})">
+                  <i class="bi bi-cart-plus-fill"></i> Savatga
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
   </div>
 
   <!-- SECTION 1: CHAT -->
@@ -1053,7 +1405,7 @@
 
       <!-- Chat Notice -->
       <div
-        style="padding:10px 16px; background:rgba(27,107,74,0.04); border-bottom:1px solid var(--cab-border); font-size:11px; color:var(--cab-muted); display:flex; align-items:center; gap:6px; flex-shrink:0;">
+        style="padding:10px 16px; background:rgba(52,211,153,0.04); border-bottom:1px solid var(--cab-border); font-size:11px; color:var(--cab-muted); display:flex; align-items:center; gap:6px; flex-shrink:0;">
         <i class="bi bi-info-circle-fill" style="color:var(--cab-green);"></i>
         <span>Bu chat <strong>Telegram bot</strong> va <strong>sayt</strong> bilan birga ishlaydi — xabarlaringiz ikki
           kanalda ko'rinadi</span>
@@ -1097,7 +1449,7 @@
               {% if log.details.source == 'telegram' %}
               &nbsp;<i class="bi bi-telegram" style="color:#0088cc;"></i>
               {% elif log.details.source == 'web' %}
-              &nbsp;<i class="bi bi-globe" style="color:#1B6B4A;"></i>
+              &nbsp;<i class="bi bi-globe" style="color:#10B981;"></i>
               {% endif %}
             </div>
           </div>
@@ -1132,7 +1484,7 @@
       </div>
 
       <!-- Send Message Input -->
-      <div style="padding:12px 16px; border-top:1px solid var(--cab-border); background:#FAFAF8; flex-shrink:0;">
+      <div style="padding:12px 16px; border-top:1px solid var(--cab-border); background:#F0FDFA; flex-shrink:0;">
         <div class="cab-chat-row">
           <textarea id="customer-msg-input" class="cab-input" rows="1"
             placeholder="Xabaringizni yozing... (Enter — yuborish, Shift+Enter — yangi qator)"
@@ -1182,7 +1534,7 @@
             style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--cab-muted); font-size:14px;"></i>
           <input type="text" id="txSearchInput" oninput="filterTxSearch()"
             placeholder="Operatsiyalarni qidirish (masalan: Go'sht, Karta, Kassa)..."
-            style="width:100%; padding:10px 10px 10px 40px; border-radius:12px; border:1px solid var(--cab-border); outline:none; font-family:'Inter', sans-serif; font-size:13px; transition:border-color 0.2s; background:#FAFAF9;">
+            style="width:100%; padding:10px 10px 10px 40px; border-radius:12px; border:1px solid var(--cab-border); outline:none; font-family:'Inter', sans-serif; font-size:13px; transition:border-color 0.2s; background:#F0FDFA;">
         </div>
       </div>
 
@@ -1280,7 +1632,7 @@
       </div>
       {% endif %}
       <div style="padding:16px 20px; border-top:1px solid var(--cab-border);">
-        <button class="btn-cab-secondary w-100" onclick="openProofUploadModal()">
+        <button class="btn-cab-secondary w-100" data-bs-toggle="modal" data-bs-target="#proofUploadModal" onclick="openProofUploadModal()">
           <i class="bi bi-upload"></i> Yangi chek rasmini yuklash
         </button>
       </div>
@@ -1380,7 +1732,7 @@
       </div>
       {% endif %}
       <div style="padding:16px 20px; border-top:1px solid var(--cab-border);">
-        <button class="btn-cab-primary w-100" onclick="openB2BModal()">
+        <button class="btn-cab-primary w-100" data-bs-toggle="modal" data-bs-target="#b2bModal" onclick="openB2BModal()">
           <i class="bi bi-cart-plus"></i> Yangi buyurtma berish
         </button>
       </div>
@@ -1420,6 +1772,24 @@
   </div>
 </div>
 
+<!-- FLOATING CART BOTTOM BAR (WEBAPP) -->
+<div id="floating-cart-bar" class="position-fixed bottom-0 start-50 translate-middle-x mb-4 shadow-lg p-3 rounded-pill d-none" style="z-index: 1050; width: 92%; max-width: 480px; background: linear-gradient(135deg, #10B981, #34D399); color: #fff; border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px); animation: fadeInUp 0.3s ease;">
+  <div class="d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2 ps-2">
+      <div class="bg-white bg-opacity-20 rounded-circle p-2 d-flex align-items-center justify-content-center" style="width:38px; height:38px;">
+        <i class="bi bi-cart-fill text-white fs-5"></i>
+      </div>
+      <div>
+        <div class="fw-bold" style="font-size:12px;" id="floating-cart-items-txt">0 ta mahsulot</div>
+        <div class="fw-extrabold text-warning" style="font-size:15px;" id="floating-cart-total-txt">0 so'm</div>
+      </div>
+    </div>
+    <button class="btn btn-light rounded-pill px-3 py-2 fw-bold text-success shadow-sm d-flex align-items-center gap-1" onclick="openB2BModal()" style="font-size:13px;">
+      Buyurtma <i class="bi bi-arrow-right-short fs-5"></i>
+    </button>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════ -->
 <!-- MODALS                                      -->
 <!-- ═══════════════════════════════════════════ -->
@@ -1429,7 +1799,7 @@
   <div class="modal-dialog modal-dialog-centered" style="max-width:460px;">
     <div class="modal-content">
       <div class="modal-header"
-        style="background:linear-gradient(135deg,#0D4A31,#1B6B4A); color:#fff; border-bottom:none;">
+        style="background:linear-gradient(135deg,#0D4A31,#10B981); color:#fff; border-bottom:none;">
         <h5 class="modal-title fw-bold" style="display:flex;align-items:center;gap:8px;">
           <i class="bi bi-camera-fill text-warning"></i> Karta Cheki Yuklash
         </h5>
@@ -1504,12 +1874,12 @@
         <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
           <div style="background:#F3F4F6; border-radius:12px; padding:10px 16px; font-size:12px;">
             <span style="color:#6B7280;">Summa:</span>
-            <span style="font-weight:800; color:#E53E3E; font-size:15px; margin-left:6px;" id="proofViewAmt"></span>
+            <span style="font-weight:800; color:#EF4444; font-size:15px; margin-left:6px;" id="proofViewAmt"></span>
             so'm
           </div>
           <div style="background:#F3F4F6; border-radius:12px; padding:10px 16px; font-size:12px;">
             <span style="color:#6B7280;">Tizim:</span>
-            <span style="font-weight:700; color:#1A1A2E; margin-left:6px;" id="proofViewProv"></span>
+            <span style="font-weight:700; color:#064E3B; margin-left:6px;" id="proofViewProv"></span>
           </div>
         </div>
         <div style="font-size:11px; color:#6B7280; margin-top:10px;" id="proofViewDate"></div>
@@ -1578,6 +1948,7 @@
 
         <form id="paymentProofUploadForm" onsubmit="handlePaymentProofSubmit(event)" enctype="multipart/form-data">
           {% csrf_token %}
+          <input type="hidden" name="customer_id" value="{{ customer.id }}">
           <div class="mb-3">
             <label style="font-size: 12px; font-weight: 700; color: #CBD5E1; margin-bottom: 6px; display: block;">To'langan Summa (so'm):</label>
             <input type="number" name="amount" id="proofFormAmount" class="form-control" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #FFF; font-weight: 800; font-size: 16px; border-radius: 12px; padding: 10px 14px;" value="{{ net_balance_abs|floatformat:0 }}" required>
@@ -1624,9 +1995,9 @@
       
       <!-- Modal Header -->
       <div class="modal-header"
-        style="background:linear-gradient(135deg,#09301F 0%,#1B6B4A 60%,#2D9B6E 100%); color:#fff; padding:18px 24px; border-bottom:1px solid rgba(212,168,83,0.3);">
+        style="background:linear-gradient(135deg,#064E3B 0%,#10B981 60%,#34D399 100%); color:#fff; padding:18px 24px; border-bottom:1px solid rgba(212,168,83,0.3);">
         <div style="display:flex; align-items:center; gap:10px;">
-          <div style="width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:18px; color:#D4A853;">
+          <div style="width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:18px; color:#FBBF24;">
             <i class="bi bi-cart-fill"></i>
           </div>
           <div>
@@ -1637,7 +2008,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
-      <div class="modal-body p-4" style="max-height:78vh; overflow-y:auto; background:#FAF9F6;">
+      <div class="modal-body p-4" style="max-height:78vh; overflow-y:auto; background:#ECFDF5;">
         
         <!-- STEP 1: PRODUCT SELECTION GRID -->
         <div class="mb-4">
@@ -1690,13 +2061,13 @@
         </div>
 
         <!-- STEP 2: CART SUMMARY BOX -->
-        <div class="card border-0 mb-4 shadow-sm" style="border-radius:18px; background:#fff; border:1.5px solid rgba(27,107,74,0.12) !important;">
+        <div class="card border-0 mb-4 shadow-sm" style="border-radius:18px; background:#fff; border:1.5px solid rgba(52,211,153,0.12) !important;">
           <div class="card-body p-3">
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="fw-bold m-0" style="font-size:13px; color:var(--cab-green); display:flex; align-items:center; gap:6px;">
                 <i class="bi bi-bag-check-fill"></i> Savat Hoshiyasi
               </h6>
-              <span class="badge" id="cart-item-count-badge" style="background:rgba(27,107,74,0.1); color:var(--cab-green); font-size:11px; font-weight:700;">
+              <span class="badge" id="cart-item-count-badge" style="background:rgba(52,211,153,0.1); color:var(--cab-green); font-size:11px; font-weight:700;">
                 0 ta mahsulot
               </span>
             </div>
@@ -1736,10 +2107,25 @@
           </div>
         </div>
 
+        <!-- CUSTOMER CONTACT INFO (For WebApp & Guests) -->
+        <div class="mb-3 p-3 rounded-4 bg-light border" id="b2b-customer-info-group">
+          <label style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:6px; letter-spacing:0.5px;">
+            👤 MIJOZ MA'LUMOTLARI (BUYURTMA EGASI) *
+          </label>
+          <div class="row g-2">
+            <div class="col-6">
+              <input type="text" id="b2b-cust-name" class="form-control rounded-3" placeholder="Ismingiz..." value="{% if customer %}{{ customer.first_name }}{% endif %}" style="font-size:13px; padding:8px 12px;">
+            </div>
+            <div class="col-6">
+              <input type="text" id="b2b-cust-phone" class="form-control rounded-3" placeholder="+998 90 123 45 67" value="{% if customer %}{{ customer.phone }}{% endif %}" style="font-size:13px; padding:8px 12px;">
+            </div>
+          </div>
+        </div>
+
         <!-- STEP 3: DELIVERY TYPE & ADDRESS -->
         <div class="mb-3">
           <label style="font-size:11px; font-weight:800; color:var(--cab-muted); display:block; margin-bottom:8px; letter-spacing:0.5px;">
-            2. YETKAZIB BERISH TURI VAMANZIL *
+            2. YETKAZIB BERISH TURI VA MANZIL *
           </label>
           <div class="d-flex gap-2 mb-2">
             <label class="flex-fill p-2 rounded-3 text-center border cursor-pointer b2b-delivery-opt active"
@@ -1841,7 +2227,7 @@
         </button>
         <button type="button" class="btn btn-success btn-sm rounded-3 px-4 fw-bold" id="b2b-submit-btn"
           onclick="sendB2BOrder()"
-          style="background:linear-gradient(135deg,#1B6B4A,#2D9B6E); border:none; box-shadow:0 4px 16px rgba(27,107,74,0.3); font-size:14px; padding:10px 24px;">
+          style="background:linear-gradient(135deg,#10B981,#34D399); border:none; box-shadow:0 4px 16px rgba(52,211,153,0.3); font-size:14px; padding:10px 24px;">
           <i class="bi bi-send-fill me-1"></i> Buyurtma Berish (<span id="btn-total-sum-text">0 so'm</span>)
         </button>
       </div> <!-- closes modal-footer -->
@@ -1853,15 +2239,15 @@
 <div class="modal fade" id="courierApplyModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
     <div class="modal-content" style="border-radius:20px; border:none; box-shadow:0 15px 40px rgba(0,0,0,0.2); overflow:hidden;">
-      <div class="modal-header" style="background:linear-gradient(135deg,#09301F,#1B6B4A); color:#fff; padding:18px 24px;">
+      <div class="modal-header" style="background:linear-gradient(135deg,#064E3B,#10B981); color:#fff; padding:18px 24px;">
         <h5 class="modal-title fw-bold" style="display:flex; align-items:center; gap:8px; font-size:16px;">
           🚴‍♂️ Kuryerlikka Ariza Topshirish
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-4" style="background:#FAF9F6;">
+      <div class="modal-body p-4" style="background:#ECFDF5;">
         <div class="text-center mb-3">
-          <div style="width:60px; height:60px; border-radius:50%; background:rgba(27,107,74,0.1); color:var(--cab-green); display:inline-flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:8px;">
+          <div style="width:60px; height:60px; border-radius:50%; background:rgba(52,211,153,0.1); color:var(--cab-green); display:inline-flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:8px;">
             🛵
           </div>
           <h6 class="fw-bold text-dark mb-1">Do'kon bilan birga pul ishlang!</h6>
@@ -1878,29 +2264,16 @@
           </select>
         </div>
 
-        <div class="alert alert-success border-0 rounded-3 mb-0 p-2 text-center" style="font-size:11px; background:rgba(27,107,74,0.08); color:var(--cab-green);">
+        <div class="alert alert-success border-0 rounded-3 mb-0 p-2 text-center" style="font-size:11px; background:rgba(52,211,153,0.08); color:var(--cab-green);">
           <i class="bi bi-info-circle-fill me-1"></i> Arizangiz admin tomonidan tasdiqlanishi bilan kabinetda Kuryer Paneli faollashadi.
         </div>
       </div>
       <div class="modal-footer p-3" style="background:#fff; border-top:1px solid var(--cab-border);">
         <button type="button" class="btn btn-outline-secondary btn-sm rounded-3 px-3" data-bs-dismiss="modal">Bekor qilish</button>
         <button type="button" class="btn btn-success btn-sm rounded-3 px-4 fw-bold" id="btn-submit-courier-app" onclick="submitCourierApplication()"
-          style="background:linear-gradient(135deg,#1B6B4A,#2D9B6E); border:none;">
+          style="background:linear-gradient(135deg,#10B981,#34D399); border:none;">
           🚀 Arizani Yuborish
         </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ELECTRONIC RECEIPT MODAL -->
-<div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
-    <div class="modal-content" style="background:transparent; border:none; box-shadow:none;">
-      <div class="modal-body p-0">
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
-          style="position:absolute; top:-36px; right:10px; opacity:0.8;"></button>
-        <div id="receiptModalBody" class="classic-bill-paper shadow-lg"></div>
       </div>
     </div>
   </div>
@@ -1914,7 +2287,7 @@
     <div class="modal-content"
       style="border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
       <div class="modal-header"
-        style="background: #FDFBF7; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 18px 24px;">
+        style="background: #F0FDFA; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 18px 24px;">
         <h5 class="modal-title" id="reconModalLabel"
           style="font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--cab-green); font-weight: 700;">
           📊 Hamkorlik Balansi Tafsiloti (Akt-Sverka)
@@ -1934,7 +2307,7 @@
             <span style="font-weight: 600; color: #374151; font-size: 14px;">1. Jami Topshirilgan Chorva</span>
             <small class="d-block text-muted" style="font-size: 11px;">So'yim qabullari qiymati</small>
           </div>
-          <span style="font-weight: 700; color: #1B6B4A; font-size: 15px;">+{{ slaughter_total|floatformat:0 }}
+          <span style="font-weight: 700; color: #10B981; font-size: 15px;">+{{ slaughter_total|floatformat:0 }}
             so'm</span>
         </div>
 
@@ -1947,39 +2320,39 @@
           <div class="d-flex justify-content-between align-items-center mb-2"
             style="padding-left: 15px; font-size: 13px;">
             <span style="color: #6B7280;">🥩 Nasiya go'sht xaridlari:</span>
-            <span style="font-weight: 600; color: #E53E3E;">-{{ sales_debt_sum|floatformat:0 }} so'm</span>
+            <span style="font-weight: 600; color: #EF4444;">-{{ sales_debt_sum|floatformat:0 }} so'm</span>
           </div>
 
           <!-- Cash payments drawn -->
           <div class="d-flex justify-content-between align-items-center" style="padding-left: 15px; font-size: 13px;">
             <span style="color: #6B7280;">💸 Kassadan olgan pullaringiz:</span>
-            <span style="font-weight: 600; color: #E53E3E;">-{{ supplier_pay_sum|floatformat:0 }} so'm</span>
+            <span style="font-weight: 600; color: #EF4444;">-{{ supplier_pay_sum|floatformat:0 }} so'm</span>
           </div>
 
           <!-- Sum Drawings -->
           <div class="d-flex justify-content-between align-items-center mt-3 pt-2"
             style="border-top: 1px solid rgba(0,0,0,0.05); font-weight: 700; font-size: 14px;">
             <span style="color: #374151;">Jami Olingan summasi:</span>
-            <span style="color: #E53E3E;">-{{ drawings_total|floatformat:0 }} so'm</span>
+            <span style="color: #EF4444;">-{{ drawings_total|floatformat:0 }} so'm</span>
           </div>
         </div>
 
         <!-- Net Balance calculation -->
         <div
-          style="background: #FDFBF7; border-radius: 12px; padding: 16px; margin-top: 20px; border: 1px solid rgba(27,107,74,0.1);">
+          style="background: #F0FDFA; border-radius: 12px; padding: 16px; margin-top: 20px; border: 1px solid rgba(52,211,153,0.1);">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <span style="font-weight: 700; color: #1A1A2E; font-size: 14px;">Yakuniy Sof Balans:</span>
+              <span style="font-weight: 700; color: #064E3B; font-size: 14px;">Yakuniy Sof Balans:</span>
               <small class="d-block text-muted" style="font-size: 11px; margin-top: 2px;">Bizning qarzimiz - Uning
                 qarzi</small>
             </div>
             <span
-              style="font-weight: 800; font-size: 18px; {% if net_balance > 0 %}color: #1B6B4A;{% elif net_balance < 0 %}color: #E53E3E;{% else %}color: #28A745;{% endif %}">
+              style="font-weight: 800; font-size: 18px; {% if net_balance > 0 %}color: #10B981;{% elif net_balance < 0 %}color: #EF4444;{% else %}color: #28A745;{% endif %}">
               {{ net_balance_abs|floatformat:0 }} so'm
             </span>
           </div>
           <div class="mt-2 text-center"
-            style="font-size: 12px; font-weight: 600; {% if net_balance > 0 %}color: #1B6B4A;{% elif net_balance < 0 %}color: #E53E3E;{% else %}color: #28A745;{% endif %}">
+            style="font-size: 12px; font-weight: 600; {% if net_balance > 0 %}color: #10B981;{% elif net_balance < 0 %}color: #EF4444;{% else %}color: #28A745;{% endif %}">
             {% if net_balance > 0 %}
             🟢 Biz sizdan {{ net_balance_abs|floatformat:0 }} so'm qarzdormiz.
             {% elif net_balance < 0 %} 🔴 Siz do'kondan {{ net_balance_abs|floatformat:0 }} so'm qarzsiz. {% else %} 🔵
@@ -1987,7 +2360,7 @@
           </div>
         </div>
         <div class="modal-footer"
-          style="background: #FAFAF9; border-top: 1px solid rgba(0,0,0,0.05); padding: 12px 24px;">
+          style="background: #F0FDFA; border-top: 1px solid rgba(0,0,0,0.05); padding: 12px 24px;">
           <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal"
             style="border-radius: 12px; padding: 10px; font-weight: 600;">Yopish</button>
         </div>
@@ -2000,48 +2373,125 @@
 
   <style>
     .pay-provider-card {
-      border: 2px solid rgba(0, 0, 0, 0.08);
-      border-radius: 14px;
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
+      border-radius: 16px;
       padding: 14px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.04);
     }
 
     .pay-provider-card.active {
       border-color: var(--cab-green);
-      background: rgba(27, 107, 74, 0.04);
+      background: rgba(52, 211, 153, 0.08);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
     }
 
     .pay-provider-card:hover:not(.active) {
-      border-color: rgba(27, 107, 74, 0.3);
+      border-color: rgba(52, 211, 153, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.08);
     }
   </style>
 
   <script>
     const CSRF = '{{ csrf_token }}';
-    const CUSTOMER_ID = {{ customer.id }};
-    const MAX_DEBT = {{ customer.debt_amount|floatformat:0|default:0 }};
+    const CUSTOMER_ID = parseInt('{{ customer.id|default:"0" }}', 10) || 0;
+    const MAX_DEBT = parseFloat('{{ customer.debt_amount|floatformat:0|default:"0" }}') || 0;
     let currentProvider = 'click';
     let paymentAmount = 0;
-    let reconModalInst = null;
+
+    function openSafeModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (!el) {
+        console.warn("Modal topilmadi:", modalId);
+        return;
+      }
+      try {
+        if (window.bootstrap && bootstrap.Modal) {
+          const inst = bootstrap.Modal.getOrCreateInstance(el);
+          inst.show();
+        } else {
+          el.classList.add('show');
+          el.style.display = 'block';
+          document.body.classList.add('modal-open');
+        }
+      } catch (err) {
+        console.error("Modal ochishda xatolik:", modalId, err);
+      }
+    }
 
     function openReconciliationModal() {
-      if (!reconModalInst) {
-        reconModalInst = new bootstrap.Modal(document.getElementById('reconciliationModal'));
-      }
-      reconModalInst.show();
+      openSafeModal('reconciliationModal');
     }
+
+    function openPayModal() {
+      openSafeModal('payModal');
+    }
+
+    function openCourierApplyModal() {
+      openSafeModal('courierApplyModal');
+    }
+
+    function openAIModal() {
+      openSafeModal('aiAssistantModal');
+    }
+
+    function openProofUploadModal() {
+      openSafeModal('proofUploadModal');
+    }
+
+    function closeSafeModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (el) {
+        try {
+          if (window.bootstrap && bootstrap.Modal) {
+            const inst = bootstrap.Modal.getInstance(el);
+            if (inst) inst.hide();
+          }
+        } catch (err) {}
+        el.classList.remove('show');
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+        el.removeAttribute('aria-modal');
+      }
+      document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('padding-right');
+    }
+
+    // Global listener for ALL modal close buttons ('X' or 'Bekor qilish')
+    document.addEventListener('click', function (e) {
+      const btn = e.target.closest('[data-bs-dismiss="modal"], .btn-close');
+      if (btn) {
+        const modal = btn.closest('.modal');
+        if (modal && modal.id) {
+          closeSafeModal(modal.id);
+        } else {
+          document.querySelectorAll('.modal').forEach(m => {
+            m.classList.remove('show');
+            m.style.display = 'none';
+          });
+          document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+          document.body.classList.remove('modal-open');
+        }
+      }
+    });
 
     // ── CAB SECTION SWITCHING ───────────
     function switchCabinetSection(sec) {
       document.querySelectorAll('.cab-sec-content').forEach(s => s.classList.add('d-none'));
       document.querySelectorAll('.cab-nav-tab').forEach(t => t.classList.remove('active'));
 
-      document.getElementById('sec-' + sec).classList.remove('d-none');
-      document.getElementById('btn-tab-' + sec).classList.add('active');
+      const secEl = document.getElementById('sec-' + sec);
+      if (secEl) secEl.classList.remove('d-none');
+      const btnEl = document.getElementById('btn-tab-' + sec);
+      if (btnEl) btnEl.classList.add('active');
 
       if (sec === 'chat') {
         scrollChatToBottom();
@@ -2059,9 +2509,9 @@
     function openReceiptFromRow(logId) {
       const hiddenReceipt = document.getElementById('receipt-html-' + logId);
       if (!hiddenReceipt) return;
-      const modalBody = document.getElementById('receiptModalBody');
-      modalBody.innerHTML = hiddenReceipt.innerHTML;
-      new bootstrap.Modal(document.getElementById('receiptModal')).show();
+      const modalBody = document.getElementById('receiptModalContent') || document.getElementById('receiptModalBody');
+      if (modalBody) modalBody.innerHTML = hiddenReceipt.innerHTML;
+      openSafeModal('receiptModal');
     }
 
     // Run on window load
@@ -2120,12 +2570,6 @@
     }
 
     // ── PAYMENT MODAL & PROOF UPLOAD ───────────────────
-    function openPayModal() {
-      const modalEl = document.getElementById('payModal');
-      if (modalEl) {
-        new bootstrap.Modal(modalEl).show();
-      }
-    }
 
     function copyCardNumber(cardNum, btn) {
       const cleanNum = cardNum.replace(/\s+/g, '');
@@ -2182,35 +2626,25 @@
         headers: { 'X-CSRFToken': CSRF },
         body: formData
       })
-      .then(res => res.json())
-      .then(data => {
+      .then(res => res.json().then(data => ({ ok: res.ok, data })).catch(() => ({ ok: res.ok, data: {} })))
+      .then(result => {
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-cloud-upload-fill me-2"></i> Chekni Yuborish va Qarzni Yopish';
-        if (data.status === 'success') {
+        const data = result.data;
+        if (result.ok && data.status === 'success') {
           showToast(data.message || "Chek muvaffaqiyatli yuklandi!", 'success');
-          const modalEl = document.getElementById('payModal');
-          if (modalEl) {
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
-          }
+          closeSafeModal('payModal');
           setTimeout(() => location.reload(), 1500);
         } else {
-          showToast(data.message || "Xatolik yuz berdi!", 'error');
+          showToast(data.message || data.error || "Xatolik yuz berdi!", 'error');
         }
       })
       .catch(err => {
         console.error(err);
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-cloud-upload-fill me-2"></i> Chekni Yuborish va Qarzni Yopish';
-        showToast("Tarmoq xatoligi yuz berdi", 'error');
+        showToast("Xatolik yuz berdi: " + (err.message || "Tarmoq uzilishi"), 'error');
       });
-    }
-      setTimeout(() => {
-        document.getElementById('pay-step-2').classList.add('d-none');
-        document.getElementById('pay-step-3').classList.remove('d-none');
-        document.getElementById('online-sms-code').value = '';
-        document.getElementById('online-sms-code').focus();
-      }, 1600);
     }
 
     function verifyPayment() {
@@ -2235,7 +2669,7 @@
 
     // ── PROOF UPLOAD ─────────────────────
     function openProofUploadModal() {
-      new bootstrap.Modal(document.getElementById('proofUploadModal')).show();
+      openSafeModal('proofUploadModal');
     }
 
     function handleFileSelect(input) {
@@ -2277,6 +2711,7 @@
       const btn = document.getElementById('proofSubmitBtn');
       btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Yuklanmoqda...';
       const formData = new FormData();
+      formData.append('customer_id', CUSTOMER_ID);
       formData.append('image', imgInput.files[0]);
       formData.append('amount', amount);
       formData.append('provider', provider);
@@ -2285,14 +2720,17 @@
         method: 'POST',
         headers: { 'X-CSRFToken': CSRF },
         body: formData
-      }).then(r => r.json()).then(data => {
+      })
+      .then(res => res.json().then(data => ({ ok: res.ok, data })).catch(() => ({ ok: res.ok, data: {} })))
+      .then(result => {
         btn.disabled = false; btn.innerHTML = '<i class="bi bi-upload"></i> Yuborish';
-        if (data.status === 'success') {
-          bootstrap.Modal.getInstance(document.getElementById('proofUploadModal')).hide();
-          showToast(data.message, 'success');
+        const data = result.data;
+        if (result.ok && data.status === 'success') {
+          closeSafeModal('proofUploadModal');
+          showToast(data.message || "Chek yuklandi!", 'success');
           setTimeout(() => location.reload(), 1500);
-        } else { showToast(data.message || 'Xatolik!', 'error'); }
-      }).catch(() => { btn.disabled = false; showToast("Tarmoq xatoligi!", 'error'); });
+        } else { showToast(data.message || data.error || 'Xatolik yuz berdi!', 'error'); }
+      }).catch(err => { btn.disabled = false; showToast("Tarmoq xatoligi!", 'error'); });
     }
 
     // ── B2B MULTI-ITEM CART SYSTEM ────────────────
@@ -2314,7 +2752,7 @@
       selectB2BPayment('karta');
       renderCartUI();
 
-      new bootstrap.Modal(document.getElementById('b2bModal')).show();
+      openSafeModal('b2bModal');
     }
 
     function changeCartWeight(productName, delta, priceStr) {
@@ -2485,7 +2923,7 @@
     }
 
     function openCourierApplyModal() {
-      new bootstrap.Modal(document.getElementById('courierApplyModal')).show();
+      openSafeModal('courierApplyModal');
     }
 
     function submitCourierApplication() {
@@ -2655,6 +3093,88 @@
       if (proofGrp) proofGrp.style.display = (method === 'karta') ? 'block' : 'none';
     }
 
+    // ── STOREFRONT CARD & FLOATING CART HELPERS ───
+    function setCardWeight(prodId, weight) {
+      const inp = document.getElementById('prod-weight-' + prodId);
+      if (inp) inp.value = weight.toFixed(1);
+      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.impactOccurred('light');
+      }
+    }
+
+    function adjustCardWeight(prodId, delta) {
+      const inp = document.getElementById('prod-weight-' + prodId);
+      if (inp) {
+        let val = parseFloat(inp.value) || 1.0;
+        val = Math.max(0.1, parseFloat((val + delta).toFixed(1)));
+        inp.value = val.toFixed(1);
+        if (window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+          Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+      }
+    }
+
+    function addToCartFromCard(prodId, name, price) {
+      const inp = document.getElementById('prod-weight-' + prodId);
+      const weight = parseFloat(inp ? inp.value : 1.0) || 1.0;
+      
+      cartState[name] = { name: name, weight: weight, price: price };
+      
+      // Haptic Feedback
+      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+      }
+
+      updateFloatingCart();
+      showToast(`🛒 ${weight} kg ${name} savatga qo'shildi!`, 'success');
+    }
+
+    function updateFloatingCart() {
+      const items = Object.values(cartState);
+      const bar = document.getElementById('floating-cart-bar');
+      const countTxt = document.getElementById('floating-cart-items-txt');
+      const totalTxt = document.getElementById('floating-cart-total-txt');
+      
+      if (!bar) return;
+      
+      if (items.length === 0) {
+        bar.classList.add('d-none');
+        return;
+      }
+
+      let totalSum = 0;
+      let totalWeight = 0;
+      items.forEach(i => {
+        totalSum += (i.weight * i.price);
+        totalWeight += i.weight;
+      });
+
+      if (countTxt) countTxt.textContent = `${items.length} ta mahsulot (${totalWeight.toFixed(1)} kg)`;
+      if (totalTxt) totalTxt.textContent = totalSum.toLocaleString('uz-UZ') + " so'm";
+      bar.classList.remove('d-none');
+    }
+
+    function filterShopProducts() {
+      const q = (document.getElementById('shop-search-input').value || '').toLowerCase().trim();
+      document.querySelectorAll('.shop-product-item').forEach(el => {
+        const name = el.getAttribute('data-name') || '';
+        el.style.display = (q === '' || name.includes(q)) ? '' : 'none';
+      });
+    }
+
+    function filterShopCategory(cat, btn) {
+      document.querySelectorAll('.shop-cat-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.querySelectorAll('.shop-product-item').forEach(el => {
+        const itemCat = el.getAttribute('data-cat') || '';
+        if (cat === 'all' || itemCat === cat) {
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
     function sendB2BOrder() {
       const itemsList = Object.values(cartState).map(i => ({
         product_name: i.name,
@@ -2673,11 +3193,11 @@
       const proofInput = document.getElementById('b2b-proof-image');
       const lat = document.getElementById('b2b-latitude').value;
       const lng = document.getElementById('b2b-longitude').value;
-
-      if (deliveryType === 'delivery' && !deliveryAddress && !lat) {
-        showToast("Yetkazib berish manzilini yoki GPS lokatsiyasini kiriting!", 'error');
-        return;
-      }
+      
+      const custNameInput = document.getElementById('b2b-cust-name');
+      const custPhoneInput = document.getElementById('b2b-cust-phone');
+      const custName = custNameInput ? custNameInput.value.trim() : '';
+      const custPhone = custPhoneInput ? custPhoneInput.value.trim() : '';
 
       const btn = document.getElementById('b2b-submit-btn');
       btn.disabled = true;
@@ -2691,6 +3211,16 @@
       formData.append('payment_method', paymentMethod);
       formData.append('latitude', lat);
       formData.append('longitude', lng);
+      formData.append('customer_id', CUSTOMER_ID);
+      formData.append('first_name', custName);
+      formData.append('phone', custPhone);
+
+      // Telegram WebApp chat_id integration
+      const urlParams = new URLSearchParams(window.location.search);
+      const tgChatId = urlParams.get('chat_id') || urlParams.get('tg_id') || (window.TG_USER ? window.TG_USER.id : '');
+      if (tgChatId) {
+        formData.append('chat_id', tgChatId);
+      }
 
       if (proofInput && proofInput.files && proofInput.files.length > 0) {
         formData.append('proof_image', proofInput.files[0]);
@@ -2704,10 +3234,20 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Buyurtma Berish';
         if (data.status === 'success') {
+          // Haptic Success
+          if (window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+            Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+          }
+
           cartState = {};
-          bootstrap.Modal.getInstance(document.getElementById('b2bModal')).hide();
-          showToast(data.message || "Buyurtmangiz muvaffaqiyatli qabul qilindi!", 'success');
-          setTimeout(() => location.reload(), 1500);
+          updateFloatingCart();
+          closeSafeModal('b2bModal');
+          showToast(data.message || "🎉 Buyurtmangiz muvaffaqiyatli qabul qilindi!", 'success');
+          
+          setTimeout(() => {
+            switchCabinetSection('orders');
+            location.reload();
+          }, 1500);
         } else {
           showToast(data.message || "Xatolik yuz berdi!", 'error');
         }
@@ -2724,18 +3264,101 @@
     let cabIsSending = false;
     let cabNewMsgCount = 0;
 
-    // Initialize: get max log id from pre-rendered bubbles
+    // Initialize: Telegram WebApp & Chat
     document.addEventListener('DOMContentLoaded', () => {
+      // 1. Telegram WebApp Engine
+      if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        try {
+          tg.enableClosingConfirmation();
+        } catch(e){}
+
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+          const u = tg.initDataUnsafe.user;
+          window.TG_USER = u;
+          const custNameInput = document.getElementById('b2b-cust-name');
+          if (custNameInput && !custNameInput.value) {
+            custNameInput.value = `${u.first_name || ''} ${u.last_name || ''}`.trim();
+          }
+          const heroName = document.getElementById('hero-customer-name');
+          if (heroName && heroName.textContent.includes('Xush kelibsiz')) {
+            heroName.textContent = `Xush kelibsiz, ${u.first_name || 'Mijoz'}! 👋`;
+          }
+        }
+      }
+
+      // 2. Chat bubbles init
       const allBubbles = document.querySelectorAll('#cab-chat-stream [data-log-id]');
       allBubbles.forEach(el => {
         const id = parseInt(el.dataset.logId || 0);
         if (id > cabLastLogId) cabLastLogId = id;
       });
-      // Scroll to bottom on load
       cabScrollToBottom();
-      // Start polling
       cabStartPolling();
+      requestBrowserNotificationPermission();
     });
+
+    // ── NOTIFICATION SOUND & CHIME (Web Audio API - 100% Reliable) ───
+    function playNotificationSound(type = 'chime') {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        if (type === 'chime') {
+          // Melodic 2-tone chime (E5 -> A5)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(659.25, now);
+          osc.frequency.setValueAtTime(880.00, now + 0.12);
+          
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.exponentialRampToValueAtTime(0.25, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+          
+          osc.start(now);
+          osc.stop(now + 0.46);
+        } else if (type === 'order') {
+          // Success 3-tone flourish (C5 -> E5 -> G5)
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.1);
+          osc.frequency.setValueAtTime(783.99, now + 0.2);
+          
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.exponentialRampToValueAtTime(0.3, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+          
+          osc.start(now);
+          osc.stop(now + 0.56);
+        }
+      } catch (err) {}
+    }
+
+    function requestBrowserNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    function triggerBrowserNotification(title, body) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(title, {
+            body: body || 'Baxmal Meat tizimida yangi bildirishnoma',
+            icon: '/static/images/logo.png',
+            badge: '/static/images/logo.png'
+          });
+        } catch (e) {}
+      }
+    }
 
     function cabScrollToBottom(smooth = false) {
       const stream = document.getElementById('cab-chat-stream');
@@ -2745,7 +3368,7 @@
 
     function cabStartPolling() {
       if (cabPollingTimer) clearInterval(cabPollingTimer);
-      cabPollingTimer = setInterval(cabPollNewMessages, 5000);
+      cabPollingTimer = setInterval(cabPollNewMessages, 3000);
     }
 
     function cabPollNewMessages() {
@@ -2753,11 +3376,15 @@
       fetch(`/pos/api/my-chat/?since_id=${cabLastLogId}`)
         .then(r => r.json())
         .then(data => {
-          if (data.status !== 'success' || !data.logs.length) return;
+          if (data.status !== 'success' || !data.logs || !data.logs.length) return;
           const stream = document.getElementById('cab-chat-stream');
           // Remove empty state placeholder
           const emptyEl = document.getElementById('cab-empty-chat');
           if (emptyEl) emptyEl.remove();
+
+          let hasIncoming = false;
+          let latestTitle = "Yangi xabar";
+          let latestBody = "";
 
           data.logs.forEach(log => {
             if (log.id <= cabLastLogId) return;
@@ -2765,7 +3392,33 @@
             const bubble = cabBuildBubble(log);
             stream.insertAdjacentHTML('beforeend', bubble);
             cabNewMsgCount++;
+
+            if (!log.is_mine) {
+              hasIncoming = true;
+              latestTitle = log.title || "Do'kon xabari";
+              latestBody = log.message || "";
+            }
           });
+
+          if (hasIncoming) {
+            playNotificationSound('chime');
+            triggerBrowserNotification("Baxmal Meat — " + latestTitle, latestBody);
+            showToast("🔔 " + latestTitle + (latestBody ? ": " + latestBody.replace(/<[^>]+>/g, '').substring(0, 45) : ''), 'success');
+            
+            if (window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+              Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+
+            // Update badge on Chat tab if user is currently on another tab
+            const chatSec = document.getElementById('sec-chat');
+            if (chatSec && chatSec.classList.contains('d-none')) {
+              const chatTabBtn = document.getElementById('btn-tab-chat');
+              if (chatTabBtn && !chatTabBtn.querySelector('.badge-dot')) {
+                chatTabBtn.insertAdjacentHTML('beforeend', '<span class="badge-dot" style="width:8px;height:8px;background:#EF4444;border-radius:50%;margin-left:6px;display:inline-block;animation:pulse 1.5s infinite;"></span>');
+              }
+            }
+          }
+
           cabScrollToBottom(true);
         })
         .catch(() => { });
@@ -2781,7 +3434,7 @@
       if (log.details && log.details.source === 'telegram') {
         sourceIcon = '&nbsp;<i class="bi bi-telegram" style="color:#0088cc;"></i>';
       } else if (log.details && log.details.source === 'web') {
-        sourceIcon = '&nbsp;<i class="bi bi-globe" style="color:#1B6B4A;"></i>';
+        sourceIcon = '&nbsp;<i class="bi bi-globe" style="color:#10B981;"></i>';
       }
 
       let imgHtml = '';
@@ -2874,7 +3527,7 @@
 
     // ── AI MEAT ASSISTANT ───────────────────────
     function openAIModal() {
-      new bootstrap.Modal(document.getElementById('aiAssistantModal')).show();
+      openSafeModal('aiAssistantModal');
     }
 
     function askAIMeatAssistant() {
@@ -2906,17 +3559,6 @@
         respBox.innerHTML = `<div class="text-danger">⚠️ Tarmoq xatoligi!</div>`;
       });
     }
-    // ── RECEIPT (E-CHEK) VIEW ──────────────────
-    function openReceiptFromRow(logId) {
-      const container = document.getElementById('receipt-html-' + logId);
-      if (!container) {
-        showToast("Ushbu operatsiya uchun chek topilmadi!", 'error');
-        return;
-      }
-      const content = document.getElementById('receiptModalContent');
-      content.innerHTML = container.innerHTML;
-      new bootstrap.Modal(document.getElementById('receiptModal')).show();
-    }
   </script>
 
   <!-- RECEIPT VIEW MODAL (E-CHEK) -->
@@ -2924,7 +3566,7 @@
     <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width:380px;">
       <div class="modal-content"
         style="border-radius:20px; border:none; overflow:hidden; box-shadow:0 15px 35px rgba(0,0,0,0.2);">
-        <div class="modal-header py-3 px-4" style="background:#1B6B4A; color:#fff;">
+        <div class="modal-header py-3 px-4" style="background:#10B981; color:#fff;">
           <h6 class="modal-title fw-bold mb-0" style="font-size:14px;">
             <i class="bi bi-receipt-cutoff me-2"></i> Baxmal Meat E-Chek
           </h6>
@@ -2937,7 +3579,7 @@
           <button type="button" class="btn btn-sm btn-outline-secondary rounded-3"
             data-bs-dismiss="modal">Yopish</button>
           <button type="button" class="btn btn-sm text-white rounded-3" onclick="window.print()"
-            style="background:#1B6B4A;">
+            style="background:#10B981;">
             <i class="bi bi-printer me-1"></i> Chop etish
           </button>
         </div>
@@ -2950,14 +3592,14 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content" style="border-radius:20px; border:none; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
         <div class="modal-header"
-          style="background:linear-gradient(135deg, #1B6B4A, #0D3B29); color:#fff; border-top-left-radius:20px; border-top-right-radius:20px; padding:16px 24px;">
+          style="background:linear-gradient(135deg, #10B981, #064E3B); color:#fff; border-top-left-radius:20px; border-top-right-radius:20px; padding:16px 24px;">
           <h5 class="modal-title fs-6 fw-bold mb-0 d-flex align-items-center gap-2">
             <i class="bi bi-robot" style="color:var(--cab-gold); font-size:20px;"></i>
             Baxmal Meat — AI Go'sht Maslahatchisi
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body p-4" style="background:#FAFAF8;">
+        <div class="modal-body p-4" style="background:#F0FDFA;">
           <p class="small text-muted mb-3">
             Shashlik, qozonkabob retseptlari va necha kg go'sht kerakligi bo'yicha sun'iy intellektdan maslahat so'rang:
           </p>
