@@ -705,13 +705,64 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
     order: -1;
   }
 }
+
+/* ── Mode Switcher Tabs ── */
+.mode-nav-tabs {
+  display: flex;
+  gap: 10px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 18px;
+  padding: 6px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+  flex-wrap: wrap;
+}
+.mode-tab-btn {
+  flex: 1;
+  min-width: 220px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  background: transparent;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.mode-tab-btn:hover {
+  color: #0F172A;
+  background: #F8FAFC;
+}
+.mode-tab-btn.active {
+  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
+  color: #FFFFFF !important;
+  border-color: #1B6B4A;
+  box-shadow: 0 4px 16px rgba(27,107,74,0.25);
+}
+.mode-tab-btn.active i {
+  color: #FFFFFF !important;
+}
+
+/* ── Live Search Dropdown for Quick Mode ── */
+.quick-sup-item {
+  transition: background 0.15s ease;
+}
+.quick-sup-item:hover {
+  background: #F1F5F9 !important;
+}
 </style>
 
 <div class="yl-wrapper">
     <div class="yl-header">
         <div>
-            <h1 class="yl-title">Yangi So'yim / Go'sht Nimtalash</h1>
-            <p class="yl-sub">So'yilgan toza go'sht va barcha tana a'zolarini o'lchab zaxiraga kiritish hamda xolodilnik suv bug'lanishi analitikasi</p>
+            <h1 class="yl-title">🥩 Zaxira & Go'sht Kirimi</h1>
+            <p class="yl-sub">Yangi so'yim, tayyor go'sht partiyasi kiritish hamda ombor qoldiqlarini to'g'rilash (inventarizatsiya)</p>
         </div>
         <div>
             <button type="button" class="btn btn-outline-success fw-bold px-3 py-2 rounded-3 shadow-sm" onclick="triggerDecayRecalculation()" id="decay-btn">
@@ -720,39 +771,54 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
         </div>
     </div>
 
-    <!-- Wizard Steps progress indicator -->
-    <div class="wizard-steps-nav">
-        <div class="step-nav-item active" id="step-nav-1" onclick="goToStep(1)">
-            <div class="step-nav-num">1</div>
-            <div class="step-nav-lbl">Ta'minotchi</div>
-        </div>
-        <div class="step-nav-line" id="step-line-1"></div>
-        <div class="step-nav-item" id="step-nav-2" onclick="goToStep(2)">
-            <div class="step-nav-num">2</div>
-            <div class="step-nav-lbl">Mahsulot</div>
-        </div>
-        <div class="step-nav-line" id="step-line-2"></div>
-        <div class="step-nav-item" id="step-nav-3" onclick="goToStep(3)">
-            <div class="step-nav-num">3</div>
-            <div class="step-nav-lbl">Toza Go'sht</div>
-        </div>
-        <div class="step-nav-line" id="step-line-3"></div>
-        <div class="step-nav-item" id="step-nav-4" onclick="goToStep(4)">
-            <div class="step-nav-num">4</div>
-            <div class="step-nav-lbl">Tana A'zolari (Nimtalash)</div>
-        </div>
-        <div class="step-nav-line" id="step-line-4"></div>
-        <div class="step-nav-item" id="step-nav-5" onclick="goToStep(5)">
-            <div class="step-nav-num">5</div>
-            <div class="step-nav-lbl">Xulosa</div>
-        </div>
+    <!-- 🌟 3 MAIN MODE SWITCHER TABS 🌟 -->
+    <div class="mode-nav-tabs">
+        <button type="button" class="mode-tab-btn active" id="tab-mode-slaughter" onclick="switchMainMode('slaughter')">
+            <i class="bi bi-scissors text-warning fs-5"></i> 🔪 1. Butun So'yim & Nimtalash
+        </button>
+        <button type="button" class="mode-tab-btn" id="tab-mode-quick" onclick="switchMainMode('quick')">
+            <i class="bi bi-box-seam-fill text-success fs-5"></i> 📦 2. Tayyor Go'sht Kiritish
+        </button>
+        <button type="button" class="mode-tab-btn" id="tab-mode-audit" onclick="switchMainMode('audit')">
+            <i class="bi bi-sliders2-vertical text-primary fs-5"></i> ⚖️ 3. Ombordagi Qoldiq (Inventarizatsiya)
+        </button>
     </div>
 
-    <div class="yl-grid">
-        <!-- LEFT: WIZARD SLIDES -->
-        <div>
-            <!-- STEP 1: Ta'minotchi (Supplier) -->
-            <div class="wizard-card" id="step-card-1">
+    <!-- ==================== MODE 1: SLAUGHTER WIZARD ==================== -->
+    <div id="mode-section-slaughter">
+        <!-- Wizard Steps progress indicator -->
+        <div class="wizard-steps-nav">
+            <div class="step-nav-item active" id="step-nav-1" onclick="goToStep(1)">
+                <div class="step-nav-num">1</div>
+                <div class="step-nav-lbl">Ta'minotchi</div>
+            </div>
+            <div class="step-nav-line" id="step-line-1"></div>
+            <div class="step-nav-item" id="step-nav-2" onclick="goToStep(2)">
+                <div class="step-nav-num">2</div>
+                <div class="step-nav-lbl">Mahsulot</div>
+            </div>
+            <div class="step-nav-line" id="step-line-2"></div>
+            <div class="step-nav-item" id="step-nav-3" onclick="goToStep(3)">
+                <div class="step-nav-num">3</div>
+                <div class="step-nav-lbl">Toza Go'sht</div>
+            </div>
+            <div class="step-nav-line" id="step-line-3"></div>
+            <div class="step-nav-item" id="step-nav-4" onclick="goToStep(4)">
+                <div class="step-nav-num">4</div>
+                <div class="step-nav-lbl">Tana A'zolari (Nimtalash)</div>
+            </div>
+            <div class="step-nav-line" id="step-line-4"></div>
+            <div class="step-nav-item" id="step-nav-5" onclick="goToStep(5)">
+                <div class="step-nav-num">5</div>
+                <div class="step-nav-lbl">Xulosa</div>
+            </div>
+        </div>
+
+        <div class="yl-grid">
+            <!-- LEFT: WIZARD SLIDES -->
+            <div>
+                <!-- STEP 1: Ta'minotchi (Supplier) -->
+                <div class="wizard-card" id="step-card-1">
                 <div>
                     <h3 class="wizard-title"><i class="bi bi-person-fill-check"></i> Ta'minotchi tanlang</h3>
                     <p class="text-muted small mb-4">Go'sht sotib olingan ta'minotchi yoki mijozni tanlang. Bo'lmasa yangi ta'minotchi qo'shishingiz mumkin.</p>
@@ -828,12 +894,23 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
                     
                     <div class="breakdown-row" style="margin-top: 20px;">
                         <div class="form-group">
-                            <label class="form-label">Toza Go'sht og'irligi (kg)</label>
-                            <input type="number" step="0.001" class="form-control-custom" id="totalWeight" value="150" oninput="calculateYield()">
+                            <label class="form-label">Toza Go'sht og'irligi (kg) *</label>
+                            <input type="number" step="0.001" class="form-control-custom" id="totalWeight" value="180" oninput="calculateYield()">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Xarid Narxi (so'm/kg)</label>
-                            <input type="number" class="form-control-custom" id="purchasePrice" value="130000" oninput="calculateYield()">
+                            <label class="form-label">Xarid Narxi — Fermerga (so'm/kg) *</label>
+                            <input type="number" class="form-control-custom" id="purchasePrice" value="125000" oninput="calculateYield()">
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">🔪 Qassob xizmati haqi (so'm)</label>
+                            <input type="number" class="form-control-custom" id="butcherFee" value="300000" placeholder="Masalan: 300 000" oninput="calculateYield()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🎯 Standart Lahm sotish narxi (so'm/kg)</label>
+                            <input type="number" class="form-control-custom" id="targetLahmPrice" value="140000" placeholder="Masalan: 140 000" oninput="calculateYield()">
                         </div>
                     </div>
 
@@ -841,6 +918,7 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
                         <label class="form-label">Nasiya to'lov muddati (kun)</label>
                         <input type="number" class="form-control-custom" id="dueDays" value="21" min="1">
                     </div>
+
 
                     <!-- PHOTO UPLOAD -->
                     <div class="form-group mb-3">
@@ -1143,7 +1221,7 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
 
                     <div style="background:#F8F6F2; border-radius:14px; padding:18px;">
                         <div class="result-row-flex">
-                            <span class="result-lbl">Ta'minotchi:</span>
+                            <span class="result-lbl">Ta'minotchi (Fermer):</span>
                             <span class="result-val" id="summarySupplier">Taminotchisiz</span>
                         </div>
                         <div class="result-row-flex">
@@ -1152,19 +1230,23 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
                         </div>
                         <div class="result-row-flex">
                             <span class="result-lbl">Jami toza go'sht vazni:</span>
-                            <span class="result-val highlight" id="summaryWeight">150 kg</span>
+                            <span class="result-val highlight" id="summaryWeight">180 kg</span>
                         </div>
                         <div class="result-row-flex">
-                            <span class="result-lbl">Ajratilgan qismlar (L/I/M/D):</span>
-                            <span class="result-val" id="summaryCutsWeight" style="color:#B45309; font-weight:600;">0 kg</span>
+                            <span class="result-lbl">Ajratilgan arzon qismlar (Suyak/Yog'/Dumg'aza):</span>
+                            <span class="result-val" id="summaryCutsWeight" style="color:#B45309; font-weight:700;">0 kg</span>
                         </div>
                         <div class="result-row-flex">
-                            <span class="result-lbl">Asosiy go'sht zaxirasiga:</span>
-                            <span class="result-val highlight" style="color:#1B6B4A;" id="summaryNetWeight">150 kg</span>
+                            <span class="result-lbl">Sof Lahm go'sht zaxirasiga:</span>
+                            <span class="result-val highlight" style="color:#1B6B4A;" id="summaryNetWeight">180 kg</span>
                         </div>
                         <div class="result-row-flex">
-                            <span class="result-lbl">Jami Xarid Narxi (Qarz):</span>
+                            <span class="result-lbl">Jami Xarid Summasi (Fermer haqi):</span>
                             <span class="result-val highlight" style="color:var(--primary);" id="summaryCost">0 so'm</span>
+                        </div>
+                        <div class="result-row-flex">
+                            <span class="result-lbl">Qassoblik xizmat haqi:</span>
+                            <span class="result-val" id="summaryButcherFee" style="color:#4B5563; font-weight:700;">0 so'm</span>
                         </div>
                         <div class="result-row-flex" style="flex-direction:column; align-items:flex-start; gap:6px;">
                             <span class="result-lbl">Bizga (Qassobga) o'tadigan a'zolar:</span>
@@ -1174,9 +1256,33 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
                         </div>
                     </div>
 
-                    <div style="background: rgba(212,168,83,0.06); border: 1.5px dashed rgba(212,168,83,0.25); border-radius:12px; padding:14px; margin-top:15px; font-size:0.88rem; color:#614612;">
-                        💡 Saqlash tugmasini bosganingizdan so'ng, ushbu nimtalar va rasmlar zaxiraga hamda online katalog sahifasiga muvaffaqiyatli saqlanadi.
+                    <!-- 🧠 SMART BREAK-EVEN & REAL COST AI CARD -->
+                    <div style="background: linear-gradient(135deg, #13271C 0%, #0D1A13 100%); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 20px; margin-top: 18px; color: #FFFFFF; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                            <span style="font-family:'DM Serif Display', serif; font-size:1.2rem; color:#34D399;">
+                                🎯 Haqiqiy Lahm Tannarxi & Rentabellik Matritsasi
+                            </span>
+                            <span class="badge" id="profitBadge" style="background:#10B981; font-size:0.8rem; padding:6px 12px; border-radius:20px;">Rentabel</span>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:14px;">
+                            <div style="background:rgba(255,255,255,0.05); padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+                                <div style="font-size:0.75rem; color:#94A3B8; text-transform:uppercase; font-weight:700;">Haqiqiy Sof Tannarx</div>
+                                <div style="font-family:'DM Serif Display', serif; font-size:1.5rem; color:#FCD34D;" id="realBreakEvenCost">0 so'm / kg</div>
+                                <div style="font-size:0.75rem; color:#CBD5E1;">Suyak va yog' arzon sotilgani hisobga olingan</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.05); padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+                                <div style="font-size:0.75rem; color:#94A3B8; text-transform:uppercase; font-weight:700;">Kutilayotgan Sof Foyda</div>
+                                <div style="font-family:'DM Serif Display', serif; font-size:1.5rem; color:#34D399;" id="forecastNetProfit">+0 so'm</div>
+                                <div style="font-size:0.75rem; color:#CBD5E1;" id="forecastProfitMargin">Marja: 0%</div>
+                            </div>
+                        </div>
+
+                        <div id="aiCostAdviceBox" style="background:rgba(245, 158, 11, 0.12); border:1px solid rgba(245, 158, 11, 0.3); border-radius:12px; padding:12px 14px; font-size:0.85rem; color:#FDE68A;">
+                            💡 AI Maslahat hisoblanmoqda...
+                        </div>
                     </div>
+
                 </div>
 
                 <div class="wizard-footer">
@@ -1193,6 +1299,207 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
 
             <div style="max-height: 480px; overflow-y: auto;" id="sideBatchesContainer">
                 <div class="text-center py-4 text-muted small">Partiyalar yuklanmoqda...</div>
+            </div>
+        </div>
+    </div>
+    </div> <!-- END MODE 1: SLAUGHTER WIZARD -->
+
+    <!-- ==================== MODE 2: TAYYOR GO'SHT KIRITISH ==================== -->
+    <div id="mode-section-quick" class="d-none">
+        <div class="wizard-card" style="box-shadow:0 4px 24px rgba(0,0,0,0.06); border-radius:22px; max-width:920px; margin:0 auto;">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3 flex-wrap gap-2">
+                <div>
+                    <h3 class="wizard-title mb-1" style="color:var(--primary); font-size:1.35rem;">
+                        <i class="bi bi-box-seam-fill me-2 text-success"></i> 📦 Tayyor Go'sht / Mahsulot Partiyasi Kiritish
+                    </h3>
+                    <p class="text-muted small m-0">So'yilmagan, tayyor qabul qilingan go'sht va a'zolarni to'g'ridan-to'g'ri zaxiraga qo'shish.</p>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold font-monospace">
+                    Tezkor Kirim
+                </span>
+            </div>
+
+            <form id="quickStockForm" onsubmit="event.preventDefault(); submitQuickStockEntry();">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">🥩 Mahsulot Turi *</label>
+                        <select class="form-control-custom" id="quickProduct" required onchange="calculateQuickTotal()">
+                            <option value="">-- Mahsulotni tanlang --</option>
+                            {% for prod in products %}
+                            <option value="{{ prod.id }}" data-price="{{ prod.price_per_kg|floatformat:0 }}" data-stock="{{ prod.stock.quantity|default:0 }}">
+                                {{ prod.name }} (Joriy zaxira: {{ prod.stock.quantity|default:0|floatformat:3 }} kg)
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 position-relative">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-bold mb-0">👤 Ta'minotchi / Fermer</label>
+                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-0.5 fw-bold" onclick="openNewSupplierModalForMode('quick')" style="font-size:11.5px;">
+                                <i class="bi bi-plus-circle-fill me-1"></i> + Yangi Ta'minotchi
+                            </button>
+                        </div>
+                        <input type="hidden" id="quickSupplier" value="none">
+                        
+                        <!-- Selected supplier chip/badge -->
+                        <div id="quickSelectedSupplierCard" class="p-2.5 rounded-3 border d-flex align-items-center justify-content-between shadow-sm" style="border-color: #10B981 !important; background: #F0FDF4 !important;">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success p-2 rounded-circle"><i class="bi bi-person-check-fill"></i></span>
+                                <div>
+                                    <strong id="quickSelectedSupplierName" class="text-dark d-block" style="font-size: 13.5px;">Ta'minotchisiz / Naqd xarid</strong>
+                                    <span id="quickSelectedSupplierMeta" class="text-muted small">To'g'ridan-to'g'ri do'kon xaridi</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold" onclick="enableQuickSupplierSearch()" style="font-size:12px;">
+                                <i class="bi bi-search me-1"></i> Qidirish / O'zgartirish
+                            </button>
+                        </div>
+
+                        <!-- Live Search input container -->
+                        <div id="quickSupplierSearchContainer" class="position-relative d-none">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0" style="border-radius:12px 0 0 12px; border-color:rgba(0,0,0,0.15);">
+                                    <i class="bi bi-search text-success"></i>
+                                </span>
+                                <input type="text" class="form-control" id="quickSupplierSearchInput" 
+                                       placeholder="Ism, telefon yoki ID orqali qidiring..." 
+                                       autocomplete="off"
+                                       style="border-radius:0 12px 12px 0; border-color:rgba(0,0,0,0.15); font-size:14px; padding:10px 14px;"
+                                       oninput="filterQuickSuppliers(this.value)"
+                                       onfocus="openQuickSupplierDropdown()">
+                            </div>
+
+                            <!-- Floating search results list -->
+                            <div id="quickSupplierDropdown" class="position-absolute w-100 bg-white border rounded-3 shadow-lg mt-1 d-none" 
+                                 style="z-index: 1060; max-height: 260px; overflow-y: auto; border-color: rgba(0,0,0,0.12) !important;">
+                                <div id="quickSupplierDropdownList" class="p-1">
+                                    <!-- Javascript populates this -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">⚖️ Qabul qilingan vazn (kg) *</label>
+                        <input type="number" step="0.001" min="0.001" class="form-control-custom font-monospace fw-bold" id="quickWeight" placeholder="Masalan: 45.500" required oninput="calculateQuickTotal()">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">💰 Xarid Narxi (so'm / kg) *</label>
+                        <input type="number" step="100" min="1000" class="form-control-custom font-monospace fw-bold" id="quickPurchasePrice" placeholder="Masalan: 120000" required oninput="calculateQuickTotal()">
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">💳 To'lov Usuli</label>
+                        <select class="form-control-custom" id="quickPaymentType">
+                            <option value="supplier_debt">📋 Ta'minotchiga qarz (Nasiya hisobiga yozish)</option>
+                            <option value="cash_paid">💵 Naqd pul (Do'kon kassasidan chiqim qilish)</option>
+                            <option value="none">⚪ Moliyaviy hisobsiz (Faqat ombor zaxirasini oshirish)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">📝 Izoh / Eslatma</label>
+                        <input type="text" class="form-control-custom" id="quickNotes" placeholder="Qo'shimcha partiya ma'lumotlari...">
+                    </div>
+                </div>
+
+                <!-- Real-time calculation summary card -->
+                <div style="background: linear-gradient(135deg, rgba(27,107,74,0.06), rgba(212,168,83,0.08)); border: 1.5px dashed rgba(27,107,74,0.25); border-radius:14px; padding:18px; margin-bottom:20px;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted fw-bold small">Jami Xarid Summasi:</span>
+                        <strong class="fs-4 text-success font-monospace" id="quickTotalCost">0 so'm</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center small text-muted">
+                        <span>Yangi hisoblangan umumiy zaxira:</span>
+                        <span class="fw-bold font-monospace text-dark" id="quickForecastStock">-</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2 rounded-3 fw-bold" onclick="document.getElementById('quickStockForm').reset(); calculateQuickTotal();">
+                        Tozalash
+                    </button>
+                    <button type="submit" class="btn btn-success px-4 py-2.5 rounded-3 fw-bold shadow-sm" id="btnQuickSubmit">
+                        <i class="bi bi-check-circle-fill me-1"></i> Zaxiraga Kiritish & Saqlash
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODE 3: OMBORDAGI QOLDIQNI TO'G'RILASH (INVENTARIZATSIYA) ==================== -->
+    <div id="mode-section-audit" class="d-none">
+        <div class="wizard-card" style="box-shadow:0 4px 24px rgba(0,0,0,0.06); border-radius:22px;">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3 flex-wrap gap-2">
+                <div>
+                    <h3 class="wizard-title mb-1" style="color:#047857; font-size:1.35rem;">
+                        <i class="bi bi-sliders2-vertical me-2 text-primary"></i> ⚖️ Ombordagi Qoldiqni To'g'rilash (Inventarizatsiya)
+                    </h3>
+                    <p class="text-muted small m-0">Tarozida amalda tortilgan go'sht vaznini kiritib, ombor zaxirasini bitta bosishda to'g'rilang.</p>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-success fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="refreshAuditTable()">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Ro'yxatni yangilash
+                </button>
+            </div>
+
+            <div class="table-responsive" style="border-radius:14px; border:1px solid rgba(0,0,0,0.08); overflow:hidden;">
+                <table class="table table-hover align-middle mb-0" style="font-size:13.5px;">
+                    <thead class="bg-light" style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
+                        <tr>
+                            <th class="ps-3 py-3">Mahsulot</th>
+                            <th class="py-3">Sotuv Narxi</th>
+                            <th class="py-3 text-center">Tizimdagi Qoldiq</th>
+                            <th class="py-3" style="width:200px;">Faktik Tarozi Vazni (kg)</th>
+                            <th class="py-3 text-center">Farq</th>
+                            <th class="text-end pe-3 py-3">Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody">
+                        {% for p in products %}
+                        <tr id="audit-row-{{ p.id }}">
+                            <td class="ps-3 py-2.5">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-light text-dark border p-2 rounded-3" style="font-size:14px;">🥩</span>
+                                    <div>
+                                        <strong class="text-dark">{{ p.name }}</strong>
+                                        <div class="small text-muted font-monospace">ID: #{{ p.id }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="fw-semibold text-dark">{{ p.price_per_kg|floatformat:0 }} so'm</span></td>
+                            <td class="text-center">
+                                <span class="badge {% if p.stock.quantity <= 0 %}bg-danger-subtle text-danger border border-danger-subtle{% elif p.stock.quantity <= 5 %}bg-warning-subtle text-warning border border-warning-subtle{% else %}bg-success-subtle text-success border border-success-subtle{% endif %} px-2.5 py-1 font-monospace fs-6" id="sys-stock-{{ p.id }}">
+                                    {{ p.stock.quantity|default:0|floatformat:3 }} kg
+                                </span>
+                            </td>
+                            <td>
+                                <input type="number" step="0.001" class="form-control form-control-sm font-monospace fw-bold" 
+                                       id="audit-input-{{ p.id }}" 
+                                       value="{{ p.stock.quantity|default:0|stringformat:'.3f' }}" 
+                                       style="border-radius:10px; padding:6px 10px;"
+                                       oninput="checkAuditDiff({{ p.id }}, {{ p.stock.quantity|default:0 }})">
+                            </td>
+                            <td class="text-center font-monospace small fw-bold" id="audit-diff-{{ p.id }}">
+                                <span class="text-muted">0.000 kg</span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <button type="button" class="btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm" 
+                                        id="btn-audit-{{ p.id }}"
+                                        onclick="saveSingleAudit({{ p.id }}, '{{ p.name }}')">
+                                    <i class="bi bi-check2"></i> Saqlash
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Mahsulotlar topilmadi</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -1450,6 +1757,17 @@ function searchSuppliers(val) {
     }, 300);
 }
 
+let currentSupplierModalMode = 'slaughter';
+
+function openNewSupplierModalForMode(mode) {
+    currentSupplierModalMode = mode || 'slaughter';
+    const modalEl = document.getElementById('newSupplierModal');
+    if (modalEl) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+}
+
 // Quick Supplier Creation via Modal
 function quickCreateSupplier() {
     const first = document.getElementById('newSupFirstName').value.trim();
@@ -1489,24 +1807,43 @@ function quickCreateSupplier() {
         return res.json();
     })
     .then(data => {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('newSupplierModal'));
-        modal.hide();
+        const modalEl = document.getElementById('newSupplierModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
         
-        const list = document.getElementById('supplierListContainer');
-        const newItem = document.createElement('div');
-        newItem.className = 'supplier-item selected';
-        newItem.id = 'supplier-item-' + data.id;
-        newItem.onclick = () => selectSupplier(data.id, data.name, 0);
-        newItem.innerHTML = `
-            <div>
-                <span>${data.name}</span>
-                <div class="supplier-meta">ID: ${data.custom_id} · Tel: ${data.phone}</div>
-            </div>
-            <span class="supplier-debt">0 so'm</span>
-        `;
-        list.appendChild(newItem);
+        // Add to global ALL_SUPPLIERS_DATA for live search
+        if (typeof ALL_SUPPLIERS_DATA !== 'undefined' && Array.isArray(ALL_SUPPLIERS_DATA)) {
+            ALL_SUPPLIERS_DATA.unshift({
+                id: data.id,
+                name: data.name,
+                custom_id: data.custom_id,
+                phone: data.phone,
+                debt_display: "0 so'm"
+            });
+        }
         
-        selectSupplier(data.id, data.name, 0);
+        // If mode 2 (Tayyor Go'sht)
+        if (currentSupplierModalMode === 'quick') {
+            selectQuickSupplier(data.id, data.name, `ID: ${data.custom_id} · Tel: ${data.phone}`);
+        } else {
+            // Mode 1 (Slaughter Wizard)
+            const list = document.getElementById('supplierListContainer');
+            if (list) {
+                const newItem = document.createElement('div');
+                newItem.className = 'supplier-item selected';
+                newItem.id = 'supplier-item-' + data.id;
+                newItem.onclick = () => selectSupplier(data.id, data.name, 0);
+                newItem.innerHTML = `
+                    <div>
+                        <span>${data.name}</span>
+                        <div class="supplier-meta">ID: ${data.custom_id} · Tel: ${data.phone}</div>
+                    </div>
+                    <span class="supplier-debt">0 so'm</span>
+                `;
+                list.prepend(newItem);
+            }
+            selectSupplier(data.id, data.name, 0);
+        }
         
         document.getElementById('newSupFirstName').value = '';
         document.getElementById('newSupLastName').value = '';
@@ -1553,12 +1890,16 @@ function selectAnimal(type) {
 function calculateYield() {
     const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
     const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+    const butcherFee = parseFloat(document.getElementById('butcherFee').value) || 0;
+    const targetLahmPrice = parseFloat(document.getElementById('targetLahmPrice').value) || 140000;
     
-    // Clean meat cost
+    // Clean meat cost (to farmer)
     const cleanMeatCost = totalWeight * purchasePrice;
     
-    // Extra parts costs
+    // Extra parts costs (what we pay to farmer)
     let extraPartsCost = 0;
+    // Offal retail revenue (what we sell to customers)
+    let offalRetailRevenue = 0;
     
     const cutsList = [];
     
@@ -1572,6 +1913,17 @@ function calculateYield() {
             const qty = parseFloat(qtyInput ? qtyInput.value : 0) || 0;
             
             extraPartsCost += price;
+            
+            // Expected retail price per kg for offal/bones
+            let retailPricePerUnit = 60000;
+            if (cut === 'charvi') retailPricePerUnit = 65000;
+            if (cut === 'dumgaza') retailPricePerUnit = 80000;
+            if (cut === 'jigar' || cut === 'yurak') retailPricePerUnit = 70000;
+            if (cut === 'kalla') retailPricePerUnit = 60000;
+            
+            if (cut !== 'lahm') {
+                offalRetailRevenue += qty * retailPricePerUnit;
+            }
             
             const unitStr = cut === 'kalla' ? ' dona' : ' kg';
             const priceStr = price > 0 ? ` (${price.toLocaleString()} so'm)` : ' (Tekin)';
@@ -1595,30 +1947,74 @@ function calculateYield() {
         }
     });
     
-    // Calculate carcass cuts weight
+    // Calculate carcass cuts weight (Bones + Fat + Tail)
     let carcassCutsWeight = 0;
-    if (cutsState.dumgaza.taken) carcassCutsWeight += parseFloat(document.getElementById('dumgazaWeight').value) || 0;
-    if (cutsState.charvi.taken) carcassCutsWeight += parseFloat(document.getElementById('charviWeight').value) || 0;
-    if (cutsState.ilik.taken) carcassCutsWeight += parseFloat(document.getElementById('ilikWeight').value) || 0;
-    if (cutsState.lahm.taken) carcassCutsWeight += parseFloat(document.getElementById('lahmWeight').value) || 0;
+    const dumgazaW = cutsState.dumgaza.taken ? (parseFloat(document.getElementById('dumgazaWeight').value) || 0) : 0;
+    const charviW = cutsState.charvi.taken ? (parseFloat(document.getElementById('charviWeight').value) || 0) : 0;
+    const ilikW = cutsState.ilik.taken ? (parseFloat(document.getElementById('ilikWeight').value) || 0) : 0;
     
-    const netCarcassWeight = Math.max(0, totalWeight - carcassCutsWeight);
+    carcassCutsWeight = dumgazaW + charviW + ilikW;
     
-    const totalCost = cleanMeatCost + extraPartsCost;
+    const netLahmWeight = Math.max(0.1, totalWeight - carcassCutsWeight);
+    const totalExpenditure = cleanMeatCost + extraPartsCost + butcherFee;
+    const lahmTargetCoverage = Math.max(0, totalExpenditure - offalRetailRevenue);
     
-    // Updates
-    document.getElementById('previewTotalCost').innerText = Math.round(totalCost).toLocaleString() + " so'm";
+    // Real break-even cost per kg for pure Lahm
+    const realBreakEvenCost = Math.round(lahmTargetCoverage / netLahmWeight);
+    
+    // Profit Forecast
+    const marginPerKg = targetLahmPrice - realBreakEvenCost;
+    const totalForecastProfit = Math.round(marginPerKg * netLahmWeight);
+    const marginPercent = targetLahmPrice > 0 ? ((marginPerKg / targetLahmPrice) * 100).toFixed(1) : 0;
+    
+    // UI Updates
+    document.getElementById('previewTotalCost').innerText = Math.round(cleanMeatCost + extraPartsCost).toLocaleString() + " so'm";
     document.getElementById('summaryWeight').innerText = totalWeight.toFixed(3) + " kg";
     document.getElementById('summaryCutsWeight').innerText = carcassCutsWeight.toFixed(3) + " kg";
-    document.getElementById('summaryNetWeight').innerText = netCarcassWeight.toFixed(3) + " kg";
-    document.getElementById('summaryCost').innerText = Math.round(totalCost).toLocaleString() + " so'm";
+    document.getElementById('summaryNetWeight').innerText = netLahmWeight.toFixed(3) + " kg";
+    document.getElementById('summaryCost').innerText = Math.round(cleanMeatCost + extraPartsCost).toLocaleString() + " so'm";
+    document.getElementById('summaryButcherFee').innerText = Math.round(butcherFee).toLocaleString() + " so'm";
     document.getElementById('summaryCutsList').innerHTML = cutsList.join('<br>');
+    
+    // Break-even Matrix Updates
+    document.getElementById('realBreakEvenCost').innerText = realBreakEvenCost.toLocaleString() + " so'm / kg";
+    document.getElementById('forecastNetProfit').innerText = (totalForecastProfit >= 0 ? "+" : "") + totalForecastProfit.toLocaleString() + " so'm";
+    document.getElementById('forecastProfitMargin').innerText = `Marja: ${marginPercent}% (1 kg dan: ${marginPerKg >= 0 ? '+' : ''}${marginPerKg.toLocaleString()} so'm)`;
+    
+    const badge = document.getElementById('profitBadge');
+    const advice = document.getElementById('aiCostAdviceBox');
+    
+    if (marginPercent < 5) {
+        badge.style.background = '#EF4444';
+        badge.innerText = '⚠️ Xavfli / Past Marja';
+        const recPrice = Math.round((realBreakEvenCost * 1.15) / 1000) * 1000;
+        advice.innerHTML = `🚨 <strong>DIQQAT:</strong> Foyda marjasi juda past (atigi <strong>${marginPercent}%</strong>). Ilik suyak (${ilikW} kg) va charvi yog' (${charviW} kg) 60-65 mingdan arzon sotilgani hisobiga sof lahm tannarxi <strong>${realBreakEvenCost.toLocaleString()} so'm</strong>ga yetgan! Do'kon sof foydada bo'lishi uchun standart lahm narxini kamida <strong>${recPrice.toLocaleString()} so'm</strong> qilib belgilash tavsiya etiladi.`;
+        advice.style.background = 'rgba(239, 68, 68, 0.15)';
+        advice.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        advice.style.color = '#FCA5A5';
+    } else if (marginPercent >= 5 && marginPercent < 15) {
+        badge.style.background = '#F59E0B';
+        badge.innerText = "⚡ O'rtacha Rentabel";
+        advice.innerHTML = `💡 <strong>QONIQARLI:</strong> Marja <strong>${marginPercent}%</strong> tashkil etmoqda. Kutilayotgan sof foyda: <strong>+${totalForecastProfit.toLocaleString()} so'm</strong>. Suyak va charvi moylarini 65 000+ so'mdan sotsangiz, do'kon sof foydasi yana oshadi.`;
+        advice.style.background = 'rgba(245, 158, 11, 0.15)';
+        advice.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+        advice.style.color = '#FDE68A';
+    } else {
+        badge.style.background = '#10B981';
+        badge.innerText = '🌟 Yuqori Rentabel';
+        advice.innerHTML = `🟢 <strong>A'LO:</strong> Ushbu so'yim juda serdaromad (<strong>${marginPercent}%</strong> sof marja). Kutilayotgan sof foyda: <strong>+${totalForecastProfit.toLocaleString()} so'm</strong>.`;
+        advice.style.background = 'rgba(16, 185, 129, 0.15)';
+        advice.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        advice.style.color = '#6EE7B7';
+    }
 }
 
 // Form Submission
 function submitSlaughter() {
     const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
     const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+    const butcherFee = parseFloat(document.getElementById('butcherFee').value) || 0;
+    const targetLahmPrice = parseFloat(document.getElementById('targetLahmPrice').value) || 140000;
     
     const jigarWeight = parseFloat(document.getElementById('jigarWeight').value) || 0;
     const jigarPrice = parseFloat(document.getElementById('jigarPrice').value) || 0;
@@ -1661,6 +2057,8 @@ function submitSlaughter() {
     formData.append('animal_type', selectedAnimalType);
     formData.append('total_weight', totalWeight);
     formData.append('purchase_price', purchasePrice);
+    formData.append('butcher_fee', butcherFee);
+    formData.append('target_selling_price', targetLahmPrice);
     formData.append('due_days', due_days);
     
     // Photos
@@ -1708,6 +2106,7 @@ function submitSlaughter() {
     formData.append('lahm_price', lahmPrice);
     const lahmPhoto = document.getElementById('lahmPhoto').files[0];
     if (lahmPhoto) formData.append('lahm_photo', lahmPhoto);
+
     
     fetch('/pos/api/process-slaughter/', {
         method: 'POST',
@@ -1796,6 +2195,320 @@ function loadYieldDecayReport() {
             console.error("Error loading yield decay report:", err);
             document.getElementById('sideBatchesContainer').innerHTML = `<div class="text-center py-4 text-danger small">Hisobotni yuklashda xatolik.</div>`;
         });
+}
+
+// ── 3 MAIN MODES SWITCHER ──
+function switchMainMode(mode) {
+    document.querySelectorAll('.mode-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('mode-section-slaughter').classList.add('d-none');
+    document.getElementById('mode-section-quick').classList.add('d-none');
+    document.getElementById('mode-section-audit').classList.add('d-none');
+
+    if (mode === 'slaughter') {
+        document.getElementById('tab-mode-slaughter').classList.add('active');
+        document.getElementById('mode-section-slaughter').classList.remove('d-none');
+    } else if (mode === 'quick') {
+        document.getElementById('tab-mode-quick').classList.add('active');
+        document.getElementById('mode-section-quick').classList.remove('d-none');
+    } else if (mode === 'audit') {
+        document.getElementById('tab-mode-audit').classList.add('active');
+        document.getElementById('mode-section-audit').classList.remove('d-none');
+        refreshAuditTable();
+    }
+}
+
+// ── MODE 2: QUICK SUPPLIER LIVE AUTOCOMPLETE ──
+const ALL_SUPPLIERS_DATA = {{ suppliers_json|safe }};
+
+function enableQuickSupplierSearch() {
+    document.getElementById('quickSelectedSupplierCard').classList.add('d-none');
+    const searchContainer = document.getElementById('quickSupplierSearchContainer');
+    searchContainer.classList.remove('d-none');
+    const input = document.getElementById('quickSupplierSearchInput');
+    input.value = '';
+    input.focus();
+    renderQuickSupplierDropdown('');
+}
+
+function openQuickSupplierDropdown() {
+    const input = document.getElementById('quickSupplierSearchInput');
+    renderQuickSupplierDropdown(input.value);
+    document.getElementById('quickSupplierDropdown').classList.remove('d-none');
+}
+
+function filterQuickSuppliers(query) {
+    renderQuickSupplierDropdown(query);
+}
+
+function renderQuickSupplierDropdown(query) {
+    const dropdown = document.getElementById('quickSupplierDropdown');
+    const list = document.getElementById('quickSupplierDropdownList');
+    dropdown.classList.remove('d-none');
+    list.innerHTML = '';
+
+    const q = (query || '').toLowerCase().trim();
+
+    // Default "None" option
+    const noneItem = document.createElement('div');
+    noneItem.className = 'p-2 rounded-2 d-flex align-items-center justify-content-between cursor-pointer quick-sup-item border-bottom mb-1';
+    noneItem.style.cursor = 'pointer';
+    noneItem.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-secondary-subtle text-secondary border p-2 rounded-circle">⚪</span>
+            <div>
+                <strong class="text-dark small d-block">-- Ta'minotchisiz / Naqd xarid --</strong>
+                <span class="text-muted" style="font-size:11px;">To'g'ridan-to'g'ri do'kon xaridi</span>
+            </div>
+        </div>
+        <span class="badge bg-light text-dark border font-monospace">0 so'm</span>
+    `;
+    noneItem.onclick = () => selectQuickSupplier('none', "Ta'minotchisiz / Naqd xarid", "To'g'ridan-to'g'ri do'kon xaridi");
+    list.appendChild(noneItem);
+
+    // Filter suppliers
+    const filtered = (ALL_SUPPLIERS_DATA || []).filter(s => {
+        if (!q) return true;
+        return (s.name && s.name.toLowerCase().includes(q)) ||
+               (s.phone && s.phone.toLowerCase().includes(q)) ||
+               (s.custom_id && s.custom_id.toLowerCase().includes(q));
+    });
+
+    if (filtered.length === 0) {
+        const noRes = document.createElement('div');
+        noRes.className = 'p-3 text-center text-muted small';
+        noRes.innerHTML = `<span>Mos keluvchi ta'minotchi yoki mijoz topilmadi.</span>`;
+        list.appendChild(noRes);
+    } else {
+        filtered.slice(0, 40).forEach(s => {
+            const item = document.createElement('div');
+            item.className = 'p-2 rounded-2 d-flex align-items-center justify-content-between cursor-pointer quick-sup-item';
+            item.style.cursor = 'pointer';
+            item.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success-subtle text-success border p-2 rounded-circle"><i class="bi bi-person-fill"></i></span>
+                    <div>
+                        <strong class="text-dark small d-block">${s.name}</strong>
+                        <span class="text-muted" style="font-size:11px;">ID: ${s.custom_id || ''} · Tel: ${s.phone || '-'}</span>
+                    </div>
+                </div>
+                <span class="badge ${s.is_negative ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning'} border font-monospace" style="font-size:11px;">
+                    ${s.debt_display || "0 so'm"}
+                </span>
+            `;
+            item.onclick = () => selectQuickSupplier(s.id, s.name, `ID: ${s.custom_id || ''} · Tel: ${s.phone || '-'}`);
+            list.appendChild(item);
+        });
+    }
+}
+
+function selectQuickSupplier(id, name, meta) {
+    document.getElementById('quickSupplier').value = id;
+    document.getElementById('quickSelectedSupplierName').innerText = name;
+    document.getElementById('quickSelectedSupplierMeta').innerText = meta;
+    document.getElementById('quickSupplierDropdown').classList.add('d-none');
+    document.getElementById('quickSupplierSearchContainer').classList.add('d-none');
+    document.getElementById('quickSelectedSupplierCard').classList.remove('d-none');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const container = document.getElementById('quickSupplierSearchContainer');
+    const card = document.getElementById('quickSelectedSupplierCard');
+    if (container && card && !container.contains(e.target) && !card.contains(e.target)) {
+        const dd = document.getElementById('quickSupplierDropdown');
+        if (dd) dd.classList.add('d-none');
+    }
+});
+
+// ── MODE 2: QUICK READY MEAT ENTRY LOGIC ──
+function calculateQuickTotal() {
+    const prodSelect = document.getElementById('quickProduct');
+    const selectedOption = prodSelect.options[prodSelect.selectedIndex];
+    const weight = parseFloat(document.getElementById('quickWeight').value) || 0;
+    const price = parseFloat(document.getElementById('quickPurchasePrice').value) || 0;
+    
+    const total = weight * price;
+    document.getElementById('quickTotalCost').innerText = Math.round(total).toLocaleString() + " so'm";
+
+    if (selectedOption && selectedOption.dataset.stock) {
+        const currentStock = parseFloat(selectedOption.dataset.stock) || 0;
+        const newTotalStock = currentStock + weight;
+        document.getElementById('quickForecastStock').innerText = `${currentStock.toFixed(3)} kg + ${weight.toFixed(3)} kg = ${newTotalStock.toFixed(3)} kg`;
+    } else {
+        document.getElementById('quickForecastStock').innerText = '-';
+    }
+}
+
+function submitQuickStockEntry() {
+    const productId = document.getElementById('quickProduct').value;
+    const supplierId = document.getElementById('quickSupplier').value;
+    const weight = parseFloat(document.getElementById('quickWeight').value) || 0;
+    const purchasePrice = parseFloat(document.getElementById('quickPurchasePrice').value) || 0;
+    const paymentType = document.getElementById('quickPaymentType').value;
+    const notes = document.getElementById('quickNotes').value;
+
+    if (!productId || weight <= 0 || purchasePrice <= 0) {
+        alert("Iltimos, mahsulot, vazn va xarid narxini to'liq kiriting!");
+        return;
+    }
+
+    const btn = document.getElementById('btnQuickSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saqlanmoqda...';
+
+    fetch('/pos/api/quick-stock-entry/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            supplier_id: supplierId,
+            weight: weight,
+            purchase_price: purchasePrice,
+            payment_type: paymentType,
+            notes: notes
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert("✅ " + data.message);
+            document.getElementById('quickStockForm').reset();
+            calculateQuickTotal();
+            loadYieldDecayReport();
+        } else {
+            alert("Xatolik: " + (data.message || 'Xato yuz berdi'));
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Tarmoq xatoligi yuz berdi!");
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Zaxiraga Kiritish & Saqlash';
+    });
+}
+
+// ── MODE 3: INVENTORY AUDIT LOGIC ──
+function checkAuditDiff(prodId, currentStock) {
+    const inputVal = parseFloat(document.getElementById(`audit-input-${prodId}`).value) || 0;
+    const diff = inputVal - currentStock;
+    const diffEl = document.getElementById(`audit-diff-${prodId}`);
+
+    if (Math.abs(diff) < 0.001) {
+        diffEl.innerHTML = '<span class="text-muted">0.000 kg</span>';
+    } else if (diff > 0) {
+        diffEl.innerHTML = `<span class="text-success fw-bold font-monospace">+${diff.toFixed(3)} kg</span>`;
+    } else {
+        diffEl.innerHTML = `<span class="text-danger fw-bold font-monospace">${diff.toFixed(3)} kg</span>`;
+    }
+}
+
+function saveSingleAudit(prodId, prodName) {
+    const inputVal = parseFloat(document.getElementById(`audit-input-${prodId}`).value);
+    if (isNaN(inputVal) || inputVal < 0) {
+        alert("Faktik vaznni to'g'ri kiriting (0 yoki undan katta)!");
+        return;
+    }
+
+    const btn = document.getElementById(`btn-audit-${prodId}`);
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    fetch('/pos/api/adjust-stock/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            product_id: prodId,
+            new_quantity: inputVal,
+            reason: 'Tarozi inventarizatsiyasi'
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const stockBadge = document.getElementById(`sys-stock-${prodId}`);
+            if (stockBadge) {
+                stockBadge.innerText = `${data.new_quantity.toFixed(3)} kg`;
+                stockBadge.className = `badge ${data.new_quantity <= 0 ? 'bg-danger-subtle text-danger border border-danger-subtle' : (data.new_quantity <= 5 ? 'bg-warning-subtle text-warning border border-warning-subtle' : 'bg-success-subtle text-success border border-success-subtle')} px-2.5 py-1 font-monospace fs-6`;
+            }
+            checkAuditDiff(prodId, data.new_quantity);
+            btn.innerHTML = '<i class="bi bi-check-lg"></i> Saqlandi';
+            btn.className = 'btn btn-sm btn-outline-success fw-bold px-3 rounded-pill';
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check2"></i> Saqlash';
+                btn.className = 'btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm';
+            }, 2000);
+        } else {
+            alert("Xatolik: " + data.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check2"></i> Saqlash';
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Tarmoq xatoligi!");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check2"></i> Saqlash';
+    });
+}
+
+function refreshAuditTable() {
+    fetch('/pos/api/get-all-stocks/')
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const tbody = document.getElementById('auditTableBody');
+                tbody.innerHTML = '';
+                data.products.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.id = `audit-row-${p.id}`;
+                    tr.innerHTML = `
+                        <td class="ps-3 py-2.5">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-light text-dark border p-2 rounded-3" style="font-size:14px;">🥩</span>
+                                <div>
+                                    <strong class="text-dark">${p.name}</strong>
+                                    <div class="small text-muted font-monospace">ID: #${p.id}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="fw-semibold text-dark">${Math.round(p.price_per_kg).toLocaleString()} so'm</span></td>
+                        <td class="text-center">
+                            <span class="badge ${p.quantity <= 0 ? 'bg-danger-subtle text-danger border border-danger-subtle' : (p.quantity <= 5 ? 'bg-warning-subtle text-warning border border-warning-subtle' : 'bg-success-subtle text-success border border-success-subtle')} px-2.5 py-1 font-monospace fs-6" id="sys-stock-${p.id}">
+                                ${p.quantity.toFixed(3)} kg
+                            </span>
+                        </td>
+                        <td>
+                            <input type="number" step="0.001" class="form-control form-control-sm font-monospace fw-bold" 
+                                   id="audit-input-${p.id}" 
+                                   value="${p.quantity.toFixed(3)}" 
+                                   style="border-radius:10px; padding:6px 10px;"
+                                   oninput="checkAuditDiff(${p.id}, ${p.quantity})">
+                        </td>
+                        <td class="text-center font-monospace small fw-bold" id="audit-diff-${p.id}">
+                            <span class="text-muted">0.000 kg</span>
+                        </td>
+                        <td class="text-end pe-3">
+                            <button type="button" class="btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm" 
+                                    id="btn-audit-${p.id}"
+                                    onclick="saveSingleAudit(${p.id}, '${p.name}')">
+                                <i class="bi bi-check2"></i> Saqlash
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        })
+        .catch(err => console.error("Error refreshing audit table:", err));
 }
 
 document.addEventListener("DOMContentLoaded", () => {

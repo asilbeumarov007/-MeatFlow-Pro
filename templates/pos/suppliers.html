@@ -7,219 +7,394 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 <style>
-  /* ══════════════════════════════════════
-     PREMIUM SUPPLIER DASHBOARD STYLES
-     ══════════════════════════════════════ */
-  .sup-container {
-    max-width: 1300px;
+  /* ══════════════════════════════════════════════════
+     GLASSMORPHISM STYLES & THEME FOR SUPPLIERS PORTAL
+     ══════════════════════════════════════════════════ */
+  .sup-wrapper {
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 30px 20px 80px;
-    font-family: 'Inter', sans-serif;
+    padding: 24px 20px 80px;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
-  .sup-header {
-    background: #FFFFFF;
-    border: 1px solid rgba(0,0,0,0.06);
+
+  /* ── Page Header ── */
+  .sup-header-glass {
+    background: linear-gradient(135deg, #04110D 0%, #082618 60%, #030E09 100%);
+    border: 1px solid rgba(212, 168, 83, 0.25);
     border-radius: 24px;
-    padding: 24px 30px;
-    box-shadow: var(--shadow-sm);
+    padding: 26px 32px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;
-    margin-bottom: 35px;
+    margin-bottom: 26px;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
   }
-  .sup-title-section h2 {
-    font-family: var(--font-serif);
-    font-size: 28px;
-    color: var(--text-main);
-    margin: 0 0 6px 0;
+  .sup-header-glass::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+    pointer-events: none;
   }
-  .sup-title-section p {
-    color: var(--text-muted);
-    font-size: 13.5px;
-    margin: 0;
-  }
-  
-  /* Quick stats cards */
-  .cash-banner-badge {
-    background: rgba(27, 107, 74, 0.08);
-    border: 1px solid rgba(27, 107, 74, 0.15);
-    border-radius: 16px;
-    padding: 12px 20px;
+  .sup-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
     display: flex;
     align-items: center;
     gap: 12px;
   }
-  .cash-banner-badge i {
-    font-size: 24px;
-    color: var(--primary);
-  }
-  .cash-banner-val {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--primary);
+  .sup-subtitle {
+    color: #94A3B8;
+    font-size: 0.9rem;
+    margin: 0;
   }
 
-  /* Search bar */
-  .search-wrap {
-    position: relative;
-    max-width: 450px;
-    width: 100%;
-  }
-  .search-input-field {
-    width: 100%;
-    background: #FFFFFF;
-    border: 1.5px solid rgba(0,0,0,0.08);
-    border-radius: 14px;
-    padding: 12px 16px 12px 46px;
-    font-size: 14px;
-    color: var(--text-main);
-    transition: all 0.2s;
-  }
-  .search-input-field:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(27, 107, 74, 0.1);
-  }
-  .search-icon-inside {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 16px;
-  }
-
-  /* Suppliers Grid */
-  .sup-grid {
+  /* ── 4 Top KPI Cards ── */
+  .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
   }
-  .sup-card {
+  .kpi-card {
     background: #FFFFFF;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 20px;
-    padding: 24px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    padding: 20px 22px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
     position: relative;
     overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+  .kpi-card.glow-debt {
+    border-color: rgba(239, 68, 68, 0.35);
+    background: linear-gradient(135deg, #FFFFFF 0%, #FEF2F2 100%);
+  }
+  .kpi-card.glow-supplies {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
+  }
+  .kpi-card.glow-paid {
+    border-color: rgba(59, 130, 246, 0.35);
+    background: linear-gradient(135deg, #FFFFFF 0%, #EFF6FF 100%);
+  }
+  .kpi-card.glow-cash {
+    border-color: rgba(212, 168, 83, 0.4);
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 100%);
+  }
+  .kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .kpi-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .icon-red { background: rgba(239, 68, 68, 0.12); color: #EF4444; }
+  .icon-green { background: rgba(16, 185, 129, 0.12); color: #10B981; }
+  .icon-blue { background: rgba(59, 130, 246, 0.12); color: #3B82F6; }
+  .icon-gold { background: rgba(212, 168, 83, 0.15); color: #B45309; }
+
+  .kpi-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748B;
+    margin-bottom: 4px;
+  }
+  .kpi-val {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #0F172A;
+    font-family: 'Plus Jakarta Sans', monospace;
+    line-height: 1.1;
+  }
+  .kpi-sub {
+    font-size: 0.78rem;
+    color: #64748B;
+    margin-top: 6px;
+  }
+
+  /* ── Filter Bar & Search ── */
+  .control-bar {
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    padding: 12px 18px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .filter-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-pill {
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(0, 0, 0, 0.08);
+    background: #F8FAFC;
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-pill:hover {
+    background: #E2E8F0;
+    color: #0F172A;
+  }
+  .filter-pill.active {
+    background: #04110D;
+    color: #FFFFFF;
+    border-color: #04110D;
+    box-shadow: 0 2px 8px rgba(4, 17, 13, 0.2);
+  }
+
+  .search-input-box {
+    position: relative;
+    min-width: 280px;
+    max-width: 360px;
+  }
+  .search-input-box input {
+    width: 100%;
+    padding: 9px 14px 9px 38px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(0, 0, 0, 0.1);
+    font-size: 0.88rem;
+    background: #F8FAFC;
+    transition: all 0.2s;
+  }
+  .search-input-box input:focus {
+    background: #FFFFFF;
+    outline: none;
+    border-color: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+  }
+  .search-input-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+  }
+
+  /* ── View Switcher ── */
+  .view-switch-btn {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #F8FAFC;
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #64748B;
+    cursor: pointer;
+  }
+  .view-switch-btn.active {
+    background: #10B981;
+    color: #FFFFFF;
+    border-color: #10B981;
+  }
+
+  /* ── Supplier Grid Cards ── */
+  .sup-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .sup-glass-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100%;
+    transition: all 0.25s ease;
+    position: relative;
   }
-  .sup-card:hover {
+  .sup-glass-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-    border-color: rgba(27, 107, 74, 0.15);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    border-color: rgba(16, 185, 129, 0.3);
   }
-  .sup-card-top {
+  .sup-glass-card.in-debt {
+    border-left: 5px solid #EF4444;
+  }
+  .sup-glass-card.settled {
+    border-left: 5px solid #10B981;
+  }
+
+  .card-header-flex {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
-  .sup-code-tag {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    background: #F3F4F6;
-    color: #4B5563;
-    padding: 4px 10px;
-    border-radius: 8px;
-  }
-  .sup-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-main);
-    margin: 8px 0 4px 0;
-  }
-  .sup-phone {
-    font-size: 13px;
-    color: var(--text-muted);
+  .sup-avatar-initials {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #061A10, #10B981);
+    color: #FFFFFF;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+  }
+  .sup-name-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin: 0 0 3px 0;
+  }
+  .sup-phone-badge {
+    font-size: 0.82rem;
+    color: #64748B;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
   }
 
-  /* Outstanding debt block */
-  .sup-debt-block {
-    background: #FDFBF7;
-    border: 1px solid rgba(212, 168, 83, 0.15);
-    border-radius: 12px;
+  /* ── Outstanding Debt Highlight Box ── */
+  .debt-highlight-box {
+    border-radius: 16px;
     padding: 14px 16px;
-    margin: 18px 0;
+    margin: 14px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .sup-debt-lbl {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #8B6914;
-    margin-bottom: 4px;
+  .debt-highlight-box.has-debt {
+    background: #FEF2F2;
+    border: 1px solid rgba(239, 68, 68, 0.25);
   }
-  .sup-debt-val {
-    font-size: 20px;
+  .debt-highlight-box.no-debt {
+    background: #F0FDF4;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+  .debt-lbl {
+    font-size: 0.72rem;
     font-weight: 800;
-    color: #1B6B4A;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
-  .sup-debt-val.zero {
-    color: var(--text-light);
+  .debt-val {
+    font-size: 1.3rem;
+    font-weight: 800;
+    font-family: 'Plus Jakarta Sans', monospace;
   }
 
-  /* Card action buttons */
-  .sup-actions {
-    display: flex;
+  /* ── Card Mini Stats ── */
+  .sup-mini-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-top: 10px;
+    background: #F8FAFC;
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 0.8rem;
   }
-  .btn-sup-pay {
+  .stat-row-item {
+    display: flex;
+    flex-direction: column;
+  }
+  .stat-row-lbl {
+    color: #94A3B8;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .stat-row-val {
+    font-weight: 700;
+    color: #334155;
+  }
+
+  /* ── Action Buttons ── */
+  .card-actions-flex {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-action-pay {
     flex: 1;
-    background: var(--primary);
+    background: #10B981;
     color: #FFFFFF;
     border: none;
     border-radius: 12px;
     padding: 10px 14px;
-    font-size: 13.5px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: background 0.2s;
-  }
-  .btn-sup-pay:hover {
-    background: var(--primary-light);
-  }
-  .btn-sup-ledger {
-    background: #F3F4F6;
-    color: #374151;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-size: 13.5px;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     transition: all 0.2s;
   }
-  .btn-sup-ledger:hover {
-    background: #E5E7EB;
+  .btn-action-pay:hover {
+    background: #059669;
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+  .btn-action-ledger {
+    background: #F1F5F9;
+    color: #334155;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-action-ledger:hover {
+    background: #E2E8F0;
+    color: #0F172A;
   }
 
-  /* ── LEDGER DRAWER STYLING ── */
+  /* ── Drawer & Modals ── */
   .ledger-drawer-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(6px);
     z-index: 1050;
     display: none;
     opacity: 0;
@@ -227,168 +402,327 @@
   }
   .ledger-drawer {
     position: fixed;
-    top: 0; right: -600px;
-    width: 600px; height: 100vh;
+    top: 0; right: -650px;
+    width: 650px; height: 100vh;
     background: #FFFFFF;
     z-index: 1060;
-    box-shadow: -10px 0 40px rgba(0,0,0,0.15);
+    box-shadow: -10px 0 40px rgba(0,0,0,0.25);
     display: flex;
     flex-direction: column;
-    transition: right 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: right 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
   }
-  @media(max-width: 600px) {
+  @media(max-width: 650px) {
     .ledger-drawer { width: 100%; right: -100%; }
   }
   .ledger-drawer.open { right: 0; }
   .ledger-drawer-overlay.show { display: block; opacity: 1; }
 
-  .drawer-header {
-    padding: 24px 30px;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
+  .drawer-header-glass {
+    padding: 22px 28px;
+    background: linear-gradient(135deg, #04110D 0%, #082618 100%);
+    color: #FFFFFF;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #FDFBF7;
   }
-  .drawer-body {
+  .drawer-body-scroll {
     flex: 1;
-    padding: 24px 30px;
+    padding: 24px;
     overflow-y: auto;
+    background: #F8FAFC;
   }
-  .drawer-footer {
-    padding: 20px 30px;
-    border-top: 1px solid rgba(0,0,0,0.06);
-    background: #F9FAFB;
+  .drawer-footer-actions {
+    padding: 18px 24px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    background: #FFFFFF;
     display: flex;
     gap: 12px;
   }
-  .close-drawer-btn {
-    background: transparent;
-    border: none;
-    font-size: 24px;
-    color: var(--text-muted);
-    cursor: pointer;
-  }
-  .close-drawer-btn:hover {
-    color: var(--text-main);
-  }
 
-  /* Ledger Table */
-  .ledger-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .ledger-table th {
-    background: #F3F4F6;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #4B5563;
-    padding: 10px 12px;
-    text-align: left;
-  }
-  .ledger-table td {
-    padding: 12px;
-    font-size: 13.5px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    vertical-align: middle;
-  }
-  .effect-plus {
-    color: #DC3545; /* we owe them more (negative for us) */
-    font-weight: 700;
-  }
-  .effect-minus {
-    color: #28A745; /* we paid them or barter (reduction in debt) */
-    font-weight: 700;
-  }
-
-  /* Empty alert */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-muted);
+  .timeline-item {
+    background: #FFFFFF;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 </style>
 
-<div class="sup-container">
-  
-  <!-- Header Bar -->
-  <div class="sup-header animate__animated animate__fadeInDown">
-    <div class="sup-title-section">
-      <h2>Ta'minotchilar Jurnali</h2>
-      <p>Mollar va qo'ylar so'yimi hamkorlari, qarz qoldiqlari va moliyaviy oldi-berdilar.</p>
+<div class="sup-wrapper">
+
+  <!-- 🌟 HEADER GLASS 🌟 -->
+  <div class="sup-header-glass animate__animated animate__fadeInDown">
+    <div>
+      <h1 class="sup-title">
+        <i class="bi bi-truck text-warning"></i> Ta'minotchilar Portali
+      </h1>
+      <p class="sup-subtitle">
+        Go'sht ta'minotchilari, fermerlar bilan so'yim va xaridlar, jami qarzlar hamda to'liq oldi-berdi tahlili.
+      </p>
     </div>
 
-    <!-- Active cash balance -->
-    <div class="d-flex align-items-center gap-3">
-      <div class="cash-banner-badge">
-        <i class="bi bi-safe-fill"></i>
-        <div>
-          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Kassadagi Naqd Pul</div>
-          <div class="cash-banner-val">{{ current_cash_balance|floatformat:0 }} so'm</div>
-        </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="/pos/yield-loss/" class="btn btn-outline-light rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm" style="font-size:13px;">
+        <i class="bi bi-scissors text-warning"></i> 🥩 Yangi So'yim / Go'sht Kirimi
+      </a>
+      <button class="btn btn-success rounded-pill px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm" style="background:#10B981; border:none; font-size:13px;" onclick="openCreateModal()">
+        <i class="bi bi-plus-circle-fill"></i> Yangi Hamkor Qo'shish
+      </button>
+    </div>
+  </div>
+
+  <!-- 🌟 4 TOP KPI CARDS 🌟 -->
+  <div class="kpi-grid animate__animated animate__fadeInUp">
+    <!-- KPI 1: Jami Qarzimiz -->
+    <div class="kpi-card glow-debt">
+      <div class="kpi-top">
+        <span class="kpi-title">Jami Bizning Qarzimiz</span>
+        <div class="kpi-icon icon-red"><i class="bi bi-exclamation-octagon-fill"></i></div>
       </div>
+      <div class="kpi-val text-danger">{{ total_supplier_debt|floatformat:0 }} <span style="font-size:14px; font-weight:600;">so'm</span></div>
+      <div class="kpi-sub"><strong class="text-danger">{{ in_debt_count }} ta</strong> ta'minotchiga qarzimiz mavjud</div>
+    </div>
+
+    <!-- KPI 2: Jami Xaridlar -->
+    <div class="kpi-card glow-supplies">
+      <div class="kpi-top">
+        <span class="kpi-title">Jami Go'sht Xaridi</span>
+        <div class="kpi-icon icon-green"><i class="bi bi-box-seam-fill"></i></div>
+      </div>
+      <div class="kpi-val text-success">{{ total_supplied_cost|floatformat:0 }} <span style="font-size:14px; font-weight:600;">so'm</span></div>
+      <div class="kpi-sub">Jami qabul qilingan: <strong>{{ total_supplied_weight|floatformat:1 }} kg</strong></div>
+    </div>
+
+    <!-- KPI 3: Jami To'langan Chiqim -->
+    <div class="kpi-card glow-paid">
+      <div class="kpi-top">
+        <span class="kpi-title">Jami To'langan Mablag'</span>
+        <div class="kpi-icon icon-blue"><i class="bi bi-cash-stack"></i></div>
+      </div>
+      <div class="kpi-val" style="color:#2563EB;">{{ total_paid_to_suppliers|floatformat:0 }} <span style="font-size:14px; font-weight:600;">so'm</span></div>
+      <div class="kpi-sub">Kassadan ta'minotchilarga to'langan</div>
+    </div>
+
+    <!-- KPI 4: Kassadagi Naqd Pul -->
+    <div class="kpi-card glow-cash">
+      <div class="kpi-top">
+        <span class="kpi-title">Kassadagi Naqd Pul</span>
+        <div class="kpi-icon icon-gold"><i class="bi bi-safe2-fill"></i></div>
+      </div>
+      <div class="kpi-val" style="color:#B45309;">{{ current_cash_balance|floatformat:0 }} <span style="font-size:14px; font-weight:600;">so'm</span></div>
+      <div class="kpi-sub">Hozirgi do'kon naqd pul qoldig'i</div>
     </div>
   </div>
 
-  <!-- Search & Actions Grid -->
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div class="search-wrap">
-      <i class="bi bi-search search-icon-inside"></i>
-      <input type="text" id="supSearch" class="search-input-field" placeholder="Ta'minotchi ismi yoki kodi bo'yicha qidirish..." onkeyup="filterSuppliers()">
+  <!-- 🌟 CONTROLS & FILTER BAR 🌟 -->
+  <div class="control-bar">
+    <div class="filter-pills">
+      <button type="button" class="filter-pill active" onclick="setFilter('all', this)">
+        <i class="bi bi-grid-fill"></i> Barchasi ({{ total_suppliers_count }})
+      </button>
+      <button type="button" class="filter-pill" onclick="setFilter('in_debt', this)">
+        <span class="badge bg-danger p-1 rounded-circle"></span> 🔴 Qarzimiz Borlar ({{ in_debt_count }})
+      </button>
+      <button type="button" class="filter-pill" onclick="setFilter('settled', this)">
+        <span class="badge bg-success p-1 rounded-circle"></span> 🟢 Hisoblashilganlar ({{ settled_count }})
+      </button>
+      <button type="button" class="filter-pill" onclick="setFilter('barter', this)">
+        <i class="bi bi-arrow-left-right text-success"></i> 🔄 Barter Hamkorlar ({{ barter_count }})
+      </button>
     </div>
-    <button class="btn btn-success d-flex align-items-center gap-2" style="background: var(--primary); border-color: var(--primary); border-radius: 12px; padding: 12px 20px; font-weight:600;" onclick="openCreateModal()">
-      <i class="bi bi-plus-circle"></i> Yangi Hamkor (Ta'minotchi) Qo'shish
-    </button>
+
+    <div class="d-flex align-items-center gap-2">
+      <div class="search-input-box">
+        <i class="bi bi-search"></i>
+        <input type="text" id="supSearchInput" placeholder="Ism, telefon yoki ID orqali qidirish..." oninput="filterSuppliersList()">
+      </div>
+      <button type="button" class="view-switch-btn active" id="btnViewCards" onclick="switchView('cards')" title="Kartochkalar">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+      </button>
+      <button type="button" class="view-switch-btn" id="btnViewTable" onclick="switchView('table')" title="Jadval">
+        <i class="bi bi-table"></i>
+      </button>
+    </div>
   </div>
 
-  <!-- Suppliers Grid List -->
-  <div class="sup-grid animate__animated animate__fadeInUp">
+  <!-- 🌟 VIEW 1: SUPPLIERS CARDS GRID 🌟 -->
+  <div class="sup-cards-grid" id="suppliersCardsContainer">
     {% for s in suppliers %}
-    <div class="sup-card-wrapper" data-name="{{ s.first_name }} {{ s.last_name }}" data-code="{{ s.custom_id }}">
-      <div class="sup-card">
+    <div class="sup-card-item" 
+         data-name="{{ s.first_name }} {{ s.last_name|default:'' }}" 
+         data-phone="{{ s.phone }}" 
+         data-code="{{ s.custom_id }}"
+         data-debt="{{ s.our_debt|floatformat:0 }}"
+         data-hasdebt="{% if s.our_debt > 0 %}yes{% else %}no{% endif %}"
+         data-isbarter="{% if s.customer %}yes{% else %}no{% endif %}">
+      
+      <div class="sup-glass-card {% if s.our_debt > 0 %}in-debt{% else %}settled{% endif %}">
         <div>
-          <div class="sup-card-top">
-            <span class="sup-code-tag">ID: {{ s.custom_id }}</span>
-            {% if s.customer %}
-              <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1" style="font-size: 10px; font-weight: 700;">
-                <i class="bi bi-arrow-left-right"></i> Barter Profil
+          <!-- Header of card -->
+          <div class="card-header-flex">
+            <div class="d-flex align-items-center gap-3">
+              <div class="sup-avatar-initials">
+                {{ s.first_name|slice:":1"|upper }}
+              </div>
+              <div>
+                <h3 class="sup-name-title">{{ s.first_name }} {{ s.last_name|default:"" }}</h3>
+                <a href="tel:{{ s.phone }}" class="sup-phone-badge text-decoration-none">
+                  <i class="bi bi-telephone-fill text-success"></i> {{ s.phone }}
+                </a>
+              </div>
+            </div>
+
+            <div class="text-end">
+              <span class="badge bg-light text-dark border font-monospace px-2 py-1" style="font-size:11px;">
+                ID: {{ s.custom_id }}
               </span>
+              {% if s.customer %}
+              <div class="mt-1">
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5" style="font-size:10px; font-weight:700;">
+                  <i class="bi bi-arrow-left-right"></i> Barter
+                </span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Debt Display Box -->
+          <div class="debt-highlight-box {% if s.our_debt > 0 %}has-debt{% else %}no-debt{% endif %}">
+            <div>
+              <div class="debt-lbl {% if s.our_debt > 0 %}text-danger{% else %}text-success{% endif %}">
+                {% if s.our_debt > 0 %}Bizning Qarzimiz{% elif s.our_debt < 0 %}Bizga Ortiqcha To'lov{% else %}Hisob-kitob Qilingan{% endif %}
+              </div>
+              <div class="debt-val {% if s.our_debt > 0 %}text-danger{% else %}text-success{% endif %}">
+                {{ s.our_debt|floatformat:0 }} <span style="font-size:12px; font-weight:600;">so'm</span>
+              </div>
+            </div>
+            {% if s.our_debt > 0 %}
+            <span class="badge bg-danger text-white rounded-pill px-2.5 py-1" style="font-size:11px;">To'lanishi kerak</span>
+            {% else %}
+            <span class="badge bg-success text-white rounded-circle p-2"><i class="bi bi-check2"></i></span>
             {% endif %}
           </div>
-          <h3 class="sup-name">{{ s.first_name }} {{ s.last_name|default:"" }}</h3>
-          <div class="sup-phone">
-            <i class="bi bi-telephone-fill"></i> {{ s.phone }}
-          </div>
-          
-          <div class="sup-debt-block">
-            <div class="sup-debt-lbl">Bizning qarzimiz</div>
-            <div class="sup-debt-val {% if s.our_debt == 0 %}zero{% endif %}">
-              {{ s.our_debt|floatformat:0 }} <span style="font-size: 13px; font-weight: 500;">so'm</span>
+
+          <!-- Mini Metrics -->
+          <div class="sup-mini-stats">
+            <div class="stat-row-item">
+              <span class="stat-row-lbl">Xaridlar / So'yim</span>
+              <span class="stat-row-val">{{ s.slaughters_count|default:0 }} ta ({{ s.total_supply_weight|default:0|floatformat:1 }} kg)</span>
+            </div>
+            <div class="stat-row-item">
+              <span class="stat-row-lbl">Jami Xarid Summasi</span>
+              <span class="stat-row-val">{{ s.total_supply_amount|default:0|floatformat:0 }} so'm</span>
+            </div>
+            <div class="stat-row-item">
+              <span class="stat-row-lbl">Jami To'langan</span>
+              <span class="stat-row-val text-primary">{{ s.total_paid|default:0|floatformat:0 }} so'm</span>
+            </div>
+            <div class="stat-row-item">
+              <span class="stat-row-lbl">Oxirgi Xarid</span>
+              <span class="stat-row-val text-muted">
+                {% if s.last_slaughter_date %}
+                  {{ s.last_slaughter_date|date:"d.m.Y" }}
+                {% else %}
+                  -
+                {% endif %}
+              </span>
             </div>
           </div>
         </div>
 
-        <div class="sup-actions">
-          <button class="btn-sup-pay" onclick="openPaymentModal('{{ s.id }}', '{{ s.first_name }} {{ s.last_name|default:'' }}', '{{ s.our_debt|floatformat:0 }}')">
+        <!-- Action Buttons -->
+        <div class="card-actions-flex">
+          <button type="button" class="btn-action-pay" onclick="openPaymentModal('{{ s.id }}', '{{ s.first_name }} {{ s.last_name|default:'' }}', '{{ s.our_debt|floatformat:0 }}')">
             <i class="bi bi-cash-stack"></i> To'lov
           </button>
-          <button class="btn-sup-ledger" onclick="openLedgerDrawer('{{ s.id }}')">
-            <i class="bi bi-journal-text"></i> Ledger
+          <button type="button" class="btn-action-ledger" onclick="openLedgerDrawer('{{ s.id }}')">
+            <i class="bi bi-journal-text"></i> Oldi-Berdi
           </button>
+          <a href="/pos/yield-loss/" class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center px-3 rounded-3" title="Yangi so'yim kiritish">
+            <i class="bi bi-plus-lg"></i>
+          </a>
         </div>
       </div>
     </div>
     {% empty %}
     <div class="col-12 text-center py-5">
-      <div class="empty-state">
+      <div class="bg-white rounded-4 p-5 shadow-sm border">
         <i class="bi bi-truck text-muted" style="font-size: 48px; display: block; margin-bottom: 16px;"></i>
         <h5>Ta'minotchilar topilmadi</h5>
-        <p>Baza hozircha bo'sh yoki ta'minotchilar hali kiritilmagan.</p>
+        <p class="text-muted small">Baza hozircha bo'sh yoki mos keluvchi ta'minotchi yo'q.</p>
       </div>
     </div>
     {% endfor %}
+  </div>
+
+  <!-- 🌟 VIEW 2: TABLE VIEW (HIDDEN BY DEFAULT) 🌟 -->
+  <div class="d-none bg-white rounded-4 border shadow-sm overflow-hidden" id="suppliersTableContainer">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="font-size:14px;">
+        <thead class="bg-light text-uppercase text-muted" style="font-size:11.5px; letter-spacing:0.04em;">
+          <tr>
+            <th class="ps-4 py-3">Hamkor / ID</th>
+            <th class="py-3">Telefon</th>
+            <th class="py-3">Bizning Qarzimiz</th>
+            <th class="py-3">Jami Xaridlar</th>
+            <th class="py-3">To'langan</th>
+            <th class="py-3">Oxirgi Xarid</th>
+            <th class="text-end pe-4 py-3">Amallar</th>
+          </tr>
+        </thead>
+        <tbody id="suppliersTableBody">
+          {% for s in suppliers %}
+          <tr class="sup-table-row" 
+              data-name="{{ s.first_name }} {{ s.last_name|default:'' }}" 
+              data-phone="{{ s.phone }}" 
+              data-code="{{ s.custom_id }}"
+              data-debt="{{ s.our_debt|floatformat:0 }}"
+              data-hasdebt="{% if s.our_debt > 0 %}yes{% else %}no{% endif %}"
+              data-isbarter="{% if s.customer %}yes{% else %}no{% endif %}">
+            <td class="ps-4 py-3">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-dark text-white p-2 rounded-circle font-monospace" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;">
+                  {{ s.first_name|slice:":1"|upper }}
+                </span>
+                <div>
+                  <strong class="text-dark">{{ s.first_name }} {{ s.last_name|default:"" }}</strong>
+                  <div class="small text-muted font-monospace">ID: {{ s.custom_id }} {% if s.customer %}<span class="badge bg-success-subtle text-success">Barter</span>{% endif %}</div>
+                </div>
+              </div>
+            </td>
+            <td><a href="tel:{{ s.phone }}" class="text-decoration-none text-dark fw-bold">{{ s.phone }}</a></td>
+            <td>
+              <span class="badge {% if s.our_debt > 0 %}bg-danger-subtle text-danger border border-danger-subtle{% else %}bg-success-subtle text-success border border-success-subtle{% endif %} px-2.5 py-1.5 font-monospace fs-6">
+                {{ s.our_debt|floatformat:0 }} so'm
+              </span>
+            </td>
+            <td>
+              <strong class="text-dark">{{ s.total_supply_amount|default:0|floatformat:0 }} so'm</strong>
+              <div class="small text-muted">{{ s.total_supply_weight|default:0|floatformat:1 }} kg ({{ s.slaughters_count|default:0 }} ta)</div>
+            </td>
+            <td>
+              <span class="fw-bold text-primary font-monospace">{{ s.total_paid|default:0|floatformat:0 }} so'm</span>
+            </td>
+            <td>
+              <span class="text-muted small">{% if s.last_slaughter_date %}{{ s.last_slaughter_date|date:"d.m.Y" }}{% else %}-{% endif %}</span>
+            </td>
+            <td class="text-end pe-4">
+              <button class="btn btn-sm btn-success fw-bold rounded-pill px-3 me-1 shadow-sm" onclick="openPaymentModal('{{ s.id }}', '{{ s.first_name }} {{ s.last_name|default:'' }}', '{{ s.our_debt|floatformat:0 }}')">
+                <i class="bi bi-cash"></i> To'lov
+              </button>
+              <button class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-3" onclick="openLedgerDrawer('{{ s.id }}')">
+                <i class="bi bi-journal-text"></i> Daftari
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
@@ -396,23 +730,23 @@
 <!-- ══════════════════════════════════════
      MODAL: RECORD SUPPLIER PAYMENT
      ══════════════════════════════════════ -->
-<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
-      <div class="modal-header" style="background: #FDFBF7; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 18px 24px;">
-        <h5 class="modal-title" id="paymentModalLabel" style="font-family: var(--font-serif); font-size: 20px; color: var(--text-main);">
-          💸 Ta'minotchiga to'lov qilish
+    <div class="modal-content" style="border-radius: 24px; border: none; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+      <div class="modal-header" style="background: linear-gradient(135deg, #04110D, #082618); color:#FFFFFF; padding: 20px 24px;">
+        <h5 class="modal-title fw-bold" style="font-size: 1.25rem;">
+          💸 Ta'minotchiga To'lov Qilish (Chiqim)
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="padding: 24px;">
         
-        <div class="mb-3 p-3 rounded-3" style="background: rgba(212, 168, 83, 0.08); border: 1px solid rgba(212, 168, 83, 0.15);">
-          <div style="font-size: 12px; color: #8B6914; font-weight: 700; text-transform: uppercase;">Hamkor</div>
-          <div id="modalSupName" style="font-size: 16px; font-weight: 800; color: var(--text-main);">Ta'minotchi</div>
-          <div class="mt-2 d-flex justify-content-between">
-            <span style="font-size: 13px; color: var(--text-muted);">Qarz balansi:</span>
-            <span id="modalSupDebt" style="font-size: 14.5px; font-weight: 700; color: var(--primary);">0 so'm</span>
+        <div class="mb-3 p-3 rounded-3" style="background: #F8FAFC; border: 1px solid rgba(0,0,0,0.08);">
+          <div style="font-size: 11px; color: #64748B; font-weight: 700; text-transform: uppercase;">Hamkor</div>
+          <div id="modalSupName" style="font-size: 17px; font-weight: 800; color: #0F172A;">Ta'minotchi</div>
+          <div class="mt-2 d-flex justify-content-between align-items-center">
+            <span style="font-size: 13px; color: #64748B;">Joriy qarzimiz:</span>
+            <span id="modalSupDebt" class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace fs-6 px-2.5 py-1">0 so'm</span>
           </div>
         </div>
 
@@ -420,25 +754,25 @@
           <input type="hidden" id="paySupId">
           
           <div class="mb-3">
-            <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">To'lov summasi (so'm)</label>
-            <input type="number" id="payAmount" class="form-control" placeholder="To'lov summasini kiriting" required style="border-radius: 10px; padding: 10px;">
+            <label class="form-label fw-bold small">To'lov Summasi (so'm) *</label>
+            <input type="number" id="payAmount" class="form-control font-monospace fw-bold fs-5" placeholder="0" required style="border-radius: 12px; padding: 12px 14px;">
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">To'lov usuli</label>
-            <select id="payMethod" class="form-select" style="border-radius: 10px; padding: 10px;">
-              <option value="naqd">💵 Naqd pul</option>
-              <option value="karta">💳 Plastik karta</option>
+            <label class="form-label fw-bold small">To'lov Usuli</label>
+            <select id="payMethod" class="form-select fw-bold" style="border-radius: 12px; padding: 12px 14px;">
+              <option value="naqd">💵 Naqd pul (Kassadan chiqim)</option>
+              <option value="karta">💳 Plastik karta / Bank o'tkazmasi</option>
             </select>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">Izoh / Tafsilotlar</label>
-            <textarea id="payDesc" class="form-control" placeholder="To'lov bo'yicha qo'shimcha izohlar" rows="2" style="border-radius: 10px;"></textarea>
+            <label class="form-label fw-bold small">Izoh / Tafsilotlar</label>
+            <textarea id="payDesc" class="form-control" placeholder="To'lov maqsadi yoki qo'shimcha eslatma..." rows="2" style="border-radius: 12px; padding: 10px 14px;"></textarea>
           </div>
 
-          <button type="submit" class="btn-sup-pay w-100 py-3" style="border-radius: 14px; font-size: 15px;">
-            To'lovni tasdiqlash
+          <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm" id="btnSubmitPayment" style="background:#10B981; border:none; font-size:15px;">
+            <i class="bi bi-check-circle-fill me-1"></i> To'lovni Tasdiqlash & Saqlash
           </button>
         </form>
 
@@ -452,79 +786,181 @@
      ══════════════════════════════════════ -->
 <div class="ledger-drawer-overlay" id="drawerOverlay" onclick="closeLedgerDrawer()"></div>
 <div class="ledger-drawer" id="ledgerDrawer">
-  <div class="drawer-header">
+  <div class="drawer-header-glass">
     <div>
-      <h5 id="drawerTitle" style="font-family: var(--font-serif); font-size: 20px; color: var(--text-main); margin: 0;">Oldi-Berdi Daftari</h5>
-      <p id="drawerSub" style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">ID: --</p>
+      <h5 id="drawerTitle" style="font-size: 1.25rem; font-weight: 800; margin: 0;">Oldi-Berdi Daftari</h5>
+      <p id="drawerSub" style="font-size: 12px; color: #94A3B8; margin: 4px 0 0 0;">ID: --</p>
     </div>
-    <button class="close-drawer-btn" onclick="closeLedgerDrawer()">&times;</button>
+    <button class="btn btn-sm btn-outline-light rounded-circle" onclick="closeLedgerDrawer()" style="width:36px; height:36px;">&times;</button>
   </div>
-  <div class="drawer-body">
+  <div class="drawer-body-scroll">
     
     <div id="ledgerLoading" class="text-center py-5">
       <div class="spinner-border text-success" role="status">
         <span class="visually-hidden">Yuklanmoqda...</span>
       </div>
-      <p class="mt-2 text-muted">Tranzaksiyalar tarixi yuklanmoqda...</p>
+      <p class="mt-2 text-muted small">Oldi-berdi tarixi yuklanmoqda...</p>
     </div>
 
-    <div id="ledgerEmpty" class="empty-state d-none">
-      <i class="bi bi-journal-x" style="font-size: 40px; display: block; margin-bottom: 12px;"></i>
+    <div id="ledgerEmpty" class="empty-state d-none text-center py-5 text-muted">
+      <i class="bi bi-journal-x" style="font-size: 44px; display: block; margin-bottom: 12px;"></i>
       <p>Bu ta'minotchi uchun hech qanday so'yim yoki to'lov yozuvlari topilmadi.</p>
     </div>
 
     <div id="ledgerTableContainer" class="d-none">
-      <table class="ledger-table">
-        <thead>
-          <tr>
-            <th>Sana</th>
-            <th>Turi</th>
-            <th>Tafsilot</th>
-            <th style="text-align: right;">Summa</th>
-            <th style="text-align: right;">Qoldiq</th>
-          </tr>
-        </thead>
-        <tbody id="ledgerRows">
-          <!-- Dynamically populated rows -->
-        </tbody>
-      </table>
+      <div id="ledgerTimelineList">
+        <!-- Dynamically populated timeline cards -->
+      </div>
     </div>
 
   </div>
-  <div class="drawer-footer">
-    <a href="#" id="excelExportLink" class="btn btn-success flex-grow-1 py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; font-weight: 600;">
-      <i class="bi bi-file-earmark-excel-fill"></i> Excel daftarni yuklash
+  <div class="drawer-footer-actions">
+    <a href="#" id="excelExportLink" class="btn btn-success flex-grow-1 py-2.5 d-flex align-items-center justify-content-center gap-2 rounded-3 fw-bold shadow-sm" style="background:#10B981; border:none;">
+      <i class="bi bi-file-earmark-excel-fill"></i> Excel Daftarni Yuklash
     </a>
-    <button class="btn btn-outline-secondary py-2 px-4" style="border-radius: 12px; font-weight: 600;" onclick="closeLedgerDrawer()">
+    <button class="btn btn-outline-secondary py-2.5 px-4 rounded-3 fw-bold" onclick="closeLedgerDrawer()">
       Yopish
     </button>
   </div>
 </div>
 
-<!-- Bootstrap JS dependency check -->
+<!-- ══════════════════════════════════════
+     MODAL: CREATE NEW SUPPLIER
+     ══════════════════════════════════════ -->
+<div class="modal fade" id="createSupplierModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 24px; border: none; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+      <div class="modal-header" style="background: linear-gradient(135deg, #04110D, #082618); color:#FFFFFF; padding: 20px 24px;">
+        <h5 class="modal-title fw-bold" style="font-size: 1.25rem;">
+          🚜 Yangi Hamkor (Ta'minotchi) Qo'shish
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 24px;">
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 18px;">
+          Tizimda yangi ta'minotchi yaratiladi va unga avtomatik ravishda <strong>Barter Mijoz</strong> profili bog'lanadi.
+        </p>
+        <form id="createSupForm">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Ismi *</label>
+              <input type="text" id="createFirstName" class="form-control" placeholder="Masalan: Bahodir" required style="border-radius: 12px; padding: 10px 14px;">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Familiyasi</label>
+              <input type="text" id="createLastName" class="form-control" placeholder="Masalan: Karimov" style="border-radius: 12px; padding: 10px 14px;">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Telefon raqami *</label>
+            <input type="text" id="createPhone" class="form-control font-monospace" placeholder="+998901234567" required style="border-radius: 12px; padding: 10px 14px;">
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Hamkor kodi (Custom ID)</label>
+              <input type="text" id="createCustomId" class="form-control font-monospace" placeholder="Masalan: T-0101" style="border-radius: 12px; padding: 10px 14px;">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Boshlang'ich qarzimiz (so'm)</label>
+              <input type="number" id="createOurDebt" class="form-control font-monospace" placeholder="0" value="0" style="border-radius: 12px; padding: 10px 14px;">
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold small">Eslatma / Izoh</label>
+            <textarea id="createNote" class="form-control" placeholder="Hamkor haqida qo'shimcha ma'lumotlar..." rows="2" style="border-radius: 12px; padding: 10px 14px;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm" style="background:#10B981; border:none; font-size:15px;">
+            <i class="bi bi-check-circle-fill me-1"></i> Hamkorni Saqlash
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  // ── FILTER SUPPLIERS ──
-  function filterSuppliers() {
-    const query = document.getElementById('supSearch').value.toLowerCase();
-    const cards = document.querySelectorAll('.sup-card-wrapper');
+  let activeFilter = 'all';
+
+  // ── FILTER CONTROL ──
+  function setFilter(filterType, btn) {
+    activeFilter = filterType;
+    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+
+  function filterSuppliersList() {
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const q = (document.getElementById('supSearchInput').value || '').toLowerCase().trim();
     
+    // Filter cards
+    const cards = document.querySelectorAll('.sup-card-item');
     cards.forEach(card => {
-      const name = card.getAttribute('data-name').toLowerCase();
-      const code = card.getAttribute('data-code').toLowerCase();
-      if (name.includes(query) || code.includes(query)) {
-        card.style.display = 'block';
-      } else {
-        card.style.display = 'none';
-      }
+      const name = (card.getAttribute('data-name') || '').toLowerCase();
+      const phone = (card.getAttribute('data-phone') || '').toLowerCase();
+      const code = (card.getAttribute('data-code') || '').toLowerCase();
+      const hasDebt = card.getAttribute('data-hasdebt') === 'yes';
+      const isBarter = card.getAttribute('data-isbarter') === 'yes';
+
+      let matchFilter = true;
+      if (activeFilter === 'in_debt' && !hasDebt) matchFilter = false;
+      if (activeFilter === 'settled' && hasDebt) matchFilter = false;
+      if (activeFilter === 'barter' && !isBarter) matchFilter = false;
+
+      const matchSearch = !q || name.includes(q) || phone.includes(q) || code.includes(q);
+
+      card.style.display = (matchFilter && matchSearch) ? 'block' : 'none';
+    });
+
+    // Filter table rows
+    const rows = document.querySelectorAll('.sup-table-row');
+    rows.forEach(row => {
+      const name = (row.getAttribute('data-name') || '').toLowerCase();
+      const phone = (row.getAttribute('data-phone') || '').toLowerCase();
+      const code = (row.getAttribute('data-code') || '').toLowerCase();
+      const hasDebt = row.getAttribute('data-hasdebt') === 'yes';
+      const isBarter = row.getAttribute('data-isbarter') === 'yes';
+
+      let matchFilter = true;
+      if (activeFilter === 'in_debt' && !hasDebt) matchFilter = false;
+      if (activeFilter === 'settled' && hasDebt) matchFilter = false;
+      if (activeFilter === 'barter' && !isBarter) matchFilter = false;
+
+      const matchSearch = !q || name.includes(q) || phone.includes(q) || code.includes(q);
+
+      row.style.display = (matchFilter && matchSearch) ? '' : 'none';
     });
   }
 
-  // ── PAYMENT MODAL CONTROL ──
+  // ── VIEW SWITCHER ──
+  function switchView(view) {
+    const cardsCont = document.getElementById('suppliersCardsContainer');
+    const tableCont = document.getElementById('suppliersTableContainer');
+    const btnCards = document.getElementById('btnViewCards');
+    const btnTable = document.getElementById('btnViewTable');
+
+    if (view === 'cards') {
+      cardsCont.classList.remove('d-none');
+      tableCont.classList.add('d-none');
+      btnCards.classList.add('active');
+      btnTable.classList.remove('active');
+    } else {
+      cardsCont.classList.add('d-none');
+      tableCont.classList.remove('d-none');
+      btnCards.classList.remove('active');
+      btnTable.classList.add('active');
+    }
+  }
+
+  // ── PAYMENT MODAL ──
   let payModalInst = null;
   function openPaymentModal(id, name, debt) {
     document.getElementById('paySupId').value = id;
     document.getElementById('modalSupName').innerText = name;
-    document.getElementById('modalSupDebt').innerText = parseInt(debt).toLocaleString('uz-UZ') + " so'm";
+    document.getElementById('modalSupDebt').innerText = parseInt(debt || 0).toLocaleString('uz-UZ') + " so'm";
     document.getElementById('payAmount').value = '';
     document.getElementById('payDesc').value = '';
     
@@ -534,7 +970,6 @@
     payModalInst.show();
   }
 
-  // ── SUBMIT PAYMENT ──
   document.getElementById('payForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -542,6 +977,10 @@
     const amount = document.getElementById('payAmount').value;
     const method = document.getElementById('payMethod').value;
     const desc = document.getElementById('payDesc').value;
+
+    const btn = document.getElementById('btnSubmitPayment');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saqlanmoqda...';
     
     fetch('/pos/api/supplier/payment/', {
       method: 'POST',
@@ -559,67 +998,74 @@
     .then(r => r.json())
     .then(data => {
       if (data.status === 'success') {
-        alert(data.message);
+        alert("✅ " + data.message);
         if(payModalInst) payModalInst.hide();
         location.reload();
       } else {
-        alert("Xato: " + data.message);
+        alert("Xatolik: " + data.message);
       }
     })
     .catch(err => {
       alert("Aloqada xatolik yuz berdi!");
       console.error(err);
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> To\'lovni Tasdiqlash & Saqlash';
     });
   });
 
-  // ── LEDGER DRAWER CONTROL ──
+  // ── LEDGER DRAWER ──
   function openLedgerDrawer(supplierId) {
-    // Show overlay
     const overlay = document.getElementById('drawerOverlay');
     const drawer = document.getElementById('ledgerDrawer');
     
     overlay.classList.add('show');
     drawer.classList.add('open');
     
-    // Set Excel export URL
     document.getElementById('excelExportLink').setAttribute('href', `/pos/api/supplier/export/${supplierId}/`);
     
-    // Toggle Loading
     document.getElementById('ledgerLoading').classList.remove('d-none');
     document.getElementById('ledgerEmpty').classList.add('d-none');
     document.getElementById('ledgerTableContainer').classList.add('d-none');
     
-    // Load Ledger data
     fetch(`/pos/api/supplier/ledger/${supplierId}/`)
       .then(r => r.json())
       .then(data => {
         document.getElementById('ledgerLoading').classList.add('d-none');
         if (data.status === 'success') {
-          // Set titles
           document.getElementById('drawerTitle').innerText = data.supplier.name;
-          document.getElementById('drawerSub').innerText = "ID: " + data.supplier.custom_id + " | Qoldiq: " + data.supplier.our_debt.toLocaleString('uz-UZ') + " so'm";
+          document.getElementById('drawerSub').innerText = "ID: " + data.supplier.custom_id + " · Qoldiq qarzimiz: " + Math.round(data.supplier.our_debt).toLocaleString('uz-UZ') + " so'm";
           
-          const rowsContainer = document.getElementById('ledgerRows');
-          rowsContainer.innerHTML = '';
+          const timelineCont = document.getElementById('ledgerTimelineList');
+          timelineCont.innerHTML = '';
           
-          if(data.ledger.length === 0) {
+          if(!data.ledger || data.ledger.length === 0) {
             document.getElementById('ledgerEmpty').classList.remove('d-none');
           } else {
             data.ledger.forEach(item => {
-              const tr = document.createElement('tr');
+              const card = document.createElement('div');
+              card.className = 'timeline-item';
               
               const isPlus = item.effect === '+';
               const sign = isPlus ? '+' : '-';
-              const cls = isPlus ? 'effect-plus' : 'effect-minus';
+              const badgeClass = isPlus ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success';
+              const amountColor = isPlus ? 'color:#DC2626;' : 'color:#16A34A;';
               
-              tr.innerHTML = `
-                <td style="white-space: nowrap; color: #6B7280; font-size:12px;">${item.date}</td>
-                <td><span class="badge ${isPlus ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'}" style="font-size:10px;">${item.type_display}</span></td>
-                <td><div style="font-weight:600; font-size:13px;">${item.details}</div></td>
-                <td style="text-align: right;" class="${cls}">${sign}${item.amount.toLocaleString('uz-UZ')}</td>
-                <td style="text-align: right; font-weight:700;">${item.balance.toLocaleString('uz-UZ')} so'm</td>
+              card.innerHTML = `
+                <div>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge ${badgeClass} font-monospace" style="font-size:10px;">${item.type_display}</span>
+                    <span class="text-muted small">${item.date}</span>
+                  </div>
+                  <div class="fw-bold text-dark" style="font-size:13.5px;">${item.details}</div>
+                </div>
+                <div class="text-end font-monospace">
+                  <div class="fw-bold fs-6" style="${amountColor}">${sign}${Math.round(item.amount).toLocaleString('uz-UZ')} so'm</div>
+                  <div class="text-muted" style="font-size:11px;">Qoldiq: ${Math.round(item.balance).toLocaleString('uz-UZ')} so'm</div>
+                </div>
               `;
-              rowsContainer.appendChild(tr);
+              timelineCont.appendChild(card);
             });
             document.getElementById('ledgerTableContainer').classList.remove('d-none');
           }
@@ -645,7 +1091,7 @@
     }, 200);
   }
 
-  // ── CREATE SUPPLIER MODAL CONTROL ──
+  // ── CREATE SUPPLIER MODAL ──
   let createModalInst = null;
   function openCreateModal() {
     document.getElementById('createFirstName').value = '';
@@ -663,6 +1109,11 @@
 
   document.getElementById('createSupForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    const btn = this.querySelector('button[type="submit"]');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saqlanmoqda...';
+    }
     const payload = {
       first_name: document.getElementById('createFirstName').value,
       last_name: document.getElementById('createLastName').value,
@@ -683,71 +1134,23 @@
     .then(r => r.json())
     .then(data => {
       if(data.status === 'success') {
-        alert(data.message);
+        alert("✅ " + data.message);
         if(createModalInst) createModalInst.hide();
         location.reload();
       } else {
-        alert("Xato: " + data.message);
+        alert("Xato: " + (data.message || 'Xatolik yuz berdi'));
       }
     })
     .catch(err => {
       alert("Aloqada xatolik yuz berdi!");
       console.error(err);
+    })
+    .finally(() => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Hamkorni Saqlash';
+      }
     });
   });
 </script>
-
-<!-- ══════════════════════════════════════
-     MODAL: CREATE NEW SUPPLIER
-     ══════════════════════════════════════ -->
-<div class="modal fade" id="createSupplierModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
-      <div class="modal-header" style="background: #FDFBF7; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 18px 24px;">
-        <h5 class="modal-title" id="createModalLabel" style="font-family: var(--font-serif); font-size: 20px; color: var(--text-main);">
-          🚜 Yangi hamkor qo'shish
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" style="padding: 24px;">
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-          Tizimda yangi ta'minotchi yaratiladi va unga avtomatik ravishda <strong>Barter Mijoz</strong> profili bog'lanadi. U kassa terminalida ham mijoz sifatida sotuvlar uchun ko'rinadi.
-        </p>
-        <form id="createSupForm">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">Ismi *</label>
-              <input type="text" id="createFirstName" class="form-control" placeholder="Masalan: Bahodir" required style="border-radius: 10px; padding: 10px;">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">Familiyasi</label>
-              <input type="text" id="createLastName" class="form-control" placeholder="Familiyasi" style="border-radius: 10px; padding: 10px;">
-            </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">Telefon raqami *</label>
-            <input type="text" id="createPhone" class="form-control" placeholder="+998901234567" required style="border-radius: 10px; padding: 10px;">
-          </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">Hamkor kodi (Custom ID)</label>
-              <input type="text" id="createCustomId" class="form-control" placeholder="Qoldirilsa auto-generatsiya" style="border-radius: 10px; padding: 10px;">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">Boshlang'ich qarzimiz (so'm)</label>
-              <input type="number" id="createOurDebt" class="form-control" placeholder="0" value="0" style="border-radius: 10px; padding: 10px;">
-            </div>
-          </div>
-          <div class="mb-4">
-            <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--text-main);">Eslatma/Izoh</label>
-            <textarea id="createNote" class="form-control" placeholder="Hamkor haqida qo'shimcha eslatmalar" rows="2" style="border-radius: 10px;"></textarea>
-          </div>
-          <button type="submit" class="btn-sup-pay w-100 py-3" style="border-radius: 14px; font-size: 15px;">
-            Hamkorni yaratish
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock content %}

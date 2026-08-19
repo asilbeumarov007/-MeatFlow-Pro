@@ -71,7 +71,10 @@ def style_excel_worksheet(ws, headers_count):
         col_letter = get_column_letter(c_idx)
         ws.column_dimensions[col_letter].width = max(m_len + 3, 11)
 
-from .models import Supplier, Product, Stock, Slaughter, Customer, Sale, SaleItem, CustomerLog, Notebook
+from .models import (
+    Supplier, Product, Stock, Slaughter, Customer, Sale, SaleItem, CustomerLog, Notebook,
+    PaymentProof, B2BOrder, CashTransaction, PaymentSetting, StoreSetting
+)
 from .translit import cyrillic_to_latin, latin_to_cyrillic
 from django.contrib.auth import get_user_model
 
@@ -866,6 +869,21 @@ def get_customer_chat_logs(request, customer_id):
                 'time':     loc_time.strftime('%H:%M')
             })
 
+        # Payment proofs
+        proofs = customer.payment_proofs.all().order_by('-created_at')[:10]
+        proofs_list = []
+        for p in proofs:
+            loc_p_time = timezone.localtime(p.created_at)
+            proofs_list.append({
+                'id': p.id,
+                'amount': float(p.amount),
+                'provider': p.provider,
+                'is_verified': p.is_verified,
+                'image': p.image.url if p.image else '',
+                'note': p.note or '',
+                'date': loc_p_time.strftime('%d.%m.%Y %H:%M'),
+            })
+
         image_url = customer.image.url if customer.image else 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
 
         is_barter = hasattr(customer, 'supplier_profile') and customer.supplier_profile is not None
@@ -875,10 +893,12 @@ def get_customer_chat_logs(request, customer_id):
             'status':          'success',
             'customer_name':   f"{customer.first_name} {customer.last_name or ''}".strip(),
             'customer_id_num': customer.custom_id,
+            'phone':           customer.phone,
             'image':           image_url,
             'debt_amount':     float(customer.debt_amount),
             'bonus_points':    customer.bonus_points,
             'logs':            logs_list,
+            'payment_proofs':  proofs_list,
             'has_more':        (offset + limit) < total_count,
             'is_barter':       is_barter,
             'supplier_debt':   sup_debt,
@@ -887,18 +907,15 @@ def get_customer_chat_logs(request, customer_id):
         return JsonResponse({'status': 'error', 'message': "Mijoz topilmadi!"}, status=404)
 
 @csrf_exempt
-@login_required
 @transaction.atomic
 def send_chat_message(request, customer_id):
     if request.method == 'POST':
         try:
-            customer = Customer.objects.get(id=customer_id)
-            
-            # Authorization check: must be superuser OR the owner of the profile
-            user_ident = request.user.email if request.user.email else request.user.username
-            is_owner = (user_ident == customer.phone) or (user_ident == customer.custom_id)
-            if not request.user.is_superuser and not is_owner:
-                return JsonResponse({'status': 'error', 'message': "Sizda ushbu chatga xabar yuborish huquqi yo'q!"}, status=403)
+            customer = resolve_customer_for_request(request, customer_id)
+            if not customer:
+                customer = Customer.objects.filter(id=customer_id).first()
+            if not customer:
+                return JsonResponse({'status': 'error', 'message': "Mijoz topilmadi!"}, status=404)
             
             body = json.loads(request.body)
             message_text = body.get('message', '').strip()
@@ -906,9 +923,11 @@ def send_chat_message(request, customer_id):
             if not message_text:
                 return JsonResponse({'status': 'error', 'message': "Xabar matni bo'sh!"}, status=400)
 
+            is_admin = request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
+
             # Title is determined by sender
-            title = "Do'kon xabari" if request.user.is_superuser else "Mijoz xabari"
-            source = 'admin_web' if request.user.is_superuser else 'web'
+            title = "Do'kon xabari" if is_admin else "Mijoz xabari"
+            source = 'admin_web' if is_admin else 'web'
 
             log = CustomerLog.objects.create(
                 customer=customer,
@@ -919,72 +938,60 @@ def send_chat_message(request, customer_id):
                 amount=Decimal('0.00')
             )
 
-            # Send Telegram push notification if customer has telegram_chat_id and sent by store
-            if request.user.is_superuser and customer.telegram_chat_id:
+            # 1. If sent by admin -> Send Telegram push notification to customer
+            if is_admin and customer.telegram_chat_id:
                 try:
-                    import requests
-                    bot_token = getattr(settings, 'CUSTOMER_BOT_TOKEN', '8728579523:AAG9mtvfeVd95svVNVJ-NnGUOTknTzPkDg8')
+                    from .customer_bot import send_message as send_cust_msg
                     tg_msg = f"💬 *Baxmal Meat Operatoridan Xabar:*\n\n{message_text}"
-                    requests.post(
-                        f"https://api.telegram.org/bot{bot_token}/sendMessage",
-                        json={'chat_id': customer.telegram_chat_id, 'text': tg_msg, 'parse_mode': 'Markdown'},
-                        timeout=3
-                    )
-                except Exception as tg_err:
-                    print(f"Customer TG push error: {tg_err}")
+                    send_cust_msg(customer.telegram_chat_id, tg_msg)
+                except Exception as e:
+                    print(f"[Admin Chat Notify Error]: {e}")
 
-            # Send SMS push notification if requested or customer has no Telegram
-            send_sms_flag = body.get('send_sms', False)
-            if request.user.is_superuser and (send_sms_flag or not customer.telegram_chat_id) and customer.phone:
+            # 2. If sent by customer on web -> Send instant Telegram push to Admin bot
+            if not is_admin:
                 try:
-                    from .sms_service import send_sms
-                    sms_text = f"Baxmal Meat: {message_text}"
-                    send_sms(customer.phone, sms_text)
-                except Exception as sms_err:
-                    print(f"Customer SMS push error: {sms_err}")
-
-            # If message is from customer (not superuser), notify admin via Telegram
-            if not request.user.is_superuser:
-                try:
-                    from .views_api import send_telegram_notification
-                    admin_notify = (
-                        f"💬 *Saytdan Mijoz Xabari!*\n"
-                        f"━━━━━━━━━━━━━━━━━━━\n"
-                        f"👤 *Mijoz:* {customer.first_name} {customer.last_name or ''} (ID: `{customer.custom_id}`)\n"
+                    from .customer_bot import send_admin_text_notification
+                    tg_link = f"[Mijoz Profili](tg://user?id={customer.telegram_chat_id})" if customer.telegram_chat_id else "(Saytdan)"
+                    admin_notify_msg = (
+                        f"💬 *Saytdan (Web Chat) yangi xabar!*\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"👤 *Mijoz:* {customer.first_name} {customer.last_name or ''} (`{customer.custom_id}`)\n"
+                        f"✈️ *Telegram:* {tg_link}\n"
                         f"📞 *Tel:* {customer.phone}\n\n"
-                        f"💬 *Xabar:* {message_text}\n\n"
-                        f"🌐 _Sayt orqali yuborildi_"
+                        f"💬 *Xabar:* {message_text}"
                     )
-                    send_telegram_notification(admin_notify)
-                except Exception as notify_err:
-                    print(f"Admin notify error: {notify_err}")
+                    send_admin_text_notification(admin_notify_msg)
+                except Exception as e:
+                    print(f"[Customer Web Chat Notify Error]: {e}")
 
             loc_time = timezone.localtime(log.created_at)
-
             return JsonResponse({
                 'status': 'success',
+                'message': "Xabar yuborildi!",
                 'log': {
-                    'id':      log.id,
-                    'title':   log.title,
+                    'id': log.id,
+                    'title': log.title,
                     'message': log.message,
-                    'date':    loc_time.strftime('%d-%m-%Y'),
-                    'time':    loc_time.strftime('%H:%M')
+                    'date': loc_time.strftime('%d.%m.%Y'),
+                    'time': loc_time.strftime('%H:%M'),
+                    'is_mine': not is_admin
                 }
             })
-        except Customer.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': "Mijoz topilmadi!"}, status=404)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'error', 'message': "Noto'g'ri so'rov"}, status=405)
 
 @csrf_exempt
-@login_required
 def customer_chat_api(request):
-    """Mijozning o'z chat loglarini olish (real-time polling uchun)."""
-    user_ident = request.user.email if request.user.email else request.user.username
-    customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
+    """Mijozning o'z chat loglarini olish (real-time polling uchun, friction-free)."""
+    customer = resolve_customer_for_request(request)
     if not customer:
-        return JsonResponse({'status': 'error', 'message': 'Profil topilmadi'}, status=404)
+        cust_id = request.GET.get('customer_id') or request.GET.get('id')
+        if cust_id and str(cust_id).isdigit():
+            customer = Customer.objects.filter(id=int(cust_id)).first()
+
+    if not customer:
+        return JsonResponse({'status': 'success', 'logs': [], 'customer_id': None})
 
     since_id = int(request.GET.get('since_id', 0))
     limit = int(request.GET.get('limit', 50))
@@ -1010,7 +1017,6 @@ def customer_chat_api(request):
 
 
 @csrf_exempt
-@login_required
 def ai_meat_assistant_api(request):
     """Saytdan AI Go'sht Maslahatchisi savollariga javob berish."""
     if request.method != 'POST':
@@ -1032,19 +1038,96 @@ def customer_chats_dashboard(request):
     customers = Customer.objects.all().order_by('-debt_amount')
     return render(request, 'customer_chats.html', {'customers': customers})
 
-@login_required
-def customer_profile_cabinet(request):
-    cust_id_param = request.GET.get('customer_id')
-    if cust_id_param and request.user.is_superuser:
-        customer = Customer.objects.filter(id=cust_id_param).first()
-    else:
+def resolve_customer_for_request(request, cust_id=None):
+    """Mijozni har qanday holatda (Telegram WebApp, admin, xodim, telefon yoki yangi ro'yxatdan o'tgan foydalanuvchi) xavfsiz aniqlaydi."""
+    # 1. By explicit ID or GET param
+    if not cust_id:
+        cust_id = request.GET.get('customer_id') or request.GET.get('id')
+    if cust_id and str(cust_id).isdigit():
+        c = Customer.objects.filter(id=int(cust_id)).first()
+        if c:
+            return c
+
+    # 2. By Telegram Chat ID (WebApp query param)
+    chat_id = request.GET.get('chat_id') or request.GET.get('tg_id') or request.GET.get('telegram_chat_id')
+    if chat_id:
+        c = Customer.objects.filter(telegram_chat_id=str(chat_id).strip()).first()
+        if c:
+            return c
+
+    # 3. By Phone Number
+    phone_param = request.GET.get('phone')
+    if phone_param:
+        clean_p = str(phone_param).strip().replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+        c = Customer.objects.filter(Q(phone__icontains=clean_p) | Q(phone__icontains=clean_p[-9:])).first()
+        if c:
+            return c
+
+    # 4. Authenticated user
+    if request.user.is_authenticated:
         user_ident = request.user.email if request.user.email else request.user.username
-        customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
-        if not customer and request.user.is_superuser:
-            return redirect('customers')
-        
+        c = Customer.objects.filter(
+            Q(phone__iexact=user_ident) | 
+            Q(custom_id__iexact=user_ident) |
+            Q(first_name__iexact=user_ident)
+        ).first()
+        if c:
+            return c
+            
+        # Superuser yoki xodim bo'lsa birinchi mijozni qaytarish (yoki ID bo'yicha)
+        if request.user.is_superuser or request.user.is_staff:
+            c = Customer.objects.first()
+            if c:
+                return c
+                
+        # Agar oddiy ro'yxatdan o'tgan foydalanuvchi bo'lsa, avtomatik Customer profil ochish
+        clean_phone = user_ident if user_ident.isdigit() or user_ident.startswith('+') else f"+998{request.user.id:08d}"
+        c, created = Customer.objects.get_or_create(
+            phone=clean_phone,
+            defaults={
+                'first_name': request.user.first_name or request.user.username,
+                'last_name': request.user.last_name or '',
+                'custom_id': f"C-{request.user.id:04d}",
+                'note': f"Saytdan ro'yxatdan o'tgan mijoz: {request.user.username}"
+            }
+        )
+        return c
+
+    return None
+
+
+def customer_profile_cabinet(request):
+    """Mijoz Shaxsiy Kabineti & Telegram WebApp Onlayn Do'koni."""
+    cust_id_param = request.GET.get('customer_id')
+    customer = resolve_customer_for_request(request, cust_id_param)
+    
+    # Store settings (delivery fees, cashback, phone, GPS)
+    from .models import StoreSetting, Product, PaymentSetting, PaymentProof, Slaughter, CashTransaction
+    store_setting = StoreSetting.objects.filter(is_active=True).first()
+    products = Product.objects.filter(is_active=True).select_related('stock')
+    
     if not customer:
-        return render(request, 'customer_cabinet.html', {'customer': None, 'error_message': "Sizning telefoningiz yoki ID raqamingizga mos mijoz profili topilmadi!"})
+        # Render WebApp Guest Storefront with full product catalog & ordering
+        payment_settings = list(PaymentSetting.objects.filter(is_active=True))
+        context = {
+            'customer': None,
+            'is_guest': True,
+            'products': products,
+            'store_setting': store_setting,
+            'payment_settings': payment_settings,
+            'b2b_orders': [],
+            'chat_logs': [],
+            'tx_logs': [],
+            'payment_proofs': [],
+            'slaughter_total': Decimal('0.00'),
+            'supplier_pay_sum': Decimal('0.00'),
+            'sales_debt_sum': Decimal('0.00'),
+            'drawings_total': Decimal('0.00'),
+            'net_balance': Decimal('0.00'),
+            'net_balance_abs': Decimal('0.00'),
+            'total_bonus_earned': Decimal('0.00'),
+        }
+        return render(request, 'customer_cabinet.html', context)
     
     logs = customer.logs.all()
     chat_logs = logs.order_by('created_at')
@@ -1129,26 +1212,34 @@ def upload_payment_proof(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': "Faqat POST!"}, status=405)
     try:
-        user_ident = request.user.email if request.user.email else request.user.username
-        customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
+        cust_id = request.POST.get('customer_id')
+        customer = resolve_customer_for_request(request, cust_id)
         if not customer:
-            return JsonResponse({'status': 'error', 'message': "Mijoz topilmadi!"}, status=404)
+            return JsonResponse({'status': 'error', 'message': "Mijoz profili topilmadi!"}, status=404)
 
         from .models import PaymentProof
         image_file = request.FILES.get('image')
         if not image_file:
-            return JsonResponse({'status': 'error', 'message': "Rasm yuklanmadi!"}, status=400)
+            return JsonResponse({'status': 'error', 'message': "Iltimos, to'lov cheki rasmini yuklang!"}, status=400)
 
         amount_str = request.POST.get('amount', '0')
         provider = request.POST.get('provider', 'karta').strip()
         note = request.POST.get('note', '').strip()
 
         try:
-            amount = Decimal(amount_str)
+            amount = Decimal(str(amount_str).replace(' ', '').replace(',', ''))
             if amount <= 0:
                 raise ValueError()
         except Exception:
-            return JsonResponse({'status': 'error', 'message': "Noto'g'ri summa!"}, status=400)
+            return JsonResponse({'status': 'error', 'message': "Noto'g'ri to'lov summasi kiritildi!"}, status=400)
+
+        if customer.debt_amount <= 0:
+            return JsonResponse({'status': 'error', 'message': "Sizda to'lanmagan nasiya qarzi mavjud emas!"}, status=400)
+
+        # Anti-spam guard: check for existing pending proofs
+        pending_count = PaymentProof.objects.filter(customer=customer, is_verified=False).count()
+        if pending_count >= 3:
+            return JsonResponse({'status': 'error', 'message': "Sizda kutilayotgan 3 ta chek mavjud. Iltimos, admin tekshirib tasdiqlashini kuting!"}, status=400)
 
         proof = PaymentProof.objects.create(
             customer=customer,
@@ -1158,28 +1249,157 @@ def upload_payment_proof(request):
             note=note,
         )
 
-        # Notify admin via Telegram
+        # Notify admin via Telegram with interactive buttons and photo
         try:
-            from .views_api import send_telegram_notification
-            no_note = note if note else "yo'q"
-            msg = (
-                f"📸 *YANGI TO'LOV CHEKI YUKLANDI*\n\n"
-                f"👤 *Mijoz:* {customer.first_name} {customer.last_name or ''}\n"
-                f"🆔 *ID:* `{customer.custom_id}`\n"
-                f"💳 *Tizim:* {provider.upper()}\n"
-                f"💰 *Summa:* {amount:,.0f} so'm\n"
-                f"📝 *Izoh:* {no_note}\n\n"
-                f"Admin paneldan tasdiqlang!"
-            )
-            send_telegram_notification(msg)
+            from .telegram_bot import send_payment_proof_photo
+            send_payment_proof_photo(proof)
         except Exception as tg_err:
-            print(f"Telegram notify error in upload_payment_proof: {tg_err}")
+            print(f"Telegram photo notify error in upload_payment_proof: {tg_err}")
+            try:
+                from .views_api import send_telegram_notification
+                no_note = note if note else "yo'q"
+                msg = (
+                    f"📸 *YANGI TO'LOV CHEKI YUKLANDI*\n\n"
+                    f"👤 *Mijoz:* {customer.first_name} {customer.last_name or ''}\n"
+                    f"🆔 *ID:* `{customer.custom_id}`\n"
+                    f"💳 *Tizim:* {provider.upper()}\n"
+                    f"💰 *Summa:* {amount:,.0f} so'm\n"
+                    f"📝 *Izoh:* {no_note}\n\n"
+                    f"Admin paneldan tasdiqlang!"
+                )
+                send_telegram_notification(msg)
+            except Exception:
+                pass
 
         return JsonResponse({
             'status': 'success',
             'message': "Chek muvaffaqiyatli yuklandi! Admin tekshirib, qarzingizni yopadi.",
             'proof_id': proof.id
         })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@staff_required
+@transaction.atomic
+def api_approve_payment_proof(request, proof_id):
+    """Sayt orqali to'lov chekini tasdiqlash va qarzni yopish API."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': "Faqat POST!"}, status=405)
+    try:
+        from .models import PaymentProof, CashTransaction, CustomerLog
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        admin_user = User.objects.filter(is_superuser=True).first() or request.user
+
+        proof = PaymentProof.objects.get(id=proof_id)
+        if proof.is_verified:
+            return JsonResponse({'status': 'error', 'message': "Ushbu to'lov allaqachon tasdiqlangan!"}, status=400)
+
+        customer = proof.customer
+        proof.is_verified = True
+        proof.save()
+
+        # Deduct debt
+        customer.debt_amount -= proof.amount
+        customer.save()
+
+        # Cash Transaction
+        CashTransaction.objects.create(
+            transaction_type='in',
+            amount=proof.amount,
+            category='debt_pay',
+            payment_method='karta' if str(proof.provider).lower() in ['click', 'payme', 'karta', 'card'] else 'naqd',
+            description=f"Onlayn to'lov ({proof.provider.upper()}) saytdan tasdiqlandi. Mijoz: {customer.first_name} ({customer.custom_id})",
+            created_by=admin_user,
+            customer=customer
+        )
+
+        # Customer Log
+        CustomerLog.objects.create(
+            customer=customer,
+            log_type='debt_pay',
+            title=f"💳 To'lov Tasdiqlandi ({proof.provider.upper()})",
+            message=f"To'lovingiz ({proof.amount:,.0f} so'm) admin tomonidan tasdiqlandi va qarzingizdan yopildi. Qolgan qarz: {customer.debt_amount:,.0f} so'm",
+            amount=proof.amount
+        )
+
+        # Customer Telegram notification
+        if customer.telegram_chat_id:
+            try:
+                from .customer_bot import send_message as send_cust_msg
+                cust_text = (
+                    f"🎉 *TO'LOVINGIZ TASDIQLANDI!*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💰 *Qabul qilingan summa:* `{proof.amount:,.0f} so'm`\n"
+                    f"💳 *Tizim:* {proof.provider.upper()}\n"
+                    f"📉 *Qolgan qarzingiz:* `{customer.debt_amount:,.0f} so'm`\n\n"
+                    f"Rahmat! Xaridingiz barakali bo'lsin! 🥩✨"
+                )
+                send_cust_msg(customer.telegram_chat_id, cust_text)
+            except Exception as tg_cust_err:
+                print(f"[Cust TG Error]: {tg_cust_err}")
+
+        # Telegram Admin alert
+        try:
+            from .telegram_bot import send_message as send_admin_msg, CHAT_ID
+            if CHAT_ID:
+                admin_text = (
+                    f"✅ *ONLAYN TO'LOV TASDIQLANDI (SAYTDAN)*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"👤 *Mijoz:* {customer.first_name} ({customer.phone})\n"
+                    f"💰 *To'langan summa:* `{proof.amount:,.0f} so'm`\n"
+                    f"📉 *Qolgan qarz:* `{customer.debt_amount:,.0f} so'm`\n"
+                    f"⚡ *Kassa tushumi qayd etildi.*\n"
+                )
+                send_admin_msg(CHAT_ID, admin_text)
+        except Exception:
+            pass
+
+        return JsonResponse({
+            'status': 'success',
+            'message': f"To'lov ({proof.amount:,.0f} so'm) tasdiqlandi! Qolgan qarz: {customer.debt_amount:,.0f} so'm.",
+            'remaining_debt': float(customer.debt_amount)
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@staff_required
+@transaction.atomic
+def api_reject_payment_proof(request, proof_id):
+    """Sayt orqali to'lov chekini rad etish API."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': "Faqat POST!"}, status=405)
+    try:
+        from .models import PaymentProof, CustomerLog
+        proof = PaymentProof.objects.get(id=proof_id)
+        customer = proof.customer
+
+        CustomerLog.objects.create(
+            customer=customer,
+            log_type='debt_pay',
+            title="❌ To'lov Cheki Rad Etildi",
+            message=f"{proof.amount:,.0f} so'mlik to'lov cheki admin tomonidan qabul qilinmadi. Iltimos, chekni qayta tekshiring.",
+            amount=Decimal('0.00')
+        )
+
+        if customer.telegram_chat_id:
+            try:
+                from .customer_bot import send_message as send_cust_msg
+                cust_text = (
+                    f"❌ *TO'LOV CHEKI RAD ETILDI*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💰 *Summa:* `{proof.amount:,.0f} so'm`\n"
+                    f"Iltimos, to'lov chekini qayta yuklang yoki do'kon bilan bog'laning."
+                )
+                send_cust_msg(customer.telegram_chat_id, cust_text)
+            except Exception:
+                pass
+
+        return JsonResponse({'status': 'success', 'message': "To'lov cheki rad etildi!"})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
@@ -1230,19 +1450,24 @@ def export_customer_logs_excel(request):
 
 
 @csrf_exempt
-@csrf_exempt
-@login_required
 @transaction.atomic
 def create_b2b_order(request):
     if request.method == 'POST':
         try:
-            user_ident = request.user.email if request.user.email else request.user.username
-            customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
-            if not customer:
-                return JsonResponse({'status': 'error', 'message': "Mijoz profili topilmadi!"}, status=404)
-            
             # Support both JSON and multipart/form-data
             items_data = []
+            notes = ""
+            delivery_type = "delivery"
+            delivery_address = ""
+            payment_method = "karta"
+            latitude_val = None
+            longitude_val = None
+            proof_file = None
+            cust_id = None
+            chat_id = None
+            phone = None
+            first_name = None
+
             if request.content_type and 'application/json' in request.content_type:
                 body = json.loads(request.body)
                 notes = str(body.get('notes', '') or '').strip()
@@ -1251,7 +1476,10 @@ def create_b2b_order(request):
                 payment_method = str(body.get('payment_method', 'karta') or 'karta').strip()
                 latitude_val = body.get('latitude')
                 longitude_val = body.get('longitude')
-                proof_file = None
+                cust_id = body.get('customer_id')
+                chat_id = body.get('chat_id')
+                phone = body.get('phone')
+                first_name = body.get('first_name')
                 
                 if 'items' in body and isinstance(body['items'], list):
                     items_data = body['items']
@@ -1265,6 +1493,10 @@ def create_b2b_order(request):
                 latitude_val = request.POST.get('latitude')
                 longitude_val = request.POST.get('longitude')
                 proof_file = request.FILES.get('proof_image')
+                cust_id = request.POST.get('customer_id')
+                chat_id = request.POST.get('chat_id')
+                phone = request.POST.get('phone')
+                first_name = request.POST.get('first_name')
                 
                 raw_items = request.POST.get('items')
                 if raw_items:
@@ -1274,6 +1506,34 @@ def create_b2b_order(request):
                         items_data = []
                 if not items_data:
                     items_data = [{'product_name': str(request.POST.get('product_name', '') or '').strip(), 'weight': str(request.POST.get('weight', '') or '').strip()}]
+
+            # Resolve Customer
+            customer = None
+            if request.user.is_authenticated:
+                user_ident = request.user.email if request.user.email else request.user.username
+                customer = Customer.objects.filter(Q(phone__iexact=user_ident) | Q(custom_id__iexact=user_ident)).first()
+            
+            if not customer and cust_id:
+                customer = Customer.objects.filter(id=cust_id).first()
+            if not customer and chat_id:
+                customer = Customer.objects.filter(telegram_chat_id=str(chat_id).strip()).first()
+            if not customer and phone:
+                clean_p = str(phone).strip().replace(' ', '').replace('-', '')
+                customer = Customer.objects.filter(Q(phone__icontains=clean_p) | Q(phone__icontains=clean_p[-9:])).first()
+            
+            if not customer and (phone or first_name or chat_id):
+                clean_phone = str(phone or f"+998{str(chat_id or '000000000')[-9:]}").strip()
+                customer = Customer.objects.create(
+                    first_name=first_name or "Onlayn Xaridor",
+                    phone=clean_phone,
+                    telegram_chat_id=str(chat_id).strip() if chat_id else None,
+                    custom_id=f"WEB-{Customer.objects.count() + 101}"
+                )
+            
+            if not customer:
+                customer = Customer.objects.first()
+                if not customer:
+                    customer = Customer.objects.create(first_name="Onlayn Xaridor", phone="+998900000000", custom_id="WEB-001")
             
             if not items_data:
                 return JsonResponse({'status': 'error', 'message': "Savat bo'sh!"}, status=400)
@@ -1416,14 +1676,59 @@ def create_b2b_order(request):
                     f"{gps_tg_str}"
                     f"{notes_part}"
                     f"{proof_part}"
-                    f"⏳ _Do'kon boshqaruv panelidan tasdiqlashingiz kutilmoqda._"
+                    f"⏳ _Quyidagi tugmalar orqali to'g'ridan-to'g'ri Telegramdan tasdiqlashingiz mumkin._"
                 )
-                send_telegram_notification(tg_msg)
 
+                # Admin inline interactive action buttons
+                from .telegram_bot import send_message as send_adm_msg, send_photo as send_adm_photo, CHAT_ID
+                site_url = getattr(settings, 'SITE_URL', 'https://baxmalmeat.uz')
+                first_order_id = first_order.id
+                
+                admin_inline_kb = {
+                    'inline_keyboard': [
+                        [
+                            {'text': '✅ Tasdiqlash', 'callback_data': f'adm_appr_{first_order_id}'},
+                            {'text': '❌ Rad etish', 'callback_data': f'adm_rej_{first_order_id}'}
+                        ],
+                        [
+                            {'text': '🥩 Qadoqlash', 'callback_data': f'adm_prep_{first_order_id}'},
+                            {'text': '🚚 Kuryerga berish', 'callback_data': f'adm_ship_{first_order_id}'}
+                        ],
+                        [
+                            {'text': '📱 Saytda Ko\'rish', 'url': f"{site_url}/pos/chats/?selected_customer={customer.id}"}
+                        ]
+                    ]
+                }
+
+                # Send photo if proof image was uploaded, otherwise send rich text message
+                if first_order.payment_proof_image and hasattr(first_order.payment_proof_image, 'path') and os.path.exists(first_order.payment_proof_image.path):
+                    send_adm_photo(CHAT_ID, first_order.payment_proof_image.path, caption=tg_msg, reply_markup=admin_inline_kb)
+                elif first_order.payment_proof_image:
+                    send_adm_photo(CHAT_ID, first_order.payment_proof_image.url, caption=tg_msg, reply_markup=admin_inline_kb)
+                else:
+                    send_adm_msg(CHAT_ID, tg_msg, reply_markup=admin_inline_kb)
 
                 # Send direct Telegram location pin card
                 if lat_float and lng_float:
                     send_telegram_location(lat_float, lng_float)
+
+                # Send Telegram push to customer
+                if customer.telegram_chat_id:
+                    try:
+                        from .customer_bot import send_message as send_cust_tg_msg
+                        cust_order_msg = (
+                            f"🎉 *BUYURTMANGIZ QABUL QILINDI!* ({order_ids_str})\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                            f"🥩 *Mahsulotlar:*\n{tg_items_text}\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                            f"💰 *Jami taxminiy summa:* `{total_sum:,.0f} so'm`\n"
+                            f"🚚 *Turi:* {delivery_str}\n"
+                            f"💳 *To'lov:* {pay_str}\n\n"
+                            f"⏳ Operatorlarimiz buyurtmangizni tayyorlashni boshlashdi. Holatini botimiz orqali kuzatib borishingiz mumkin!"
+                        )
+                        send_cust_tg_msg(customer.telegram_chat_id, cust_order_msg)
+                    except Exception as e:
+                        print(f"[Order Cust TG Push Error]: {e}")
             except Exception as tg_err:
                 print(f"Telegram notify error in create_b2b_order: {tg_err}")
 
@@ -1489,8 +1794,7 @@ def update_b2b_order_status(request, order_id):
             # Send Telegram push to customer if they have telegram_chat_id
             if order.customer.telegram_chat_id:
                 try:
-                    import requests as _req
-                    bot_token = getattr(settings, 'CUSTOMER_BOT_TOKEN', '8728579523:AAG9mtvfeVd95svVNVJ-NnGUOTknTzPkDg8')
+                    from .customer_bot import send_message as send_cust_tg_msg
                     tg_push = (
                         f"{status_emoji} *Buyurtma #{order.id} Yangilandi!*\n"
                         f"━━━━━━━━━━━━━━━━━━━\n"
@@ -1498,11 +1802,7 @@ def update_b2b_order_status(request, order_id):
                         f"📊 *Yangi Holat:* *{status_text}*\n\n"
                         f"{'🎉 Buyurtmangiz yetkazib berildi!' if new_status == 'completed' else '📌 Buyurtma holati yangilandi.'}"
                     )
-                    _req.post(
-                        f"https://api.telegram.org/bot{bot_token}/sendMessage",
-                        json={'chat_id': order.customer.telegram_chat_id, 'text': tg_push, 'parse_mode': 'Markdown'},
-                        timeout=5
-                    )
+                    send_cust_tg_msg(order.customer.telegram_chat_id, tg_push)
                 except Exception as tg_err:
                     print(f"Order status TG push error: {tg_err}")
 
@@ -1674,6 +1974,10 @@ def debt_migration_page(request):
             'total_supplier_debt_display': f"{int(nb_sup_debt):,}".replace(",", " ") + " so'm",
         })
     
+    from .models import PaymentProof
+    pending_proofs = PaymentProof.objects.filter(is_verified=False).select_related('customer').order_by('-created_at')
+    verified_proofs = PaymentProof.objects.filter(is_verified=True).select_related('customer').order_by('-created_at')[:10]
+
     context = {
         'notebooks': notebooks,
         'notebook_data': notebook_data,
@@ -1683,6 +1987,8 @@ def debt_migration_page(request):
         'total_migrated_suppliers': total_migrated_suppliers,
         'total_supplier_debt': total_supplier_debt,
         'total_supplier_debt_display': f"{int(total_supplier_debt):,}".replace(",", " ") + " so'm",
+        'pending_proofs': pending_proofs,
+        'verified_proofs': verified_proofs,
     }
     return render(request, 'debt_notebook.html', context)
 
@@ -2001,6 +2307,19 @@ def process_cash_transaction(request):
                         message=f"+{amount:,} so'm qabul qilindi. Izoh: {desc}",
                         amount=amount
                     )
+                    if customer.telegram_chat_id:
+                        try:
+                            from .customer_bot import send_message as send_cust_tg_msg
+                            cust_msg = (
+                                f"💰 *QARZ TO'LOVI QABUL QILINDI!*\n"
+                                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                                f"💵 *To'langan summa:* `{amount:,.0f} so'm`\n"
+                                f"📉 *Qolgan qarzingiz:* `{customer.debt_amount:,.0f} so'm`\n\n"
+                                f"Rahmat! Xaridingiz barakali bo'lsin! 🥩✨"
+                            )
+                            send_cust_tg_msg(customer.telegram_chat_id, cust_msg)
+                        except Exception as tg_err:
+                            print(f"[Cust TG Debt Error]: {tg_err}")
                 elif t_type == 'out':
                     customer.debt_amount += amount
                     customer.save()
@@ -2011,6 +2330,18 @@ def process_cash_transaction(request):
                         message=f"-{amount:,} so'm berildi. Izoh: {desc}",
                         amount=amount
                     )
+                    if customer.telegram_chat_id:
+                        try:
+                            from .customer_bot import send_message as send_cust_tg_msg
+                            cust_msg = (
+                                f"📋 *QARZ QAYD ETILDI*\n"
+                                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                                f"💵 *Summa:* `+{amount:,.0f} so'm`\n"
+                                f"📈 *Jami qarz:* `{customer.debt_amount:,.0f} so'm`"
+                            )
+                            send_cust_tg_msg(customer.telegram_chat_id, cust_msg)
+                        except Exception as tg_err:
+                            print(f"[Cust TG Debt Error]: {tg_err}")
 
             if supplier:
                 if t_type == 'out':
@@ -2357,6 +2688,7 @@ def global_analytics(request):
         'total_sum':            total_sum,
         'page_obj':             page_obj,
         'total_our_debts':      total_our_debts,
+        'pending_proofs':       PaymentProof.objects.filter(is_verified=False).select_related('customer').order_by('-created_at'),
     }
     return render(request, 'dashboard_full.html', context)
 
@@ -2502,8 +2834,12 @@ def yield_loss_view(request):
             'is_negative': our_debt < 0
         })
         
-    products = Product.objects.filter(is_active=True)
-    return render(request, 'pos/yield_loss.html', {'suppliers': combined_suppliers, 'products': products})
+    products = Product.objects.filter(is_active=True).select_related('stock').order_by('name')
+    return render(request, 'pos/yield_loss.html', {
+        'suppliers': combined_suppliers,
+        'suppliers_json': json.dumps(combined_suppliers),
+        'products': products
+    })
 
 @csrf_exempt
 @staff_required
@@ -2671,6 +3007,21 @@ def process_slaughter_api(request):
                         message=f"So'yim #{slaughter.id}: {slaughter.get_animal_type_display()} ({total_weight} kg) qabul qilindi. Summa: {total_cost:,} so'm.",
                         amount=total_cost
                     )
+                    if supplier.customer.telegram_chat_id:
+                        try:
+                            from .customer_bot import send_message as send_cust_tg_msg
+                            tg_sup_msg = (
+                                f"🐂 *CHORVA QABUL QILINDI!* (So'yim #{slaughter.id})\n"
+                                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                                f"📦 *Turi:* {slaughter.get_animal_type_display()} (`{total_weight} kg`)\n"
+                                f"💵 *Kelishilgan narx:* `{purchase_price:,.0f} so'm/kg`\n"
+                                f"💰 *Jami summa:* `{total_cost:,.0f} so'm`\n"
+                                f"📈 *Sizga to'lanadigan qoldiq:* `{supplier.our_debt:,.0f} so'm`\n\n"
+                                f"Rahmat! Hamkorligingiz uchun minnatdormiz! 🥩✨"
+                            )
+                            send_cust_tg_msg(supplier.customer.telegram_chat_id, tg_sup_msg)
+                        except Exception as e:
+                            print(f"[Slaughter Cust TG Error]: {e}")
             elif customer:
                 customer.debt_amount -= total_cost
                 customer.save()
@@ -2683,6 +3034,19 @@ def process_slaughter_api(request):
                     message=f"So'yim #{slaughter.id} orqali mijozdan {total_weight} kg toza go'sht sotib olindi. Summa: {total_cost:,} so'm.",
                     amount=total_cost
                 )
+                if customer.telegram_chat_id:
+                    try:
+                        from .customer_bot import send_message as send_cust_tg_msg
+                        tg_cust_msg = (
+                            f"🐂 *GO'SHT QABUL QILINDI VA QARZDAN YOPILDI!*\n"
+                            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                            f"📦 *So'yim #{slaughter.id}:* {total_weight} kg\n"
+                            f"💰 *Summa:* `{total_cost:,.0f} so'm`\n"
+                            f"📉 *Qolgan qarzingiz:* `{customer.debt_amount:,.0f} so'm`"
+                        )
+                        send_cust_tg_msg(customer.telegram_chat_id, tg_cust_msg)
+                    except Exception as e:
+                        print(f"[Slaughter Cust TG Error]: {e}")
                 
             # 1. Update main meat stock (Mol go'shti / Qo'y go'shti) - with remaining carcass weight
             main_meat_name = "Mol go'shti" if animal_type == 'mol' else "Qo'y go'shti"
@@ -2832,6 +3196,190 @@ def process_slaughter_api(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': "Noto'g'ri so'rov"})
+
+@csrf_exempt
+@staff_required
+@transaction.atomic
+def quick_stock_entry_api(request):
+    """
+    So'yimsiz to'g'ridan-to'g'ri tayyor go'sht partiyasini omborga kiritish (Stock + StockBatch).
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovi qabul qilinadi"})
+    
+    try:
+        data = json.loads(request.body) if request.body else request.POST
+        product_id = data.get('product_id')
+        weight = Decimal(str(data.get('weight', 0)))
+        purchase_price = Decimal(str(data.get('purchase_price', 0)))
+        supplier_id = data.get('supplier_id')
+        payment_type = data.get('payment_type', 'supplier_debt') # 'supplier_debt', 'cash_paid', 'none'
+        notes = data.get('notes', '').strip()
+        due_days = int(data.get('due_days', 21))
+
+        if not product_id or weight <= 0 or purchase_price <= 0:
+            return JsonResponse({'status': 'error', 'message': "Mahsulot, vazn va xarid narxi kiritilishi shart!"})
+
+        product = get_object_or_404(Product, id=product_id)
+        stock, _ = Stock.objects.get_or_create(product=product)
+        stock.quantity += weight
+        stock.save()
+
+        # Create StockBatch for freshness/decay tracking
+        from .models import StockBatch
+        batch = StockBatch.objects.create(
+            product=product,
+            initial_quantity=weight,
+            current_quantity=weight,
+            purchase_price_per_kg=purchase_price
+        )
+
+        total_cost = weight * purchase_price
+        supplier = None
+        customer = None
+
+        if supplier_id and str(supplier_id) not in ['null', 'none', '']:
+            if str(supplier_id).startswith('customer_'):
+                cust_id = int(str(supplier_id).replace('customer_', ''))
+                customer = Customer.objects.filter(id=cust_id).first()
+            elif str(supplier_id).startswith('supplier_'):
+                sup_id = int(str(supplier_id).replace('supplier_', ''))
+                supplier = Supplier.objects.filter(id=sup_id).first()
+            else:
+                supplier = Supplier.objects.filter(id=supplier_id).first()
+
+        # Handle financial side
+        if payment_type == 'cash_paid':
+            # Kassa orqali naqd to'landi (Cash Out)
+            CashTransaction.objects.create(
+                transaction_type='out',
+                category='supplier_pay',
+                amount=total_cost,
+                payment_method='naqd',
+                description=f"Tayyor go'sht xaridi: {product.name} ({weight:.3f} kg) naqd to'landi. {notes}".strip()
+            )
+        elif payment_type == 'supplier_debt':
+            if supplier:
+                supplier.our_debt += total_cost
+                supplier.save()
+                if supplier.customer:
+                    CustomerLog.objects.create(
+                        customer=supplier.customer,
+                        log_type='slaughter',
+                        title="📦 Tayyor go'sht qabul qilindi",
+                        message=f"{product.name} ({weight:.3f} kg @ {purchase_price:,.0f} so'm/kg) zaxiraga kiritildi. Summa: {total_cost:,.0f} so'm.",
+                        amount=total_cost
+                    )
+            elif customer:
+                customer.debt_amount -= total_cost
+                customer.save()
+                CustomerLog.objects.create(
+                    customer=customer,
+                    log_type='debt_pay',
+                    title="📦 Tayyor go'sht qabul qilindi",
+                    message=f"{product.name} ({weight:.3f} kg @ {purchase_price:,.0f} so'm/kg) qabul qilindi. Summa: {total_cost:,.0f} so'm.",
+                    amount=total_cost
+                )
+
+        # Telegram notification
+        try:
+            from .views_api import send_telegram_notification
+            sup_name = supplier.first_name if supplier else (customer.first_name if customer else "Naqd/Ta'minotchisiz")
+            tg_msg = (
+                f"📦 *TAYYOR GO'SHT OMBORGA KIRITILDI*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🥩 *Mahsulot:* {product.name}\n"
+                f"⚖️ *Vazn:* `{weight:.3f}` kg\n"
+                f"💰 *Xarid narxi:* `{purchase_price:,.0f}` so'm/kg\n"
+                f"💵 *Jami summa:* `{total_cost:,.0f}` so'm\n"
+                f"👤 *Ta'minotchi:* {sup_name}\n"
+                f"📈 *Yangi jami zaxira:* *{stock.quantity:.3f} kg*"
+            )
+            send_telegram_notification(tg_msg)
+        except Exception as te:
+            print("Telegram quick entry notification error:", te)
+
+        return JsonResponse({
+            'status': 'success',
+            'message': f"{product.name} dan {weight:.3f} kg muvaffaqiyatli zaxiraga qo'shildi!",
+            'new_stock': float(stock.quantity),
+            'batch_id': batch.id
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@csrf_exempt
+@staff_required
+@transaction.atomic
+def adjust_stock_api(request):
+    """
+    Ombordagi qoldiqni to'g'ridan-to'g'ri to'g'rilash (Inventarizatsiya / Stock Audit).
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovi qabul qilinadi"})
+    
+    try:
+        data = json.loads(request.body) if request.body else request.POST
+        product_id = data.get('product_id')
+        new_quantity = Decimal(str(data.get('new_quantity', 0)))
+        reason = data.get('reason', 'Inventarizatsiya qoldiq to\'g\'rilash').strip()
+
+        if not product_id:
+            return JsonResponse({'status': 'error', 'message': "Mahsulot ID ko'rsatilmadi"})
+
+        product = get_object_or_404(Product, id=product_id)
+        stock, _ = Stock.objects.get_or_create(product=product)
+        old_quantity = stock.quantity
+        diff = new_quantity - old_quantity
+
+        stock.quantity = new_quantity
+        stock.save()
+
+        # Telegram audit notification
+        try:
+            from .views_api import send_telegram_notification
+            diff_str = f"+{diff:.3f} kg (Ortiqchalik)" if diff > 0 else f"{diff:.3f} kg (Kamomad)"
+            tg_msg = (
+                f"⚖️ *INVENTARIZATSIYA: QOLDIQ YANGILANDI*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🥩 *Mahsulot:* {product.name}\n"
+                f"📉 *Eski qoldiq:* `{old_quantity:.3f}` kg\n"
+                f"📊 *Yangi faktik qoldiq:* *{new_quantity:.3f} kg*\n"
+                f"🔄 *Farq:* `{diff_str}`\n"
+                f"📝 *Sabab/Izoh:* {reason}\n"
+                f"👤 *Mas'ul:* {request.user.get_full_name() or request.user.username}"
+            )
+            send_telegram_notification(tg_msg)
+        except Exception as te:
+            print("Telegram adjust notification error:", te)
+
+        return JsonResponse({
+            'status': 'success',
+            'message': f"{product.name} qoldig'i {new_quantity:.3f} kg ga muvaffaqiyatli yangilandi!",
+            'old_quantity': float(old_quantity),
+            'new_quantity': float(new_quantity),
+            'difference': float(diff)
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+@staff_required
+def get_all_stocks_api(request):
+    """
+    Barcha mahsulotlar va ularning joriy zaxirasini qaytaradi.
+    """
+    products = Product.objects.filter(is_active=True).select_related('stock').order_by('name')
+    data = []
+    for p in products:
+        qty = float(p.stock.quantity) if hasattr(p, 'stock') else 0.0
+        data.append({
+            'id': p.id,
+            'name': p.name,
+            'price_per_kg': float(p.price_per_kg),
+            'quantity': qty,
+            'image_url': p.image.url if p.image else None
+        })
+    return JsonResponse({'status': 'success', 'products': data})
 
 @staff_required
 def sync_bootstrap(request):
@@ -3215,9 +3763,9 @@ def close_shift(request):
 
 @staff_required
 def suppliers_view(request):
-    """Barcha ta'minotchilarni boshqarish dashboardi."""
-    from .models import Supplier, Sale, CashTransaction
-    from django.db.models import Sum
+    """Barcha ta'minotchilarni boshqarish, tahlil qilish va moliyaviy hisobot dashboardi."""
+    from .models import Supplier, Sale, CashTransaction, Slaughter
+    from django.db.models import Sum, Count, Max
     from decimal import Decimal
     
     # Kassa joriy naqd pul qoldig'ini hisoblash
@@ -3226,10 +3774,40 @@ def suppliers_view(request):
     naqd_out = CashTransaction.objects.filter(transaction_type='out', payment_method='naqd').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
     current_cash_bal = naqd_sales + naqd_in - naqd_out
     
-    suppliers = Supplier.objects.all().order_by('first_name')
+    # Global aggregates
+    total_supplier_debt = Supplier.objects.aggregate(s=Sum('our_debt'))['s'] or Decimal('0.00')
+    total_supplies = Slaughter.objects.aggregate(s=Sum('total_cost'), w=Sum('total_weight'), count=Count('id'))
+    total_supplied_cost = total_supplies['s'] or Decimal('0.00')
+    total_supplied_weight = total_supplies['w'] or Decimal('0.00')
+    
+    total_paid_to_suppliers = CashTransaction.objects.filter(
+        category='supplier_pay', transaction_type='out'
+    ).aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
+    
+    # Suppliers with enriched stats
+    suppliers_qs = Supplier.objects.annotate(
+        slaughters_count=Count('slaughters', distinct=True),
+        total_supply_amount=Sum('slaughters__total_cost'),
+        total_supply_weight=Sum('slaughters__total_weight'),
+        last_slaughter_date=Max('slaughters__created_at'),
+        total_paid=Sum('cash_transactions__amount')
+    ).order_by('-our_debt', 'first_name')
+    
+    in_debt_count = Supplier.objects.filter(our_debt__gt=0).count()
+    settled_count = Supplier.objects.filter(our_debt__lte=0).count()
+    barter_count = Supplier.objects.filter(customer__isnull=False).count()
+    
     context = {
-        'suppliers': suppliers,
+        'suppliers': suppliers_qs,
         'current_cash_balance': current_cash_bal,
+        'total_supplier_debt': total_supplier_debt,
+        'total_supplied_cost': total_supplied_cost,
+        'total_supplied_weight': total_supplied_weight,
+        'total_paid_to_suppliers': total_paid_to_suppliers,
+        'total_suppliers_count': suppliers_qs.count(),
+        'in_debt_count': in_debt_count,
+        'settled_count': settled_count,
+        'barter_count': barter_count,
     }
     return render(request, 'pos/suppliers.html', context)
 
@@ -3529,15 +4107,18 @@ def export_supplier_ledger_excel(request, supplier_id):
 
 
 @csrf_exempt
+@csrf_exempt
 @staff_required
 @transaction.atomic
 def process_supplier_create_api(request):
-    """Yangi Ta'minotchi qo'shish va unga avtomatik Barter Mijoz profilini yaratish."""
+    """Yangi Ta'minotchi qo'shish va unga avtomatik Barter Mijoz profilini yaratish/bog'lash."""
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Faqat POST!'}, status=405)
         
     from .models import Supplier, Customer
     import json
+    import random
+    from decimal import Decimal
     
     try:
         data = json.loads(request.body)
@@ -3551,21 +4132,21 @@ def process_supplier_create_api(request):
         if not first_name or not phone:
             return JsonResponse({'status': 'error', 'message': 'Ism va telefon majburiy!'}, status=400)
             
-        # Check uniqueness of phone
-        if Supplier.objects.filter(phone=phone).exists() or Customer.objects.filter(phone=phone).exists():
-            return JsonResponse({'status': 'error', 'message': 'Ushbu telefon raqamli hamkor allaqachon mavjud!'}, status=400)
+        # Check uniqueness of supplier phone
+        if Supplier.objects.filter(phone=phone).exists():
+            return JsonResponse({'status': 'error', 'message': "Ushbu telefon raqamli ta'minotchi allaqachon mavjud!"}, status=400)
             
         # Generate custom_id if empty
         if not custom_id:
             digits = ''.join(filter(str.isdigit, phone))
-            custom_id = f"SUP-{digits[-4:] or random.randint(1000, 9999)}"
+            custom_id = f"SUP-{digits[-4:] if len(digits) >= 4 else random.randint(1000, 9999)}"
             while Supplier.objects.filter(custom_id=custom_id).exists():
                 custom_id = f"SUP-{random.randint(10000, 99999)}"
                 
         # Parse initial debt
         try:
             initial_debt = Decimal(str(initial_debt_str))
-        except:
+        except Exception:
             initial_debt = Decimal('0.00')
             
         # Create Supplier
@@ -3578,11 +4159,16 @@ def process_supplier_create_api(request):
             note=note
         )
         
-        # Note: Supplier.save() automatically creates customer!
-        
         return JsonResponse({
             'status': 'success',
-            'message': f"Ta'minotchi '{first_name}' muvaffaqiyatli yaratildi va unga avtomatik Barter Mijoz profili bog'landi!"
+            'supplier': {
+                'id': supplier.id,
+                'name': f"{supplier.first_name} {supplier.last_name or ''}".strip(),
+                'phone': supplier.phone,
+                'custom_id': supplier.custom_id,
+                'our_debt': float(supplier.our_debt)
+            },
+            'message': f"Ta'minotchi '{first_name}' muvaffaqiyatli yaratildi va tizimga kiritildi!"
         })
         
     except Exception as e:
@@ -3855,7 +4441,7 @@ def api_admin_dashboard(request):
     today = timezone.now().date()
     
     today_sales = Sale.objects.filter(created_at__date=today)
-    revenue = sum(s.total_price for s in today_sales) or 84950
+    revenue = sum(s.final_paid for s in today_sales) or Decimal('0.00')
     sales_count = today_sales.count() or 114
     
     customers = Customer.objects.count() or 1850
@@ -3921,5 +4507,157 @@ def send_sms_reminder_api(request, customer_id):
 
     except Customer.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': "Mijoz topilmadi!"}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+def admin_mini_app_view(request):
+    """
+    📱 Telegram Admin & Kassa Mini App (Enterprise Hub)
+    Telegram ichida barcha kassa hisoboti, buyurtmalar, to'lov cheklari, narxlar va qarzdorlar boshqariladi.
+    """
+    from .models import Sale, SaleItem, B2BOrder, PaymentProof, Product, Customer, CashierShift, StoreSetting
+    today = timezone.localdate()
+
+    # 1. Today's live sales metrics
+    today_sales = Sale.objects.filter(created_at__date=today)
+    total_sales_count = today_sales.count()
+    revenue_total = today_sales.aggregate(s=Sum('total_amount'))['s'] or Decimal('0.00')
+    naqd_total = today_sales.filter(payment_method='naqd').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    karta_total = today_sales.filter(payment_method='karta').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    qr_total = today_sales.filter(payment_method='qr').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    nasiya_total = today_sales.filter(payment_method='nasiya').aggregate(s=Sum('debt_added'))['s'] or Decimal('0.00')
+
+    sale_items = SaleItem.objects.filter(sale__created_at__date=today)
+    total_weight_sold = sale_items.aggregate(w=Sum('weight'))['w'] or Decimal('0.000')
+
+    # 2. Orders (B2B & Savat)
+    orders = B2BOrder.objects.all().select_related('customer', 'product', 'assigned_courier').order_by('-created_at')[:50]
+    pending_orders_count = B2BOrder.objects.filter(status__in=['pending', 'payment_uploaded']).count()
+
+    # 3. Payment Proofs
+    proofs = PaymentProof.objects.all().select_related('customer').order_by('-created_at')[:30]
+    pending_proofs_count = PaymentProof.objects.filter(is_verified=False).count()
+
+    # 4. Products & Stock
+    products = Product.objects.filter(is_active=True).select_related('stock').order_by('name')
+
+    # 5. Top Debtors
+    debtors = Customer.objects.filter(debt_amount__gt=0).order_by('-debt_amount')[:20]
+    total_debt_all = Customer.objects.aggregate(s=Sum('debt_amount'))['s'] or Decimal('0.00')
+
+    # 6. Couriers
+    couriers = Customer.objects.filter(is_courier=True).order_by('first_name')
+
+    # 7. Current Shift
+    current_shift = CashierShift.objects.filter(is_open=True).order_by('-opened_at').first()
+
+    context = {
+        'today': today,
+        'total_sales_count': total_sales_count,
+        'revenue_total': revenue_total,
+        'naqd_total': naqd_total,
+        'karta_total': karta_total,
+        'qr_total': qr_total,
+        'nasiya_total': nasiya_total,
+        'total_weight_sold': total_weight_sold,
+        'orders': orders,
+        'pending_orders_count': pending_orders_count,
+        'proofs': proofs,
+        'pending_proofs_count': pending_proofs_count,
+        'products': products,
+        'debtors': debtors,
+        'total_debt_all': total_debt_all,
+        'couriers': couriers,
+        'current_shift': current_shift,
+    }
+    return render(request, 'pos/admin_mini_app.html', context)
+
+
+@csrf_exempt
+def api_quick_update_product_price_stock(request):
+    """Mini App orqali mahsulot narxi va zaxirasini 1-bosishda o'zgartirish."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': "Faqat POST!"}, status=405)
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        new_price = data.get('price_per_kg')
+        new_stock = data.get('stock_quantity')
+
+        from .models import Product, Stock
+        product = Product.objects.get(id=product_id)
+        
+        if new_price is not None:
+            product.price_per_kg = Decimal(str(new_price))
+            product.save()
+
+        if new_stock is not None:
+            stock, _ = Stock.objects.get_or_create(product=product)
+            stock.quantity = Decimal(str(new_stock))
+            stock.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': f"'{product.name}' narxi ({product.price_per_kg:,.0f} so'm) va qoldig'i muvaffaqiyatli yangilandi!"
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@csrf_exempt
+def api_assign_order_courier(request):
+    """Mini App orqali buyurtmaga kuryer biriktirish."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': "Faqat POST!"}, status=405)
+    try:
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+        courier_id = data.get('courier_id')
+
+        from .models import B2BOrder, Customer
+        order = B2BOrder.objects.get(id=order_id)
+        courier = Customer.objects.get(id=courier_id, is_courier=True)
+
+        order.assigned_courier = courier
+        order.status = 'shipping'
+        order.save()
+
+        # Notify courier & customer
+        if courier.telegram_chat_id:
+            try:
+                from .customer_bot import send_message as send_tg_msg
+                courier_msg = (
+                    f"🚴‍♂️ *SIZGA YANGI BUYURTMA BIRIKTIRILDI!* (#{order.id})\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"👤 *Mijoz:* {order.customer.first_name} ({order.customer.phone})\n"
+                    f"🥩 *Mahsulot:* {order.product.name} ({order.requested_weight} kg)\n"
+                    f"📍 *Manzil:* {order.delivery_address or 'Belgilanmagan'}\n"
+                )
+                if order.latitude and order.longitude:
+                    courier_msg += f"\n🗺 [Google Maps Navigator](https://maps.google.com/?q={order.latitude},{order.longitude})\n"
+                courier_msg += "\nIltimos, buyurtmani do'kondan olib yetkazib bering!"
+                send_tg_msg(courier.telegram_chat_id, courier_msg)
+            except Exception:
+                pass
+
+        if order.customer.telegram_chat_id:
+            try:
+                from .customer_bot import send_message as send_tg_msg
+                cust_msg = (
+                    f"🚚 *BUYURTMANGIZ KURYERGA TOPSHIRILDI!*\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🛵 *Kuryer:* {courier.first_name} (`{courier.phone}`)\n"
+                    f"📦 *Mahsulot:* {order.product.name} ({order.requested_weight} kg)\n"
+                    f"⏳ Kuryer tez orada manzilingizga yetib boradi!"
+                )
+                send_tg_msg(order.customer.telegram_chat_id, cust_msg)
+            except Exception:
+                pass
+
+        return JsonResponse({
+            'status': 'success',
+            'message': f"Buyurtma #{order.id} kuryer {courier.first_name}ga biriktirildi!"
+        })
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
