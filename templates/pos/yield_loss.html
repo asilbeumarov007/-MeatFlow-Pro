@@ -397,7 +397,7 @@
             <h3 class="yl-card-title"><i class="bi bi-person-check-fill text-success"></i> 1-Qadam: Ta'minotchi / Fermerni tanlang</h3>
             <p class="text-muted small m-0">Go'sht sotib olingan fermer yoki ta'minotchini tanlang yoki yangisini qo'shing.</p>
           </div>
-          <button type="button" class="btn-yl-primary" onclick="openSupplierModal('slaughter')">
+          <button type="button" class="btn-yl-primary" onclick="openSupplierModal('slaughter')" data-bs-toggle="modal" data-bs-target="#supplierModal">
             <i class="bi bi-person-plus-fill"></i> + Yangi Ta'minotchi
           </button>
         </div>
@@ -577,7 +577,7 @@
           <h3 class="yl-card-title"><i class="bi bi-box-seam-fill text-success"></i> 📦 Tayyor Go'sht / Mahsulot Partiyasi Kiritish</h3>
           <p class="text-muted small m-0">So'yilmagan, tayyor holda sotib olingan go'sht va a'zolarni to'g'ridan-to'g'ri zaxiraga kiritish.</p>
         </div>
-        <button type="button" class="btn-yl-primary" onclick="openSupplierModal('quick')">
+        <button type="button" class="btn-yl-primary" onclick="openSupplierModal('quick')" data-bs-toggle="modal" data-bs-target="#supplierModal">
           <i class="bi bi-person-plus-fill"></i> + Yangi Ta'minotchi
         </button>
       </div>
@@ -752,14 +752,14 @@
 <!-- ═══════════════════════════════════════════════════════════════════════
      MODAL: YANGI TA'MINOTCHI / FERMER QO'SHISH (3D GLASS DIALOG)
      ═══════════════════════════════════════════════════════════════════════ -->
-<div class="modal fade" id="supplierModal" tabindex="-1" aria-labelledby="supplierModalLabel" aria-hidden="true">
+<div class="modal fade" id="supplierModal" tabindex="-1" aria-labelledby="supplierModalLabel" aria-hidden="true" style="z-index:999999; background:rgba(0,0,0,0.55);" onclick="if(event.target===this) closeSupplierModal();">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius: 26px; border: none; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.25);">
+    <div class="modal-content" style="border-radius: 26px; border: none; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.35);">
       <div class="modal-header" style="background: linear-gradient(135deg, #064E3B, #04110D); color:#FFFFFF; padding: 20px 26px;">
         <h5 class="modal-title fw-bold" id="supplierModalLabel" style="font-size: 1.25rem;">
           <i class="bi bi-truck text-warning me-2"></i> Yangi Ta'minotchi / Fermer Qo'shish
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeSupplierModal()" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="padding: 26px;">
         <p style="font-size: 13px; color: #64748B; margin-bottom: 18px;">
@@ -799,9 +799,14 @@
             <input type="text" id="supNote" class="form-control-yl" placeholder="Masalan: Baxmal fermasi, qo'y go'shti...">
           </div>
 
-          <button type="submit" class="btn-yl-primary w-100 py-3 rounded-3 fw-bold shadow-sm justify-content-center" id="btnSaveSupplier">
-            <i class="bi bi-check-circle-fill me-1"></i> Hamkorni Saqlash & Tanlash
-          </button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn-yl-secondary w-50 py-3 rounded-3 fw-bold justify-content-center" onclick="closeSupplierModal()">
+              Bekor Qilish
+            </button>
+            <button type="submit" class="btn-yl-primary w-50 py-3 rounded-3 fw-bold shadow-sm justify-content-center" id="btnSaveSupplier">
+              <i class="bi bi-check-circle-fill me-1"></i> Saqlash
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -956,18 +961,53 @@ function filterQuickSuppliers(query) {
 
 // ─── MODAL: CREATE SUPPLIER ───
 let supModalInst = null;
+
 function openSupplierModal(context) {
   currentModalContext = context || 'slaughter';
-  document.getElementById('supFirstName').value = '';
-  document.getElementById('supLastName').value = '';
-  document.getElementById('supPhone').value = '';
-  document.getElementById('supCustomId').value = '';
-  document.getElementById('supOurDebt').value = '0';
-  document.getElementById('supNote').value = '';
+  const form = document.getElementById('createSupplierForm');
+  if (form) form.reset();
+  const debt = document.getElementById('supOurDebt');
+  if (debt) debt.value = '0';
 
   const modalEl = document.getElementById('supplierModal');
-  supModalInst = bootstrap.Modal.getOrCreateInstance(modalEl);
-  supModalInst.show();
+  if (!modalEl) return;
+
+  // Try Bootstrap first
+  if (window.bootstrap && typeof bootstrap.Modal !== 'undefined') {
+    try {
+      supModalInst = bootstrap.Modal.getOrCreateInstance(modalEl);
+      supModalInst.show();
+      return;
+    } catch(e) {
+      console.warn("Bootstrap modal exception:", e);
+    }
+  }
+
+  // Pure Vanilla Fallback
+  modalEl.classList.add('show');
+  modalEl.style.display = 'block';
+  modalEl.removeAttribute('aria-hidden');
+  modalEl.setAttribute('aria-modal', 'true');
+  document.body.classList.add('modal-open');
+}
+
+function closeSupplierModal() {
+  const modalEl = document.getElementById('supplierModal');
+  if (!modalEl) return;
+
+  if (window.bootstrap && typeof bootstrap.Modal !== 'undefined') {
+    try {
+      const inst = bootstrap.Modal.getInstance(modalEl);
+      if (inst) inst.hide();
+    } catch(e) {}
+  }
+
+  modalEl.classList.remove('show');
+  modalEl.style.display = 'none';
+  modalEl.setAttribute('aria-hidden', 'true');
+  modalEl.removeAttribute('aria-modal');
+  document.body.classList.remove('modal-open');
+  document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
 }
 
 function autoSuggestId(phone) {
@@ -1043,7 +1083,7 @@ function handleSupplierSubmit() {
         document.getElementById('slaughterSelectedMeta').innerText = `ID: ${s.custom_id} · Tel: ${s.phone}`;
       }
 
-      if (supModalInst) supModalInst.hide();
+      closeSupplierModal();
       alert("✅ " + data.message);
     } else {
       alert("Xato: " + (data.message || 'Saqlashda xatolik yuz berdi'));
@@ -1055,7 +1095,7 @@ function handleSupplierSubmit() {
   })
   .finally(() => {
     btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Hamkorni Saqlash & Tanlash';
+    btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Saqlash';
   });
 }
 
