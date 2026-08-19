@@ -1,1555 +1,805 @@
-{% extends 'base.html' %}
-{% block title %}🧮 Tannarxni Hisoblash — Baxmal Meat{% endblock %}
-{% block content %}
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap');
+{% extends "base.html" %}
+{% load static %}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !important; }
+{% block title %}Go'sht Kirimi & So'yim Portali — MeatFlow Pro{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- ========================================================================
+     MEATFLOW PRO — GO'SHT KIRIMI VA SO'YIM TIZIMI (3D GLASSMORPHISM)
+     Yangi So'yim, Tayyor Go'sht Kirimi, Tarozi Inventarizatsiyasi & Ta'minotchilar
+     ======================================================================== -->
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap');
+
+:root {
+  --yl-mint-bg: linear-gradient(160deg, #ECFDF5 0%, #F0FDFA 30%, #EFF6FF 70%, #FDF2F8 100%);
+  --yl-card-bg: rgba(255, 255, 255, 0.78);
+  --yl-card-border: 1.5px solid rgba(255, 255, 255, 0.85);
+  --yl-card-shadow: 0 16px 40px rgba(16, 185, 129, 0.08), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --yl-card-hover: 0 22px 50px rgba(16, 185, 129, 0.15), 0 6px 18px rgba(0, 0, 0, 0.05);
+  --yl-pine: #064E3B;
+  --yl-emerald: #10B981;
+  --yl-mint: #34D399;
+  --yl-gold: #F59E0B;
+  --yl-sky: #0284C7;
+  --yl-red: #EF4444;
+}
 
 .yl-wrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 32px 20px 60px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  min-height: 100vh;
+  padding: 24px 20px 80px;
+  max-width: 1360px;
+  margin: 0 auto;
 }
 
-.yl-header {
-    margin-bottom: 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.yl-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2.2rem;
-    color: var(--text-main, #1A1A2E);
-    margin-bottom: 6px;
-}
-.yl-sub {
-    color: var(--text-muted, #6B7280);
-    font-size: 0.95rem;
+/* ─── 3D GLASS HEADER ─── */
+.yl-hero-glass {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.95) 0%, rgba(16, 185, 129, 0.88) 55%, rgba(52, 211, 153, 0.75) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 28px;
+  padding: 36px 36px 30px;
+  color: #FFFFFF;
+  box-shadow: 0 20px 50px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Wizard Steps Progress Bar */
-.wizard-steps-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #FFFFFF;
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 14px;
-    padding: 16px 24px;
-    margin-bottom: 30px;
-    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.05));
-    position: relative;
-    overflow-x: auto;
-}
-.step-nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: all 0.3s;
-    flex-shrink: 0;
-}
-.step-nav-item.active {
-    opacity: 1;
-    color: var(--primary, #1B6B4A);
-    font-weight: 700;
-}
-.step-nav-item.done {
-    opacity: 0.8;
-    color: var(--primary-light, #2D9B6E);
-}
-.step-nav-num {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #F3F4F6;
-    color: #4B5563;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    border: 1px solid #E5E7EB;
-    transition: all 0.3s;
-}
-.step-nav-item.active .step-nav-num {
-    background: var(--primary, #1B6B4A);
-    color: #FFFFFF;
-    border-color: var(--primary, #1B6B4A);
-    box-shadow: 0 0 0 3px rgba(27,107,74,0.15);
-}
-.step-nav-item.done .step-nav-num {
-    background: var(--primary-light, #2D9B6E);
-    color: #FFFFFF;
-    border-color: var(--primary-light, #2D9B6E);
-}
-.step-nav-lbl {
-    font-size: 0.9rem;
-}
-.step-nav-line {
-    flex: 1;
-    height: 2px;
-    background: #E5E7EB;
-    margin: 0 16px;
-    min-width: 30px;
-}
-.step-nav-line.done {
-    background: var(--primary-light, #2D9B6E);
+.yl-hero-glass::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 65%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-/* Layout Grid */
-.yl-grid {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 28px;
-    align-items: start;
-}
-@media (max-width: 992px) {
-    .yl-grid {
-        grid-template-columns: 1fr;
-    }
+.yl-hero-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(26px, 3.2vw, 36px);
+  font-weight: 900;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
-/* Wizard Cards & Blocks */
-.wizard-card {
-    background: #FFFFFF;
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 20px;
-    padding: 32px;
-    box-shadow: var(--shadow-md, 0 4px 20px rgba(0,0,0,0.08));
-    min-height: 480px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.yl-hero-sub {
+  font-size: 14.5px;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 680px;
+  line-height: 1.6;
+  margin-bottom: 0;
 }
 
-.wizard-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.6rem;
-    color: var(--primary, #1B6B4A);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* Animal Cards Selection */
-.animal-selector {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin: 20px 0;
-}
-.animal-card {
-    border-radius: 16px;
-    overflow: hidden;
-    border: 2px solid rgba(0,0,0,0.06);
-    cursor: pointer;
-    position: relative;
-    height: 220px;
-    transition: all 0.3s ease;
-    background: #FFFFFF;
-}
-.animal-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: all 0.4s ease;
-}
-.animal-card-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 20px;
-    color: #FFFFFF;
-}
-.animal-card-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.45rem;
-    margin-bottom: 4px;
-}
-.animal-card-desc {
-    font-size: 0.85rem;
-    color: rgba(255,255,255,0.75);
-}
-.animal-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
-}
-.animal-card:hover img {
-    transform: scale(1.05);
-}
-.animal-card.selected {
-    border-color: var(--primary, #1B6B4A);
-    box-shadow: 0 0 0 4px rgba(27,107,74,0.15);
-}
-.animal-card.selected::before {
-    content: "✓";
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 28px;
-    height: 28px;
-    background: var(--primary, #1B6B4A);
-    color: #FFFFFF;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    z-index: 10;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-/* Supplier search list */
-.supplier-search-box {
-    position: relative;
-    margin-bottom: 16px;
-}
-.search-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9CA3AF;
-}
-.search-field {
-    width: 100%;
-    padding: 14px 16px 14px 44px;
-    background: #F8F6F2;
-    border: 1.5px solid rgba(0,0,0,0.06);
-    border-radius: 12px;
-    font-size: 1rem;
-    outline: none;
-    transition: all 0.2s;
-}
-.search-field:focus {
-    border-color: var(--primary, #1B6B4A);
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(27,107,74,0.08);
-}
-.supplier-list {
-    max-height: 240px;
-    overflow-y: auto;
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 12px;
-    padding: 6px;
-    background: #FDFDFD;
-}
-.supplier-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 4px;
-    border: 1px solid transparent;
-}
-.supplier-item:hover {
-    background: #F5F1EB;
-}
-.supplier-item.selected {
-    background: rgba(27,107,74,0.06);
-    border-color: rgba(27,107,74,0.15);
-    color: var(--primary, #1B6B4A);
-    font-weight: 600;
-}
-.supplier-meta {
-    font-size: 0.8rem;
-    color: var(--text-muted, #6B7280);
-}
-.supplier-debt {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: #DC3545;
-}
-.supplier-debt.none {
-    color: #9CA3AF;
-    font-weight: 400;
-}
-
-/* Wizard Buttons */
-.wizard-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 30px;
-    border-top: 1px solid rgba(0,0,0,0.06);
-    padding-top: 20px;
-}
-.btn-wizard {
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.btn-wizard-back {
-    background: #F3F4F6;
-    color: #4B5563;
-    border: 1px solid #E5E7EB;
-}
-.btn-wizard-back:hover {
-    background: #E5E7EB;
-}
-.btn-wizard-next {
-    background: var(--primary-gradient, linear-gradient(135deg, #1B6B4A, #2D9B6E));
-    color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(27,107,74,0.15);
-}
-.btn-wizard-next:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(27,107,74,0.25);
-}
-.btn-wizard-next:disabled {
-    background: #D1D5DB;
-    color: #9CA3AF;
-    box-shadow: none;
-    cursor: not-allowed;
-}
-
-/* Breakdown Inputs styling */
-.breakdown-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 14px;
-}
-.form-group {
-    margin-bottom: 12px;
-}
-.form-label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-main, #1A1A2E);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-.form-control-custom {
-    width: 100%;
-    background: #F8F6F2;
-    border: 1.5px solid rgba(0,0,0,0.06);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 0.95rem;
-    color: var(--text-main, #1A1A2E);
-    outline: none;
-    transition: all 0.2s;
-}
-.form-control-custom:focus {
-    border-color: var(--primary, #1B6B4A);
-    background: #ffffff;
-}
-
-/* Custom Cut Card UI */
-.cut-card {
-    background: #F8F6F2;
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 18px;
-    transition: all 0.2s;
-}
-.cut-card.taken {
-    border-color: rgba(27,107,74,0.2);
-    background: rgba(27,107,74,0.02);
-}
-.cut-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-.cut-title {
-    font-weight: 700;
-    color: var(--text-main, #1A1A2E);
-    font-size: 1.05rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.cut-toggle-group {
-    display: flex;
-    background: #E5E7EB;
-    border-radius: 8px;
-    padding: 2px;
-}
-.cut-btn {
-    border: none;
-    background: transparent;
-    padding: 6px 12px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.cut-btn.active {
-    background: #FFFFFF;
-    color: var(--primary, #1B6B4A);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-.cut-body {
-    display: none;
-    border-top: 1px solid rgba(0,0,0,0.05);
-    padding-top: 12px;
-}
-.cut-body.show {
-    display: block;
-}
-
-/* Right Panel: Batches & Yield Decay */
-.side-card {
-    background: #FFFFFF;
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.05));
-}
-.side-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.25rem;
-    color: var(--primary, #1B6B4A);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.result-row-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-.result-row-flex:last-child {
-    border-bottom: none;
-}
-.result-lbl {
-    font-size: 0.9rem;
-    color: var(--text-muted, #6B7280);
-}
-.result-val {
-    font-weight: 700;
-    color: var(--text-main, #1A1A2E);
-}
-.result-val.highlight {
-    color: var(--primary, #1B6B4A);
-    font-size: 1.1rem;
-}
-
-/* ═══════════════════════════════════════════
-   MOBILE-FIRST RESPONSIVE (APP-LIKE UX)
-═══════════════════════════════════════════ */
-@media (max-width: 768px) {
-  /* ── Header: Compact ── */
-  .yl-wrapper {
-    padding: 12px !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-    box-sizing: border-box !important;
-  }
-  .yl-header {
-    padding: 12px 0 8px !important;
-    margin-bottom: 10px !important;
-  }
-  .yl-title {
-    font-size: 1.2rem !important;
-    line-height: 1.2 !important;
-  }
-  .yl-sub {
-    font-size: 0.75rem !important;
-    display: none; /* Save space on mobile */
-  }
-
-  /* ── Wizard Step Nav: Scrollable horizontal ── */
-  .wizard-steps-nav {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 10px 14px !important;
-    gap: 12px !important;
-    margin-bottom: 16px !important;
-    scrollbar-width: none;
-    flex-wrap: nowrap !important;
-  }
-  .wizard-steps-nav::-webkit-scrollbar { display: none; }
-  .step-nav-item {
-    min-width: 48px;
-    flex-shrink: 0;
-  }
-  .step-nav-num {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: 0.8rem !important;
-  }
-  .step-nav-lbl {
-    font-size: 0.6rem !important;
-    white-space: nowrap;
-  }
-  .step-nav-line {
-    min-width: 20px !important;
-    flex-shrink: 1;
-  }
-
-  /* ── Grid: Single column ── */
-  .yl-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  /* ── Wizard Card: Compact ── */
-  .wizard-card {
-    padding: 16px !important;
-    border-radius: 16px !important;
-    min-height: auto !important;
-  }
-  .wizard-title {
-    font-size: 1.15rem !important;
-    margin-bottom: 12px !important;
-    gap: 8px !important;
-  }
-
-  /* ── Animal Cards: Touch-friendly ── */
-  .animal-selector {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
-    margin: 12px 0 !important;
-  }
-  .animal-card {
-    height: 140px !important;
-    border-radius: 14px !important;
-  }
-  .animal-card-title {
-    font-size: 1.1rem !important;
-  }
-  .animal-card-desc {
-    font-size: 0.7rem !important;
-  }
-  .animal-card-overlay {
-    padding: 12px !important;
-  }
-  .animal-card.selected::before {
-    width: 24px !important;
-    height: 24px !important;
-    top: 8px !important;
-    right: 8px !important;
-    font-size: 12px;
-  }
-
-  /* ── Supplier Search: Touch-friendly ── */
-  .supplier-search-box {
-    margin-bottom: 10px !important;
-  }
-  .search-field {
-    padding: 14px 16px 14px 40px !important;
-    font-size: 16px !important; /* Prevents iOS zoom */
-    border-radius: 12px !important;
-  }
-  .supplier-list {
-    max-height: 200px !important;
-    padding: 4px !important;
-    border-radius: 12px !important;
-  }
-  .supplier-item {
-    padding: 12px !important;
-    border-radius: 10px !important;
-    margin-bottom: 4px !important;
-    min-height: 50px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .supplier-meta {
-    font-size: 0.72rem !important;
-  }
-  .supplier-debt {
-    font-size: 0.8rem !important;
-  }
-
-  /* ── Wizard Footer: Stacked buttons on very small screens ── */
-  .wizard-footer {
-    margin-top: 16px !important;
-    padding-top: 14px !important;
-    gap: 8px;
-  }
-  .btn-wizard {
-    padding: 14px 20px !important;
-    font-size: 0.9rem !important;
-    border-radius: 12px !important;
-    min-height: 48px;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* ── Breakdown Rows: Stacked on mobile ── */
-  .breakdown-row {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-    margin-bottom: 10px !important;
-  }
-
-  /* ── Form Inputs: Touch-friendly ── */
-  .form-control-custom {
-    padding: 14px 14px !important;
-    font-size: 16px !important; /* Prevents iOS zoom */
-    border-radius: 10px !important;
-  }
-  .form-label {
-    font-size: 0.72rem !important;
-    margin-bottom: 4px !important;
-  }
-  .form-group {
-    margin-bottom: 8px !important;
-  }
-
-  /* ── Cut Cards: Compact ── */
-  .cut-card {
-    padding: 12px !important;
-    border-radius: 12px !important;
-    margin-bottom: 10px !important;
-  }
-  .cut-title {
-    font-size: 0.9rem !important;
-    gap: 6px !important;
-  }
-  .cut-header {
-    margin-bottom: 8px !important;
-  }
-  .cut-toggle-group {
-    border-radius: 6px !important;
-  }
-  .cut-btn {
-    padding: 6px 10px !important;
-    font-size: 0.7rem !important;
-    min-height: 32px;
-  }
-
-  /* ── Side Card (Batches) ── */
-  .side-card {
-    padding: 16px !important;
-    border-radius: 16px !important;
-  }
-  .side-title {
-    font-size: 1.05rem !important;
-    margin-bottom: 10px !important;
-  }
-  .result-row-flex {
-    padding: 8px 0 !important;
-  }
-  .result-lbl {
-    font-size: 0.8rem !important;
-  }
-  .result-val {
-    font-size: 0.9rem !important;
-  }
-
-  /* ── Modal: Full-width on mobile ── */
-  .modal-dialog {
-    margin: 8px !important;
-    max-width: calc(100% - 16px) !important;
-  }
-  .modal-content {
-    border-radius: 18px !important;
-  }
-  .modal-body {
-    padding: 16px !important;
-  }
-
-  /* ── Prevent selection & improve touch ── */
-  button, .animal-card, .supplier-item, .cut-btn, .btn-wizard {
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
-  }
-
-  /* ── Smooth scroll on iOS ── */
-  .yl-wrapper {
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* ── Extra small phones (< 400px) ── */
-@media (max-width: 400px) {
-  .animal-selector {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-  }
-  .animal-card {
-    height: 120px !important;
-  }
-  .wizard-footer {
-    flex-direction: column !important;
-  }
-  .wizard-footer .btn-wizard {
-    width: 100% !important;
-    justify-content: center;
-  }
-  .btn-wizard-next {
-    order: -1;
-  }
-}
-
-/* ── Mode Switcher Tabs ── */
-.mode-nav-tabs {
+/* ─── NAVIGATION TABS ─── */
+.yl-tabs-bar {
   display: flex;
   gap: 10px;
-  background: #FFFFFF;
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
   padding: 6px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.04);
-  flex-wrap: wrap;
+  border-radius: 20px;
+  border: var(--yl-card-border);
+  box-shadow: var(--yl-card-shadow);
+  margin-bottom: 28px;
+  overflow-x: auto;
 }
-.mode-tab-btn {
+
+.yl-tab-btn {
   flex: 1;
-  min-width: 220px;
-  padding: 12px 20px;
-  border-radius: 14px;
-  border: 1.5px solid transparent;
+  min-width: 200px;
+  padding: 13px 20px;
+  border-radius: 16px;
+  border: none;
   background: transparent;
-  font-size: 0.94rem;
+  color: #4B5563;
   font-weight: 700;
-  color: #64748B;
-  cursor: pointer;
-  transition: all 0.22s ease;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-.mode-tab-btn:hover {
-  color: #0F172A;
-  background: #F8FAFC;
-}
-.mode-tab-btn.active {
-  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
-  color: #FFFFFF !important;
-  border-color: #1B6B4A;
-  box-shadow: 0 4px 16px rgba(27,107,74,0.25);
-}
-.mode-tab-btn.active i {
-  color: #FFFFFF !important;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
 }
 
-/* ── Live Search Dropdown for Quick Mode ── */
-.quick-sup-item {
-  transition: background 0.15s ease;
+.yl-tab-btn i { font-size: 17px; }
+
+.yl-tab-btn:hover {
+  color: var(--yl-pine);
+  background: rgba(255, 255, 255, 0.6);
 }
-.quick-sup-item:hover {
-  background: #F1F5F9 !important;
+
+.yl-tab-btn.active {
+  background: linear-gradient(135deg, #064E3B, #10B981);
+  color: #FFFFFF !important;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+}
+
+/* ─── 3D GLASS CARDS ─── */
+.yl-card {
+  background: var(--yl-card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: var(--yl-card-border);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: var(--yl-card-shadow);
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+}
+
+.yl-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.yl-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--yl-pine);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ─── FORM CONTROLS ─── */
+.form-label-yl {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.form-control-yl {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 14.5px;
+  color: #111827;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.form-control-yl:focus {
+  border-color: var(--yl-emerald);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+  background: #FFFFFF;
+}
+
+/* ─── STEPPER WIZARD ─── */
+.wizard-steps-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.wizard-step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  z-index: 2;
+  flex: 1;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid #E5E7EB;
+  color: #6B7280;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+.wizard-step-node.active .step-circle {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #FFFFFF;
+  border-color: #10B981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+}
+
+.wizard-step-node.completed .step-circle {
+  background: #064E3B;
+  color: #FFFFFF;
+  border-color: #064E3B;
+}
+
+.step-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B7280;
+  text-align: center;
+}
+
+.wizard-step-node.active .step-label {
+  color: var(--yl-pine);
+  font-weight: 800;
+}
+
+/* ─── LIVE SUPPLIER SELECTION CARD ─── */
+.supplier-chip-card {
+  background: #FFFFFF;
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s;
+}
+
+.supplier-chip-card:hover {
+  border-color: var(--yl-emerald);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
+}
+
+/* ─── SUMMARY BOX ─── */
+.yield-summary-box {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.06), rgba(16, 185, 129, 0.12));
+  border: 2px dashed rgba(16, 185, 129, 0.35);
+  border-radius: 20px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+/* ─── BUTTONS ─── */
+.btn-yl-primary {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 14.5px;
+  padding: 12px 28px;
+  border-radius: 14px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.btn-yl-primary:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.4);
+  color: #FFFFFF;
+}
+
+.btn-yl-secondary {
+  background: #FFFFFF;
+  color: #4B5563;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-yl-secondary:hover {
+  background: #F9FAFB;
+  color: #111827;
+  border-color: rgba(0,0,0,0.25);
 }
 </style>
 
-<div class="yl-wrapper">
-    <div class="yl-header">
-        <div>
-            <h1 class="yl-title">🥩 Zaxira & Go'sht Kirimi</h1>
-            <p class="yl-sub">Yangi so'yim, tayyor go'sht partiyasi kiritish hamda ombor qoldiqlarini to'g'rilash (inventarizatsiya)</p>
-        </div>
-        <div>
-            <button type="button" class="btn btn-outline-success fw-bold px-3 py-2 rounded-3 shadow-sm" onclick="triggerDecayRecalculation()" id="decay-btn">
-                <i class="bi bi-arrow-repeat me-1"></i> 🔄 Zaxira Qurishini Hisoblash (Decay)
-            </button>
-        </div>
+<div class="yl-wrapper animate__animated animate__fadeIn">
+
+  <!-- 🌟 3D GLASS HERO HEADER 🌟 -->
+  <div class="yl-hero-glass">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h1 class="yl-hero-title">
+          <i class="bi bi-box-seam-fill text-warning"></i> Go'sht Kirimi & So'yim Portali
+        </h1>
+        <p class="yl-hero-sub">
+          Fermer va ta'minotchilardan go'sht qabul qilish, yangi so'yim tannarxi va chiqim hisobi, tarozi inventarizatsiyasi.
+        </p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="/pos/suppliers/" class="btn btn-outline-light rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-2" style="font-size:13px;">
+          <i class="bi bi-truck text-warning"></i> Ta'minotchilar Daftari
+        </a>
+      </div>
     </div>
+  </div>
 
-    <!-- 🌟 3 MAIN MODE SWITCHER TABS 🌟 -->
-    <div class="mode-nav-tabs">
-        <button type="button" class="mode-tab-btn active" id="tab-mode-slaughter" onclick="switchMainMode('slaughter')">
-            <i class="bi bi-scissors text-warning fs-5"></i> 🔪 1. Butun So'yim & Nimtalash
-        </button>
-        <button type="button" class="mode-tab-btn" id="tab-mode-quick" onclick="switchMainMode('quick')">
-            <i class="bi bi-box-seam-fill text-success fs-5"></i> 📦 2. Tayyor Go'sht Kiritish
-        </button>
-        <button type="button" class="mode-tab-btn" id="tab-mode-audit" onclick="switchMainMode('audit')">
-            <i class="bi bi-sliders2-vertical text-primary fs-5"></i> ⚖️ 3. Ombordagi Qoldiq (Inventarizatsiya)
-        </button>
-    </div>
+  <!-- 🌟 NAVIGATION TABS 🌟 -->
+  <div class="yl-tabs-bar">
+    <button type="button" class="yl-tab-btn active" id="tabBtn1" onclick="switchMode('slaughter')">
+      <i class="bi bi-scissors"></i> 🐂 1. Yangi So'yim (Kalkulyator)
+    </button>
+    <button type="button" class="yl-tab-btn" id="tabBtn2" onclick="switchMode('quick')">
+      <i class="bi bi-box-seam-fill"></i> 📦 2. Tayyor Go'sht Kirimi
+    </button>
+    <button type="button" class="yl-tab-btn" id="tabBtn3" onclick="switchMode('audit')">
+      <i class="bi bi-speedometer2"></i> ⚖️ 3. Tarozi Inventarizatsiyasi
+    </button>
+  </div>
 
-    <!-- ==================== MODE 1: SLAUGHTER WIZARD ==================== -->
-    <div id="mode-section-slaughter">
-        <!-- Wizard Steps progress indicator -->
-        <div class="wizard-steps-nav">
-            <div class="step-nav-item active" id="step-nav-1" onclick="goToStep(1)">
-                <div class="step-nav-num">1</div>
-                <div class="step-nav-lbl">Ta'minotchi</div>
-            </div>
-            <div class="step-nav-line" id="step-line-1"></div>
-            <div class="step-nav-item" id="step-nav-2" onclick="goToStep(2)">
-                <div class="step-nav-num">2</div>
-                <div class="step-nav-lbl">Mahsulot</div>
-            </div>
-            <div class="step-nav-line" id="step-line-2"></div>
-            <div class="step-nav-item" id="step-nav-3" onclick="goToStep(3)">
-                <div class="step-nav-num">3</div>
-                <div class="step-nav-lbl">Toza Go'sht</div>
-            </div>
-            <div class="step-nav-line" id="step-line-3"></div>
-            <div class="step-nav-item" id="step-nav-4" onclick="goToStep(4)">
-                <div class="step-nav-num">4</div>
-                <div class="step-nav-lbl">Tana A'zolari (Nimtalash)</div>
-            </div>
-            <div class="step-nav-line" id="step-line-4"></div>
-            <div class="step-nav-item" id="step-nav-5" onclick="goToStep(5)">
-                <div class="step-nav-num">5</div>
-                <div class="step-nav-lbl">Xulosa</div>
-            </div>
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       BO'LIM 1: YANGI SO'YIM WIZARD (SLAUGHTER CALCULATOR)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div id="section-slaughter" class="tab-section">
+    <div class="yl-card">
+      
+      <!-- Wizard Step Headers -->
+      <div class="wizard-steps-track">
+        <div class="wizard-step-node active" id="stepNode1" onclick="goToStep(1)">
+          <div class="step-circle">1</div>
+          <span class="step-label">Ta'minotchi</span>
+        </div>
+        <div class="wizard-step-node" id="stepNode2" onclick="goToStep(2)">
+          <div class="step-circle">2</div>
+          <span class="step-label">Vazn & Narx</span>
+        </div>
+        <div class="wizard-step-node" id="stepNode3" onclick="goToStep(3)">
+          <div class="step-circle">3</div>
+          <span class="step-label">A'zolar</span>
+        </div>
+        <div class="wizard-step-node" id="stepNode4" onclick="goToStep(4)">
+          <div class="step-circle">4</div>
+          <span class="step-label">Tannarx</span>
+        </div>
+        <div class="wizard-step-node" id="stepNode5" onclick="goToStep(5)">
+          <div class="step-circle">5</div>
+          <span class="step-label">Saqlash</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: Ta'minotchi Tanlash -->
+      <div id="stepCard1" class="step-pane">
+        <div class="yl-card-header">
+          <div>
+            <h3 class="yl-card-title"><i class="bi bi-person-check-fill text-success"></i> 1-Qadam: Ta'minotchi / Fermerni tanlang</h3>
+            <p class="text-muted small m-0">Go'sht sotib olingan fermer yoki ta'minotchini tanlang yoki yangisini qo'shing.</p>
+          </div>
+          <button type="button" class="btn-yl-primary" onclick="openSupplierModal('slaughter')">
+            <i class="bi bi-person-plus-fill"></i> + Yangi Ta'minotchi
+          </button>
         </div>
 
-        <div class="yl-grid">
-            <!-- LEFT: WIZARD SLIDES -->
+        <input type="hidden" id="slaughterSupplierId" value="">
+
+        <!-- Selected supplier display card -->
+        <div id="slaughterSelectedCard" class="supplier-chip-card mb-3" style="background:#F0FDF4; border-color:#10B981;">
+          <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-success p-2.5 rounded-circle fs-5"><i class="bi bi-person-fill"></i></span>
             <div>
-                <!-- STEP 1: Ta'minotchi (Supplier) -->
-                <div class="wizard-card" id="step-card-1">
-                <div>
-                    <h3 class="wizard-title"><i class="bi bi-person-fill-check"></i> Ta'minotchi tanlang</h3>
-                    <p class="text-muted small mb-4">Go'sht sotib olingan ta'minotchi yoki mijozni tanlang. Bo'lmasa yangi ta'minotchi qo'shishingiz mumkin.</p>
-                    
-                    <div class="supplier-search-box">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="search-field" id="supplierSearchInput" placeholder="Ta'minotchi ismi yoki telefon..." oninput="searchSuppliers(this.value)">
-                    </div>
-                    
-                    <div class="supplier-list" id="supplierListContainer">
-                        <div class="supplier-item selected" onclick="selectSupplier(null, 'Taminotchisiz xarid')">
-                            <div>
-                                <span>-- Ta'minotchisiz (Floating Balance) --</span>
-                                <div class="supplier-meta">Qarz kassa hisobidan yopiladi</div>
-                            </div>
-                            <span class="supplier-debt none">Naqd/Karta</span>
-                        </div>
-                        {% for s in suppliers %}
-                        <div class="supplier-item" id="supplier-item-{{ s.id }}" onclick="selectSupplier('{{ s.id }}', '{{ s.name }}', '{{ s.our_debt }}')">
-                            <div>
-                                <span>{{ s.name }}</span>
-                                <div class="supplier-meta">ID: {{ s.custom_id }} · Tel: {{ s.phone }}</div>
-                            </div>
-                            <span class="supplier-debt" {% if s.is_negative %}style="color:#28A745;"{% endif %}>{{ s.debt_display }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="wizard-footer">
-                    <button type="button" class="btn-wizard btn-wizard-back" onclick="openNewSupplierModalForMode('slaughter')">
-                        <i class="bi bi-person-plus-fill"></i> Yangi Ta'minotchi
-                    </button>
-                    <button class="btn-wizard btn-wizard-next" onclick="goToStep(2)">Keyingi qadam <i class="bi bi-arrow-right"></i></button>
-                </div>
+              <strong id="slaughterSelectedName" class="text-dark fs-6 d-block">-- Ta'minotchisiz (Naqd xarid) --</strong>
+              <span id="slaughterSelectedMeta" class="text-muted small">Kassadan naqd hisob-kitob qilinadi</span>
             </div>
-
-            <!-- STEP 2: Hayvon turi (Animal selection) -->
-            <div class="wizard-card d-none" id="step-card-2">
-                <div>
-                    <h3 class="wizard-title"><i class="bi bi-suit-heart-fill"></i> Hayvon (Mahsulot) turini tanlang</h3>
-                    <p class="text-muted small mb-4">Kirilayotgan go'sht turini belgilang.</p>
-                    
-                    <div class="animal-selector">
-                        <div class="animal-card selected" id="animal-mol" onclick="selectAnimal('mol')">
-                            <img src="/static/images/beef_card_bg.png" alt="Qora mol">
-                            <div class="animal-card-overlay">
-                                <div class="animal-card-title">Qora mol</div>
-                                <div class="animal-card-desc">Mol go'shti (beef) zaxirasiga kiritish</div>
-                            </div>
-                        </div>
-                        <div class="animal-card" id="animal-qoy" onclick="selectAnimal('qoy')">
-                            <img src="/static/images/mutton_card_bg.png" alt="Qo'y">
-                            <div class="animal-card-overlay">
-                                <div class="animal-card-title">Qo'y go'shti</div>
-                                <div class="animal-card-desc">Qo'y go'shti (mutton) zaxirasiga kiritish</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="wizard-footer">
-                    <button class="btn-wizard btn-wizard-back" onclick="goToStep(1)"><i class="bi bi-arrow-left"></i> Orqaga</button>
-                    <button class="btn-wizard btn-wizard-next" onclick="goToStep(3)">Keyingi qadam <i class="bi bi-arrow-right"></i></button>
-                </div>
-            </div>
-
-            <!-- STEP 3: Toza go'sht vazni va narxi -->
-            <div class="wizard-card d-none" id="step-card-3">
-                <div>
-                    <h3 class="wizard-title"><i class="bi bi-currency-dollar"></i> Toza go'sht vazni va xarid narxi</h3>
-                    <p class="text-muted small mb-4">So'yilgan tananing faqat Toza Go'sht og'irligi va har kg uchun kelishilgan narx. Ta'minotchiga faqat toza go'sht bo'yicha pul to'lanadi.</p>
-                    
-                    <div class="breakdown-row" style="margin-top: 20px;">
-                        <div class="form-group">
-                            <label class="form-label">Toza Go'sht og'irligi (kg) *</label>
-                            <input type="number" step="0.001" class="form-control-custom" id="totalWeight" value="180" oninput="calculateYield()">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Xarid Narxi — Fermerga (so'm/kg) *</label>
-                            <input type="number" class="form-control-custom" id="purchasePrice" value="125000" oninput="calculateYield()">
-                        </div>
-                    </div>
-
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label class="form-label">🔪 Qassob xizmati haqi (so'm)</label>
-                            <input type="number" class="form-control-custom" id="butcherFee" value="300000" placeholder="Masalan: 300 000" oninput="calculateYield()">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">🎯 Standart Lahm sotish narxi (so'm/kg)</label>
-                            <input type="number" class="form-control-custom" id="targetLahmPrice" value="140000" placeholder="Masalan: 140 000" oninput="calculateYield()">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Nasiya to'lov muddati (kun)</label>
-                        <input type="number" class="form-control-custom" id="dueDays" value="21" min="1">
-                    </div>
-
-
-                    <!-- PHOTO UPLOAD -->
-                    <div class="form-group mb-3">
-                        <label class="form-label">Toza Go'sht Rasmi (Katalog uchun ixtiyoriy)</label>
-                        <div style="display:flex; gap:12px; align-items:center;">
-                            <input type="file" id="totalPhoto" accept="image/*" style="display:none;" onchange="previewImage('total')">
-                            <button type="button" class="btn-wizard btn-wizard-back" style="padding:10px 18px; font-size:0.88rem;" onclick="document.getElementById('totalPhoto').click()">
-                                <i class="bi bi-camera-fill"></i> Rasm yuklash
-                            </button>
-                            <div id="totalPreviewContainer" style="display:none;">
-                                <img id="totalPreview" src="" style="height:44px; border-radius:8px; object-fit:cover; border:1px solid rgba(0,0,0,0.06);">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="background: #F8F6F2; border-radius: 12px; padding: 18px; margin-top: 15px;">
-                        <div style="display:flex; justify-content:space-between; font-weight:700;">
-                            <span>Jami partiya qiymati (Ta'minotchi haqi):</span>
-                            <span id="previewTotalCost" style="color:var(--primary);">0 so'm</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="wizard-footer">
-                    <button class="btn-wizard btn-wizard-back" onclick="goToStep(2)"><i class="bi bi-arrow-left"></i> Orqaga</button>
-                    <button class="btn-wizard btn-wizard-next" onclick="goToStep(4)">Keyingi qadam <i class="bi bi-arrow-right"></i></button>
-                </div>
-            </div>
-
-            <!-- STEP 4: Nimtalash & Qo'shimcha qismlar (Cuts) -->
-            <div class="wizard-card d-none" id="step-card-4" style="overflow-y:auto; max-height:600px;">
-                <div>
-                    <h3 class="wizard-title"><i class="bi bi-diagram-3-fill"></i> Tana a'zolarini nimtalash va rasmlari</h3>
-                    <p class="text-muted small mb-4">Mol/Qo'y so'yilganda olingan barcha qo'shimcha a'zolarni kiriting. Har bir qism uchun rasm yuklashingiz mumkin.</p>
-                    
-                    <!-- JIGAR CARD -->
-                    <div class="cut-card" id="card-jigar">
-                        <div class="cut-header">
-                            <span class="cut-title"><i class="bi bi-bookmark-fill" style="color:#B45309;"></i> Jigar</span>
-                            <div class="cut-toggle-group">
-                                <button type="button" class="cut-btn active" id="btn-jigar-biz" onclick="toggleCut('jigar', true)">Qassob (Biz)</button>
-                                <button type="button" class="cut-btn" id="btn-jigar-mijoz" onclick="toggleCut('jigar', false)">Mijoz</button>
-                            </div>
-                        </div>
-                        <div class="cut-body show" id="body-jigar">
-                            <div class="breakdown-row">
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Vazni (kg)</label>
-                                    <input type="number" step="0.001" class="form-control-custom" id="jigarWeight" value="0.000" oninput="calculateYield()">
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Qiymati (so'm)</label>
-                                    <input type="number" class="form-control-custom" id="jigarPrice" value="0" placeholder="Tekin" oninput="calculateYield()">
-                                </div>
-                            </div>
-                            <!-- PHOTO -->
-                            <div class="form-group mt-3 mb-0">
-                                <label class="form-label" style="font-size:0.75rem;">Bo'lak rasmi</label>
-                                <div style="display:flex; gap:12px; align-items:center;">
-                                    <input type="file" id="jigarPhoto" accept="image/*" style="display:none;" onchange="previewImage('jigar')">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('jigarPhoto').click()">
-                                        <i class="bi bi-camera-fill"></i> Rasm yuklash
-                                    </button>
-                                    <div id="jigarPreviewContainer" style="display:none;">
-                                        <img id="jigarPreview" src="" style="height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(0,0,0,0.06);">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- YURAK CARD -->
-                    <div class="cut-card" id="card-yurak">
-                        <div class="cut-header">
-                            <span class="cut-title"><i class="bi bi-heart-pulse-fill" style="color:#DC2626;"></i> Yurak</span>
-                            <div class="cut-toggle-group">
-                                <button type="button" class="cut-btn active" id="btn-yurak-biz" onclick="toggleCut('yurak', true)">Qassob (Biz)</button>
-                                <button type="button" class="cut-btn" id="btn-yurak-mijoz" onclick="toggleCut('yurak', false)">Mijoz</button>
-                            </div>
-                        </div>
-                        <div class="cut-body show" id="body-yurak">
-                            <div class="breakdown-row">
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Vazni (kg)</label>
-                                    <input type="number" step="0.001" class="form-control-custom" id="yurakWeight" value="0.000" oninput="calculateYield()">
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Qiymati (so'm)</label>
-                                    <input type="number" class="form-control-custom" id="yurakPrice" value="0" placeholder="Tekin" oninput="calculateYield()">
-                                </div>
-                            </div>
-                            <!-- PHOTO -->
-                            <div class="form-group mt-3 mb-0">
-                                <label class="form-label" style="font-size:0.75rem;">Bo'lak rasmi</label>
-                                <div style="display:flex; gap:12px; align-items:center;">
-                                    <input type="file" id="yurakPhoto" accept="image/*" style="display:none;" onchange="previewImage('yurak')">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('yurakPhoto').click()">
-                                        <i class="bi bi-camera-fill"></i> Rasm yuklash
-                                    </button>
-                                    <div id="yurakPreviewContainer" style="display:none;">
-                                        <img id="yurakPreview" src="" style="height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(0,0,0,0.06);">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DUMGAZA CARD -->
-                    <div class="cut-card" id="card-dumgaza">
-                        <div class="cut-header">
-                            <span class="cut-title"><i class="bi bi-tag-fill" style="color:#2563EB;"></i> Dumg'aza</span>
-                            <div class="cut-toggle-group">
-                                <button type="button" class="cut-btn active" id="btn-dumgaza-biz" onclick="toggleCut('dumgaza', true)">Qassob (Biz)</button>
-                                <button type="button" class="cut-btn" id="btn-dumgaza-mijoz" onclick="toggleCut('dumgaza', false)">Mijoz</button>
-                            </div>
-                        </div>
-                        <div class="cut-body show" id="body-dumgaza">
-                            <div class="breakdown-row">
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Vazni (kg)</label>
-                                    <input type="number" step="0.001" class="form-control-custom" id="dumgazaWeight" value="0.000" oninput="calculateYield()">
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Qiymati (so'm)</label>
-                                    <input type="number" class="form-control-custom" id="dumgazaPrice" value="0" placeholder="Tekin" oninput="calculateYield()">
-                                </div>
-                            </div>
-                            <!-- PHOTO -->
-                            <div class="form-group mt-3 mb-0">
-                                <label class="form-label" style="font-size:0.75rem;">Bo'lak rasmi</label>
-                                <div style="display:flex; gap:12px; align-items:center;">
-                                    <input type="file" id="dumgazaPhoto" accept="image/*" style="display:none;" onchange="previewImage('dumgaza')">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('dumgazaPhoto').click()">
-                                        <i class="bi bi-camera-fill"></i> Rasm yuklash
-                                    </button>
-                                    <div id="dumgazaPreviewContainer" style="display:none;">
-                                        <img id="dumgazaPreview" src="" style="height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(0,0,0,0.06);">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CHARVI CARD -->
-                    <div class="cut-card" id="card-charvi">
-                        <div class="cut-header">
-                            <span class="cut-title"><i class="bi bi-droplet-fill" style="color:#D97706;"></i> Charvi moyi</span>
-                            <div class="cut-toggle-group">
-                                <button type="button" class="cut-btn active" id="btn-charvi-biz" onclick="toggleCut('charvi', true)">Qassob (Biz)</button>
-                                <button type="button" class="cut-btn" id="btn-charvi-mijoz" onclick="toggleCut('charvi', false)">Mijoz</button>
-                            </div>
-                        </div>
-                        <div class="cut-body show" id="body-charvi">
-                            <div class="breakdown-row">
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Vazni (kg)</label>
-                                    <input type="number" step="0.001" class="form-control-custom" id="charviWeight" value="0.000" oninput="calculateYield()">
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Qiymati (so'm)</label>
-                                    <input type="number" class="form-control-custom" id="charviPrice" value="0" placeholder="Tekin" oninput="calculateYield()">
-                                </div>
-                            </div>
-                            <!-- PHOTO -->
-                            <div class="form-group mt-3 mb-0">
-                                <label class="form-label" style="font-size:0.75rem;">Bo'lak rasmi</label>
-                                <div style="display:flex; gap:12px; align-items:center;">
-                                    <input type="file" id="charviPhoto" accept="image/*" style="display:none;" onchange="previewImage('charvi')">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('charviPhoto').click()">
-                                        <i class="bi bi-camera-fill"></i> Rasm yuklash
-                                    </button>
-                                    <div id="charviPreviewContainer" style="display:none;">
-                                        <img id="charviPreview" src="" style="height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(0,0,0,0.06);">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ILIK CARD -->
-                    <div class="cut-card" id="card-ilik">
-                        <div class="cut-header">
-                            <span class="cut-title"><i class="bi bi-shield-fill" style="color:#4B5563;"></i> Ilik suyaklar</span>
-                            <div class="cut-toggle-group">
-                                <button type="button" class="cut-btn active" id="btn-ilik-biz" onclick="toggleCut('ilik', true)">Qassob (Biz)</button>
-                                <button type="button" class="cut-btn" id="btn-ilik-mijoz" onclick="toggleCut('ilik', false)">Mijoz</button>
-                            </div>
-                        </div>
-                        <div class="cut-body show" id="body-ilik">
-                            <div class="breakdown-row">
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Vazni (kg)</label>
-                                    <input type="number" step="0.001" class="form-control-custom" id="ilikWeight" value="0.000" oninput="calculateYield()">
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Qiymati (so'm)</label>
-                                    <input type="number" class="form-control-custom" id="ilikPrice" value="0" placeholder="Tekin" oninput="calculateYield()">
-                                </div>
-                            </div>
-                            <!-- PHOTO -->
-                            <div class="form-group mt-3 mb-0">
-                                <label class="form-label" style="font-size:0.75rem;">Bo'lak rasmi</label>
-                                <div style="display:flex; gap:12px; align-items:center;">
-                                    <input type="file" id="ilikPhoto" accept="image/*" style="display:none;" onchange="previewImage('ilik')">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('ilikPhoto').click()">
-                                        <i class="bi bi-camera-fill"></i> Rasm yuklash
-                                    </button>
-                                    <div id="ilikPreviewContainer" style="display:none;">
-                                        <img id="ilikPreview" src="" style="height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(0,0,0,0.06);">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- LAHM CARD -->
-                    <div class="cut-card" id="card-lahm">
-                        <div class="cut-header">
-                            <span class="cut-title"><i class="bi bi-heptagon-fill" style="color:#DC2626;"></i> Lahm go'sht (Suyaksiz)</span>
-                            <div class="cut-toggle-group">
-                                <button type="button" class="cut-btn active" id="btn-lahm-biz" onclick="toggleCut('lahm', true)">Qassob (Biz)</button>
-                                <button type="button" class="cut-btn" id="btn-lahm-mijoz" onclick="toggleCut('lahm', false)">Mijoz</button>
-                            </div>
-                        </div>
-                        <div class="cut-body show" id="body-lahm">
-                            <div class="breakdown-row">
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Vazni (kg)</label>
-                                    <input type="number" step="0.001" class="form-control-custom" id="lahmWeight" value="0.000" oninput="calculateYield()">
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Qiymati (so'm)</label>
-                                    <input type="number" class="form-control-custom" id="lahmPrice" value="0" placeholder="Tekin" oninput="calculateYield()">
-                                </div>
-                            </div>
-                            <!-- PHOTO -->
-                            <div class="form-group mt-3 mb-0">
-                                <label class="form-label" style="font-size:0.75rem;">Bo'lak rasmi</label>
-                                <div style="display:flex; gap:12px; align-items:center;">
-                                    <input type="file" id="lahmPhoto" accept="image/*" style="display:none;" onchange="previewImage('lahm')">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('lahmPhoto').click()">
-                                        <i class="bi bi-camera-fill"></i> Rasm yuklash
-                                    </button>
-                                    <div id="lahmPreviewContainer" style="display:none;">
-                                        <img id="lahmPreview" src="" style="height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(0,0,0,0.06);">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- KALLA-POCHCHA CARD -->
-                    <div class="cut-card" id="card-kalla">
-                        <div class="cut-header">
-                            <span class="cut-title"><i class="bi bi-egg-fried" style="color:#059669;"></i> Kallapochcha</span>
-                            <div class="cut-toggle-group">
-                                <button type="button" class="cut-btn active" id="btn-kalla-biz" onclick="toggleCut('kalla', true)">Qassob (Biz)</button>
-                                <button type="button" class="cut-btn" id="btn-kalla-mijoz" onclick="toggleCut('kalla', false)">Mijoz</button>
-                            </div>
-                        </div>
-                        <div class="cut-body show" id="body-kalla">
-                            <div class="breakdown-row">
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Soni (dona)</label>
-                                    <input type="number" class="form-control-custom" id="kallaQty" value="1" min="1" oninput="calculateYield()">
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label class="form-label">Qiymati (so'm)</label>
-                                    <input type="number" class="form-control-custom" id="kallaPrice" value="0" placeholder="Tekin" oninput="calculateYield()">
-                                </div>
-                            </div>
-                            <!-- PHOTO -->
-                            <div class="form-group mt-3 mb-0">
-                                <label class="form-label" style="font-size:0.75rem;">Bo'lak rasmi</label>
-                                <div style="display:flex; gap:12px; align-items:center;">
-                                    <input type="file" id="kallaPhoto" accept="image/*" style="display:none;" onchange="previewImage('kalla')">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('kallaPhoto').click()">
-                                        <i class="bi bi-camera-fill"></i> Rasm yuklash
-                                    </button>
-                                    <div id="kallaPreviewContainer" style="display:none;">
-                                        <img id="kallaPreview" src="" style="height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(0,0,0,0.06);">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="wizard-footer">
-                    <button class="btn-wizard btn-wizard-back" onclick="goToStep(3)"><i class="bi bi-arrow-left"></i> Orqaga</button>
-                    <button class="btn-wizard btn-wizard-next" onclick="goToStep(5)">Keyingi qadam <i class="bi bi-arrow-right"></i></button>
-                </div>
-            </div>
-
-            <!-- STEP 5: Xulosa & Tasdiqlash -->
-            <div class="wizard-card d-none" id="step-card-5">
-                <div>
-                    <h3 class="wizard-title"><i class="bi bi-check2-circle"></i> Xarid xulosasi va tasdiqlash</h3>
-                    <p class="text-muted small mb-3">Zaxiraga qo'shiladigan yakuniy nimtalash ma'lumotlarini tekshiring:</p>
-
-                    <div style="background:#F8F6F2; border-radius:14px; padding:18px;">
-                        <div class="result-row-flex">
-                            <span class="result-lbl">Ta'minotchi (Fermer):</span>
-                            <span class="result-val" id="summarySupplier">Taminotchisiz</span>
-                        </div>
-                        <div class="result-row-flex">
-                            <span class="result-lbl">Hayvon turi:</span>
-                            <span class="result-val" id="summaryAnimal">Qora mol</span>
-                        </div>
-                        <div class="result-row-flex">
-                            <span class="result-lbl">Jami toza go'sht vazni:</span>
-                            <span class="result-val highlight" id="summaryWeight">180 kg</span>
-                        </div>
-                        <div class="result-row-flex">
-                            <span class="result-lbl">Ajratilgan arzon qismlar (Suyak/Yog'/Dumg'aza):</span>
-                            <span class="result-val" id="summaryCutsWeight" style="color:#B45309; font-weight:700;">0 kg</span>
-                        </div>
-                        <div class="result-row-flex">
-                            <span class="result-lbl">Sof Lahm go'sht zaxirasiga:</span>
-                            <span class="result-val highlight" style="color:#1B6B4A;" id="summaryNetWeight">180 kg</span>
-                        </div>
-                        <div class="result-row-flex">
-                            <span class="result-lbl">Jami Xarid Summasi (Fermer haqi):</span>
-                            <span class="result-val highlight" style="color:var(--primary);" id="summaryCost">0 so'm</span>
-                        </div>
-                        <div class="result-row-flex">
-                            <span class="result-lbl">Qassoblik xizmat haqi:</span>
-                            <span class="result-val" id="summaryButcherFee" style="color:#4B5563; font-weight:700;">0 so'm</span>
-                        </div>
-                        <div class="result-row-flex" style="flex-direction:column; align-items:flex-start; gap:6px;">
-                            <span class="result-lbl">Bizga (Qassobga) o'tadigan a'zolar:</span>
-                            <div id="summaryCutsList" style="font-size:0.82rem; color:var(--text-main); font-weight:600; width:100%; padding-left:10px;">
-                                Jigar (olinmadi), Yurak (olinmadi)...
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 🧠 SMART BREAK-EVEN & REAL COST AI CARD -->
-                    <div style="background: linear-gradient(135deg, #13271C 0%, #0D1A13 100%); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 20px; margin-top: 18px; color: #FFFFFF; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
-                            <span style="font-family:'DM Serif Display', serif; font-size:1.2rem; color:#34D399;">
-                                🎯 Haqiqiy Lahm Tannarxi & Rentabellik Matritsasi
-                            </span>
-                            <span class="badge" id="profitBadge" style="background:#10B981; font-size:0.8rem; padding:6px 12px; border-radius:20px;">Rentabel</span>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:14px;">
-                            <div style="background:rgba(255,255,255,0.05); padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
-                                <div style="font-size:0.75rem; color:#94A3B8; text-transform:uppercase; font-weight:700;">Haqiqiy Sof Tannarx</div>
-                                <div style="font-family:'DM Serif Display', serif; font-size:1.5rem; color:#FCD34D;" id="realBreakEvenCost">0 so'm / kg</div>
-                                <div style="font-size:0.75rem; color:#CBD5E1;">Suyak va yog' arzon sotilgani hisobga olingan</div>
-                            </div>
-                            <div style="background:rgba(255,255,255,0.05); padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
-                                <div style="font-size:0.75rem; color:#94A3B8; text-transform:uppercase; font-weight:700;">Kutilayotgan Sof Foyda</div>
-                                <div style="font-family:'DM Serif Display', serif; font-size:1.5rem; color:#34D399;" id="forecastNetProfit">+0 so'm</div>
-                                <div style="font-size:0.75rem; color:#CBD5E1;" id="forecastProfitMargin">Marja: 0%</div>
-                            </div>
-                        </div>
-
-                        <div id="aiCostAdviceBox" style="background:rgba(245, 158, 11, 0.12); border:1px solid rgba(245, 158, 11, 0.3); border-radius:12px; padding:12px 14px; font-size:0.85rem; color:#FDE68A;">
-                            💡 AI Maslahat hisoblanmoqda...
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="wizard-footer">
-                    <button class="btn-wizard btn-wizard-back" onclick="goToStep(4)"><i class="bi bi-arrow-left"></i> Orqaga</button>
-                    <button class="btn-wizard btn-wizard-next" onclick="submitSlaughter()">🚀 Nimtalashni Yakunlash & Saqlash</button>
-                </div>
-            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fw-bold" onclick="toggleSlaughterSearch()">
+            <i class="bi bi-search me-1"></i> Boshqasini Qidirish
+          </button>
         </div>
 
-        <!-- RIGHT: LIVE COLD ROOM BATCHES -->
-        <div class="side-card">
-            <h4 class="side-title"><i class="bi bi-thermometer-half"></i> Sovuqxonadagi partiyalar</h4>
-            <p class="text-muted small mb-3">Go'sht partiyalarining sovuqxonadagi joriy qoldiqlari:</p>
-
-            <div style="max-height: 480px; overflow-y: auto;" id="sideBatchesContainer">
-                <div class="text-center py-4 text-muted small">Partiyalar yuklanmoqda...</div>
-            </div>
+        <!-- Search dropdown container -->
+        <div id="slaughterSearchBox" class="d-none mb-3">
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-search text-success"></i></span>
+            <input type="text" class="form-control" id="slaughterSearchInput" placeholder="Ism, telefon yoki ID orqali qidiring..." oninput="filterSlaughterSuppliers(this.value)">
+          </div>
+          <div id="slaughterSearchResults" class="bg-white border rounded-3 shadow-sm mt-2 p-2" style="max-height:240px; overflow-y:auto;">
+            <!-- JS populated -->
+          </div>
         </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="button" class="btn-yl-primary" onclick="goToStep(2)">
+            Keyingi qadam: Vazn & Narx <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Hayvon turi va Vazn -->
+      <div id="stepCard2" class="step-pane d-none">
+        <div class="yl-card-header">
+          <h3 class="yl-card-title"><i class="bi bi-calculator-fill text-success"></i> 2-Qadam: Hayvon turi va Xarid ma'lumotlari</h3>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <label class="form-label-yl">Hayvon Turi *</label>
+            <select class="form-control-yl" id="slaughterAnimalType" onchange="calculateSlaughterYield()">
+              <option value="mol">🐂 Mol (Qoramol)</option>
+              <option value="qoy">🐑 Qo'y (Mayda mol)</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-yl">Tirik Vazni (kg) *</label>
+            <input type="number" step="0.1" class="form-control-yl font-monospace" id="slaughterLiveWeight" placeholder="Masalan: 380" oninput="calculateSlaughterYield()">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-yl">Toza Tana Go'shti Vazni (kg) *</label>
+            <input type="number" step="0.1" class="form-control-yl font-monospace fw-bold" id="slaughterCarcassWeight" placeholder="Masalan: 210" required oninput="calculateSlaughterYield()">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-yl">Jami Sotib Olingan Narx (so'm) *</label>
+            <input type="number" step="1000" class="form-control-yl font-monospace fw-bold" id="slaughterPurchaseTotal" placeholder="Masalan: 18000000" required oninput="calculateSlaughterYield()">
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn-yl-secondary" onclick="goToStep(1)"><i class="bi bi-arrow-left"></i> Ortga</button>
+          <button type="button" class="btn-yl-primary" onclick="goToStep(3)">Keyingi: A'zolar <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Chiqim A'zolari (By-products) -->
+      <div id="stepCard3" class="step-pane d-none">
+        <div class="yl-card-header">
+          <h3 class="yl-card-title"><i class="bi bi-pie-chart-fill text-success"></i> 3-Qadam: Chiqim va Qo'shimcha A'zolar</h3>
+          <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill">Tannarxdan chegiriladi</span>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-3">
+            <label class="form-label-yl">Jigar & Yurak (kg)</label>
+            <input type="number" step="0.1" class="form-control-yl font-monospace" id="byprodLiverKg" placeholder="0" oninput="calculateSlaughterYield()">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label-yl">Jigar Narxi (so'm/kg)</label>
+            <input type="number" step="1000" class="form-control-yl font-monospace" id="byprodLiverPrice" value="50000" oninput="calculateSlaughterYield()">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label-yl">Kalla-Pocha Summasi (so'm)</label>
+            <input type="number" step="1000" class="form-control-yl font-monospace" id="byprodHeadFeetSum" placeholder="0" oninput="calculateSlaughterYield()">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label-yl">Charvi Yog'i (kg)</label>
+            <input type="number" step="0.1" class="form-control-yl font-monospace" id="byprodFatKg" placeholder="0" oninput="calculateSlaughterYield()">
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn-yl-secondary" onclick="goToStep(2)"><i class="bi bi-arrow-left"></i> Ortga</button>
+          <button type="button" class="btn-yl-primary" onclick="goToStep(4)">Keyingi: Tannarx Tahlili <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 4: Tannarx & Chiqim Xulosasi -->
+      <div id="stepCard4" class="step-pane d-none">
+        <div class="yl-card-header">
+          <h3 class="yl-card-title"><i class="bi bi-cash-coin text-success"></i> 4-Qadam: Haqiqiy Go'sht Tannarxi (Break-Even)</h3>
+        </div>
+
+        <div class="yield-summary-box">
+          <div class="row text-center g-3">
+            <div class="col-md-3">
+              <span class="text-muted small fw-bold d-block">Tirikdan Chiqim (Yield):</span>
+              <strong class="fs-4 text-dark font-monospace" id="dispYieldPercent">0%</strong>
+            </div>
+            <div class="col-md-3">
+              <span class="text-muted small fw-bold d-block">A'zolardan Qoplangan:</span>
+              <strong class="fs-4 text-success font-monospace" id="dispByproductSum">0 so'm</strong>
+            </div>
+            <div class="col-md-3">
+              <span class="text-muted small fw-bold d-block">Go'shtga Qolgan Xarajat:</span>
+              <strong class="fs-4 text-dark font-monospace" id="dispNetCost">0 so'm</strong>
+            </div>
+            <div class="col-md-3">
+              <span class="text-muted small fw-bold d-block text-danger">1 kg TOZA TANNARX:</span>
+              <strong class="fs-3 text-danger font-monospace fw-bold" id="dispBreakEven">0 so'm</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn-yl-secondary" onclick="goToStep(3)"><i class="bi bi-arrow-left"></i> Ortga</button>
+          <button type="button" class="btn-yl-primary" onclick="goToStep(5)">Keyingi: Tasdiqlash <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 5: Tasdiqlash & Saqlash -->
+      <div id="stepCard5" class="step-pane d-none">
+        <div class="yl-card-header">
+          <h3 class="yl-card-title"><i class="bi bi-check2-circle text-success"></i> 5-Qadam: Zaxiraga Qabul Qilish va To'lov</h3>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label-yl">To'lov Usuli</label>
+            <select class="form-control-yl" id="slaughterPaymentType">
+              <option value="supplier_debt">📋 Ta'minotchiga qarz (Oldi-berdi daftariga yozish)</option>
+              <option value="cash_paid">💵 Naqd pul (Do'kon kassasidan to'lash)</option>
+              <option value="none">⚪ Moliyaviy hisobsiz (Faqat ombor zaxirasini oshirish)</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-yl">Eslatma / Partiya Izohi</label>
+            <input type="text" class="form-control-yl" id="slaughterNotes" placeholder="Masalan: Qora mol, 1-toifa sarxil...">
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn-yl-secondary" onclick="goToStep(4)"><i class="bi bi-arrow-left"></i> Ortga</button>
+          <button type="button" class="btn-yl-primary px-5 py-3 fs-6" id="btnSubmitSlaughter" onclick="submitSlaughterForm()">
+            <i class="bi bi-check-circle-fill"></i> 🥩 Zaxiraga Kiritish & Yakunlash
+          </button>
+        </div>
+      </div>
+
     </div>
-    </div> <!-- END MODE 1: SLAUGHTER WIZARD -->
+  </div>
 
-    <!-- ==================== MODE 2: TAYYOR GO'SHT KIRITISH ==================== -->
-    <div id="mode-section-quick" class="d-none">
-        <div class="wizard-card" style="box-shadow:0 4px 24px rgba(0,0,0,0.06); border-radius:22px; max-width:920px; margin:0 auto;">
-            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3 flex-wrap gap-2">
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       BO'LIM 2: TAYYOR GO'SHT / MAHSULOT KIRIMI (DIRECT MEAT INFLOW)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div id="section-quick" class="tab-section d-none">
+    <div class="yl-card">
+      <div class="yl-card-header">
+        <div>
+          <h3 class="yl-card-title"><i class="bi bi-box-seam-fill text-success"></i> 📦 Tayyor Go'sht / Mahsulot Partiyasi Kiritish</h3>
+          <p class="text-muted small m-0">So'yilmagan, tayyor holda sotib olingan go'sht va a'zolarni to'g'ridan-to'g'ri zaxiraga kiritish.</p>
+        </div>
+        <button type="button" class="btn-yl-primary" onclick="openSupplierModal('quick')">
+          <i class="bi bi-person-plus-fill"></i> + Yangi Ta'minotchi
+        </button>
+      </div>
+
+      <form id="quickStockForm" onsubmit="event.preventDefault(); submitQuickMeatStock();">
+        <div class="row g-4 mb-3">
+          
+          <!-- Product Select -->
+          <div class="col-md-6">
+            <label class="form-label-yl">🥩 Mahsulot Turi *</label>
+            <select class="form-control-yl" id="quickProduct" required onchange="calculateQuickTotal()">
+              <option value="">-- Mahsulotni tanlang --</option>
+              {% for prod in products %}
+              <option value="{{ prod.id }}" data-stock="{{ prod.stock.quantity|default:0 }}" data-price="{{ prod.price_per_kg|floatformat:0 }}">
+                {{ prod.name }} (Zaxira: {{ prod.stock.quantity|default:0|floatformat:3 }} kg)
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Supplier Select -->
+          <div class="col-md-6">
+            <label class="form-label-yl">👤 Ta'minotchi / Fermer</label>
+            <input type="hidden" id="quickSupplierId" value="none">
+            
+            <div id="quickSelectedCard" class="supplier-chip-card" style="background:#F0FDF4; border-color:#10B981;">
+              <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-success p-2 rounded-circle"><i class="bi bi-person-fill"></i></span>
                 <div>
-                    <h3 class="wizard-title mb-1" style="color:var(--primary); font-size:1.35rem;">
-                        <i class="bi bi-box-seam-fill me-2 text-success"></i> 📦 Tayyor Go'sht / Mahsulot Partiyasi Kiritish
-                    </h3>
-                    <p class="text-muted small m-0">So'yilmagan, tayyor qabul qilingan go'sht va a'zolarni to'g'ridan-to'g'ri zaxiraga qo'shish.</p>
+                  <strong id="quickSelectedName" class="text-dark d-block" style="font-size:13.5px;">Ta'minotchisiz / Naqd xarid</strong>
+                  <span id="quickSelectedMeta" class="text-muted small">Do'kon xaridi</span>
                 </div>
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold font-monospace">
-                    Tezkor Kirim
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold" onclick="toggleQuickSearch()" style="font-size:12px;">
+                <i class="bi bi-search me-1"></i> Qidirish
+              </button>
+            </div>
+
+            <div id="quickSearchBox" class="d-none mt-2">
+              <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search text-success"></i></span>
+                <input type="text" class="form-control" id="quickSearchInput" placeholder="Ta'minotchi qidirish..." oninput="filterQuickSuppliers(this.value)">
+              </div>
+              <div id="quickSearchResults" class="bg-white border rounded-3 shadow-sm mt-1 p-2" style="max-height:220px; overflow-y:auto;">
+                <!-- JS populated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Weight & Price -->
+          <div class="col-md-6">
+            <label class="form-label-yl">⚖️ Qabul qilingan vazn (kg) *</label>
+            <input type="number" step="0.001" min="0.001" class="form-control-yl font-monospace fw-bold fs-5" id="quickWeight" placeholder="Masalan: 45.500" required oninput="calculateQuickTotal()">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-yl">💰 Xarid Narxi (so'm / kg) *</label>
+            <input type="number" step="100" min="1000" class="form-control-yl font-monospace fw-bold fs-5" id="quickPurchasePrice" placeholder="Masalan: 85000" required oninput="calculateQuickTotal()">
+          </div>
+
+          <!-- Payment & Notes -->
+          <div class="col-md-6">
+            <label class="form-label-yl">💳 To'lov Usuli</label>
+            <select class="form-control-yl" id="quickPaymentType">
+              <option value="supplier_debt">📋 Ta'minotchiga qarz (Nasiya hisobiga yozish)</option>
+              <option value="cash_paid">💵 Naqd pul (Do'kon kassasidan to'lash)</option>
+              <option value="none">⚪ Moliyaviy hisobsiz (Faqat ombor zaxirasini oshirish)</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-yl">📝 Izoh / Partiya Tafsiloti</label>
+            <input type="text" class="form-control-yl" id="quickNotes" placeholder="Qo'shimcha eslatma...">
+          </div>
+
+        </div>
+
+        <!-- Real-time calculation summary -->
+        <div class="yield-summary-box mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted fw-bold">Jami Partiya Xarid Summasi:</span>
+            <strong class="fs-3 text-success font-monospace" id="quickTotalDisplay">0 so'm</strong>
+          </div>
+          <div class="d-flex justify-content-between align-items-center small text-muted">
+            <span>Kutilayotgan umumiy zaxira:</span>
+            <span class="fw-bold font-monospace text-dark" id="quickStockForecast">-</span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn-yl-secondary" onclick="document.getElementById('quickStockForm').reset(); calculateQuickTotal();">
+            Tozalash
+          </button>
+          <button type="submit" class="btn-yl-primary px-4 py-2.5" id="btnQuickSubmit">
+            <i class="bi bi-check-circle-fill"></i> Zaxiraga Kiritish & Saqlash
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       BO'LIM 3: TAROZI INVENTARIZATSIYASI (AUDIT & STOCK ADJUSTMENT)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div id="section-audit" class="tab-section d-none">
+    <div class="yl-card">
+      <div class="yl-card-header">
+        <div>
+          <h3 class="yl-card-title"><i class="bi bi-speedometer2 text-success"></i> ⚖️ Tarozi Inventarizatsiyasi</h3>
+          <p class="text-muted small m-0">Tizimdagi nazariy qoldiqni do'kondagi faktik tarozi vazniga solishtirish va to'g'rilash.</p>
+        </div>
+        <button type="button" class="btn-yl-secondary" onclick="refreshAuditTable()">
+          <i class="bi bi-arrow-clockwise"></i> Qoldiqlarni Yangilash
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead style="background:#F9FAFB; font-size:12px; text-transform:uppercase; color:#6B7280;">
+            <tr>
+              <th class="ps-3 py-3">Mahsulot Nomi</th>
+              <th>Chakana Narxi</th>
+              <th class="text-center">Tizimdagi Qoldiq</th>
+              <th style="width:200px;">Faktik Vazn (Tarozi)</th>
+              <th class="text-center">Tafovut</th>
+              <th class="text-end pe-3">Amal</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            {% for prod in products %}
+            <tr id="audit-row-{{ prod.id }}">
+              <td class="ps-3 py-3">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-light text-dark border p-2 rounded-3">🥩</span>
+                  <div>
+                    <strong class="text-dark">{{ prod.name }}</strong>
+                    <div class="small text-muted font-monospace">ID: #{{ prod.id }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="fw-bold text-dark">{{ prod.price_per_kg|floatformat:0 }} so'm</span></td>
+              <td class="text-center">
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 font-monospace fs-6" id="sys-stock-{{ prod.id }}">
+                  {{ prod.stock.quantity|default:0|floatformat:3 }} kg
                 </span>
-            </div>
-
-            <form id="quickStockForm" onsubmit="event.preventDefault(); submitQuickStockEntry();">
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">🥩 Mahsulot Turi *</label>
-                        <select class="form-control-custom" id="quickProduct" required onchange="calculateQuickTotal()">
-                            <option value="">-- Mahsulotni tanlang --</option>
-                            {% for prod in products %}
-                            <option value="{{ prod.id }}" data-price="{{ prod.price_per_kg|floatformat:0 }}" data-stock="{{ prod.stock.quantity|default:0 }}">
-                                {{ prod.name }} (Joriy zaxira: {{ prod.stock.quantity|default:0|floatformat:3 }} kg)
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-6 position-relative">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label fw-bold mb-0">👤 Ta'minotchi / Fermer</label>
-                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2.5 py-0.5 fw-bold" onclick="openNewSupplierModalForMode('quick')" style="font-size:11.5px;">
-                                <i class="bi bi-plus-circle-fill me-1"></i> + Yangi Ta'minotchi
-                            </button>
-                        </div>
-                        <input type="hidden" id="quickSupplier" value="none">
-                        
-                        <!-- Selected supplier chip/badge -->
-                        <div id="quickSelectedSupplierCard" class="p-2.5 rounded-3 border d-flex align-items-center justify-content-between shadow-sm" style="border-color: #10B981 !important; background: #F0FDF4 !important;">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-success p-2 rounded-circle"><i class="bi bi-person-check-fill"></i></span>
-                                <div>
-                                    <strong id="quickSelectedSupplierName" class="text-dark d-block" style="font-size: 13.5px;">Ta'minotchisiz / Naqd xarid</strong>
-                                    <span id="quickSelectedSupplierMeta" class="text-muted small">To'g'ridan-to'g'ri do'kon xaridi</span>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold" onclick="enableQuickSupplierSearch()" style="font-size:12px;">
-                                <i class="bi bi-search me-1"></i> Qidirish / O'zgartirish
-                            </button>
-                        </div>
-
-                        <!-- Live Search input container -->
-                        <div id="quickSupplierSearchContainer" class="position-relative d-none">
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0" style="border-radius:12px 0 0 12px; border-color:rgba(0,0,0,0.15);">
-                                    <i class="bi bi-search text-success"></i>
-                                </span>
-                                <input type="text" class="form-control" id="quickSupplierSearchInput" 
-                                       placeholder="Ism, telefon yoki ID orqali qidiring..." 
-                                       autocomplete="off"
-                                       style="border-radius:0 12px 12px 0; border-color:rgba(0,0,0,0.15); font-size:14px; padding:10px 14px;"
-                                       oninput="filterQuickSuppliers(this.value)"
-                                       onfocus="openQuickSupplierDropdown()">
-                            </div>
-
-                            <!-- Floating search results list -->
-                            <div id="quickSupplierDropdown" class="position-absolute w-100 bg-white border rounded-3 shadow-lg mt-1 d-none" 
-                                 style="z-index: 1060; max-height: 260px; overflow-y: auto; border-color: rgba(0,0,0,0.12) !important;">
-                                <div id="quickSupplierDropdownList" class="p-1">
-                                    <!-- Javascript populates this -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">⚖️ Qabul qilingan vazn (kg) *</label>
-                        <input type="number" step="0.001" min="0.001" class="form-control-custom font-monospace fw-bold" id="quickWeight" placeholder="Masalan: 45.500" required oninput="calculateQuickTotal()">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">💰 Xarid Narxi (so'm / kg) *</label>
-                        <input type="number" step="100" min="1000" class="form-control-custom font-monospace fw-bold" id="quickPurchasePrice" placeholder="Masalan: 120000" required oninput="calculateQuickTotal()">
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">💳 To'lov Usuli</label>
-                        <select class="form-control-custom" id="quickPaymentType">
-                            <option value="supplier_debt">📋 Ta'minotchiga qarz (Nasiya hisobiga yozish)</option>
-                            <option value="cash_paid">💵 Naqd pul (Do'kon kassasidan chiqim qilish)</option>
-                            <option value="none">⚪ Moliyaviy hisobsiz (Faqat ombor zaxirasini oshirish)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">📝 Izoh / Eslatma</label>
-                        <input type="text" class="form-control-custom" id="quickNotes" placeholder="Qo'shimcha partiya ma'lumotlari...">
-                    </div>
-                </div>
-
-                <!-- Real-time calculation summary card -->
-                <div style="background: linear-gradient(135deg, rgba(27,107,74,0.06), rgba(212,168,83,0.08)); border: 1.5px dashed rgba(27,107,74,0.25); border-radius:14px; padding:18px; margin-bottom:20px;">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="text-muted fw-bold small">Jami Xarid Summasi:</span>
-                        <strong class="fs-4 text-success font-monospace" id="quickTotalCost">0 so'm</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center small text-muted">
-                        <span>Yangi hisoblangan umumiy zaxira:</span>
-                        <span class="fw-bold font-monospace text-dark" id="quickForecastStock">-</span>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-outline-secondary px-4 py-2 rounded-3 fw-bold" onclick="document.getElementById('quickStockForm').reset(); calculateQuickTotal();">
-                        Tozalash
-                    </button>
-                    <button type="submit" class="btn btn-success px-4 py-2.5 rounded-3 fw-bold shadow-sm" id="btnQuickSubmit">
-                        <i class="bi bi-check-circle-fill me-1"></i> Zaxiraga Kiritish & Saqlash
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ==================== MODE 3: OMBORDAGI QOLDIQNI TO'G'RILASH (INVENTARIZATSIYA) ==================== -->
-    <div id="mode-section-audit" class="d-none">
-        <div class="wizard-card" style="box-shadow:0 4px 24px rgba(0,0,0,0.06); border-radius:22px;">
-            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3 flex-wrap gap-2">
-                <div>
-                    <h3 class="wizard-title mb-1" style="color:#047857; font-size:1.35rem;">
-                        <i class="bi bi-sliders2-vertical me-2 text-primary"></i> ⚖️ Ombordagi Qoldiqni To'g'rilash (Inventarizatsiya)
-                    </h3>
-                    <p class="text-muted small m-0">Tarozida amalda tortilgan go'sht vaznini kiritib, ombor zaxirasini bitta bosishda to'g'rilang.</p>
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-success fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="refreshAuditTable()">
-                    <i class="bi bi-arrow-clockwise me-1"></i> Ro'yxatni yangilash
+              </td>
+              <td>
+                <input type="number" step="0.001" class="form-control form-control-sm font-monospace fw-bold" 
+                       id="audit-input-{{ prod.id }}" 
+                       value="{{ prod.stock.quantity|default:0|floatformat:3 }}" 
+                       style="border-radius:10px; padding:6px 10px;"
+                       oninput="checkAuditDiff({{ prod.id }}, {{ prod.stock.quantity|default:0 }})">
+              </td>
+              <td class="text-center font-monospace small fw-bold" id="audit-diff-{{ prod.id }}">
+                <span class="text-muted">0.000 kg</span>
+              </td>
+              <td class="text-end pe-3">
+                <button type="button" class="btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm" 
+                        id="btn-audit-{{ prod.id }}"
+                        onclick="saveSingleAudit({{ prod.id }}, '{{ prod.name }}')">
+                  <i class="bi bi-check2"></i> Saqlash
                 </button>
-            </div>
-
-            <div class="table-responsive" style="border-radius:14px; border:1px solid rgba(0,0,0,0.08); overflow:hidden;">
-                <table class="table table-hover align-middle mb-0" style="font-size:13.5px;">
-                    <thead class="bg-light" style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em;">
-                        <tr>
-                            <th class="ps-3 py-3">Mahsulot</th>
-                            <th class="py-3">Sotuv Narxi</th>
-                            <th class="py-3 text-center">Tizimdagi Qoldiq</th>
-                            <th class="py-3" style="width:200px;">Faktik Tarozi Vazni (kg)</th>
-                            <th class="py-3 text-center">Farq</th>
-                            <th class="text-end pe-3 py-3">Amal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="auditTableBody">
-                        {% for p in products %}
-                        <tr id="audit-row-{{ p.id }}">
-                            <td class="ps-3 py-2.5">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-light text-dark border p-2 rounded-3" style="font-size:14px;">🥩</span>
-                                    <div>
-                                        <strong class="text-dark">{{ p.name }}</strong>
-                                        <div class="small text-muted font-monospace">ID: #{{ p.id }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="fw-semibold text-dark">{{ p.price_per_kg|floatformat:0 }} so'm</span></td>
-                            <td class="text-center">
-                                <span class="badge {% if p.stock.quantity <= 0 %}bg-danger-subtle text-danger border border-danger-subtle{% elif p.stock.quantity <= 5 %}bg-warning-subtle text-warning border border-warning-subtle{% else %}bg-success-subtle text-success border border-success-subtle{% endif %} px-2.5 py-1 font-monospace fs-6" id="sys-stock-{{ p.id }}">
-                                    {{ p.stock.quantity|default:0|floatformat:3 }} kg
-                                </span>
-                            </td>
-                            <td>
-                                <input type="number" step="0.001" class="form-control form-control-sm font-monospace fw-bold" 
-                                       id="audit-input-{{ p.id }}" 
-                                       value="{{ p.stock.quantity|default:0|stringformat:'.3f' }}" 
-                                       style="border-radius:10px; padding:6px 10px;"
-                                       oninput="checkAuditDiff({{ p.id }}, {{ p.stock.quantity|default:0 }})">
-                            </td>
-                            <td class="text-center font-monospace small fw-bold" id="audit-diff-{{ p.id }}">
-                                <span class="text-muted">0.000 kg</span>
-                            </td>
-                            <td class="text-end pe-3">
-                                <button type="button" class="btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm" 
-                                        id="btn-audit-{{ p.id }}"
-                                        onclick="saveSingleAudit({{ p.id }}, '{{ p.name }}')">
-                                    <i class="bi bi-check2"></i> Saqlash
-                                </button>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">Mahsulotlar topilmadi</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
+
 </div>
 
-<!-- ==================== NEW SUPPLIER MODAL ==================== -->
-<div class="modal fade" id="newSupplierModal" tabindex="-1" aria-labelledby="newSupplierModalLabel" aria-hidden="true">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MODAL: YANGI TA'MINOTCHI / FERMER QO'SHISH (3D GLASS DIALOG)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="supplierModal" tabindex="-1" aria-labelledby="supplierModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius:24px; border:none; box-shadow:0 16px 48px rgba(0,0,0,0.25); overflow:hidden;">
-      <div class="modal-header" style="background: linear-gradient(135deg, #064E3B, #04110D); color:#FFFFFF; padding:18px 24px;">
-        <h5 class="modal-title fw-bold" id="newSupplierModalLabel" style="font-size:1.2rem;">
+    <div class="modal-content" style="border-radius: 26px; border: none; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.25);">
+      <div class="modal-header" style="background: linear-gradient(135deg, #064E3B, #04110D); color:#FFFFFF; padding: 20px 26px;">
+        <h5 class="modal-title fw-bold" id="supplierModalLabel" style="font-size: 1.25rem;">
           <i class="bi bi-truck text-warning me-2"></i> Yangi Ta'minotchi / Fermer Qo'shish
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" style="padding:24px;">
-        <p style="font-size:13px; color:#64748B; margin-bottom:16px;">
-          Yangi ta'minotchi ma'lumotlarini kiriting. U avtomatik tarzda joriy so'yim yoki tayyor go'sht partiyasiga biriktiriladi.
+      <div class="modal-body" style="padding: 26px;">
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 18px;">
+          Fermer ma'lumotlarini kiriting. U avtomatik tarzda tizimga saqlanadi va joriy partiyaga biriktiriladi.
         </p>
-        <div id="modalError" class="text-danger small fw-bold mb-2"></div>
-        <form id="quickNewSupForm" onsubmit="event.preventDefault(); quickCreateSupplier();">
+
+        <form id="createSupplierForm" onsubmit="event.preventDefault(); handleSupplierSubmit();">
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label fw-bold small">Ismi *</label>
-              <input type="text" id="newSupFirstName" class="form-control" placeholder="Masalan: Bahodir" required style="border-radius:12px; padding:10px 14px;">
+              <label class="form-label-yl">Ismi *</label>
+              <input type="text" id="supFirstName" class="form-control-yl" placeholder="Masalan: Bahodir" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-bold small">Familiyasi</label>
-              <input type="text" id="newSupLastName" class="form-control" placeholder="Masalan: Karimov" style="border-radius:12px; padding:10px 14px;">
+              <label class="form-label-yl">Familiyasi</label>
+              <input type="text" id="supLastName" class="form-control-yl" placeholder="Masalan: Karimov">
             </div>
           </div>
+
           <div class="mb-3">
-            <label class="form-label fw-bold small">Telefon raqami *</label>
-            <input type="text" id="newSupPhone" class="form-control font-monospace" placeholder="+998901234567" required oninput="suggestSupplierID(this.value)" style="border-radius:12px; padding:10px 14px;">
+            <label class="form-label-yl">Telefon raqami *</label>
+            <input type="text" id="supPhone" class="form-control-yl font-monospace" placeholder="+998901234567" required oninput="autoSuggestId(this.value)">
           </div>
+
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label fw-bold small">Hamkor ID (Kodi)</label>
-              <input type="text" id="newSupCustomId" class="form-control font-monospace" placeholder="T-1234" style="border-radius:12px; padding:10px 14px;">
+              <label class="form-label-yl">Hamkor ID (Kodi)</label>
+              <input type="text" id="supCustomId" class="form-control-yl font-monospace" placeholder="T-1234">
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-bold small">Boshlang'ich qarzimiz (so'm)</label>
-              <input type="number" id="newSupOurDebt" class="form-control font-monospace" placeholder="0" value="0" style="border-radius:12px; padding:10px 14px;">
+              <label class="form-label-yl">Boshlang'ich qarzimiz (so'm)</label>
+              <input type="number" id="supOurDebt" class="form-control-yl font-monospace" placeholder="0" value="0">
             </div>
           </div>
+
           <div class="mb-4">
-            <label class="form-label fw-bold small">Eslatma / Izoh</label>
-            <input type="text" id="newSupNote" class="form-control" placeholder="Masalan: Baxmal yaylovi, qo'y fermasi..." style="border-radius:12px; padding:10px 14px;">
+            <label class="form-label-yl">Eslatma / Izoh</label>
+            <input type="text" id="supNote" class="form-control-yl" placeholder="Masalan: Baxmal fermasi, qo'y go'shti...">
           </div>
-          <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm" id="btnSubmitNewSup" style="background:#10B981; border:none; font-size:15px;">
+
+          <button type="submit" class="btn-yl-primary w-100 py-3 rounded-3 fw-bold shadow-sm justify-content-center" id="btnSaveSupplier">
             <i class="bi bi-check-circle-fill me-1"></i> Hamkorni Saqlash & Tanlash
           </button>
         </form>
@@ -1558,975 +808,515 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════════════
+     JAVASCRIPT ENGINE (ROBUST & ERROR-FREE)
+     ═══════════════════════════════════════════════════════════════════════ -->
 <script>
-function triggerDecayRecalculation() {
-    const btn = document.getElementById('decay-btn');
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Hisoblanmoqda...';
-    }
+// Global Data
+let ALL_SUPPLIERS = {{ suppliers_json|safe }};
+let currentModalContext = 'slaughter';
+let activeWizardStep = 1;
 
-    fetch('/pos/api/run-decay/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || '',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 🔄 Zaxira Qurishini Hisoblash (Decay)';
-        }
-        if (data.status === 'success') {
-            alert("✅ " + data.message);
-            location.reload();
-        } else {
-            alert("⚠️ " + (data.message || "Xatolik yuz berdi!"));
-        }
-    })
-    .catch(() => {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 🔄 Zaxira Qurishini Hisoblash (Decay)';
-        }
-        alert("Tarmoq xatoligi yuz berdi!");
-    });
+// ─── TAB NAVIGATION ───
+function switchMode(mode) {
+  document.querySelectorAll('.yl-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.add('d-none'));
+
+  if (mode === 'slaughter') {
+    document.getElementById('tabBtn1').classList.add('active');
+    document.getElementById('section-slaughter').classList.remove('d-none');
+  } else if (mode === 'quick') {
+    document.getElementById('tabBtn2').classList.add('active');
+    document.getElementById('section-quick').classList.remove('d-none');
+    calculateQuickTotal();
+  } else if (mode === 'audit') {
+    document.getElementById('tabBtn3').classList.add('active');
+    document.getElementById('section-audit').classList.remove('d-none');
+  }
 }
 
-// Wizard logic
-let currentStep = 1;
-let selectedSupplierId = null;
-let selectedSupplierName = "Taminotchisiz xarid";
-let selectedAnimalType = "mol";
-
-// Cuts Toggles
-const cutsState = {
-    jigar: { taken: true },
-    yurak: { taken: true },
-    dumgaza: { taken: true },
-    charvi: { taken: true },
-    ilik: { taken: true },
-    kalla: { taken: true },
-    lahm: { taken: true }
-};
-
-function toggleCut(cut, isTaken) {
-    cutsState[cut].taken = isTaken;
-    
-    const card = document.getElementById('card-' + cut);
-    const body = document.getElementById('body-' + cut);
-    const btnBiz = document.getElementById('btn-' + cut + '-biz');
-    const btnMijoz = document.getElementById('btn-' + cut + '-mijoz');
-    
-    if (isTaken) {
-        card.classList.add('taken');
-        body.classList.add('show');
-        btnBiz.classList.add('active');
-        btnMijoz.classList.remove('active');
-    } else {
-        card.classList.remove('taken');
-        body.classList.remove('show');
-        btnBiz.classList.remove('active');
-        btnMijoz.classList.add('active');
-    }
-    calculateYield();
-}
-
-function previewImage(key) {
-    const input = document.getElementById(key + 'Photo');
-    const container = document.getElementById(key + 'PreviewContainer');
-    const img = document.getElementById(key + 'Preview');
-    
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            img.src = e.target.result;
-            container.style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
-    } else {
-        container.style.display = 'none';
-    }
-}
-
+// ─── WIZARD NAVIGATION ───
 function goToStep(step) {
-    if (step > currentStep) {
-        if (currentStep === 1 && selectedSupplierId === undefined) {
-            alert("Iltimos, ta'minotchini tanlang!");
-            return;
-        }
-        if (currentStep === 2 && !selectedAnimalType) {
-            alert("Iltimos, hayvon turini tanlang!");
-            return;
-        }
-        if (currentStep === 3) {
-            const w = parseFloat(document.getElementById('totalWeight').value) || 0;
-            const p = parseFloat(document.getElementById('purchasePrice').value) || 0;
-            if (w <= 0 || p <= 0) {
-                alert("Iltimos, toza go'sht vazni va xarid narxini to'g'ri kiriting!");
-                return;
-            }
-        }
+  activeWizardStep = step;
+  for (let i = 1; i <= 5; i++) {
+    const pane = document.getElementById(`stepCard${i}`);
+    const node = document.getElementById(`stepNode${i}`);
+    if (pane) pane.classList.toggle('d-none', i !== step);
+    if (node) {
+      node.classList.toggle('active', i === step);
+      node.classList.toggle('completed', i < step);
     }
-    
-    // Toggle step cards
-    for (let i = 1; i <= 5; i++) {
-        const el = document.getElementById('step-card-' + i);
-        if (el) {
-            if (i === step) el.classList.remove('d-none');
-            else el.classList.add('d-none');
-        }
-        
-        // Update nav styling
-        const nav = document.getElementById('step-nav-' + i);
-        const line = document.getElementById('step-line-' + i);
-        if (nav) {
-            if (i === step) {
-                nav.className = 'step-nav-item active';
-            } else if (i < step) {
-                nav.className = 'step-nav-item done';
-            } else {
-                nav.className = 'step-nav-item';
-            }
-        }
-        if (line) {
-            if (i < step) line.classList.add('done');
-            else line.classList.remove('done');
-        }
-    }
-    
-    currentStep = step;
-    calculateYield();
+  }
 }
 
-// Supplier Selection
-function selectSupplier(id, name, debt) {
-    selectedSupplierId = id;
-    selectedSupplierName = name;
-    
-    document.querySelectorAll('.supplier-item').forEach(el => el.classList.remove('selected'));
-    if (id === null) {
-        document.querySelector('.supplier-list .supplier-item:first-child').classList.add('selected');
-    } else {
-        const selectedEl = document.getElementById('supplier-item-' + id);
-        if (selectedEl) selectedEl.classList.add('selected');
-    }
-    
-    document.getElementById('summarySupplier').innerText = name;
+// ─── SUPPLIER SEARCH & SELECTION (SLAUGHTER) ───
+function toggleSlaughterSearch() {
+  const box = document.getElementById('slaughterSearchBox');
+  box.classList.toggle('d-none');
+  if (!box.classList.contains('d-none')) {
+    filterSlaughterSuppliers('');
+    document.getElementById('slaughterSearchInput').focus();
+  }
 }
 
-// Search suppliers dynamically
-let searchDebounceTimeout = null;
-function searchSuppliers(val) {
-    const q = val.trim();
-    clearTimeout(searchDebounceTimeout);
-    searchDebounceTimeout = setTimeout(() => {
-        fetch('/pos/api/suppliers/?q=' + encodeURIComponent(q))
-            .then(res => res.json())
-            .then(data => {
-                const container = document.getElementById('supplierListContainer');
-                container.innerHTML = '';
-                
-                // Default floating balance option
-                const defaultItem = document.createElement('div');
-                defaultItem.className = 'supplier-item' + (selectedSupplierId === null ? ' selected' : '');
-                defaultItem.onclick = () => selectSupplier(null, 'Taminotchisiz xarid');
-                defaultItem.innerHTML = `
-                    <div>
-                        <span>-- Ta'minotchisiz (Floating Balance) --</span>
-                        <div class="supplier-meta">Qarz kassa hisobidan yopiladi</div>
-                    </div>
-                    <span class="supplier-debt none">Naqd/Karta</span>
-                `;
-                container.appendChild(defaultItem);
-                
-                // Search results
-                data.forEach(s => {
-                    const item = document.createElement('div');
-                    item.className = 'supplier-item' + (selectedSupplierId === s.id ? ' selected' : '');
-                    item.id = 'supplier-item-' + s.id;
-                    item.onclick = () => selectSupplier(s.id, s.name, s.our_debt);
-                    
-                    const debtColor = s.our_debt < 0 ? '#28A745' : '#DC3545';
-                    const absDebt = Math.abs(s.our_debt);
-                    const debtText = s.our_debt < 0 ? `Bizga qarz: ${absDebt.toLocaleString()} so'm` : `${absDebt.toLocaleString()} so'm`;
-                    
-                    item.innerHTML = `
-                        <div>
-                            <span>${s.name}</span>
-                            <div class="supplier-meta">ID: ${s.custom_id} · Tel: ${s.phone}</div>
-                        </div>
-                        <span class="supplier-debt" style="color: ${debtColor};">${debtText}</span>
-                    `;
-                    container.appendChild(item);
-                });
-            })
-            .catch(err => console.error("Error searching entities:", err));
-    }, 300);
+function filterSlaughterSuppliers(query) {
+  const q = (query || '').toLowerCase().trim();
+  const resCont = document.getElementById('slaughterSearchResults');
+  resCont.innerHTML = '';
+
+  // Default option
+  const def = document.createElement('div');
+  def.className = 'p-2 border-bottom d-flex justify-content-between align-items-center';
+  def.style.cursor = 'pointer';
+  def.innerHTML = `<div><strong>-- Ta'minotchisiz xarid --</strong><div class="small text-muted">Naqd kassa chiqimi</div></div><span class="badge bg-light text-dark">Tanlash</span>`;
+  def.onclick = () => {
+    document.getElementById('slaughterSupplierId').value = '';
+    document.getElementById('slaughterSelectedName').innerText = "-- Ta'minotchisiz (Naqd xarid) --";
+    document.getElementById('slaughterSelectedMeta').innerText = "Kassadan naqd hisob-kitob qilinadi";
+    document.getElementById('slaughterSearchBox').classList.add('d-none');
+  };
+  resCont.appendChild(def);
+
+  const filtered = (ALL_SUPPLIERS || []).filter(s => 
+    !q || (s.name && s.name.toLowerCase().includes(q)) || (s.phone && s.phone.includes(q)) || (s.custom_id && s.custom_id.toLowerCase().includes(q))
+  );
+
+  filtered.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'p-2 border-bottom d-flex justify-content-between align-items-center';
+    item.style.cursor = 'pointer';
+    item.innerHTML = `
+      <div>
+        <strong>${s.name}</strong>
+        <div class="small text-muted">ID: ${s.custom_id || ''} · Tel: ${s.phone || ''}</div>
+      </div>
+      <span class="badge bg-success-subtle text-success border font-monospace">${s.debt_display || "0 so'm"}</span>
+    `;
+    item.onclick = () => {
+      document.getElementById('slaughterSupplierId').value = s.id;
+      document.getElementById('slaughterSelectedName').innerText = s.name;
+      document.getElementById('slaughterSelectedMeta').innerText = `ID: ${s.custom_id || ''} · Tel: ${s.phone || ''}`;
+      document.getElementById('slaughterSearchBox').classList.add('d-none');
+    };
+    resCont.appendChild(item);
+  });
 }
 
-let currentSupplierModalMode = 'slaughter';
-
-function openNewSupplierModalForMode(mode) {
-    currentSupplierModalMode = mode || 'slaughter';
-    const modalEl = document.getElementById('newSupplierModal');
-    if (modalEl) {
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
-    }
-}
-
-// Quick Supplier Creation via Modal
-function quickCreateSupplier() {
-    const first = document.getElementById('newSupFirstName').value.trim();
-    const last = document.getElementById('newSupLastName').value.trim();
-    const phone = document.getElementById('newSupPhone').value.trim();
-    const customId = document.getElementById('newSupCustomId').value.trim();
-    const img = document.getElementById('newSupImage');
-    const err = document.getElementById('modalError');
-    
-    if (!first || !phone || !customId) {
-        err.innerText = "Ism, telefon va ID raqam majburiy!";
-        return;
-    }
-    
-    err.innerText = "Saqlanmoqda...";
-    
-    const fd = new FormData();
-    fd.append('first_name', first);
-    fd.append('last_name', last);
-    fd.append('phone', phone);
-    fd.append('custom_id', customId);
-    if (img && img.files.length > 0) {
-        fd.append('image', img.files[0]);
-    }
-    
-    fetch('/pos/api/suppliers/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: fd
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(d => { throw new Error(d.error || "Xatolik yuz berdi"); });
-        }
-        return res.json();
-    })
-    .then(data => {
-        const modalEl = document.getElementById('newSupplierModal');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        if (modal) modal.hide();
-        
-        // Add to global ALL_SUPPLIERS_DATA for live search
-        if (typeof ALL_SUPPLIERS_DATA !== 'undefined' && Array.isArray(ALL_SUPPLIERS_DATA)) {
-            ALL_SUPPLIERS_DATA.unshift({
-                id: data.id,
-                name: data.name,
-                custom_id: data.custom_id,
-                phone: data.phone,
-                debt_display: "0 so'm"
-            });
-        }
-        
-        // If mode 2 (Tayyor Go'sht)
-        if (currentSupplierModalMode === 'quick') {
-            selectQuickSupplier(data.id, data.name, `ID: ${data.custom_id} · Tel: ${data.phone}`);
-        } else {
-            // Mode 1 (Slaughter Wizard)
-            const list = document.getElementById('supplierListContainer');
-            if (list) {
-                const newItem = document.createElement('div');
-                newItem.className = 'supplier-item selected';
-                newItem.id = 'supplier-item-' + data.id;
-                newItem.onclick = () => selectSupplier(data.id, data.name, 0);
-                newItem.innerHTML = `
-                    <div>
-                        <span>${data.name}</span>
-                        <div class="supplier-meta">ID: ${data.custom_id} · Tel: ${data.phone}</div>
-                    </div>
-                    <span class="supplier-debt">0 so'm</span>
-                `;
-                list.prepend(newItem);
-            }
-            selectSupplier(data.id, data.name, 0);
-        }
-        
-        document.getElementById('newSupFirstName').value = '';
-        document.getElementById('newSupLastName').value = '';
-        document.getElementById('newSupPhone').value = '';
-        document.getElementById('newSupCustomId').value = '';
-        if (img) img.value = '';
-        err.innerText = '';
-    })
-    .catch(e => {
-        err.innerText = e.message;
-    });
-}
-
-function suggestSupplierID(v) {
-    const c = v.replace(/\D/g, '');
-    const f = document.getElementById('newSupCustomId');
-    if (f && c.length >= 4) {
-        f.value = 'T-' + c.slice(-4);
-    }
-}
-
-function generateAutoSupplierID() {
-    const p = document.getElementById('newSupPhone').value.replace(/\D/g, '');
-    const f = document.getElementById('newSupCustomId');
-    if (f) {
-        if (p.length >= 4) {
-            f.value = 'T-' + p.slice(-4);
-        } else {
-            const rand = Math.floor(1000 + Math.random() * 9000);
-            f.value = 'T-' + rand;
-        }
-    }
-}
-
-// Animal selection
-function selectAnimal(type) {
-    selectedAnimalType = type;
-    document.querySelectorAll('.animal-card').forEach(el => el.classList.remove('selected'));
-    document.getElementById('animal-' + type).classList.add('selected');
-    document.getElementById('summaryAnimal').innerText = type === 'mol' ? 'Qora mol' : "Qo'y";
-}
-
-// Core calculation logic
-function calculateYield() {
-    const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
-    const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
-    const butcherFee = parseFloat(document.getElementById('butcherFee').value) || 0;
-    const targetLahmPrice = parseFloat(document.getElementById('targetLahmPrice').value) || 140000;
-    
-    // Clean meat cost (to farmer)
-    const cleanMeatCost = totalWeight * purchasePrice;
-    
-    // Extra parts costs (what we pay to farmer)
-    let extraPartsCost = 0;
-    // Offal retail revenue (what we sell to customers)
-    let offalRetailRevenue = 0;
-    
-    const cutsList = [];
-    
-    const extraParts = ['jigar', 'yurak', 'dumgaza', 'charvi', 'ilik', 'lahm', 'kalla'];
-    extraParts.forEach(cut => {
-        if (cutsState[cut].taken) {
-            const priceInput = document.getElementById(cut + 'Price');
-            const qtyInput = document.getElementById(cut === 'kalla' ? 'kallaQty' : cut + 'Weight');
-            
-            const price = parseFloat(priceInput ? priceInput.value : 0) || 0;
-            const qty = parseFloat(qtyInput ? qtyInput.value : 0) || 0;
-            
-            extraPartsCost += price;
-            
-            // Expected retail price per kg for offal/bones
-            let retailPricePerUnit = 60000;
-            if (cut === 'charvi') retailPricePerUnit = 65000;
-            if (cut === 'dumgaza') retailPricePerUnit = 80000;
-            if (cut === 'jigar' || cut === 'yurak') retailPricePerUnit = 70000;
-            if (cut === 'kalla') retailPricePerUnit = 60000;
-            
-            if (cut !== 'lahm') {
-                offalRetailRevenue += qty * retailPricePerUnit;
-            }
-            
-            const unitStr = cut === 'kalla' ? ' dona' : ' kg';
-            const priceStr = price > 0 ? ` (${price.toLocaleString()} so'm)` : ' (Tekin)';
-            
-            let label = cut.toUpperCase();
-            if (cut === 'charvi') label = 'Charvi moyi';
-            if (cut === 'dumgaza') label = "Dumg'aza";
-            if (cut === 'ilik') label = 'Ilik suyak';
-            if (cut === 'lahm') label = "Lahm (Suyaksiz)";
-            if (cut === 'kalla') label = 'Kallapochcha';
-            
-            cutsList.push(`• ${label}: ${qty}${unitStr}${priceStr}`);
-        } else {
-            let label = cut.toUpperCase();
-            if (cut === 'charvi') label = 'Charvi moyi';
-            if (cut === 'dumgaza') label = "Dumg'aza";
-            if (cut === 'ilik') label = 'Ilik suyak';
-            if (cut === 'lahm') label = "Lahm (Suyaksiz)";
-            if (cut === 'kalla') label = 'Kallapochcha';
-            cutsList.push(`• ${label}: Mijozda qoldi (olinmadi)`);
-        }
-    });
-    
-    // Calculate carcass cuts weight (Bones + Fat + Tail)
-    let carcassCutsWeight = 0;
-    const dumgazaW = cutsState.dumgaza.taken ? (parseFloat(document.getElementById('dumgazaWeight').value) || 0) : 0;
-    const charviW = cutsState.charvi.taken ? (parseFloat(document.getElementById('charviWeight').value) || 0) : 0;
-    const ilikW = cutsState.ilik.taken ? (parseFloat(document.getElementById('ilikWeight').value) || 0) : 0;
-    
-    carcassCutsWeight = dumgazaW + charviW + ilikW;
-    
-    const netLahmWeight = Math.max(0.1, totalWeight - carcassCutsWeight);
-    const totalExpenditure = cleanMeatCost + extraPartsCost + butcherFee;
-    const lahmTargetCoverage = Math.max(0, totalExpenditure - offalRetailRevenue);
-    
-    // Real break-even cost per kg for pure Lahm
-    const realBreakEvenCost = Math.round(lahmTargetCoverage / netLahmWeight);
-    
-    // Profit Forecast
-    const marginPerKg = targetLahmPrice - realBreakEvenCost;
-    const totalForecastProfit = Math.round(marginPerKg * netLahmWeight);
-    const marginPercent = targetLahmPrice > 0 ? ((marginPerKg / targetLahmPrice) * 100).toFixed(1) : 0;
-    
-    // UI Updates
-    document.getElementById('previewTotalCost').innerText = Math.round(cleanMeatCost + extraPartsCost).toLocaleString() + " so'm";
-    document.getElementById('summaryWeight').innerText = totalWeight.toFixed(3) + " kg";
-    document.getElementById('summaryCutsWeight').innerText = carcassCutsWeight.toFixed(3) + " kg";
-    document.getElementById('summaryNetWeight').innerText = netLahmWeight.toFixed(3) + " kg";
-    document.getElementById('summaryCost').innerText = Math.round(cleanMeatCost + extraPartsCost).toLocaleString() + " so'm";
-    document.getElementById('summaryButcherFee').innerText = Math.round(butcherFee).toLocaleString() + " so'm";
-    document.getElementById('summaryCutsList').innerHTML = cutsList.join('<br>');
-    
-    // Break-even Matrix Updates
-    document.getElementById('realBreakEvenCost').innerText = realBreakEvenCost.toLocaleString() + " so'm / kg";
-    document.getElementById('forecastNetProfit').innerText = (totalForecastProfit >= 0 ? "+" : "") + totalForecastProfit.toLocaleString() + " so'm";
-    document.getElementById('forecastProfitMargin').innerText = `Marja: ${marginPercent}% (1 kg dan: ${marginPerKg >= 0 ? '+' : ''}${marginPerKg.toLocaleString()} so'm)`;
-    
-    const badge = document.getElementById('profitBadge');
-    const advice = document.getElementById('aiCostAdviceBox');
-    
-    if (marginPercent < 5) {
-        badge.style.background = '#EF4444';
-        badge.innerText = '⚠️ Xavfli / Past Marja';
-        const recPrice = Math.round((realBreakEvenCost * 1.15) / 1000) * 1000;
-        advice.innerHTML = `🚨 <strong>DIQQAT:</strong> Foyda marjasi juda past (atigi <strong>${marginPercent}%</strong>). Ilik suyak (${ilikW} kg) va charvi yog' (${charviW} kg) 60-65 mingdan arzon sotilgani hisobiga sof lahm tannarxi <strong>${realBreakEvenCost.toLocaleString()} so'm</strong>ga yetgan! Do'kon sof foydada bo'lishi uchun standart lahm narxini kamida <strong>${recPrice.toLocaleString()} so'm</strong> qilib belgilash tavsiya etiladi.`;
-        advice.style.background = 'rgba(239, 68, 68, 0.15)';
-        advice.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-        advice.style.color = '#FCA5A5';
-    } else if (marginPercent >= 5 && marginPercent < 15) {
-        badge.style.background = '#F59E0B';
-        badge.innerText = "⚡ O'rtacha Rentabel";
-        advice.innerHTML = `💡 <strong>QONIQARLI:</strong> Marja <strong>${marginPercent}%</strong> tashkil etmoqda. Kutilayotgan sof foyda: <strong>+${totalForecastProfit.toLocaleString()} so'm</strong>. Suyak va charvi moylarini 65 000+ so'mdan sotsangiz, do'kon sof foydasi yana oshadi.`;
-        advice.style.background = 'rgba(245, 158, 11, 0.15)';
-        advice.style.borderColor = 'rgba(245, 158, 11, 0.4)';
-        advice.style.color = '#FDE68A';
-    } else {
-        badge.style.background = '#10B981';
-        badge.innerText = '🌟 Yuqori Rentabel';
-        advice.innerHTML = `🟢 <strong>A'LO:</strong> Ushbu so'yim juda serdaromad (<strong>${marginPercent}%</strong> sof marja). Kutilayotgan sof foyda: <strong>+${totalForecastProfit.toLocaleString()} so'm</strong>.`;
-        advice.style.background = 'rgba(16, 185, 129, 0.15)';
-        advice.style.borderColor = 'rgba(16, 185, 129, 0.4)';
-        advice.style.color = '#6EE7B7';
-    }
-}
-
-// Form Submission
-function submitSlaughter() {
-    const totalWeight = parseFloat(document.getElementById('totalWeight').value) || 0;
-    const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
-    const butcherFee = parseFloat(document.getElementById('butcherFee').value) || 0;
-    const targetLahmPrice = parseFloat(document.getElementById('targetLahmPrice').value) || 140000;
-    
-    const jigarWeight = parseFloat(document.getElementById('jigarWeight').value) || 0;
-    const jigarPrice = parseFloat(document.getElementById('jigarPrice').value) || 0;
-    
-    const yurakWeight = parseFloat(document.getElementById('yurakWeight').value) || 0;
-    const yurakPrice = parseFloat(document.getElementById('yurakPrice').value) || 0;
-    
-    const dumgazaWeight = parseFloat(document.getElementById('dumgazaWeight').value) || 0;
-    const dumgazaPrice = parseFloat(document.getElementById('dumgazaPrice').value) || 0;
-    
-    const charviWeight = parseFloat(document.getElementById('charviWeight').value) || 0;
-    const charviPrice = parseFloat(document.getElementById('charviPrice').value) || 0;
-    
-    const ilikWeight = parseFloat(document.getElementById('ilikWeight').value) || 0;
-    const ilikPrice = parseFloat(document.getElementById('ilikPrice').value) || 0;
-    
-    const kallaQty = parseFloat(document.getElementById('kallaQty').value) || 0;
-    const kallaPrice = parseFloat(document.getElementById('kallaPrice').value) || 0;
-    
-    const lahmWeight = parseFloat(document.getElementById('lahmWeight').value) || 0;
-    const lahmPrice = parseFloat(document.getElementById('lahmPrice').value) || 0;
-    
-    const due_days = parseInt(document.getElementById('dueDays').value) || 21;
-    
-    if (totalWeight <= 0 || purchasePrice <= 0) {
-        alert("Iltimos, toza go'sht vazni va xarid narxini kiriting!");
-        goToStep(3);
-        return;
-    }
-    
-    const saveBtn = document.querySelector('.btn-wizard-next[onclick="submitSlaughter()"]');
-    if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.innerText = "Saqlanmoqda...";
-    }
-    
-    // Create FormData for multipart upload
-    const formData = new FormData();
-    formData.append('supplier_id', selectedSupplierId || '');
-    formData.append('animal_type', selectedAnimalType);
-    formData.append('total_weight', totalWeight);
-    formData.append('purchase_price', purchasePrice);
-    formData.append('butcher_fee', butcherFee);
-    formData.append('target_selling_price', targetLahmPrice);
-    formData.append('due_days', due_days);
-    
-    // Photos
-    const totalPhoto = document.getElementById('totalPhoto').files[0];
-    if (totalPhoto) formData.append('total_photo', totalPhoto);
-    
-    formData.append('jigar_taken', cutsState.jigar.taken);
-    formData.append('jigar_weight', jigarWeight);
-    formData.append('jigar_price', jigarPrice);
-    const jigarPhoto = document.getElementById('jigarPhoto').files[0];
-    if (jigarPhoto) formData.append('jigar_photo', jigarPhoto);
-    
-    formData.append('yurak_taken', cutsState.yurak.taken);
-    formData.append('yurak_weight', yurakWeight);
-    formData.append('yurak_price', yurakPrice);
-    const yurakPhoto = document.getElementById('yurakPhoto').files[0];
-    if (yurakPhoto) formData.append('yurak_photo', yurakPhoto);
-    
-    formData.append('dumgaza_taken', cutsState.dumgaza.taken);
-    formData.append('dumgaza_weight', dumgazaWeight);
-    formData.append('dumgaza_price', dumgazaPrice);
-    const dumgazaPhoto = document.getElementById('dumgazaPhoto').files[0];
-    if (dumgazaPhoto) formData.append('dumgaza_photo', dumgazaPhoto);
-    
-    formData.append('charvi_taken', cutsState.charvi.taken);
-    formData.append('charvi_weight', charviWeight);
-    formData.append('charvi_price', charviPrice);
-    const charviPhoto = document.getElementById('charviPhoto').files[0];
-    if (charviPhoto) formData.append('charvi_photo', charviPhoto);
-    
-    formData.append('ilik_taken', cutsState.ilik.taken);
-    formData.append('ilik_weight', ilikWeight);
-    formData.append('ilik_price', ilikPrice);
-    const ilikPhoto = document.getElementById('ilikPhoto').files[0];
-    if (ilikPhoto) formData.append('ilik_photo', ilikPhoto);
-    
-    formData.append('kalla_taken', cutsState.kalla.taken);
-    formData.append('kalla_qty', kallaQty);
-    formData.append('kalla_price', kallaPrice);
-    const kallaPhoto = document.getElementById('kallaPhoto').files[0];
-    if (kallaPhoto) formData.append('kalla_photo', kallaPhoto);
-    
-    formData.append('lahm_taken', cutsState.lahm.taken);
-    formData.append('lahm_weight', lahmWeight);
-    formData.append('lahm_price', lahmPrice);
-    const lahmPhoto = document.getElementById('lahmPhoto').files[0];
-    if (lahmPhoto) formData.append('lahm_photo', lahmPhoto);
-
-    
-    fetch('/pos/api/process-slaughter/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message + "\nJami hisob: " + data.total_cost.toLocaleString() + " so'm");
-            window.location.href = '/articles/'; // Redirect to Catalog page
-        } else {
-            alert("Xatolik: " + data.message);
-            if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "🚀 Nimtalashni Yakunlash & Saqlash";
-            }
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Server bilan aloqa o'rnatilmadi!");
-        if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.innerText = "🚀 Nimtalashni Yakunlash & Saqlash";
-        }
-    });
-}
-
-// Load batches for right sidebar
-function loadYieldDecayReport() {
-    fetch('/pos/api/reports/yield-decay/')
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById('sideBatchesContainer');
-            container.innerHTML = '';
-            
-            if (data.batches.length === 0) {
-                container.innerHTML = `<div class="text-center py-4 text-muted small">Sovuqxonada faol go'sht partiyalari mavjud emas.</div>`;
-                return;
-            }
-            
-            data.batches.forEach(b => {
-                const card = document.createElement('div');
-                const isAging = b.days_passed >= 3;
-                
-                card.style.background = isAging ? 'rgba(239, 68, 68, 0.03)' : '#F8F6F2';
-                card.style.border = isAging ? '1.5px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(0,0,0,0.05)';
-                card.style.borderRadius = '12px';
-                card.style.padding = '14px';
-                card.style.marginBottom = '10px';
-                card.style.fontSize = '0.85rem';
-                card.style.position = 'relative';
-                
-                let warningBadge = '';
-                if (isAging) {
-                    warningBadge = `<span style="background:#EF4444; color:#fff; font-size:9px; font-weight:700; padding:2px 6px; border-radius:10px; margin-left:8px; display:inline-block; vertical-align:middle;">⚠️ ESKIRGAN ({b.decay_rate_per_day}%)</span>`;
-                    // Replace standard curly bracket inside string literal
-                    warningBadge = warningBadge.replace('{b.decay_rate_per_day}', b.decay_rate_per_day);
-                }
-                
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:700; align-items:center;">
-                        <span style="color:var(--primary);">${b.product_name} ${warningBadge}</span>
-                        <span style="color:#B78A39;">${Math.round(b.real_cost_per_kg).toLocaleString()} so'm/kg</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:#6B7280;">
-                        <span>Dastlabki vazn:</span>
-                        <span>${b.initial_quantity.toFixed(3)} kg</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:#6B7280;">
-                        <span>Joriy vazn:</span>
-                        <span style="font-weight:600; color:#1B6B4A;">${b.decayed_quantity.toFixed(3)} kg</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#9CA3AF; border-top:1px solid rgba(0,0,0,0.04); padding-top:6px;">
-                        <span style="${isAging ? 'color:#EF4444; font-weight:700;' : ''}">${b.days_passed} kundan beri</span>
-                        <span>${b.created_at}</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        })
-        .catch(err => {
-            console.error("Error loading yield decay report:", err);
-            document.getElementById('sideBatchesContainer').innerHTML = `<div class="text-center py-4 text-danger small">Hisobotni yuklashda xatolik.</div>`;
-        });
-}
-
-// ── 3 MAIN MODES SWITCHER ──
-function switchMainMode(mode) {
-    document.querySelectorAll('.mode-tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('mode-section-slaughter').classList.add('d-none');
-    document.getElementById('mode-section-quick').classList.add('d-none');
-    document.getElementById('mode-section-audit').classList.add('d-none');
-
-    if (mode === 'slaughter') {
-        document.getElementById('tab-mode-slaughter').classList.add('active');
-        document.getElementById('mode-section-slaughter').classList.remove('d-none');
-    } else if (mode === 'quick') {
-        document.getElementById('tab-mode-quick').classList.add('active');
-        document.getElementById('mode-section-quick').classList.remove('d-none');
-    } else if (mode === 'audit') {
-        document.getElementById('tab-mode-audit').classList.add('active');
-        document.getElementById('mode-section-audit').classList.remove('d-none');
-        refreshAuditTable();
-    }
-}
-
-// ── MODE 2: QUICK SUPPLIER LIVE AUTOCOMPLETE ──
-const ALL_SUPPLIERS_DATA = {{ suppliers_json|safe }};
-
-function enableQuickSupplierSearch() {
-    document.getElementById('quickSelectedSupplierCard').classList.add('d-none');
-    const searchContainer = document.getElementById('quickSupplierSearchContainer');
-    searchContainer.classList.remove('d-none');
-    const input = document.getElementById('quickSupplierSearchInput');
-    input.value = '';
-    input.focus();
-    renderQuickSupplierDropdown('');
-}
-
-function openQuickSupplierDropdown() {
-    const input = document.getElementById('quickSupplierSearchInput');
-    renderQuickSupplierDropdown(input.value);
-    document.getElementById('quickSupplierDropdown').classList.remove('d-none');
+// ─── SUPPLIER SEARCH & SELECTION (QUICK MEAT) ───
+function toggleQuickSearch() {
+  const box = document.getElementById('quickSearchBox');
+  box.classList.toggle('d-none');
+  if (!box.classList.contains('d-none')) {
+    filterQuickSuppliers('');
+    document.getElementById('quickSearchInput').focus();
+  }
 }
 
 function filterQuickSuppliers(query) {
-    renderQuickSupplierDropdown(query);
-}
+  const q = (query || '').toLowerCase().trim();
+  const resCont = document.getElementById('quickSearchResults');
+  resCont.innerHTML = '';
 
-function renderQuickSupplierDropdown(query) {
-    const dropdown = document.getElementById('quickSupplierDropdown');
-    const list = document.getElementById('quickSupplierDropdownList');
-    dropdown.classList.remove('d-none');
-    list.innerHTML = '';
+  const def = document.createElement('div');
+  def.className = 'p-2 border-bottom d-flex justify-content-between align-items-center';
+  def.style.cursor = 'pointer';
+  def.innerHTML = `<div><strong>Ta'minotchisiz / Naqd xarid</strong><div class="small text-muted">Do'kon xaridi</div></div><span class="badge bg-light text-dark">Tanlash</span>`;
+  def.onclick = () => {
+    document.getElementById('quickSupplierId').value = 'none';
+    document.getElementById('quickSelectedName').innerText = "Ta'minotchisiz / Naqd xarid";
+    document.getElementById('quickSelectedMeta').innerText = "Do'kon xaridi";
+    document.getElementById('quickSearchBox').classList.add('d-none');
+  };
+  resCont.appendChild(def);
 
-    const q = (query || '').toLowerCase().trim();
+  const filtered = (ALL_SUPPLIERS || []).filter(s => 
+    !q || (s.name && s.name.toLowerCase().includes(q)) || (s.phone && s.phone.includes(q)) || (s.custom_id && s.custom_id.toLowerCase().includes(q))
+  );
 
-    // Default "None" option
-    const noneItem = document.createElement('div');
-    noneItem.className = 'p-2 rounded-2 d-flex align-items-center justify-content-between cursor-pointer quick-sup-item border-bottom mb-1';
-    noneItem.style.cursor = 'pointer';
-    noneItem.innerHTML = `
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-secondary-subtle text-secondary border p-2 rounded-circle">⚪</span>
-            <div>
-                <strong class="text-dark small d-block">-- Ta'minotchisiz / Naqd xarid --</strong>
-                <span class="text-muted" style="font-size:11px;">To'g'ridan-to'g'ri do'kon xaridi</span>
-            </div>
-        </div>
-        <span class="badge bg-light text-dark border font-monospace">0 so'm</span>
+  filtered.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'p-2 border-bottom d-flex justify-content-between align-items-center';
+    item.style.cursor = 'pointer';
+    item.innerHTML = `
+      <div>
+        <strong>${s.name}</strong>
+        <div class="small text-muted">ID: ${s.custom_id || ''} · Tel: ${s.phone || ''}</div>
+      </div>
+      <span class="badge bg-success-subtle text-success border font-monospace">${s.debt_display || "0 so'm"}</span>
     `;
-    noneItem.onclick = () => selectQuickSupplier('none', "Ta'minotchisiz / Naqd xarid", "To'g'ridan-to'g'ri do'kon xaridi");
-    list.appendChild(noneItem);
+    item.onclick = () => {
+      document.getElementById('quickSupplierId').value = s.id;
+      document.getElementById('quickSelectedName').innerText = s.name;
+      document.getElementById('quickSelectedMeta').innerText = `ID: ${s.custom_id || ''} · Tel: ${s.phone || ''}`;
+      document.getElementById('quickSearchBox').classList.add('d-none');
+    };
+    resCont.appendChild(item);
+  });
+}
 
-    // Filter suppliers
-    const filtered = (ALL_SUPPLIERS_DATA || []).filter(s => {
-        if (!q) return true;
-        return (s.name && s.name.toLowerCase().includes(q)) ||
-               (s.phone && s.phone.toLowerCase().includes(q)) ||
-               (s.custom_id && s.custom_id.toLowerCase().includes(q));
-    });
+// ─── MODAL: CREATE SUPPLIER ───
+let supModalInst = null;
+function openSupplierModal(context) {
+  currentModalContext = context || 'slaughter';
+  document.getElementById('supFirstName').value = '';
+  document.getElementById('supLastName').value = '';
+  document.getElementById('supPhone').value = '';
+  document.getElementById('supCustomId').value = '';
+  document.getElementById('supOurDebt').value = '0';
+  document.getElementById('supNote').value = '';
 
-    if (filtered.length === 0) {
-        const noRes = document.createElement('div');
-        noRes.className = 'p-3 text-center text-muted small';
-        noRes.innerHTML = `<span>Mos keluvchi ta'minotchi yoki mijoz topilmadi.</span>`;
-        list.appendChild(noRes);
+  const modalEl = document.getElementById('supplierModal');
+  supModalInst = bootstrap.Modal.getOrCreateInstance(modalEl);
+  supModalInst.show();
+}
+
+function autoSuggestId(phone) {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length >= 4) {
+    document.getElementById('supCustomId').value = 'T-' + digits.slice(-4);
+  }
+}
+
+function handleSupplierSubmit() {
+  const first = document.getElementById('supFirstName').value.trim();
+  const last = document.getElementById('supLastName').value.trim();
+  const phone = document.getElementById('supPhone').value.trim();
+  let customId = document.getElementById('supCustomId').value.trim();
+  const ourDebt = document.getElementById('supOurDebt').value.trim() || '0';
+  const note = document.getElementById('supNote').value.trim();
+
+  if (!first || !phone) {
+    alert("Ism va telefon raqami majburiy!");
+    return;
+  }
+
+  if (!customId) {
+    const digits = phone.replace(/\D/g, '');
+    customId = 'T-' + (digits.slice(-4) || Math.floor(1000 + Math.random() * 9000));
+  }
+
+  const btn = document.getElementById('btnSaveSupplier');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saqlanmoqda...';
+
+  fetch('/pos/api/supplier/create/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      first_name: first,
+      last_name: last,
+      phone: phone,
+      custom_id: customId,
+      our_debt: ourDebt,
+      note: note
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      const s = data.supplier || {
+        id: Math.floor(Math.random() * 10000),
+        name: `${first} ${last}`.trim(),
+        phone: phone,
+        custom_id: customId,
+        our_debt: parseFloat(ourDebt) || 0
+      };
+
+      ALL_SUPPLIERS.unshift({
+        id: s.id,
+        name: s.name,
+        phone: s.phone,
+        custom_id: s.custom_id,
+        debt_display: `${Math.round(s.our_debt).toLocaleString()} so'm`
+      });
+
+      if (currentModalContext === 'quick') {
+        document.getElementById('quickSupplierId').value = s.id;
+        document.getElementById('quickSelectedName').innerText = s.name;
+        document.getElementById('quickSelectedMeta').innerText = `ID: ${s.custom_id} · Tel: ${s.phone}`;
+      } else {
+        document.getElementById('slaughterSupplierId').value = s.id;
+        document.getElementById('slaughterSelectedName').innerText = s.name;
+        document.getElementById('slaughterSelectedMeta').innerText = `ID: ${s.custom_id} · Tel: ${s.phone}`;
+      }
+
+      if (supModalInst) supModalInst.hide();
+      alert("✅ " + data.message);
     } else {
-        filtered.slice(0, 40).forEach(s => {
-            const item = document.createElement('div');
-            item.className = 'p-2 rounded-2 d-flex align-items-center justify-content-between cursor-pointer quick-sup-item';
-            item.style.cursor = 'pointer';
-            item.innerHTML = `
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-success-subtle text-success border p-2 rounded-circle"><i class="bi bi-person-fill"></i></span>
-                    <div>
-                        <strong class="text-dark small d-block">${s.name}</strong>
-                        <span class="text-muted" style="font-size:11px;">ID: ${s.custom_id || ''} · Tel: ${s.phone || '-'}</span>
-                    </div>
-                </div>
-                <span class="badge ${s.is_negative ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning'} border font-monospace" style="font-size:11px;">
-                    ${s.debt_display || "0 so'm"}
-                </span>
-            `;
-            item.onclick = () => selectQuickSupplier(s.id, s.name, `ID: ${s.custom_id || ''} · Tel: ${s.phone || '-'}`);
-            list.appendChild(item);
-        });
+      alert("Xato: " + (data.message || 'Saqlashda xatolik yuz berdi'));
     }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Aloqada xatolik yuz berdi!");
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Hamkorni Saqlash & Tanlash';
+  });
 }
 
-function selectQuickSupplier(id, name, meta) {
-    document.getElementById('quickSupplier').value = id;
-    document.getElementById('quickSelectedSupplierName').innerText = name;
-    document.getElementById('quickSelectedSupplierMeta').innerText = meta;
-    document.getElementById('quickSupplierDropdown').classList.add('d-none');
-    document.getElementById('quickSupplierSearchContainer').classList.add('d-none');
-    document.getElementById('quickSelectedSupplierCard').classList.remove('d-none');
+// ─── SLAUGHTER YIELD & BREAK-EVEN CALCULATOR ───
+function calculateSlaughterYield() {
+  const liveWeight = parseFloat(document.getElementById('slaughterLiveWeight').value) || 0;
+  const carcassWeight = parseFloat(document.getElementById('slaughterCarcassWeight').value) || 0;
+  const purchaseTotal = parseFloat(document.getElementById('slaughterPurchaseTotal').value) || 0;
+
+  const liverKg = parseFloat(document.getElementById('byprodLiverKg').value) || 0;
+  const liverPrice = parseFloat(document.getElementById('byprodLiverPrice').value) || 0;
+  const headFeetSum = parseFloat(document.getElementById('byprodHeadFeetSum').value) || 0;
+  const fatKg = parseFloat(document.getElementById('byprodFatKg').value) || 0;
+
+  const byprodTotal = (liverKg * liverPrice) + headFeetSum + (fatKg * 30000);
+  const netCost = Math.max(0, purchaseTotal - byprodTotal);
+  const breakEvenPerKg = carcassWeight > 0 ? (netCost / carcassWeight) : 0;
+  const yieldPercent = liveWeight > 0 ? ((carcassWeight / liveWeight) * 100) : 0;
+
+  document.getElementById('dispYieldPercent').innerText = yieldPercent > 0 ? yieldPercent.toFixed(1) + '%' : '-';
+  document.getElementById('dispByproductSum').innerText = Math.round(byprodTotal).toLocaleString() + " so'm";
+  document.getElementById('dispNetCost').innerText = Math.round(netCost).toLocaleString() + " so'm";
+  document.getElementById('dispBreakEven').innerText = Math.round(breakEvenPerKg).toLocaleString() + " so'm";
 }
 
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
-    const container = document.getElementById('quickSupplierSearchContainer');
-    const card = document.getElementById('quickSelectedSupplierCard');
-    if (container && card && !container.contains(e.target) && !card.contains(e.target)) {
-        const dd = document.getElementById('quickSupplierDropdown');
-        if (dd) dd.classList.add('d-none');
-    }
-});
+function submitSlaughterForm() {
+  const carcassWeight = parseFloat(document.getElementById('slaughterCarcassWeight').value) || 0;
+  const purchaseTotal = parseFloat(document.getElementById('slaughterPurchaseTotal').value) || 0;
 
-// ── MODE 2: QUICK READY MEAT ENTRY LOGIC ──
+  if (carcassWeight <= 0 || purchaseTotal <= 0) {
+    alert("Iltimos, go'sht vazni va xarid summasini to'liq kiriting!");
+    goToStep(2);
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmitSlaughter');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saqlanmoqda...';
+
+  const payload = {
+    supplier: document.getElementById('slaughterSupplierId').value,
+    animal_type: document.getElementById('slaughterAnimalType').value,
+    live_weight: parseFloat(document.getElementById('slaughterLiveWeight').value) || 0,
+    carcass_weight: carcassWeight,
+    purchase_total: purchaseTotal,
+    byproducts_total: parseFloat(document.getElementById('byprodHeadFeetSum').value) || 0,
+    payment_type: document.getElementById('slaughterPaymentType').value,
+    notes: document.getElementById('slaughterNotes').value
+  };
+
+  fetch('/pos/api/process-slaughter/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success' || data.success) {
+      alert("✅ So'yim muvaffaqiyatli qabul qilindi va zaxiraga kiritildi!");
+      location.reload();
+    } else {
+      alert("Xatolik: " + (data.message || data.error || 'Xatolik yuz berdi'));
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Tarmoq xatoligi!");
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> 🥩 Zaxiraga Kiritish & Yakunlash';
+  });
+}
+
+// ─── QUICK MEAT ENTRY LOGIC ───
 function calculateQuickTotal() {
-    const prodSelect = document.getElementById('quickProduct');
-    const selectedOption = prodSelect.options[prodSelect.selectedIndex];
-    const weight = parseFloat(document.getElementById('quickWeight').value) || 0;
-    const price = parseFloat(document.getElementById('quickPurchasePrice').value) || 0;
-    
-    const total = weight * price;
-    document.getElementById('quickTotalCost').innerText = Math.round(total).toLocaleString() + " so'm";
+  const prodSelect = document.getElementById('quickProduct');
+  const opt = prodSelect.options[prodSelect.selectedIndex];
+  const weight = parseFloat(document.getElementById('quickWeight').value) || 0;
+  const price = parseFloat(document.getElementById('quickPurchasePrice').value) || 0;
 
-    if (selectedOption && selectedOption.dataset.stock) {
-        const currentStock = parseFloat(selectedOption.dataset.stock) || 0;
-        const newTotalStock = currentStock + weight;
-        document.getElementById('quickForecastStock').innerText = `${currentStock.toFixed(3)} kg + ${weight.toFixed(3)} kg = ${newTotalStock.toFixed(3)} kg`;
+  const total = weight * price;
+  document.getElementById('quickTotalDisplay').innerText = Math.round(total).toLocaleString() + " so'm";
+
+  if (opt && opt.dataset.stock) {
+    const cur = parseFloat(opt.dataset.stock) || 0;
+    document.getElementById('quickStockForecast').innerText = `${cur.toFixed(3)} kg + ${weight.toFixed(3)} kg = ${(cur + weight).toFixed(3)} kg`;
+  } else {
+    document.getElementById('quickStockForecast').innerText = '-';
+  }
+}
+
+function submitQuickMeatStock() {
+  const prodId = document.getElementById('quickProduct').value;
+  const supId = document.getElementById('quickSupplierId').value;
+  const weight = parseFloat(document.getElementById('quickWeight').value) || 0;
+  const price = parseFloat(document.getElementById('quickPurchasePrice').value) || 0;
+  const payType = document.getElementById('quickPaymentType').value;
+  const notes = document.getElementById('quickNotes').value;
+
+  if (!prodId || weight <= 0 || price <= 0) {
+    alert("Mahsulot, vazn va xarid narxini to'liq kiriting!");
+    return;
+  }
+
+  const btn = document.getElementById('btnQuickSubmit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saqlanmoqda...';
+
+  fetch('/pos/api/quick-stock-entry/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      product_id: prodId,
+      supplier_id: supId,
+      weight: weight,
+      purchase_price: price,
+      payment_type: payType,
+      notes: notes
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      alert("✅ " + data.message);
+      document.getElementById('quickStockForm').reset();
+      calculateQuickTotal();
     } else {
-        document.getElementById('quickForecastStock').innerText = '-';
+      alert("Xato: " + data.message);
     }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Tarmoq xatosi!");
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Zaxiraga Kiritish & Saqlash';
+  });
 }
 
-function submitQuickStockEntry() {
-    const productId = document.getElementById('quickProduct').value;
-    const supplierId = document.getElementById('quickSupplier').value;
-    const weight = parseFloat(document.getElementById('quickWeight').value) || 0;
-    const purchasePrice = parseFloat(document.getElementById('quickPurchasePrice').value) || 0;
-    const paymentType = document.getElementById('quickPaymentType').value;
-    const notes = document.getElementById('quickNotes').value;
-
-    if (!productId || weight <= 0 || purchasePrice <= 0) {
-        alert("Iltimos, mahsulot, vazn va xarid narxini to'liq kiriting!");
-        return;
-    }
-
-    const btn = document.getElementById('btnQuickSubmit');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saqlanmoqda...';
-
-    fetch('/pos/api/quick-stock-entry/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({
-            product_id: productId,
-            supplier_id: supplierId,
-            weight: weight,
-            purchase_price: purchasePrice,
-            payment_type: paymentType,
-            notes: notes
-        })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert("✅ " + data.message);
-            document.getElementById('quickStockForm').reset();
-            calculateQuickTotal();
-            loadYieldDecayReport();
-        } else {
-            alert("Xatolik: " + (data.message || 'Xato yuz berdi'));
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Tarmoq xatoligi yuz berdi!");
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Zaxiraga Kiritish & Saqlash';
-    });
-}
-
-// ── MODE 3: INVENTORY AUDIT LOGIC ──
+// ─── AUDIT LOGIC ───
 function checkAuditDiff(prodId, currentStock) {
-    const inputVal = parseFloat(document.getElementById(`audit-input-${prodId}`).value) || 0;
-    const diff = inputVal - currentStock;
-    const diffEl = document.getElementById(`audit-diff-${prodId}`);
+  const inputVal = parseFloat(document.getElementById(`audit-input-${prodId}`).value) || 0;
+  const diff = inputVal - currentStock;
+  const diffEl = document.getElementById(`audit-diff-${prodId}`);
 
-    if (Math.abs(diff) < 0.001) {
-        diffEl.innerHTML = '<span class="text-muted">0.000 kg</span>';
-    } else if (diff > 0) {
-        diffEl.innerHTML = `<span class="text-success fw-bold font-monospace">+${diff.toFixed(3)} kg</span>`;
-    } else {
-        diffEl.innerHTML = `<span class="text-danger fw-bold font-monospace">${diff.toFixed(3)} kg</span>`;
-    }
+  if (Math.abs(diff) < 0.001) {
+    diffEl.innerHTML = '<span class="text-muted">0.000 kg</span>';
+  } else if (diff > 0) {
+    diffEl.innerHTML = `<span class="text-success fw-bold font-monospace">+${diff.toFixed(3)} kg</span>`;
+  } else {
+    diffEl.innerHTML = `<span class="text-danger fw-bold font-monospace">${diff.toFixed(3)} kg</span>`;
+  }
 }
 
 function saveSingleAudit(prodId, prodName) {
-    const inputVal = parseFloat(document.getElementById(`audit-input-${prodId}`).value);
-    if (isNaN(inputVal) || inputVal < 0) {
-        alert("Faktik vaznni to'g'ri kiriting (0 yoki undan katta)!");
-        return;
-    }
+  const inputVal = parseFloat(document.getElementById(`audit-input-${prodId}`).value);
+  if (isNaN(inputVal) || inputVal < 0) {
+    alert("Faktik vaznni to'g'ri kiriting!");
+    return;
+  }
 
-    const btn = document.getElementById(`btn-audit-${prodId}`);
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+  const btn = document.getElementById(`btn-audit-${prodId}`);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
-    fetch('/pos/api/adjust-stock/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({
-            product_id: prodId,
-            new_quantity: inputVal,
-            reason: 'Tarozi inventarizatsiyasi'
-        })
+  fetch('/pos/api/adjust-stock/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      product_id: prodId,
+      new_quantity: inputVal,
+      reason: 'Tarozi inventarizatsiyasi'
     })
-    .then(r => r.json())
-    .then(data => {
-        if (data.status === 'success') {
-            const stockBadge = document.getElementById(`sys-stock-${prodId}`);
-            if (stockBadge) {
-                stockBadge.innerText = `${data.new_quantity.toFixed(3)} kg`;
-                stockBadge.className = `badge ${data.new_quantity <= 0 ? 'bg-danger-subtle text-danger border border-danger-subtle' : (data.new_quantity <= 5 ? 'bg-warning-subtle text-warning border border-warning-subtle' : 'bg-success-subtle text-success border border-success-subtle')} px-2.5 py-1 font-monospace fs-6`;
-            }
-            checkAuditDiff(prodId, data.new_quantity);
-            btn.innerHTML = '<i class="bi bi-check-lg"></i> Saqlandi';
-            btn.className = 'btn btn-sm btn-outline-success fw-bold px-3 rounded-pill';
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check2"></i> Saqlash';
-                btn.className = 'btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm';
-            }, 2000);
-        } else {
-            alert("Xatolik: " + data.message);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check2"></i> Saqlash';
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Tarmoq xatoligi!");
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      const badge = document.getElementById(`sys-stock-${prodId}`);
+      if (badge) badge.innerText = `${data.new_quantity.toFixed(3)} kg`;
+      checkAuditDiff(prodId, data.new_quantity);
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Saqlandi';
+      btn.className = 'btn btn-sm btn-outline-success fw-bold px-3 rounded-pill';
+      setTimeout(() => {
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-check2"></i> Saqlash';
-    });
+        btn.className = 'btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm';
+      }, 2000);
+    } else {
+      alert("Xato: " + data.message);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check2"></i> Saqlash';
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Tarmoq xatosi!");
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check2"></i> Saqlash';
+  });
 }
 
 function refreshAuditTable() {
-    fetch('/pos/api/get-all-stocks/')
-        .then(r => r.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const tbody = document.getElementById('auditTableBody');
-                tbody.innerHTML = '';
-                data.products.forEach(p => {
-                    const tr = document.createElement('tr');
-                    tr.id = `audit-row-${p.id}`;
-                    tr.innerHTML = `
-                        <td class="ps-3 py-2.5">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-light text-dark border p-2 rounded-3" style="font-size:14px;">🥩</span>
-                                <div>
-                                    <strong class="text-dark">${p.name}</strong>
-                                    <div class="small text-muted font-monospace">ID: #${p.id}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="fw-semibold text-dark">${Math.round(p.price_per_kg).toLocaleString()} so'm</span></td>
-                        <td class="text-center">
-                            <span class="badge ${p.quantity <= 0 ? 'bg-danger-subtle text-danger border border-danger-subtle' : (p.quantity <= 5 ? 'bg-warning-subtle text-warning border border-warning-subtle' : 'bg-success-subtle text-success border border-success-subtle')} px-2.5 py-1 font-monospace fs-6" id="sys-stock-${p.id}">
-                                ${p.quantity.toFixed(3)} kg
-                            </span>
-                        </td>
-                        <td>
-                            <input type="number" step="0.001" class="form-control form-control-sm font-monospace fw-bold" 
-                                   id="audit-input-${p.id}" 
-                                   value="${p.quantity.toFixed(3)}" 
-                                   style="border-radius:10px; padding:6px 10px;"
-                                   oninput="checkAuditDiff(${p.id}, ${p.quantity})">
-                        </td>
-                        <td class="text-center font-monospace small fw-bold" id="audit-diff-${p.id}">
-                            <span class="text-muted">0.000 kg</span>
-                        </td>
-                        <td class="text-end pe-3">
-                            <button type="button" class="btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm" 
-                                    id="btn-audit-${p.id}"
-                                    onclick="saveSingleAudit(${p.id}, '${p.name}')">
-                                <i class="bi bi-check2"></i> Saqlash
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-        })
-        .catch(err => console.error("Error refreshing audit table:", err));
+  fetch('/pos/api/get-all-stocks/')
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') {
+        const tbody = document.getElementById('auditTableBody');
+        tbody.innerHTML = '';
+        data.products.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.id = `audit-row-${p.id}`;
+          tr.innerHTML = `
+            <td class="ps-3 py-3">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-light text-dark border p-2 rounded-3">🥩</span>
+                <div>
+                  <strong class="text-dark">${p.name}</strong>
+                  <div class="small text-muted font-monospace">ID: #${p.id}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="fw-bold text-dark">${Math.round(p.price_per_kg).toLocaleString()} so'm</span></td>
+            <td class="text-center">
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 font-monospace fs-6" id="sys-stock-${p.id}">
+                ${p.quantity.toFixed(3)} kg
+              </span>
+            </td>
+            <td>
+              <input type="number" step="0.001" class="form-control form-control-sm font-monospace fw-bold" 
+                     id="audit-input-${p.id}" 
+                     value="${p.quantity.toFixed(3)}" 
+                     style="border-radius:10px; padding:6px 10px;"
+                     oninput="checkAuditDiff(${p.id}, ${p.quantity})">
+            </td>
+            <td class="text-center font-monospace small fw-bold" id="audit-diff-${p.id}">
+              <span class="text-muted">0.000 kg</span>
+            </td>
+            <td class="text-end pe-3">
+              <button type="button" class="btn btn-sm btn-success fw-bold px-3 rounded-pill shadow-sm" 
+                      id="btn-audit-${p.id}"
+                      onclick="saveSingleAudit(${p.id}, '${p.name}')">
+                <i class="bi bi-check2"></i> Saqlash
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    })
+    .catch(err => console.error("Error:", err));
 }
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    selectSupplier(null, 'Taminotchisiz xarid');
-    calculateYield();
-    loadYieldDecayReport();
-});
 </script>
 {% endblock %}
-
