@@ -849,7 +849,7 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
                 </div>
 
                 <div class="wizard-footer">
-                    <button class="btn-wizard btn-wizard-back" data-bs-toggle="modal" data-bs-target="#newSupplierModal">
+                    <button type="button" class="btn-wizard btn-wizard-back" onclick="openNewSupplierModalForMode('slaughter')">
                         <i class="bi bi-person-plus-fill"></i> Yangi Ta'minotchi
                     </button>
                     <button class="btn-wizard btn-wizard-next" onclick="goToStep(2)">Keyingi qadam <i class="bi bi-arrow-right"></i></button>
@@ -2509,6 +2509,206 @@ function refreshAuditTable() {
             }
         })
         .catch(err => console.error("Error refreshing audit table:", err));
+}
+
+<!-- ══════════════════════════════════════════════════════
+     MODAL: CREATE NEW SUPPLIER (YANGI TA'MINOTCHI QO'SHISH)
+     ══════════════════════════════════════════════════════ -->
+<div class="modal fade" id="newSupplierModal" tabindex="-1" aria-labelledby="newSupplierModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 24px; border: none; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.25);">
+      <div class="modal-header" style="background: linear-gradient(135deg, #064E3B, #04110D); color:#FFFFFF; padding: 18px 24px;">
+        <h5 class="modal-title fw-bold" id="newSupplierModalLabel" style="font-size: 1.2rem;">
+          <i class="bi bi-truck text-warning me-2"></i> Yangi Ta'minotchi / Fermer Qo'shish
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 24px;">
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 16px;">
+          Yangi ta'minotchi ma'lumotlarini kiriting. U avtomatik tarzda joriy so'yim yoki tayyor go'sht partiyasiga biriktiriladi.
+        </p>
+
+        <div id="modalError" class="text-danger small fw-bold mb-2"></div>
+
+        <form id="quickNewSupForm" onsubmit="event.preventDefault(); quickCreateSupplier();">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Ismi *</label>
+              <input type="text" id="newSupFirstName" class="form-control" placeholder="Masalan: Bahodir" required style="border-radius: 12px; padding: 10px 14px;">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Familiyasi</label>
+              <input type="text" id="newSupLastName" class="form-control" placeholder="Masalan: Karimov" style="border-radius: 12px; padding: 10px 14px;">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Telefon raqami *</label>
+            <input type="text" id="newSupPhone" class="form-control font-monospace" placeholder="+998901234567" required oninput="suggestSupplierID(this.value)" style="border-radius: 12px; padding: 10px 14px;">
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Hamkor kodi (ID)</label>
+              <input type="text" id="newSupCustomId" class="form-control font-monospace" placeholder="T-1234" style="border-radius: 12px; padding: 10px 14px;">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Boshlang'ich qarzimiz (so'm)</label>
+              <input type="number" id="newSupOurDebt" class="form-control font-monospace" placeholder="0" value="0" style="border-radius: 12px; padding: 10px 14px;">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold small">Eslatma / Izoh</label>
+            <input type="text" id="newSupNote" class="form-control" placeholder="Masalan: Baxmal yaylovi, qo'y fermasi..." style="border-radius: 12px; padding: 10px 14px;">
+          </div>
+
+          <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm" id="btnSubmitNewSup" style="background:#10B981; border:none; font-size:15px;">
+            <i class="bi bi-check-circle-fill me-1"></i> Hamkorni Saqlash & Tanlash
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentSupplierModalMode = 'slaughter';
+
+function openNewSupplierModalForMode(mode) {
+    currentSupplierModalMode = mode || 'slaughter';
+    const modalEl = document.getElementById('newSupplierModal');
+    if (modalEl) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+}
+
+function suggestSupplierID(v) {
+    const c = v.replace(/\D/g, '');
+    const f = document.getElementById('newSupCustomId');
+    if (f && c.length >= 4) {
+        f.value = 'T-' + c.slice(-4);
+    }
+}
+
+function quickCreateSupplier() {
+    const first = document.getElementById('newSupFirstName').value.trim();
+    const last = document.getElementById('newSupLastName').value.trim();
+    const phone = document.getElementById('newSupPhone').value.trim();
+    let customId = document.getElementById('newSupCustomId').value.trim();
+    const ourDebt = document.getElementById('newSupOurDebt') ? document.getElementById('newSupOurDebt').value.trim() : '0';
+    const note = document.getElementById('newSupNote') ? document.getElementById('newSupNote').value.trim() : '';
+    const err = document.getElementById('modalError');
+    const btn = document.getElementById('btnSubmitNewSup');
+    
+    if (!first || !phone) {
+        if (err) err.innerText = "Ism va telefon raqami majburiy!";
+        return;
+    }
+    
+    if (!customId) {
+        const digits = phone.replace(/\D/g, '');
+        customId = 'T-' + (digits.slice(-4) || Math.floor(1000 + Math.random() * 9000));
+    }
+    
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saqlanmoqda...';
+    }
+    if (err) err.innerText = '';
+    
+    const payload = {
+        first_name: first,
+        last_name: last,
+        phone: phone,
+        custom_id: customId,
+        our_debt: ourDebt,
+        note: note
+    };
+    
+    fetch('/pos/api/supplier/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status !== 'success') {
+            throw new Error(data.message || "Xatolik yuz berdi");
+        }
+        
+        const sup = data.supplier || {
+            id: Math.floor(Math.random() * 10000),
+            name: `${first} ${last}`.trim(),
+            custom_id: customId,
+            phone: phone,
+            our_debt: parseFloat(ourDebt) || 0
+        };
+        
+        const modalEl = document.getElementById('newSupplierModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.hide();
+        }
+        
+        // Add to global ALL_SUPPLIERS_DATA
+        if (typeof ALL_SUPPLIERS_DATA !== 'undefined' && Array.isArray(ALL_SUPPLIERS_DATA)) {
+            ALL_SUPPLIERS_DATA.unshift({
+                id: sup.id,
+                name: sup.name,
+                custom_id: sup.custom_id,
+                phone: sup.phone,
+                debt_display: `${Math.round(sup.our_debt).toLocaleString()} so'm`
+            });
+        }
+        
+        // Mode 2 (Tayyor Go'sht)
+        if (currentSupplierModalMode === 'quick') {
+            selectQuickSupplier(sup.id, sup.name, `ID: ${sup.custom_id} · Tel: ${sup.phone}`);
+        } else {
+            // Mode 1 (Slaughter Wizard)
+            const list = document.getElementById('supplierListContainer');
+            if (list) {
+                const newItem = document.createElement('div');
+                newItem.className = 'supplier-item selected';
+                newItem.id = 'supplier-item-' + sup.id;
+                newItem.onclick = () => selectSupplier(sup.id, sup.name, sup.our_debt);
+                newItem.innerHTML = `
+                    <div>
+                        <span>${sup.name}</span>
+                        <div class="supplier-meta">ID: ${sup.custom_id} · Tel: ${sup.phone}</div>
+                    </div>
+                    <span class="supplier-debt">${Math.round(sup.our_debt).toLocaleString()} so'm</span>
+                `;
+                list.prepend(newItem);
+            }
+            selectSupplier(sup.id, sup.name, sup.our_debt);
+        }
+        
+        document.getElementById('newSupFirstName').value = '';
+        document.getElementById('newSupLastName').value = '';
+        document.getElementById('newSupPhone').value = '';
+        document.getElementById('newSupCustomId').value = '';
+        if (document.getElementById('newSupOurDebt')) document.getElementById('newSupOurDebt').value = '0';
+        if (document.getElementById('newSupNote')) document.getElementById('newSupNote').value = '';
+        if (err) err.innerText = '';
+        
+        alert("✅ " + data.message);
+    })
+    .catch(e => {
+        if (err) err.innerText = e.message;
+        alert("Xatolik: " + e.message);
+    })
+    .finally(() => {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Hamkorni Saqlash & Tanlash';
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
