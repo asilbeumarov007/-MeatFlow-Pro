@@ -3037,6 +3037,85 @@ def api_create_customer_with_face(request):
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+# =====================================================================
+# GO'SHT TRANSFORMASIYASI (LAHM -> QIYMA / KOLBASA) API
+# =====================================================================
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@transaction.atomic
+def api_stock_transform(request):
+    """
+    Eski/turib qolgan go'sht partiyasidan ma'lum miqdorni yangi mahsulotga (masalan: Qiymaga)
+    bitta tugma bilan xatosiz transformatsiya qilish.
+    """
+    try:
+        from .models import Product, Stock, StockBatch
+        data = request.data
+        source_batch_id = data.get('source_batch_id')
+        target_product_id = data.get('target_product_id')
+        weight_str = data.get('weight')
+
+        if not source_batch_id or not target_product_id or not weight_str:
+            return Response({'status': 'error', 'message': "Barcha maydonlar (partiya, maqsadli mahsulot, vazn) to'ldirilishi shart!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        weight = Decimal(str(weight_str))
+        if weight <= Decimal('0.001'):
+            return Response({'status': 'error', 'message': "Transformatsiya vazni 0 dan katta bo'lishi kerak!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        source_batch = get_object_or_404(StockBatch, id=source_batch_id)
+        if source_batch.current_quantity < weight:
+            return Response({'status': 'error', 'message': f"Partiyada yetarli go'sht yo'q! Mavjud: {source_batch.current_quantity} kg, so'ralgan: {weight} kg"}, status=status.HTTP_400_BAD_REQUEST)
+
+        target_product = get_object_or_404(Product, id=target_product_id)
+
+        # 1. Manba partiyasidan vaznni ayirish
+        source_batch.current_quantity -= weight
+        source_batch.save()
+
+        # Manba mahsulotining umumiy Stock zaxirasidan ham ayirish
+        source_stock, _ = Stock.objects.get_or_create(product=source_batch.product)
+        source_stock.quantity = max(Decimal('0.000'), source_stock.quantity - weight)
+        source_stock.save()
+
+        # 2. Maqsadli mahsulot zaxirasiga qo'shish
+        target_stock, _ = Stock.objects.get_or_create(product=target_product)
+        target_stock.quantity += weight
+        target_stock.save()
+
+        # 3. Maqsadli mahsulot uchun yangi partiya ochish
+        new_batch = StockBatch.objects.create(
+            product=target_product,
+            initial_quantity=weight,
+            current_quantity=weight,
+            purchase_price_per_kg=source_batch.purchase_price_per_kg,
+            decay_rate_per_day=Decimal('0.50')
+        )
+
+        desc = f"🔄 Transformatsiya: {source_batch.product.name} (Partiya #{source_batch.id}) dan {weight:.2f} kg -> {target_product.name} (Yangi Partiya #{new_batch.id}) ga o'tkazildi."
+        
+        # Telegramga xabar berish
+        send_telegram_notification(f"🔄 *Go'sht Transformatsiyasi:*\n{desc}")
+
+        return Response({
+            'status': 'success',
+            'message': desc,
+            'source_batch': {
+                'id': source_batch.id,
+                'remaining_quantity': float(source_batch.current_quantity)
+            },
+            'target_product': {
+                'id': target_product.id,
+                'name': target_product.name,
+                'new_stock': float(target_stock.quantity),
+                'new_batch_id': new_batch.id
+            }
+        })
+    except Exception as e:
+        return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 
 

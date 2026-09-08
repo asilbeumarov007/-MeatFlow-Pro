@@ -98,6 +98,47 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null); // null means anonymous
   
+  // Multi-Item Cart & Floating Toast Notification
+  const [cartItems, setCartItems] = useState([]); // [{ id, product, weight, price_per_kg, total }]
+  const [voiceToast, setVoiceToast] = useState(null);
+
+  const addToCart = (product, itemWeight, itemPrice = null) => {
+    if (!product || itemWeight <= 0) return;
+    const unitPrice = itemPrice !== null ? itemPrice : (parseFloat(product.price_per_kg) || 0);
+    const total = Math.round(itemWeight * unitPrice);
+
+    setCartItems(prev => [
+      ...prev,
+      {
+        id: Date.now() + Math.random(),
+        product,
+        weight: itemWeight,
+        price_per_kg: unitPrice,
+        total
+      }
+    ]);
+
+    setVoiceToast(`🛒 Savatga qo'shildi: ${product.name} (${itemWeight.toFixed(2)} kg)`);
+    setWeight(0.000);
+    setIsManualMode(false);
+    setSelectedProduct(null);
+  };
+
+  const removeFromCart = (itemId) => {
+    setCartItems(prev => prev.filter(i => i.id !== itemId));
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  useEffect(() => {
+    if (voiceToast) {
+      const t = setTimeout(() => setVoiceToast(null), 4000);
+      return () => clearTimeout(t);
+    }
+  }, [voiceToast]);
+
   // Weight & Scale states
   const [weight, setWeight] = useState(0.000);
   const [isManualMode, setIsManualMode] = useState(false);
@@ -386,70 +427,176 @@ function App() {
       setVoiceStatus(`Tushunilgan matn: "${text}"`);
       
       const result = parseVoiceCommand(text, products, cachedCustomers);
-      
+
+      if (result.action === 'cancel') {
+        resetTerminal();
+        setVoiceToast("❌ Ovozli buyruq: Savdo bekor qilindi");
+        return;
+      }
+
+      if (result.action === 'checkout') {
+        if (cartItems.length > 0 || (selectedProduct && weight > 0)) {
+          setStep(3);
+          setVoiceToast("💳 Ovozli buyruq: To'lov oynasi ochildi");
+        }
+        return;
+      }
+
       if (result.product) {
-        setSelectedProduct(result.product);
-        if (result.weight > 0) {
-          setWeight(result.weight);
+        const itemWeight = result.weight > 0 ? result.weight : (weight > 0 ? weight : 1.0);
+        
+        if (result.addToCart || cartItems.length > 0) {
+          addToCart(result.product, itemWeight);
+          setVoiceToast(`🛒 Savatga qo'shildi: ${result.product.name} (${itemWeight} kg)`);
+        } else {
+          setSelectedProduct(result.product);
+          setWeight(itemWeight);
           setIsManualMode(true);
+          if (result.customer) {
+            setSelectedCustomer(result.customer);
+          }
+          if (result.paymentMethod) {
+            setPaymentMethod(result.paymentMethod);
+          }
+          setStep(3);
+          setVoiceToast(`✨ Tanlandi: ${result.product.name} (${itemWeight} kg)`);
         }
-        if (result.customer) {
-          setSelectedCustomer(result.customer);
-        }
-        if (result.paymentMethod) {
-          setPaymentMethod(result.paymentMethod);
-        }
-        setStep(3);
       } else {
-        alert(`Ovoz tushunildi: "${text}", lekin mos mahsulot topilmadi!`);
+        setVoiceToast(`⚠️ Ovoz tushunildi: "${text}", lekin mos mahsulot topilmadi`);
       }
     };
-  }, [products, cachedCustomers]);
+  }, [products, cachedCustomers, cartItems, weight, selectedProduct]);
+
+  const parseUzbekWeightAdvanced = (text) => {
+    let clean = (text || '').toLowerCase().replace(/['`’]/g, "'");
+    const uzbekNumbers = {
+      'nol': 0, 'bir': 1, 'bitta': 1, 'ikki': 2, 'ikkita': 2,
+      'uch': 3, 'uchta': 3, "to'rt": 4, 'turt': 4, "to'rtta": 4,
+      'besh': 5, 'beshta': 5, 'olti': 6, 'oltita': 6,
+      'yetti': 7, 'yettita': 7, 'sakkiz': 8, 'sakkizta': 8,
+      'to\'qqiz': 9, 'tuqqiz': 9, "to'qqizta": 9,
+      "o'n": 10, "o'nta": 10, 'yigirma': 20, "o'ttiz": 30,
+      'qirq': 40, 'ellik': 50
+    };
+
+    let kiloPart = 0;
+    let gramPart = 0;
+
+    if (clean.includes('yarim')) kiloPart += 0.5;
+    if (clean.includes('chorak')) kiloPart += 0.25;
+
+    let gNumMatch = clean.match(/(\d+)\s*(gram|gr)/);
+    if (gNumMatch) {
+      gramPart = parseFloat(gNumMatch[1]);
+    } else if (clean.includes("to'qqiz yuz gram") || clean.includes("tuqqiz yuz gram")) {
+      gramPart = 900;
+    } else if (clean.includes("sakkiz yuz gram")) {
+      gramPart = 800;
+    } else if (clean.includes("yetti yuz gram")) {
+      gramPart = 700;
+    } else if (clean.includes("olti yuz gram")) {
+      gramPart = 600;
+    } else if (clean.includes("besh yuz gram")) {
+      gramPart = 500;
+    } else if (clean.includes("to'rt yuz gram") || clean.includes("tort yuz gram")) {
+      gramPart = 400;
+    } else if (clean.includes("uch yuz gram")) {
+      gramPart = 300;
+    } else if (clean.includes("ikki yuz gram")) {
+      gramPart = 200;
+    } else if (clean.includes("yuz gram")) {
+      gramPart = 100;
+    }
+
+    let noGrams = clean.replace(/(\d+)\s*(gram|gr)/g, '')
+                       .replace(/(bir|ikki|uch|to'rt|turt|besh|olti|yetti|sakkiz|to'qqiz|tuqqiz)?\s*yuz\s*gram(m)?/g, '');
+
+    let numMatch = noGrams.match(/(\d+[\.,]\d+|\d+)/);
+    if (numMatch) {
+      kiloPart += parseFloat(numMatch[0].replace(',', '.'));
+    } else {
+      let tokens = noGrams.split(/\s+/);
+      for (let t of tokens) {
+        if (t !== 'yarim' && t !== 'chorak' && uzbekNumbers[t] !== undefined) {
+          kiloPart += uzbekNumbers[t];
+        }
+      }
+    }
+
+    let totalWeight = kiloPart + (gramPart / 1000);
+    return Math.round(totalWeight * 1000) / 1000;
+  };
+
+  const matchProductFuzzy = (text, productsList) => {
+    const norm = s => (s || '').toLowerCase().replace(/['`’]/g, '').replace(/g'/g, 'g').replace(/o'/g, 'o');
+    const cleanText = norm(text);
+
+    const specificCuts = [
+      'lahm', 'qovurga', 'qiyma', 'dumba', 'charvi', 'jigar',
+      'yurak', 'buyrak', 'til', 'bosh', 'oyoq', 'kalla', 'poycha',
+      'file', 'antrekot', 'bifshteks', 'kotlet', 'shashlik', 'kabob',
+      'suyaksiz', 'suyakli', 'dumgaza', 'qovurdoq'
+    ];
+
+    let bestProduct = null;
+    let bestScore = 0;
+
+    for (let p of productsList) {
+      let pName = norm(p.name);
+      let score = 0;
+
+      if (cleanText.includes(pName)) {
+        score += 100;
+      }
+
+      for (let cut of specificCuts) {
+        if (cleanText.includes(cut) && pName.includes(cut)) {
+          score += 60;
+        }
+      }
+
+      let pTokens = pName.split(/\s+/).filter(w => !['mol', 'gosht', 'goshti', 'qoy'].includes(w));
+      for (let token of pTokens) {
+        if (cleanText.includes(token)) {
+          score += 25;
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestProduct = p;
+      }
+    }
+
+    return bestScore > 20 ? bestProduct : null;
+  };
 
   const parseVoiceCommand = (text, productsList, customersList) => {
-    const cleanText = text.toLowerCase().replace(/['`’]/g, '');
+    const cleanText = (text || '').toLowerCase().replace(/['`’]/g, "'");
     console.log("Transcribed speech:", cleanText);
 
-    let detectedProduct = null;
-    let detectedWeight = 0;
+    if (cleanText.includes('bekor') || cleanText.includes('tozala') || cleanText.includes("o'chir")) {
+      return { action: 'cancel' };
+    }
+    if (cleanText.includes("to'lov") || cleanText.includes('hisobla') || cleanText.includes('chek')) {
+      return { action: 'checkout' };
+    }
+
+    let detectedProduct = matchProductFuzzy(cleanText, productsList);
+    let detectedWeight = parseUzbekWeightAdvanced(cleanText);
     let detectedCustomer = null;
     let detectedPayment = 'naqd';
+    let shouldAddToCart = cleanText.includes('savat') || cleanText.includes("qo'sh") || cleanText.includes('yana');
 
-    // 1. Detect Product
-    for (let p of productsList) {
-      const cleanProdName = p.name.toLowerCase().replace(/['`’]/g, '');
-      if (cleanText.includes(cleanProdName) || cleanProdName.split(' ').some(word => cleanText.includes(word))) {
-        detectedProduct = p;
-        break;
-      }
-    }
-
-    // 2. Detect Weight
-    const numberMatches = cleanText.match(/(\d+[\.,]\d+|\d+)/g);
-    if (numberMatches) {
-      let rawNum = numberMatches[0].replace(',', '.');
-      detectedWeight = parseFloat(rawNum);
-    }
-
-    if (cleanText.includes('yarim')) {
-      if (detectedWeight > 0) {
-        detectedWeight += 0.5;
-      } else {
-        detectedWeight = 0.5;
-      }
-    }
-
-    // 3. Detect Customer
     for (let c of customersList) {
-      const cleanCustName = c.name.toLowerCase().replace(/['`’]/g, '');
+      const cleanCustName = (c.name || '').toLowerCase().replace(/['`’]/g, "'");
       const nameWords = cleanCustName.split(/\s+/);
-      if (nameWords.length > 0 && cleanText.includes(nameWords[0])) {
+      if (nameWords.length > 0 && nameWords[0].length >= 3 && cleanText.includes(nameWords[0])) {
         detectedCustomer = c;
         break;
       }
     }
 
-    // 4. Detect Payment Method
     if (cleanText.includes('qarz') || cleanText.includes('nasiya')) {
       detectedPayment = 'nasiya';
     } else if (cleanText.includes('karta') || cleanText.includes('plastik')) {
@@ -462,7 +609,8 @@ function App() {
       product: detectedProduct,
       weight: detectedWeight,
       customer: detectedCustomer,
-      paymentMethod: detectedPayment
+      paymentMethod: detectedPayment,
+      addToCart: shouldAddToCart
     };
   };
 
@@ -743,6 +891,15 @@ function App() {
         setFaceRecognizedCustomer(c);
         setFaceConfidence(matchConfidence);
         presenceDwellCountRef.current += 1;
+
+        // Auto-bind customer to active sale if none currently selected
+        setSelectedCustomer(prev => {
+          if (!prev) {
+            setVoiceToast(`🎯 Face ID: ${c.name} tanildi va ulandi! (Qarz: ${Math.round(c.debt_amount || 0).toLocaleString('fr-FR')} so'm)`);
+            return c;
+          }
+          return prev;
+        });
 
         // Draw Identified Name Tag on HUD Canvas
         const tagText = `✨ ${c.name} (${matchConfidence}%)`;
@@ -1138,25 +1295,33 @@ function App() {
 
   // Generate Quick Amounts on confirming step
   useEffect(() => {
-    if (step === 3 && selectedProduct && weight > 0) {
-      const standardPrice = parseFloat(selectedProduct.price_per_kg) || 0;
-      const unitPrice = customUnitPrice !== null ? customUnitPrice : standardPrice;
-      const exact = Math.round(weight * unitPrice);
-      const amounts = new Set();
-      amounts.add(exact);
+    if (step === 3) {
+      let exact = 0;
+      if (cartItems.length > 0) {
+        exact = Math.round(cartItems.reduce((s, i) => s + i.total, 0));
+      } else if (selectedProduct && weight > 0) {
+        const standardPrice = parseFloat(selectedProduct.price_per_kg) || 0;
+        const unitPrice = customUnitPrice !== null ? customUnitPrice : standardPrice;
+        exact = Math.round(weight * unitPrice);
+      }
 
-      [5000, 10000].forEach(stepSize => {
-        const down = Math.floor(exact / stepSize) * stepSize;
-        const down2 = down - stepSize;
-        if (down > 0 && down !== exact) amounts.add(down);
-        if (down2 > 0 && down2 !== exact) amounts.add(down2);
-      });
+      if (exact > 0) {
+        const amounts = new Set();
+        amounts.add(exact);
 
-      const sorted = [...amounts].sort((a, b) => a - b);
-      setQuickAmounts(sorted);
-      setSelectedAmount(exact);
+        [5000, 10000].forEach(stepSize => {
+          const down = Math.floor(exact / stepSize) * stepSize;
+          const down2 = down - stepSize;
+          if (down > 0 && down !== exact) amounts.add(down);
+          if (down2 > 0 && down2 !== exact) amounts.add(down2);
+        });
+
+        const sorted = [...amounts].sort((a, b) => a - b);
+        setQuickAmounts(sorted);
+        setSelectedAmount(exact);
+      }
     }
-  }, [step, selectedProduct, weight, customUnitPrice]);
+  }, [step, selectedProduct, weight, customUnitPrice, cartItems]);
 
   // Web Serial USB connection
   const connectUSBScale = async () => {
@@ -1662,20 +1827,44 @@ function App() {
 
   // Submit Sale to Backend
   const handleSubmitSale = () => {
-    if (!selectedProduct) {
+    const isCartSale = cartItems.length > 0;
+
+    if (!isCartSale && !selectedProduct) {
       alert("Mahsulot tanlanmagan!");
       return;
     }
-    if (weight <= 0) {
+    if (!isCartSale && weight <= 0) {
       alert("Vazn noto'g'ri!");
       return;
     }
 
     setLoadingSale(true);
 
-    const standardPrice = parseFloat(selectedProduct.price_per_kg) || 0;
-    const effectiveUnitPrice = customUnitPrice !== null ? customUnitPrice : standardPrice;
-    const totalAmount = weight * effectiveUnitPrice;
+    let totalAmount = 0;
+    let saleItems = [];
+
+    if (isCartSale) {
+      totalAmount = cartItems.reduce((acc, item) => acc + item.total, 0);
+      saleItems = cartItems.map(item => ({
+        product_id: item.product.id,
+        product_name: item.product.name,
+        weight: item.weight,
+        price_per_kg: item.price_per_kg
+      }));
+    } else {
+      const standardPrice = parseFloat(selectedProduct.price_per_kg) || 0;
+      const effectiveUnitPrice = customUnitPrice !== null ? customUnitPrice : standardPrice;
+      totalAmount = weight * effectiveUnitPrice;
+      saleItems = [
+        {
+          product_id: selectedProduct.id,
+          product_name: selectedProduct.name,
+          weight: weight,
+          price_per_kg: effectiveUnitPrice
+        }
+      ];
+    }
+
     let finalPaid = selectedAmount;
     let discountAmount = totalAmount - selectedAmount;
     if (discountAmount < 0) discountAmount = 0;
@@ -1739,13 +1928,7 @@ function App() {
       paid_naqd: Math.round(paidNaqd),
       paid_karta: Math.round(paidKarta),
       paid_qr: Math.round(paidQr),
-      items: [
-        {
-          product_id: selectedProduct.id,
-          weight: weight,
-          price_per_kg: effectiveUnitPrice
-        }
-      ]
+      items: saleItems
     };
 
     // If offline, save directly to IndexedDB
@@ -1760,8 +1943,10 @@ function App() {
             paid_naqd: paidNaqd,
             paid_karta: paidKarta,
             paid_qr: paidQr,
-            debt_added: debtAdded
+            debt_added: debtAdded,
+            items: saleItems
           });
+          clearCart();
           setStep(4);
         })
         .catch(err => {
@@ -1796,8 +1981,10 @@ function App() {
             paid_naqd: paidNaqd,
             paid_karta: paidKarta,
             paid_qr: paidQr,
-            debt_added: debtAdded
+            debt_added: debtAdded,
+            items: saleItems
           });
+          clearCart();
           reloadProductsAndCustomers();
           setStep(4);
         } else if (data && (data.error || data.message || data.detail)) {
@@ -1820,8 +2007,10 @@ function App() {
               paid_naqd: paidNaqd,
               paid_karta: paidKarta,
               paid_qr: paidQr,
-              debt_added: debtAdded
+              debt_added: debtAdded,
+              items: saleItems
             });
+            clearCart();
             setStep(4);
           })
           .catch(e => {
@@ -1843,6 +2032,7 @@ function App() {
     setReceiptData(null);
     setSearchQuery('');
     setIsManualMode(false);
+    clearCart();
     setStep(1);
     // Restart polling
     handleScaleTabChange("1");
@@ -2227,12 +2417,202 @@ function App() {
 
       {/* ════ RIGHT PANEL ════ */}
       <div className="right-panel">
+
+        {/* Non-blocking Voice Toast */}
+        {voiceToast && (
+          <div style={{
+            padding: '10px 16px',
+            borderRadius: '12px',
+            marginBottom: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: voiceToast.type === 'error' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+            border: `1.5px solid ${voiceToast.type === 'error' ? '#EF4444' : '#10B981'}`,
+            color: voiceToast.type === 'error' ? '#991B1B' : '#065F46',
+            fontWeight: '700',
+            fontSize: '13px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>{voiceToast.type === 'error' ? '⚠️' : '🎙️'}</span>
+              <span>{voiceToast.message}</span>
+            </div>
+            <button 
+              onClick={() => setVoiceToast(null)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: 'inherit', fontWeight: 'bold' }}
+            >✕</button>
+          </div>
+        )}
+
+        {/* Face Recognition HUD Banner */}
+        {faceRecognizedCustomer && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.08))',
+            border: '1.5px solid #10B981',
+            borderRadius: '12px',
+            padding: '10px 16px',
+            marginBottom: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '10px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '22px' }}>👤</span>
+              <div>
+                <div style={{ fontSize: '11px', color: '#059669', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Face-ID orqali aniqlangan mijoz
+                </div>
+                <div style={{ fontSize: '15px', fontWeight: '800', color: '#065F46' }}>
+                  {faceRecognizedCustomer.name || 'Mijoz'}
+                  {selectedCustomer?.id === faceRecognizedCustomer.id ? (
+                    <span style={{ marginLeft: '8px', fontSize: '11px', background: '#10B981', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: '700' }}>
+                      Savdoga biriktirildi ✓
+                    </span>
+                  ) : (
+                    <button 
+                      onClick={() => setSelectedCustomer(faceRecognizedCustomer)}
+                      style={{ marginLeft: '8px', fontSize: '11px', background: '#059669', color: '#fff', border: 'none', padding: '3px 8px', borderRadius: '6px', cursor: 'pointer', fontWeight: '700' }}
+                    >
+                      Savdoga ulash
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setFaceRecognizedCustomer(null)}
+              title="Yopish"
+              style={{ background: 'none', border: 'none', color: '#059669', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' }}
+            >✕</button>
+          </div>
+        )}
         
         {/* STEP 1: Products */}
         {step === 1 && (
           <div className="fade-up">
             <div className="step-title">Mahsulotlar</div>
             <div className="step-sub">Sotish uchun mahsulotni tanlang (Jonli ombor qoldig'i bilan)</div>
+
+            {/* Live Cart Banner if items present */}
+            {cartItems.length > 0 && (
+              <div style={{
+                background: 'linear-gradient(135deg, #1A1A2E, #252846)',
+                borderRadius: '16px',
+                padding: '14px 18px',
+                marginBottom: '18px',
+                color: '#fff',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+                border: '1px solid rgba(255,255,255,0.1)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '20px' }}>🛒</span>
+                    <div>
+                      <span style={{ fontWeight: '800', fontSize: '15px' }}>Savat ({cartItems.length} ta mahsulot)</span>
+                      <span style={{ fontSize: '12px', color: '#A0AEC0', marginLeft: '10px' }}>
+                        Jami: {cartItems.reduce((s, i) => s + i.weight, 0).toFixed(3)} kg
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={clearCart}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.2)',
+                        border: '1px solid rgba(239, 68, 68, 0.4)',
+                        color: '#FCA5A5',
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Tozalash
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      style={{
+                        background: 'linear-gradient(135deg, #10B981, #059669)',
+                        border: 'none',
+                        color: '#fff',
+                        padding: '7px 16px',
+                        borderRadius: '10px',
+                        fontSize: '13px',
+                        fontWeight: '800',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(16,185,129,0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <span>To'lovga o'tish</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Items in cart */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto' }}>
+                  {cartItems.map(item => (
+                    <div 
+                      key={item.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        background: 'rgba(255,255,255,0.06)',
+                        padding: '7px 12px',
+                        borderRadius: '8px',
+                        fontSize: '13px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: '700' }}>{item.product.name}</span>
+                        <span style={{ color: '#D4A853', fontWeight: 'bold' }}>{item.weight.toFixed(3)} kg</span>
+                        <span style={{ color: '#9CA3AF', fontSize: '11px' }}>@ {item.price_per_kg.toLocaleString('fr-FR')}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontWeight: '800', color: '#81EFBB' }}>{Math.round(item.total).toLocaleString('fr-FR')} so'm</span>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(item.id)}
+                          title="O'chirish"
+                          style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            border: 'none',
+                            color: '#fff',
+                            borderRadius: '50%',
+                            width: '20px',
+                            height: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            fontSize: '11px'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '8px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: '#D1D5DB' }}>Jami to'lov:</span>
+                  <span style={{ fontSize: '17px', fontWeight: '900', color: '#81EFBB' }}>
+                    {Math.round(cartItems.reduce((s, i) => s + i.total, 0)).toLocaleString('fr-FR')} so'm
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="prod-grid">
               {(Array.isArray(products) ? products : []).map(p => {
                 if (!p) return null;
@@ -2242,7 +2622,21 @@ function App() {
                 const isLow = stockNum > 0 && stockNum <= 10;
 
                 return (
-                  <button key={p.id || Math.random()} className="prod-btn" onClick={() => handleSelectProduct(p)}>
+                  <button 
+                    key={p.id || Math.random()} 
+                    className="prod-btn" 
+                    onClick={() => {
+                      if (cartItems.length > 0) {
+                        if (weight <= 0) {
+                          setVoiceToast({ message: "Vazn 0 kg! Avval taroziga go'sht qo'ying yoki vazn kiriting.", type: 'error' });
+                          return;
+                        }
+                        addToCart(p, weight);
+                      } else {
+                        handleSelectProduct(p);
+                      }
+                    }}
+                  >
                     <div style={{ position: 'relative', width: '100%', height: '140px', borderRadius: '10px', overflow: 'hidden' }}>
                       <img 
                         src={p.image || 'https://cdn-icons-png.flaticon.com/512/1046/1046747.png'} 
@@ -2275,6 +2669,38 @@ function App() {
                         <span>{isOut ? '🔴' : isLow ? '⚠️' : '🟢'}</span>
                         <span>{isOut ? '0 kg (Tugagan)' : `${stockNum.toFixed(1)} kg`}</span>
                       </div>
+
+                      {/* Add to cart quick button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (weight <= 0) {
+                            setVoiceToast({ message: "Avval taroziga go'sht qo'ying yoki vazn kiriting!", type: 'error' });
+                            return;
+                          }
+                          addToCart(p, weight);
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '8px',
+                          left: '8px',
+                          padding: '4px 8px',
+                          borderRadius: '8px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          backdropFilter: 'blur(8px)',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                          background: 'rgba(27, 107, 74, 0.92)',
+                          color: '#fff',
+                          border: '1px solid rgba(255,255,255,0.3)',
+                          cursor: 'pointer',
+                          zIndex: 3
+                        }}
+                        title="Savatga qo'shish"
+                      >
+                        + Savatga
+                      </button>
 
                       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.05) 55%, transparent 100%)' }}></div>
                       <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', textAlign: 'left' }}>
@@ -2570,10 +2996,65 @@ function App() {
               <div className="confirm-card" style={{ flex: 1, background: '#F8F6F2', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: '14px', padding: '16px', textAlign: 'left' }}>
                 <div className="confirm-card-lbl" style={{ fontSize: '11px', color: '#9CA3AF', textTransform: 'uppercase', fontWeight: 'bold' }}>Vazn</div>
                 <div className="confirm-card-val" style={{ fontSize: '18px', fontWeight: '800', marginTop: '4px' }}>
-                  {(typeof weight === 'number' ? weight : 0).toFixed(3)} kg
+                  {cartItems.length > 0 
+                    ? `${cartItems.reduce((s, i) => s + i.weight, 0).toFixed(3)} kg (${cartItems.length} ta)` 
+                    : `${(typeof weight === 'number' ? weight : 0).toFixed(3)} kg`}
                 </div>
               </div>
             </div>
+
+            {/* Multi-Item Cart Breakdown Table */}
+            {cartItems.length > 0 && (
+              <div style={{
+                background: '#FFFFFF',
+                border: '1.5px solid rgba(0,0,0,0.08)',
+                borderRadius: '16px',
+                padding: '16px 20px',
+                marginBottom: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.5px' }}>
+                    🛒 Savatdagi Mahsulotlar ({cartItems.length} ta)
+                  </span>
+                  <span style={{ fontSize: '13px', fontWeight: '800', color: '#1B6B4A' }}>
+                    Jami: {cartItems.reduce((s, i) => s + i.weight, 0).toFixed(3)} kg
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {cartItems.map((item, idx) => (
+                    <div key={item.id || idx} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '10px 14px',
+                      background: '#F9FAFB',
+                      borderRadius: '10px',
+                      border: '1px solid #E5E7EB'
+                    }}>
+                      <div>
+                        <div style={{ fontWeight: '700', fontSize: '14px', color: '#111827' }}>{item.product.name}</div>
+                        <div style={{ fontSize: '12px', color: '#6B7280' }}>
+                          {item.weight.toFixed(3)} kg × {item.price_per_kg.toLocaleString('fr-FR')} so'm
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontWeight: '800', color: '#1B6B4A', fontSize: '15px' }}>
+                          {Math.round(item.total).toLocaleString('fr-FR')} so'm
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(item.id)}
+                          style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}
+                          title="Savatdan o'chirish"
+                        >✕</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Unit Price & Special Price & AI Advisor */}
             {selectedProduct && (
@@ -2980,13 +3461,29 @@ function App() {
               </div>
 
               <div style={{ marginBottom: '15px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>
-                  <span>{selectedProduct ? selectedProduct.name : 'Mahsulot'}</span>
-                  <span>{selectedAmount.toLocaleString('fr-FR')} so'm</span>
-                </div>
-                <div style={{ fontSize: '12px', color: '#6B7280' }}>
-                  {weight.toFixed(3)} kg × {selectedProduct ? parseFloat(selectedProduct.price_per_kg).toLocaleString('fr-FR') : 0} so'm
-                </div>
+                {receiptData.items && receiptData.items.length > 0 ? (
+                  receiptData.items.map((it, idx) => (
+                    <div key={idx} style={{ marginBottom: '8px', borderBottom: idx < receiptData.items.length - 1 ? '1px dotted #eee' : 'none', paddingBottom: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold' }}>
+                        <span>{it.product_name || (Array.isArray(products) && products.find(p => p.id === it.product_id)?.name) || 'Mahsulot'}</span>
+                        <span>{Math.round(it.weight * it.price_per_kg).toLocaleString('fr-FR')} so'm</span>
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#6B7280' }}>
+                        {it.weight.toFixed(3)} kg × {parseFloat(it.price_per_kg).toLocaleString('fr-FR')} so'm
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>
+                      <span>{selectedProduct ? selectedProduct.name : 'Mahsulot'}</span>
+                      <span>{selectedAmount.toLocaleString('fr-FR')} so'm</span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6B7280' }}>
+                      {weight.toFixed(3)} kg × {selectedProduct ? parseFloat(selectedProduct.price_per_kg).toLocaleString('fr-FR') : 0} so'm
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', marginBottom: '15px' }}>

@@ -140,6 +140,7 @@ urlpatterns = [
     path('api/courier/accept-order/', views_api.api_courier_accept_order, name='api_courier_accept_order'),
     path('api/courier/complete-order/', views_api.api_courier_complete_order, name='api_courier_complete_order'),
     path('api/run-decay/', views_api.api_trigger_stock_decay, name='api_run_decay'),
+    path('api/stock/transform/', views_api.api_stock_transform, name='api_stock_transform'),
     path('api/broadcast/', views.api_broadcast_message, name='api_broadcast_message'),
     path('api/send-daily-digest/', views_api.api_send_daily_digest, name='api_send_daily_digest'),
 ]
