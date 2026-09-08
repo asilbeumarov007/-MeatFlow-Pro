@@ -17,8 +17,9 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'price_per_kg', 'is_active', 'image', 'stock', 'deduct_from']
 
     def get_stock(self, obj):
-        if hasattr(obj, 'stock'):
-            return float(obj.stock.quantity)
+        target = obj.deduct_from if obj.deduct_from else obj
+        if hasattr(target, 'stock') and target.stock:
+            return float(target.stock.quantity)
         return 0.0
 
     def get_image(self, obj):
@@ -34,6 +35,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     is_barter = serializers.SerializerMethodField()
     supplier_debt = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
+    special_prices = serializers.SerializerMethodField()
 
     class Meta:
         model = Customer
@@ -41,7 +43,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             'id', 'first_name', 'last_name', 'name', 'phone', 'custom_id',
             'bonus_points', 'debt_amount', 'debt_limit', 'is_blacklisted',
             'credit_score', 'smart_score', 'is_barter', 'supplier_debt',
-            'note', 'image', 'created_at'
+            'note', 'image', 'special_prices', 'created_at'
         ]
 
     def get_name(self, obj):
@@ -65,6 +67,23 @@ class CustomerSerializer(serializers.ModelSerializer):
         if obj.image:
             return obj.image.url
         return 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+
+    def get_special_prices(self, obj):
+        try:
+            prices = obj.special_prices.select_related('product').all()
+            return [
+                {
+                    'id': sp.id,
+                    'product_id': sp.product_id,
+                    'product_name': sp.product.name,
+                    'special_price': float(sp.special_price),
+                    'standard_price': float(sp.product.price_per_kg),
+                    'notes': sp.notes or ''
+                }
+                for sp in prices
+            ]
+        except Exception:
+            return []
 
 
 class SupplierSerializer(serializers.ModelSerializer):

@@ -155,13 +155,23 @@ CKEDITOR_CONFIGS = {
     }
 }
 CKEDITOR_UPLOAD_PATH = 'uploads/'
-CKEDITOR_RESTRICT_BY_USER = True
 CSRF_TRUSTED_ORIGINS = [
+    'https://baxmalmeat.uz',
+    'https://www.baxmalmeat.uz',
+    'http://baxmalmeat.uz',
+    'http://www.baxmalmeat.uz',
+    'http://189.74.96.249',
+    'https://189.74.96.249',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'http://localhost',
     'https://*.onrender.com',
     'https://web-production-5aab.up.railway.app',
-    'http://127.0.0.1:8000',
-    'http://localhost'
 ]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 
 # ==========================================
@@ -270,4 +280,18 @@ SMS_API_LOGIN = os.environ.get('ESKIZ_EMAIL', '')
 SMS_API_PASSWORD = os.environ.get('ESKIZ_PASSWORD', '')
 ESKIZ_EMAIL = SMS_API_LOGIN
 ESKIZ_PASSWORD = SMS_API_PASSWORD
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://baxmalmeat.uz',
+    'https://www.baxmalmeat.uz',
+    'http://baxmalmeat.uz',
+    'http://www.baxmalmeat.uz',
+    'http://189.74.96.249',
+    'https://189.74.96.249',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
+
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '').strip()
+
 

@@ -340,7 +340,7 @@
         </p>
       </div>
       <div class="d-flex gap-2">
-        <a href="/pos/suppliers/" class="btn btn-outline-light rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-2" style="font-size:13px;">
+        <a href="/pos/suppliers/" class="btn rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm" style="font-size:13px; background:rgba(255,255,255,0.22); backdrop-filter:blur(8px); border:1.5px solid rgba(255,255,255,0.4); color:#FFFFFF;">
           <i class="bi bi-truck text-warning"></i> Ta'minotchilar Daftari
         </a>
       </div>
@@ -357,6 +357,9 @@
     </button>
     <button type="button" class="yl-tab-btn" id="tabBtn3" onclick="switchMode('audit')">
       <i class="bi bi-speedometer2"></i> ⚖️ 3. Tarozi Inventarizatsiyasi
+    </button>
+    <button type="button" class="yl-tab-btn" id="tabBtn4" onclick="switchMode('cutting')">
+      <i class="bi bi-pie-chart-fill"></i> 🥩 4. Nimtalash & Bo'laklash (Tannarx & Foyda)
     </button>
   </div>
 
@@ -747,6 +750,107 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       BO'LIM 4: GO'SHTNI NIMTALASH KALKULYATORI (CARCASS CUTTING BREAKDOWN)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div id="section-cutting" class="tab-section d-none">
+    <div class="yl-card">
+      <div class="yl-card-header">
+        <div>
+          <h3 class="yl-card-title"><i class="bi bi-pie-chart-fill text-success"></i> 🥩 Go'shtni Nimtalash Kalkulyatori (Yield & Cutting)</h3>
+          <p class="text-muted small m-0">Tana go'shtini lahm, suyakli go'sht, charvi va qiymaga ajratib har birining haqiqiy tannarxini va sof foydasini hisoblash.</p>
+        </div>
+        <button type="button" class="btn-yl-secondary" onclick="resetCuttingCalculator()">
+          <i class="bi bi-arrow-counterclockwise"></i> Qayta O'rnatish
+        </button>
+      </div>
+
+      <!-- Carcass Initial Parameters -->
+      <div class="row g-3 mb-4 p-3 rounded-4" style="background:#F8FAFC; border:1px solid #E2E8F0;">
+        <div class="col-md-3">
+          <label class="form-label-yl">🐂 Tana Go'shti Vazni (kg) *</label>
+          <input type="number" step="0.1" min="1" class="form-control-yl font-monospace fw-bold fs-5" id="cutCarcassWeight" value="220" oninput="calculateCuttingBreakdown()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label-yl">💰 Xarid Narxi (so'm/kg) *</label>
+          <input type="number" step="500" min="1000" class="form-control-yl font-monospace fw-bold fs-5" id="cutPurchasePrice" value="78000" oninput="calculateCuttingBreakdown()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label-yl">🚚 Qo'shimcha Xarajatlar (so'm)</label>
+          <input type="number" step="1000" min="0" class="form-control-yl font-monospace fw-bold fs-5" id="cutExtraExpense" value="250000" placeholder="0" oninput="calculateCuttingBreakdown()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label-yl">📊 Jami Xarid Qiymati</label>
+          <div class="p-2 rounded-3 bg-white border font-monospace text-danger fw-bold fs-5 d-flex align-items-center justify-content-between">
+            <span id="cutTotalCostDisplay">17,410,000</span> <small style="font-size:12px;">so'm</small>
+          </div>
+          <small class="text-muted" style="font-size:11px;">O'rtacha tannarx: <b id="cutAvgCostPerKg">79,136</b> so'm/kg</small>
+        </div>
+      </div>
+
+      <!-- Live KPI Grid -->
+      <div class="row g-3 mb-4 text-center">
+        <div class="col-md-3">
+          <div class="p-3 bg-white rounded-4 border shadow-sm text-start">
+            <span class="text-muted small fw-bold d-block mb-1">Jami Nimtalangan Vazn</span>
+            <strong class="fs-4 d-block font-monospace text-dark" id="cutTotalWeightDisplay">220.0 kg</strong>
+            <span class="small font-monospace text-success fw-bold" id="cutWeightDiffBadge">Farq: 0.0 kg (100%)</span>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-white rounded-4 border shadow-sm text-start">
+            <span class="text-muted small fw-bold d-block mb-1">Kutilayotgan Sotuv Tushumi</span>
+            <strong class="fs-4 d-block font-monospace text-primary" id="cutTotalRevenueDisplay">22,350,000 so'm</strong>
+            <span class="small text-muted">Jami kutilayotgan tushum</span>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-white rounded-4 border shadow-sm text-start">
+            <span class="text-muted small fw-bold d-block mb-1">Kutilayotgan Sof Foyda</span>
+            <strong class="fs-4 d-block font-monospace text-success" id="cutNetProfitDisplay">+4,940,000 so'm</strong>
+            <span class="small text-success fw-bold font-monospace" id="cutMarginDisplay">+28.4% rentabellik</span>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-white rounded-4 border shadow-sm text-start">
+            <span class="text-muted small fw-bold d-block mb-1">Omborga Kiritish</span>
+            <button type="button" class="btn btn-success w-100 py-2.5 rounded-3 fw-bold shadow-sm" id="btnDistributeStock" onclick="distributeCuttingToStock()">
+              <i class="bi bi-box-arrow-in-down me-1"></i> Zaxiraga Qabul Qilish
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cutting Breakdown Table -->
+      <div class="table-responsive mb-3">
+        <table class="table table-hover align-middle mb-0" id="cuttingTable">
+          <thead style="background:#F1F5F9; font-size:11.5px; text-transform:uppercase; color:#475569;">
+            <tr>
+              <th class="ps-3 py-3" style="width:240px;">Nimtalangan Qism / Mahsulot</th>
+              <th style="width:130px;">Vazn (kg)</th>
+              <th style="width:160px;">Sotuv Narxi (so'm/kg)</th>
+              <th>Chiqim (%)</th>
+              <th class="text-end">Kutilayotgan Tushum</th>
+              <th class="text-end">Samarali Tannarx</th>
+              <th class="text-end pe-3" style="width:50px;">O'chirish</th>
+            </tr>
+          </thead>
+          <tbody id="cuttingTableBody">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center pt-2">
+        <button type="button" class="btn btn-outline-success rounded-pill px-3 py-2 fw-bold" onclick="addCuttingRow()">
+          <i class="bi bi-plus-circle me-1"></i> + Yangi Bo'lak Qo'shish
+        </button>
+        <span class="text-muted small">💡 Qismlar vazni kiritilishi bilan tannarx va sof foyda avtomatik qayta hisoblanadi.</span>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
@@ -837,6 +941,10 @@ function switchMode(mode) {
   } else if (mode === 'audit') {
     document.getElementById('tabBtn3').classList.add('active');
     document.getElementById('section-audit').classList.remove('d-none');
+  } else if (mode === 'cutting') {
+    document.getElementById('tabBtn4').classList.add('active');
+    document.getElementById('section-cutting').classList.remove('d-none');
+    calculateCuttingBreakdown();
   }
 }
 
@@ -1357,6 +1465,218 @@ function refreshAuditTable() {
       }
     })
     .catch(err => console.error("Error:", err));
+}
+
+// ─── CARCASS CUTTING CALCULATOR ENGINE ───
+let cuttingRows = [
+  { id: 1, name: "Lahm go'sht (Lattachilik)", weight: 135.0, price: 115000 },
+  { id: 2, name: "Suyakli go'sht (Qovurg'a / Bo'yin)", weight: 65.0, price: 85000 },
+  { id: 3, name: "Charvi yog'", weight: 15.0, price: 45000 },
+  { id: 4, name: "Qiyma go'shti", weight: 8.0, price: 95000 },
+  { id: 5, name: "Suyak / Chiqindi", weight: 2.0, price: 0 }
+];
+
+function renderCuttingTable() {
+  const tbody = document.getElementById('cuttingTableBody');
+  if(!tbody) return;
+  tbody.innerHTML = '';
+
+  const carcassWeight = parseFloat(document.getElementById('cutCarcassWeight').value) || 0;
+  const purchasePrice = parseFloat(document.getElementById('cutPurchasePrice').value) || 0;
+  const extraExpense = parseFloat(document.getElementById('cutExtraExpense').value) || 0;
+  const totalCarcassCost = (carcassWeight * purchasePrice) + extraExpense;
+
+  let totalWeight = 0;
+  let totalRevenue = 0;
+
+  cuttingRows.forEach(r => {
+    totalWeight += r.weight;
+    totalRevenue += (r.weight * r.price);
+  });
+
+  cuttingRows.forEach((r, idx) => {
+    const rowRevenue = r.weight * r.price;
+    const yieldPct = carcassWeight > 0 ? (r.weight / carcassWeight * 100) : 0;
+    
+    // Effective Cost per kg based on revenue weight allocation
+    let effectiveCostPerKg = 0;
+    if (totalRevenue > 0 && r.weight > 0 && r.price > 0) {
+      const allocatedCost = totalCarcassCost * (rowRevenue / totalRevenue);
+      effectiveCostPerKg = allocatedCost / r.weight;
+    } else if (r.price === 0) {
+      effectiveCostPerKg = 0;
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="ps-3">
+        <input type="text" class="form-control form-control-sm fw-bold text-dark" value="${r.name}" style="border-radius:10px;" oninput="updateCuttingRow(${idx}, 'name', this.value)">
+      </td>
+      <td>
+        <input type="number" step="0.1" min="0" class="form-control form-control-sm font-monospace fw-bold" value="${r.weight}" style="border-radius:10px;" oninput="updateCuttingRow(${idx}, 'weight', parseFloat(this.value) || 0)">
+      </td>
+      <td>
+        <input type="number" step="500" min="0" class="form-control form-control-sm font-monospace fw-bold" value="${r.price}" style="border-radius:10px;" oninput="updateCuttingRow(${idx}, 'price', parseFloat(this.value) || 0)">
+      </td>
+      <td>
+        <span class="badge bg-light text-dark border font-monospace px-2.5 py-1">${yieldPct.toFixed(1)}%</span>
+      </td>
+      <td class="text-end font-monospace fw-bold text-primary">
+        ${Math.round(rowRevenue).toLocaleString('uz-UZ')} so'm
+      </td>
+      <td class="text-end font-monospace fw-bold ${effectiveCostPerKg > 0 ? 'text-danger' : 'text-muted'}">
+        ${effectiveCostPerKg > 0 ? Math.round(effectiveCostPerKg).toLocaleString('uz-UZ') + " so'm/kg" : '0 so\'m'}
+      </td>
+      <td class="text-end pe-3">
+        <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width:28px; height:28px;" onclick="removeCuttingRow(${idx})" title="O'chirish">
+          &times;
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Update Summary Metrics
+  const netProfit = totalRevenue - totalCarcassCost;
+  const marginPct = totalCarcassCost > 0 ? (netProfit / totalCarcassCost * 100) : 0;
+  const weightDiff = totalWeight - carcassWeight;
+  const avgCostPerKg = carcassWeight > 0 ? (totalCarcassCost / carcassWeight) : 0;
+
+  document.getElementById('cutTotalCostDisplay').innerText = Math.round(totalCarcassCost).toLocaleString('uz-UZ');
+  document.getElementById('cutAvgCostPerKg').innerText = Math.round(avgCostPerKg).toLocaleString('uz-UZ');
+  document.getElementById('cutTotalWeightDisplay').innerText = totalWeight.toFixed(1) + " kg";
+  
+  const diffBadge = document.getElementById('cutWeightDiffBadge');
+  if (Math.abs(weightDiff) < 0.01) {
+    diffBadge.className = 'small font-monospace text-success fw-bold';
+    diffBadge.innerText = 'Farq: 0.0 kg (100% mos)';
+  } else if (weightDiff > 0) {
+    diffBadge.className = 'small font-monospace text-warning fw-bold';
+    diffBadge.innerText = `Ortiqcha: +${weightDiff.toFixed(1)} kg`;
+  } else {
+    diffBadge.className = 'small font-monospace text-danger fw-bold';
+    diffBadge.innerText = `Kamomad: ${weightDiff.toFixed(1)} kg`;
+  }
+
+  document.getElementById('cutTotalRevenueDisplay').innerText = Math.round(totalRevenue).toLocaleString('uz-UZ') + " so'm";
+  
+  const profitEl = document.getElementById('cutNetProfitDisplay');
+  profitEl.className = 'fs-4 d-block font-monospace ' + (netProfit >= 0 ? 'text-success' : 'text-danger');
+  profitEl.innerText = (netProfit >= 0 ? '+' : '') + Math.round(netProfit).toLocaleString('uz-UZ') + " so'm";
+
+  const marginEl = document.getElementById('cutMarginDisplay');
+  marginEl.className = 'small fw-bold font-monospace ' + (marginPct >= 0 ? 'text-success' : 'text-danger');
+  marginEl.innerText = (marginPct >= 0 ? '+' : '') + marginPct.toFixed(1) + "% rentabellik";
+}
+
+function updateCuttingRow(idx, field, val) {
+  if (cuttingRows[idx]) {
+    cuttingRows[idx][field] = val;
+    calculateCuttingBreakdown();
+  }
+}
+
+function addCuttingRow() {
+  cuttingRows.push({
+    id: Date.now(),
+    name: "Yangi qism",
+    weight: 10.0,
+    price: 90000
+  });
+  renderCuttingTable();
+}
+
+function removeCuttingRow(idx) {
+  if (cuttingRows.length <= 1) {
+    alert("Kamida bitta qism bo'lishi kerak!");
+    return;
+  }
+  cuttingRows.splice(idx, 1);
+  renderCuttingTable();
+}
+
+function resetCuttingCalculator() {
+  document.getElementById('cutCarcassWeight').value = '220';
+  document.getElementById('cutPurchasePrice').value = '78000';
+  document.getElementById('cutExtraExpense').value = '250000';
+  cuttingRows = [
+    { id: 1, name: "Lahm go'sht (Lattachilik)", weight: 135.0, price: 115000 },
+    { id: 2, name: "Suyakli go'sht (Qovurg'a / Bo'yin)", weight: 65.0, price: 85000 },
+    { id: 3, name: "Charvi yog'", weight: 15.0, price: 45000 },
+    { id: 4, name: "Qiyma go'shti", weight: 8.0, price: 95000 },
+    { id: 5, name: "Suyak / Chiqindi", weight: 2.0, price: 0 }
+  ];
+  renderCuttingTable();
+}
+
+function calculateCuttingBreakdown() {
+  renderCuttingTable();
+}
+
+function distributeCuttingToStock() {
+  const carcassWeight = parseFloat(document.getElementById('cutCarcassWeight').value) || 0;
+  const purchasePrice = parseFloat(document.getElementById('cutPurchasePrice').value) || 0;
+  const extraExpense = parseFloat(document.getElementById('cutExtraExpense').value) || 0;
+  const totalCarcassCost = (carcassWeight * purchasePrice) + extraExpense;
+
+  let totalRevenue = 0;
+  cuttingRows.forEach(r => totalRevenue += (r.weight * r.price));
+
+  const validCuts = cuttingRows.filter(r => r.weight > 0 && r.name.trim().length > 0);
+  if(validCuts.length === 0) {
+    alert("Zaxiraga kiritish uchun kamida bitta vaznga ega qism bo'lishi kerak!");
+    return;
+  }
+
+  const cutsPayload = validCuts.map(r => {
+    const rowRevenue = r.weight * r.price;
+    let costPerKg = 0;
+    if (totalRevenue > 0 && r.weight > 0 && r.price > 0) {
+      costPerKg = (totalCarcassCost * (rowRevenue / totalRevenue)) / r.weight;
+    }
+    return {
+      product_name: r.name.trim(),
+      weight: r.weight,
+      selling_price: r.price,
+      cost_per_kg: Math.round(costPerKg)
+    };
+  });
+
+  const btn = document.getElementById('btnDistributeStock');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Qabul qilinmoqda...';
+
+  fetch('/pos/api/cutting/distribute/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      carcass_weight: carcassWeight,
+      purchase_price: purchasePrice,
+      extra_expenses: extraExpense,
+      total_cost: totalCarcassCost,
+      cuts: cutsPayload
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      alert("🎉 " + data.message + `\n\nJami ${data.distributed_items.length} ta mahsulot zaxirasi muvaffaqiyatli yangilandi.`);
+      location.reload();
+    } else {
+      alert("Xato: " + data.message);
+    }
+  })
+  .catch(err => {
+    alert("Aloqada xatolik yuz berdi!");
+    console.error(err);
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-box-arrow-in-down me-1"></i> Zaxiraga Qabul Qilish';
+  });
 }
 </script>
 {% endblock %}

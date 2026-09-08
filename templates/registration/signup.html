@@ -1,32 +1,359 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Ro'yxatdan o'tish{% endblock title %}
+{% block title %}Ro'yxatdan o'tish | Baxmal Meat Boutique{% endblock title %}
 
 {% block content %}
-<div class="auth-wrapper">
-    <div class="auth-card shadow-lg">
-        <div class="auth-header">
-            <i class="fas fa-user-plus fa-3x mb-3 text-primary"></i>
-            <h2>Ro'yxatdan o'tish</h2>
-            <p class="text-muted">ASU Blog hamjamiyatiga qo'shiling</p>
+<div class="auth-page-container">
+    <div class="auth-glow-sphere glow-1"></div>
+    <div class="auth-glow-sphere glow-2"></div>
+
+    <div class="auth-card-wrapper animate-slide-up">
+        <!-- Brand Header -->
+        <div class="auth-brand-header">
+            <div class="brand-badge-icon">
+                <span class="meat-emoji">🥩</span>
+            </div>
+            <h2 class="auth-title">Yangi Hisob Yaratish</h2>
+            <p class="auth-subtitle">Baxmal Meat — Premium sifat va maxsus mijozlar xizmati</p>
         </div>
 
-        <form method="post" class="auth-form">
-            {% csrf_token %}
-            {{ form|crispy }}
-
-            <div class="d-grid gap-2 mt-4">
-                <button type="submit" class="btn btn-primary btn-lg shadow-sm">
-                    <i class="fas fa-check-circle me-2"></i>Hisob yaratish
-                </button>
+        <!-- Form Card -->
+        <div class="auth-glass-card">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(212,168,83,0.15)); border: 1px solid rgba(16,185,129,0.3); border-radius: 14px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 26px;">🎁</span>
+                <div>
+                    <div style="font-size: 13.5px; font-weight: 800; color: #81EFBB;">Xush Kelibsiz Start Bonusi!</div>
+                    <div style="font-size: 11.5px; color: rgba(255,255,255,0.8);">Ro'yxatdan o'tganingiz uchun hisobingizga avtomatik 5 bonus ball sovg'a qilinadi.</div>
+                </div>
             </div>
-        </form>
 
-        <div class="auth-footer mt-4 text-center">
-            <p>Profilingiz bormi? <a href="{% url 'login' %}" class="text-primary fw-bold">Kirish</a></p>
+            <form method="post" class="auth-custom-form" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="auth-alert-error">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="form-fields-grid">
+                    {% for field in form %}
+                        <div class="custom-field-group mb-3">
+                            <label for="{{ field.id_for_label }}" class="custom-field-label">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            
+                            <div class="input-icon-wrapper">
+                                {{ field }}
+                            </div>
+
+                            {% if field.help_text %}
+                                <small class="form-help-hint">{{ field.help_text|safe }}</small>
+                            {% endif %}
+
+                            {% if field.errors %}
+                                <div class="field-error-msg">
+                                    <i class="bi bi-x-circle-fill"></i> {{ field.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="auth-action-box mt-4">
+                    <button type="submit" class="btn-auth-submit">
+                        <span class="btn-text"><i class="bi bi-person-check-fill me-2"></i>Ro'yxatdan o'tish</span>
+                        <i class="bi bi-arrow-right-short btn-arrow"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-divider">
+                <span>yoki</span>
+            </div>
+
+            <div class="auth-footer-nav text-center">
+                <p class="mb-0 text-muted-light">
+                    Profilingiz mavjudmi? 
+                    <a href="{% url 'login' %}" class="auth-link-gold">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Tizimga kirish
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div class="auth-bottom-branding">
+            <span>🛡️ 256-bit SSL bilan shifrlangan xavfsiz tizim</span>
         </div>
     </div>
 </div>
 
+<style>
+/* ─── LUXURY DARK/EMERALD AUTH STYLES ─── */
+.auth-page-container {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    background: radial-gradient(circle at 50% 10%, #062417 0%, #03120B 60%, #010805 100%);
+    position: relative;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Ambient Glow Spheres */
+.auth-glow-sphere {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.45;
+}
+.glow-1 {
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, #10B981 0%, rgba(16, 185, 129, 0) 70%);
+    top: -50px;
+    left: -50px;
+    animation: floatGlow 12s ease-in-out infinite alternate;
+}
+.glow-2 {
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, #D4A853 0%, rgba(212, 168, 83, 0) 70%);
+    bottom: -80px;
+    right: -80px;
+    animation: floatGlow 14s ease-in-out infinite alternate-reverse;
+}
+@keyframes floatGlow {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(30px) scale(1.1); }
+}
+
+.auth-card-wrapper {
+    width: 100%;
+    max-width: 580px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Slide Up Entrance */
+.animate-slide-up {
+    animation: slideUpFade 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(28px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Brand Header */
+.auth-brand-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.brand-badge-icon {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 14px;
+    background: linear-gradient(135deg, rgba(212,168,83,0.2) 0%, rgba(16,185,129,0.15) 100%);
+    border: 2px solid rgba(212,168,83,0.5);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4), inset 0 0 15px rgba(212,168,83,0.2);
+}
+.meat-emoji {
+    font-size: 32px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+.auth-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+}
+.auth-subtitle {
+    font-size: 14px;
+    color: #A3B899;
+    margin-bottom: 0;
+}
+
+/* Glass Card */
+.auth-glass-card {
+    background: rgba(7, 31, 20, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 168, 83, 0.28);
+    border-radius: 24px;
+    padding: 32px 30px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Form Styles */
+.custom-field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #E2E8F0;
+    margin-bottom: 7px;
+    letter-spacing: 0.2px;
+}
+.auth-glass-card input[type="text"],
+.auth-glass-card input[type="password"],
+.auth-glass-card input[type="email"],
+.auth-glass-card input[type="number"],
+.auth-glass-card select,
+.auth-glass-card textarea {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #FFFFFF;
+    background: rgba(3, 18, 11, 0.65) !important;
+    border: 1.5px solid rgba(212, 168, 83, 0.25) !important;
+    border-radius: 12px !important;
+    transition: all 0.25s ease;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+.auth-glass-card input:focus,
+.auth-glass-card select:focus,
+.auth-glass-card textarea:focus {
+    border-color: #10B981 !important;
+    background: rgba(4, 25, 15, 0.9) !important;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2), inset 0 2px 4px rgba(0,0,0,0.2) !important;
+    color: #FFFFFF !important;
+}
+
+.form-help-hint {
+    display: block;
+    font-size: 11.5px;
+    color: #8E9E88;
+    margin-top: 5px;
+    line-height: 1.4;
+}
+.field-error-msg {
+    font-size: 12px;
+    color: #FF6B6B;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+}
+.auth-alert-error {
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #FF8080;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Submit Button */
+.btn-auth-submit {
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%);
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+.btn-auth-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(16, 185, 129, 0.45);
+    background: linear-gradient(135deg, #34D399 0%, #10B981 50%, #059669 100%);
+}
+.btn-auth-submit:active {
+    transform: translateY(0);
+}
+.btn-arrow {
+    font-size: 22px;
+    transition: transform 0.25s ease;
+    margin-left: 4px;
+}
+.btn-auth-submit:hover .btn-arrow {
+    transform: translateX(4px);
+}
+
+/* Divider */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 22px 0 18px;
+}
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.auth-divider span {
+    padding: 0 12px;
+    color: #718096;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Footer Links */
+.text-muted-light {
+    color: #94A3B8;
+    font-size: 14px;
+}
+.auth-link-gold {
+    color: #D4A853;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+.auth-link-gold:hover {
+    color: #F59E0B;
+    text-decoration: underline;
+}
+
+.auth-bottom-branding {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 12px;
+    color: #64748B;
+}
+
+@media (max-width: 576px) {
+    .auth-glass-card {
+        padding: 24px 18px;
+    }
+    .auth-title {
+        font-size: 22px;
+    }
+}
+</style>
 {% endblock content %}

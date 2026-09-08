@@ -123,14 +123,16 @@
     .cust-empty { padding: 60px; text-align: center; color: #6B7280; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
     .cust-empty i { font-size: 32px; color: #1B6B4A; }
     
-    /* MODAL TIZIMI - YANGILANDI */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.2s ease; }
-    .modal-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07); width: 460px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.15); animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .modal-header { padding: 20px 24px; background: linear-gradient(135deg, #1B6B4A, #2D9B6E); border-bottom: none; display: flex; justify-content: space-between; align-items: center; }
+    /* MODAL TIZIMI - YANGILANDI & EXPANDED 2-COLUMN */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; animation: fadeIn 0.2s ease; padding: 16px; }
+    .modal-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08); width: 720px; max-width: 95vw; max-height: 90vh; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.25); display: flex; flex-direction: column; animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .modal-header { padding: 18px 24px; background: linear-gradient(135deg, #1B6B4A, #2D9B6E); border-bottom: none; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .modal-title { font-size: 15px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
     .modal-close { background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 20px; cursor: pointer; transition: all 0.12s; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .modal-close:hover { background: rgba(255,255,255,0.3); }
-    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-body { padding: 24px; overflow-y: auto; max-height: calc(90vh - 140px); display: flex; flex-direction: column; gap: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
     
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-label { font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -138,9 +140,19 @@
     .form-input:focus { border-color: #1B6B4A; outline: none; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(27,107,74,0.1); }
     .form-input.edit-mode:focus { border-color: #D4A853; box-shadow: 0 0 0 3px rgba(212,168,83,0.15); }
     
-    .modal-footer { padding: 16px 24px; background: #F8F6F2; border-top: 1px solid rgba(0,0,0,0.07); display: flex; justify-content: flex-end; gap: 10px; }
-    .btn-cancel { background: transparent; border: 1px solid rgba(0,0,0,0.12); color: #6B7280; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
-    .btn-cancel:hover { background: #F0EDE6; color: #1A1A2E; }
+    .modal-footer { padding: 16px 24px; background: #F8F6F2; border-top: 1px solid rgba(0,0,0,0.07); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+    .btn-cancel {
+      background: #F1F5F9;
+      border: 1.5px solid #CBD5E1;
+      color: #334155;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-cancel:hover { background: #E2E8F0; color: #0F172A; }
     .btn-submit { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(27,107,74,0.15); }
     .btn-submit:hover { box-shadow: 0 6px 16px rgba(27,107,74,0.25); }
     
@@ -153,84 +165,85 @@
     @keyframes scaleUp { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     @keyframes slideDown { from { transform: translateY(-8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
+    /* Desktop default: contents wrapper for subgrid compatibility */
+    .cust-top-info, .cust-badges-strip {
+      display: contents;
+    }
+
     /* ── Action Pill Buttons (Mijozlar sahifasidagi tugmalar) ── */
     .action-pill-group {
       display: inline-flex;
       gap: 6px;
       align-items: center;
+      justify-content: flex-end;
     }
     .action-pill-btn {
       display: inline-flex;
       width: 36px;
       height: 36px;
-      border-radius: 12px;
+      border-radius: 10px;
       background: #FFFFFF;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
       justify-content: center;
       align-items: center;
       box-shadow: 0 2px 4px rgba(0,0,0,0.02);
       transition: all 0.2s ease;
       cursor: pointer;
       text-decoration: none;
+      flex-shrink: 0;
     }
     .action-pill-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
-      border-color: rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
     .action-pill-btn:active {
       transform: translateY(0);
     }
-    .action-pill-btn.btn-chat { color: #1B6B4A; background-color: rgba(27,107,74,0.05); }
-    .action-pill-btn.btn-chat:hover { background-color: #1B6B4A; color: #FFFFFF; }
+    .action-pill-btn.btn-profile { background: #F0FDF4; color: #166534; border-color: #BBF7D0; }
+    .action-pill-btn.btn-profile:hover { background: #166534; color: #FFFFFF; border-color: #166534; }
 
-    .action-pill-btn.btn-cabinet { color: #4B5563; background-color: rgba(75,85,99,0.05); }
-    .action-pill-btn.btn-cabinet:hover { background-color: #4B5563; color: #FFFFFF; }
+    .action-pill-btn.btn-history { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+    .action-pill-btn.btn-history:hover { background: #DC2626; color: #FFFFFF; border-color: #DC2626; }
 
-    .action-pill-btn.btn-edit { color: #B06000; background-color: rgba(212,168,83,0.08); }
-    .action-pill-btn.btn-edit:hover { background-color: #D4A853; color: #FFFFFF; }
+    .action-pill-btn.btn-special { background: #EFF6FF; color: #2563EB; border-color: #BFDBFE; }
+    .action-pill-btn.btn-special:hover { background: #2563EB; color: #FFFFFF; border-color: #2563EB; }
 
-    .action-pill-btn.btn-send { color: #188F60; background-color: rgba(24,143,96,0.05); }
-    .action-pill-btn.btn-send:hover:not(:disabled) { background-color: #188F60; color: #FFFFFF; }
-    .action-pill-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      background-color: rgba(0,0,0,0.02);
-      color: #9CA3AF;
-    }
+    .action-pill-btn.btn-edit { background: #FFFBEB; color: #D97706; border-color: #FDE68A; }
+    .action-pill-btn.btn-edit:hover { background: #D97706; color: #FFFFFF; border-color: #D97706; }
 
     /* ═══════════════════════════════════════
        MOBILE RESPONSIVE (APP-LIKE)
     ═══════════════════════════════════════ */
     @media (max-width: 768px) {
-      body { padding: 10px !important; padding-bottom: 40px !important; }
+      body { padding: 10px !important; padding-bottom: 50px !important; }
       .cp-wrap { gap: 12px !important; }
 
       /* ── Topbar: Compact ── */
       .cp-topbar {
-        padding: 12px 14px !important;
-        border-radius: 14px !important;
-        flex-wrap: wrap;
-        gap: 10px;
+        padding: 14px 16px !important;
+        border-radius: 16px !important;
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
       }
-      .cp-topbar-title { font-size: 16px !important; }
-      .cp-topbar-right { width: 100%; justify-content: space-between; }
+      .cp-topbar-title { font-size: 17px !important; }
+      .cp-topbar-right { width: 100%; }
       .btn-add-cust {
-        padding: 12px 16px !important;
-        font-size: 13px !important;
+        padding: 13px 18px !important;
+        font-size: 13.5px !important;
         border-radius: 12px !important;
-        flex: 1;
+        width: 100%;
         justify-content: center;
       }
 
       /* ── Stats: 2 columns ── */
       .cp-stats {
         grid-template-columns: 1fr 1fr !important;
-        gap: 8px !important;
+        gap: 10px !important;
       }
       .stat-card {
-        padding: 14px !important;
-        border-radius: 12px !important;
+        padding: 14px 16px !important;
+        border-radius: 14px !important;
       }
       .stat-card-val { font-size: 20px !important; }
       .stat-card-label { font-size: 11px !important; }
@@ -238,27 +251,27 @@
       /* ── Main layout: Stack ── */
       .cp-main {
         grid-template-columns: 1fr !important;
-        gap: 12px !important;
+        gap: 14px !important;
       }
       .left-sidebar { order: 2; }
 
-      /* ── Customer Table: Horizontal scroll ── */
+      /* ── Customer Table: Card layout ── */
       .cust-table-card {
-        padding: 12px !important;
-        border-radius: 14px !important;
+        padding: 14px !important;
+        border-radius: 16px !important;
         min-height: auto !important;
-        overflow-x: auto;
       }
       .cust-table-header {
-        margin-bottom: 12px !important;
-        gap: 8px !important;
+        margin-bottom: 14px !important;
+        gap: 10px !important;
         flex-direction: column;
         align-items: stretch;
       }
       .cust-search {
         width: 100% !important;
         font-size: 16px !important; /* Prevents iOS zoom */
-        padding: 14px 16px !important;
+        padding: 13px 16px !important;
+        border-radius: 12px !important;
       }
       .cust-search:focus { width: 100% !important; }
       .filter-tabs {
@@ -266,46 +279,100 @@
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         flex-wrap: nowrap;
+        gap: 4px;
       }
       .filter-tabs::-webkit-scrollbar { display: none; }
       .filter-tab {
-        padding: 8px 12px !important;
+        padding: 9px 14px !important;
         font-size: 12px !important;
         white-space: nowrap;
         flex-shrink: 0;
-        min-height: 38px;
-      }
-
-      /* ── Table rows: Compact ── */
-      .cust-row {
-        grid-template-columns: 36px 1fr 80px 60px !important;
-        gap: 8px !important;
-        padding: 10px 8px !important;
+        min-height: 40px;
         border-radius: 10px !important;
       }
+
+      /* ── Modern App Card on Mobile ── */
       .cust-row.head {
-        display: none !important; /* Hide header on mobile, data speaks for itself */
+        display: none !important;
       }
-      .cust-avatar-sm { width: 32px !important; height: 32px !important; }
-      .cust-name-col .name { font-size: 13px !important; }
-      .cust-name-col .meta { font-size: 10px !important; }
-      .phone-val { display: none !important; } /* Save space */
-      .bonus-val { display: none !important; } /* Save space */
-      .debt-val { font-size: 13px !important; }
-      .act-btn { width: 28px !important; height: 28px !important; font-size: 12px !important; }
+      .cust-row.cust-data-row {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 14px !important;
+        border-radius: 16px !important;
+        background: #FFFFFF !important;
+        border: 1px solid rgba(0,0,0,0.08) !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.03) !important;
+        margin-bottom: 10px !important;
+        gap: 10px !important;
+      }
+      .cust-top-info {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+      }
+      .cust-avatar-sm {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 12px !important;
+        flex-shrink: 0;
+      }
+      .cust-name-col {
+        flex: 1;
+        min-width: 0;
+      }
+      .cust-name-col .name {
+        font-size: 14.5px !important;
+        font-weight: 800 !important;
+      }
+      .cust-name-col .meta {
+        font-size: 11.5px !important;
+        color: #64748B !important;
+      }
+      .phone-val { display: none !important; }
+      .cust-badges-strip {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: #F8FAFC !important;
+        padding: 8px 12px !important;
+        border-radius: 10px !important;
+        border: 1px solid #E2E8F0 !important;
+        font-size: 12.5px !important;
+        width: 100% !important;
+      }
+      .action-pill-group {
+        display: flex !important;
+        justify-content: flex-end !important;
+        gap: 8px !important;
+        width: 100% !important;
+        padding-top: 8px !important;
+        border-top: 1px solid #F1F5F9 !important;
+      }
+      .action-pill-btn {
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        font-size: 15px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
 
       /* ── Sidebar cards ── */
       .nb-card, .debtors-card {
-        padding: 14px !important;
-        border-radius: 14px !important;
+        padding: 16px !important;
+        border-radius: 16px !important;
       }
 
       /* ── Modal: Full-width ── */
       .modal-card {
-        width: calc(100% - 20px) !important;
+        width: calc(100% - 16px) !important;
         max-width: 100% !important;
-        border-radius: 18px !important;
-        max-height: 90vh;
+        border-radius: 20px !important;
+        max-height: 92vh;
         overflow-y: auto;
       }
       .modal-body { padding: 16px !important; }
@@ -315,7 +382,7 @@
         border-radius: 12px !important;
       }
       .modal-footer {
-        padding: 12px 16px !important;
+        padding: 14px 16px !important;
         flex-direction: column;
         gap: 8px;
       }
@@ -325,6 +392,13 @@
         padding: 14px !important;
         border-radius: 12px !important;
         min-height: 48px;
+      }
+
+      .sp-form-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .debt-hist-metrics-grid {
+        grid-template-columns: 1fr !important;
       }
 
       /* ── Touch improvements ── */
@@ -466,6 +540,7 @@
           <button class="filter-tab {% if current_filter == 'all' or not current_filter %}active{% endif %}" onclick="window.location.href='?filter_type=all'">Barchasi</button>
           <button class="filter-tab red {% if current_filter == 'debt' %}active{% endif %}" onclick="window.location.href='?filter_type=debt'">Qarzlilar ({{ debt_customers_count }})</button>
           <button class="filter-tab green {% if current_filter == 'our_debt' %}active{% endif %}" onclick="window.location.href='?filter_type=our_debt'">Bizdan haqdorlar ({{ our_debt_customers_count }})</button>
+          <button class="filter-tab {% if current_filter == 'online' %}active{% endif %}" style="{% if current_filter == 'online' %}background:#3B82F6; color:#fff;{% endif %}" onclick="window.location.href='?filter_type=online'">🌐 Mustaqil / Onlayn ({{ online_customers_count|default:0 }})</button>
           <button class="filter-tab {% if current_filter == 'clean' %}active{% endif %}" onclick="window.location.href='?filter_type=clean'">Qarzsilar</button>
         </div>
       </div>
@@ -477,24 +552,38 @@
       <div id="custTableBody">
         {% for c in customers %}
         <div class="cust-row cust-data-row">
-          <img src="{% if c.image %}{{ c.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}" class="cust-avatar-sm" alt="">
-          <div class="cust-name-col">
-            <div class="name">{{ c.first_name }} {{ c.last_name|default:"" }}</div>
-            <div class="meta">ID: {{ c.custom_id }}</div>
-            {% if c.note %}<span class="note-tag">📝 {{ c.note|truncatechars:25 }}</span>{% endif %}
+          <div class="cust-top-info">
+            <img src="{% if c.image %}{{ c.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}" class="cust-avatar-sm" alt="">
+            <div class="cust-name-col" style="cursor: pointer;" onclick="showCustomerQuickInfo({{ c.id }}, '{{ c.first_name|escapejs }} {{ c.last_name|default:''|escapejs }}')" title="Mijoz haqida 360° to'liq ma'lumot va sahifalarga o'tish">
+              <div class="name customer-clickable">
+                <i class="bi bi-person-fill text-success small me-1"></i>{{ c.first_name }} {{ c.last_name|default:"" }}
+                {% if c.telegram_chat_id %}
+                  <span class="badge ms-1" style="background:#E0F2FE; color:#0284C7; font-size:10px; font-weight:700; border-radius:6px; padding:2px 6px; display:inline-flex; align-items:center; gap:2px;"><i class="bi bi-robot"></i> Bot</span>
+                {% elif "sayt" in c.note|lower %}
+                  <span class="badge ms-1" style="background:#FEF3C7; color:#D97706; font-size:10px; font-weight:700; border-radius:6px; padding:2px 6px; display:inline-flex; align-items:center; gap:2px;"><i class="bi bi-globe"></i> Sayt</span>
+                {% endif %}
+              </div>
+              <div class="meta">ID: {{ c.custom_id }}{% if c.phone %} &bull; {{ c.phone }}{% endif %}</div>
+              {% if c.note %}<span class="note-tag">📝 {{ c.note|truncatechars:25 }}</span>{% endif %}
+            </div>
           </div>
           <div class="phone-val">{{ c.phone|default:"—" }}</div>
-          <div class="debt-val {% if c.debt_amount == 0 %}zero{% elif c.debt_amount < 0 %}negative{% endif %}">
-            {% if c.debt_amount == 0 %}
-              ✓ Yo'q
-            {% elif c.debt_amount < 0 %}
-              <span style="color:#28A745; font-weight:700;">Haqdor: {{ c.debt_amount_abs|floatformat:0 }} so'm</span>
-            {% else %}
-              {{ c.debt_amount|floatformat:0 }} so'm
-            {% endif %}
+          <div class="cust-badges-strip">
+            <div class="debt-val {% if c.debt_amount == 0 %}zero{% elif c.debt_amount < 0 %}negative{% endif %}" onclick="openCustomerDebtHistoryModal({{ c.id }},'{{ c.first_name }} {{ c.last_name|default:'' }}')" style="cursor: pointer; transition: transform 0.15s;" title="Qarzlar tarixini ko'rish uchun bosing">
+              {% if c.debt_amount == 0 %}
+                ✓ Yo'q
+              {% elif c.debt_amount < 0 %}
+                <span style="color:#28A745; font-weight:700;">Haqdor: {{ c.debt_amount_abs|floatformat:0 }} so'm</span>
+              {% else %}
+                <span style="display:inline-flex; align-items:center; gap:4px;">{{ c.debt_amount|floatformat:0 }} so'm <i class="bi bi-clock-history text-danger" style="font-size:0.8rem; opacity:0.8;"></i></span>
+              {% endif %}
+            </div>
+            <div class="bonus-val">⭐ {{ c.bonus_points }} ball</div>
           </div>
-          <div class="bonus-val">{{ c.bonus_points }} ball</div>
           <div class="action-pill-group">
+            <button class="action-pill-btn btn-profile" title="Mijoz 360° Profili" onclick="showCustomerQuickInfo({{ c.id }}, '{{ c.first_name|escapejs }} {{ c.last_name|default:''|escapejs }}')"><i class="bi bi-person-badge-fill"></i></button>
+            <button class="action-pill-btn btn-history" title="Qarzlar tarixi va tafsilotlari" onclick="openCustomerDebtHistoryModal({{ c.id }},'{{ c.first_name }} {{ c.last_name|default:'' }}')"><i class="bi bi-clock-history"></i></button>
+            <button class="action-pill-btn btn-special" title="Maxsus / Choyxona narxlari" onclick="openSpecialPricesModal({{ c.id }},'{{ c.first_name }} {{ c.last_name|default:'' }}')"><i class="bi bi-tags-fill"></i></button>
             <button class="action-pill-btn btn-edit" title="Tahrirlash" onclick="openEditModal({{ c.id }},'{{ c.first_name }}','{{ c.last_name|default:'' }}','{{ c.phone|default:'' }}','{% if c.image %}{{ c.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}','{{ c.custom_id }}','{{ c.note|default:''|escapejs }}')"><i class="bi bi-pencil-fill"></i></button>
           </div>
         </div>
@@ -504,7 +593,7 @@
       </div>
       
       <div style="text-align: center; margin: 15px 0;" id="loadMoreContainer">
-        <button class="btn btn-sm btn-outline-success" id="loadMoreCustomersBtn" onclick="loadMoreCustomers()" style="padding: 10px 24px; border-radius: 12px; font-weight: 700; border: 1.5px solid #1B6B4A; background: transparent; color: #1B6B4A; cursor: pointer; transition: all 0.2s;">
+        <button class="btn btn-sm btn-outline-success" id="loadMoreCustomersBtn" onclick="loadMoreCustomers()" style="padding: 11px 26px; border-radius: 12px; font-weight: 700; border: 1.5px solid #1B6B4A; background: #FFFFFF; color: #1B6B4A; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(27,107,74,0.08);">
             <i class="bi bi-arrow-down-short fs-5"></i> Yana ko'rish
         </button>
       </div>
@@ -545,55 +634,59 @@
             <h5 id="modal_cust_name" style="margin: 0; font-weight: 700; color: var(--text-main); font-size: 15px;">Mijoz Nomi</h5>
             <span id="modal_cust_id" style="font-size: 11px; color: var(--text-muted); font-weight: 600;">ID: ---</span>
           </div>
-          <div class="action-pill-group" style="margin-left: auto;">
+          <div class="action-pill-group" style="margin-left: auto; display: flex; gap: 6px;">
+            <button type="button" onclick="sendSmsReminder(currentEditCustId)" class="action-pill-btn btn-sms" title="SMS Nasiya Eslatmasini Yuborish" style="width: 36px; height: 36px; border-radius: 10px; background: #E8F0FE; color: #1A73E8; border: none; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;"><i class="bi bi-chat-text-fill"></i></button>
+            <button type="button" onclick="sendDebtReminder(currentEditCustId)" class="action-pill-btn btn-reminder" title="Telegram Nasiya Eslatmasini Yuborish" style="width: 36px; height: 36px; border-radius: 10px; background: #E6F4EA; color: #1E8E3E; border: none; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;"><i class="bi bi-bell-fill"></i></button>
             <a id="modalChatLink" href="#" class="action-pill-btn btn-chat" title="Chatga o'tish" style="width: 36px; height: 36px; border-radius: 10px;"><i class="bi bi-chat-dots-fill"></i></a>
             <a id="modalCabinetLink" href="/pos/my-cabinet/" class="action-pill-btn btn-cabinet" title="Mijoz kabineti/tarixi" style="width: 36px; height: 36px; border-radius: 10px;"><i class="bi bi-person-lines-fill"></i></a>
           </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">Mijoz Ismi *</label>
-          <input type="text" name="first_name" id="f_first_name" class="form-input" required placeholder="Masalan: Asilbek">
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Mijoz Familiyasi</label>
-          <input type="text" name="last_name" id="f_last_name" class="form-input" placeholder="Masalan: Umarov (ixtiyoriy)">
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Telefon Raqami (Ixtiyoriy)</label>
-          <input type="text" name="phone" id="f_phone" class="form-input" placeholder="Yo'q bo'lsa, o'tkazib yuboring">
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Daftardagi Umumiy Qarz Summasi (So'm)</label>
-          <input type="number" name="debt_amount" id="f_debt_amount" class="form-input" placeholder="Masalan: 450000" value="0">
-        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Mijoz Ismi *</label>
+            <input type="text" name="first_name" id="f_first_name" class="form-input" required placeholder="Masalan: Asilbek">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Mijoz Familiyasi</label>
+            <input type="text" name="last_name" id="f_last_name" class="form-input" placeholder="Masalan: Umarov (ixtiyoriy)">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Telefon Raqami (Ixtiyoriy)</label>
+            <input type="text" name="phone" id="f_phone" class="form-input" placeholder="Yo'q bo'lsa, o'tkazib yuboring">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Mijoz ID raqami (Avto yoki qo'lda)</label>
-          <input type="text" name="customer_id" id="f_customer_id" class="form-input" placeholder="Masalan: 01">
-        </div>
+          <div class="form-group">
+            <label class="form-label">Mijoz ID raqami (Avto yoki qo'lda)</label>
+            <input type="text" name="customer_id" id="f_customer_id" class="form-input" placeholder="Masalan: 01">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Qaysi Daftarga Tegishli?</label>
-          <select name="notebook_id" id="f_notebook_id" class="form-input">
-            <option value="">-- Daftardan tashqari --</option>
-            {% for nb in notebooks %}
-              <option value="{{ nb.id }}">{{ nb.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
+          <div class="form-group">
+            <label class="form-label">Daftardagi Qarz Summasi (So'm)</label>
+            <input type="number" name="debt_amount" id="f_debt_amount" class="form-input" placeholder="Masalan: 450000" value="0">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Izoh / Eslatma</label>
-          <input type="text" name="note" id="f_note" class="form-input" placeholder="Eski daftardan ko'chirildi...">
-        </div>
+          <div class="form-group">
+            <label class="form-label">Qaysi Daftarga Tegishli?</label>
+            <select name="notebook_id" id="f_notebook_id" class="form-input">
+              <option value="">-- Daftardan tashqari --</option>
+              {% for nb in notebooks %}
+                <option value="{{ nb.id }}">{{ nb.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Mijoz Rasmi (Ixtiyoriy)</label>
-          <input type="file" name="image" id="f_image" class="form-input">
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label">Izoh / Eslatma</label>
+            <input type="text" name="note" id="f_note" class="form-input" placeholder="Eski daftardan ko'chirildi...">
+          </div>
+
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label">Mijoz Rasmi (Ixtiyoriy)</label>
+            <input type="file" name="image" id="f_image" class="form-input">
+          </div>
         </div>
 
       </div>
@@ -723,6 +816,7 @@ function openEditModal(id, firstName, lastName, phone, imageUrl, custId, note) {
     document.getElementById('modal_cust_name').innerText = firstName + ' ' + (lastName || '');
     document.getElementById('modal_cust_id').innerText = `ID: ${custId}`;
     document.getElementById('modalChatLink').href = `/pos/chats/?selected_customer=${id}`;
+    document.getElementById('modalCabinetLink').href = `/pos/my-cabinet/?customer_id=${id}`;
     
     document.getElementById('f_first_name').value = firstName;
     document.getElementById('f_last_name').value = lastName;
@@ -807,33 +901,401 @@ function deleteNotebook(id, name) {
     }
 }
 
-function sendTelegramReminder(id, name, debt) {
-    const formattedDebt = parseInt(debt).toLocaleString();
-    const message = `Assalomu alaykum, hurmatli ${name}. Do'konimizdan olingan ${formattedDebt} so'mlik nasiya muddati o'tdi. Iloji bo'lsa, to'lovni amalga oshirishingizni so'raymiz. Rahmat!`;
-    
-    if (confirm(`Quyidagi eslatmani mijozga yuborasizmi?\n\n"${message}"`)) {
-        fetch(`/pos/customer-chat/send/${id}/`, {
+function sendDebtReminder(id) {
+    if (!id) return;
+    if (confirm("Ushbu mijozga Telegram bot orqali rasmiy Nasiya Eslatmasi va QR-to'lov havolasini yuborishni tasdiqlaysizmi?")) {
+        fetch(`/pos/api/send-debt-reminder/${id}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({ message: message })
+            }
         })
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                alert(`Telegram eslatma muvaffaqiyatli yuborildi!\n(Mijoz chat logida saqlandi)`);
+                alert("✅ " + data.message);
             } else {
-                alert("Xatolik yuz berdi: " + data.message);
+                alert("⚠️ " + (data.message || "Xatolik yuz berdi!"));
             }
         })
         .catch(err => {
             console.error(err);
-            alert("Serverga ulanib bo'lmadi.");
+            alert("Serverga ulanishda xatolik!");
+        });
+    }
+}
+function sendSmsReminder(id) {
+    if (!id) return;
+    if (confirm("Ushbu mijozning telefoniga SMS Nasiya Eslatmasini yuborishni tasdiqlaysizmi?")) {
+        fetch(`/pos/api/send-sms-reminder/${id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert("📲 " + data.message);
+            } else {
+                alert("⚠️ " + (data.message || "Xatolik yuz berdi!"));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Serverga ulanishda xatolik!");
         });
     }
 }
 
+function sendTelegramReminder(id, name, debt) {
+    sendDebtReminder(id);
+}
+
+// ─── SPECIAL PRICES (CHOYXONA / SHARTNOMA) MANAGEMENT ───
+let currentSpCustomerId = null;
+
+function openSpecialPricesModal(customerId, customerName) {
+    currentSpCustomerId = customerId;
+    document.getElementById('spModalTitle').innerHTML = `🏷️ Maxsus Narxlar: <b>${customerName}</b>`;
+    loadCustomerSpecialPrices(customerId);
+    loadProductsForSelect();
+    document.getElementById('specialPricesModal').style.display = 'flex';
+}
+
+function closeSpecialPricesModal() {
+    document.getElementById('specialPricesModal').style.display = 'none';
+}
+
+function loadProductsForSelect() {
+    fetch('/pos/api/products/')
+        .then(r => r.json())
+        .then(products => {
+            const select = document.getElementById('spProductSelect');
+            select.innerHTML = '<option value="">-- Mahsulotni tanlang --</option>';
+            products.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.name} (Standart: ${Math.round(p.price_per_kg).toLocaleString()} so'm)`;
+                select.appendChild(opt);
+            });
+        })
+        .catch(err => console.error("Error loading products:", err));
+}
+
+function loadCustomerSpecialPrices(customerId) {
+    const tbody = document.getElementById('spTableBody');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#6B7280;">Yuklanmoqda...</td></tr>';
+    
+    fetch(`/pos/api/customers/${customerId}/special-prices/`)
+        .then(r => r.json())
+        .then(data => {
+            tbody.innerHTML = '';
+            if (!data.special_prices || data.special_prices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:#6B7280;">Bu mijozga hali maxsus narx biriktirilmagan (Standart narxda oladi).</td></tr>';
+                return;
+            }
+            data.special_prices.forEach(sp => {
+                const tr = document.createElement('tr');
+                const diff = sp.difference;
+                const diffBadge = diff < 0 
+                    ? `<span style="background:#DCFCE7; color:#15803D; padding:3px 8px; border-radius:6px; font-weight:700; font-family:monospace;">${Math.round(diff).toLocaleString()} so'm</span>`
+                    : `<span style="background:#F3F4F6; color:#374151; padding:3px 8px; border-radius:6px; font-weight:700; font-family:monospace;">+${Math.round(diff).toLocaleString()} so'm</span>`;
+
+                tr.innerHTML = `
+                    <td style="padding:10px;"><strong style="color:#111827;">🥩 ${sp.product_name}</strong></td>
+                    <td style="padding:10px; font-family:monospace; color:#6B7280;">${Math.round(sp.standard_price).toLocaleString()} so'm</td>
+                    <td style="padding:10px; font-family:monospace; font-weight:800; color:#15803D; font-size:14px;">${Math.round(sp.special_price).toLocaleString()} so'm</td>
+                    <td style="padding:10px;">${diffBadge}</td>
+                    <td style="padding:10px; font-size:12px; color:#6B7280;">${sp.notes || '—'}</td>
+                    <td style="padding:10px; text-align:right;">
+                        <button type="button" style="background:#FEE2E2; color:#DC2626; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold;" onclick="deleteSpecialPrice(${sp.id})" title="O'chirish">
+                            &times;
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(err => {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#DC2626;">Yuklashda xatolik!</td></tr>';
+        });
+}
+
+function saveSpecialPrice() {
+    if (!currentSpCustomerId) return;
+    const productId = document.getElementById('spProductSelect').value;
+    const priceVal = parseFloat(document.getElementById('spPriceInput').value);
+    const notes = document.getElementById('spNotesInput').value;
+
+    if (!productId || isNaN(priceVal) || priceVal <= 0) {
+        alert("Iltimos, mahsulot va to'g'ri maxsus narxni kiriting!");
+        return;
+    }
+
+    fetch(`/pos/api/customers/${currentSpCustomerId}/special-prices/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            special_price: priceVal,
+            notes: notes || 'Choyxona / Maxsus narx'
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById('spPriceInput').value = '';
+            document.getElementById('spNotesInput').value = '';
+            loadCustomerSpecialPrices(currentSpCustomerId);
+        } else {
+            alert("Xatolik: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("Aloqada xatolik yuz berdi!");
+    });
+}
+
+function deleteSpecialPrice(priceId) {
+    if (!currentSpCustomerId || !priceId) return;
+    if (!confirm("Ushbu maxsus narxni o'chirib, standart narxga qaytarmoqchimisiz?")) return;
+
+    fetch(`/pos/api/customers/${currentSpCustomerId}/special-prices/${priceId}/`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ price_id: priceId })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            loadCustomerSpecialPrices(currentSpCustomerId);
+        } else {
+            alert("Xatolik: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("Aloqada xatolik!");
+    });
+}
+
+// ── CUSTOMER DEBT HISTORY MODAL ──
+function openCustomerDebtHistoryModal(customerId, customerName) {
+    let modal = document.getElementById('customerDebtHistoryModal');
+    if (!modal) return;
+
+    document.getElementById('debtHistoryCustomerName').innerText = customerName || "Mijoz";
+    document.getElementById('debtHistTotalTaken').innerText = "—";
+    document.getElementById('debtHistTotalPaid').innerText = "—";
+    document.getElementById('debtHistCurrentBalance').innerText = "—";
+
+    const container = document.getElementById('debtHistListContainer');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 0; color: #94A3B8;">
+            <div class="spinner-border spinner-border-sm text-danger mb-2"></div>
+            <div>Qarzlar va to'lovlar tarixi yuklanmoqda...</div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    fetch(`/pos/api/customers/${customerId}/debt-history/`)
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const cust = data.customer || {};
+            const summ = data.summary || {};
+            const timeline = data.timeline || [];
+
+            document.getElementById('debtHistoryCustomerName').innerText = cust.name || customerName;
+            document.getElementById('debtHistoryCustomerMeta').innerText = `ID: ${cust.custom_id || '—'} · Telefon: ${cust.phone || '—'}`;
+            document.getElementById('debtHistTotalTaken').innerText = `${Math.round(summ.total_debt_taken || 0).toLocaleString('fr-FR')} so'm`;
+            document.getElementById('debtHistTotalPaid').innerText = `${Math.round(summ.total_debt_paid || 0).toLocaleString('fr-FR')} so'm`;
+            document.getElementById('debtHistCurrentBalance').innerText = `${Math.round(summ.current_balance || 0).toLocaleString('fr-FR')} so'm`;
+
+            if (timeline.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px 20px; color: #94A3B8;">
+                        <i class="bi bi-shield-check" style="font-size: 42px; color: #10B981; display: block; margin-bottom: 10px;"></i>
+                        <h6 style="color: #1E293B; font-weight: 700;">Qarz yozuvlari topilmadi</h6>
+                        <p style="font-size: 0.85rem; margin: 0;">Ushbu mijozda hali hech qanday qarz yoki to'lov qayd etilmagan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+            timeline.forEach((item) => {
+                const isDebt = item.type === 'debt_add';
+                const amtFormatted = Math.abs(Math.round(item.amount)).toLocaleString('fr-FR');
+                const badgeBg = isDebt ? '#FEF2F2' : '#F0FDF4';
+                const badgeColor = isDebt ? '#DC2626' : '#16A34A';
+                const sign = isDebt ? '+' : '-';
+
+                html += `
+                    <div style="border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 16px; background: #fff; display: flex; justify-content: space-between; align-items: center; gap: 12px; transition: all 0.2s;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span style="background: ${badgeBg}; color: ${badgeColor}; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
+                                    ${escapeHtml(item.badge || (isDebt ? 'Qarz' : 'To\'lov'))}
+                                </span>
+                                <span style="font-size: 0.76rem; color: #64748B;"><i class="bi bi-clock me-1"></i> ${escapeHtml(item.created_at)}</span>
+                            </div>
+                            <div style="font-weight: 700; color: #1E293B; font-size: 0.92rem;">
+                                ${escapeHtml(item.title || '')}
+                            </div>
+                            <div style="font-size: 0.82rem; color: #475569; margin-top: 2px;">
+                                ${escapeHtml(item.note || '')}
+                            </div>
+                        </div>
+                        <div style="text-align: right; flex-shrink: 0;">
+                            <div style="font-size: 1.05rem; font-weight: 800; color: ${badgeColor}; font-family: monospace;">
+                                ${sign}${amtFormatted} so'm
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = `<div class="alert alert-danger">${data.message || 'Xatolik yuz berdi'}</div>`;
+        }
+    })
+    .catch(err => {
+        container.innerHTML = `<div class="alert alert-danger">Ma'lumotlarni yuklab bo'lmadi</div>`;
+    });
+}
+
+function closeCustomerDebtHistoryModal() {
+    const modal = document.getElementById('customerDebtHistoryModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 </script>
+
+<!-- SPECIAL PRICES MODAL (CHOYXONA / SHARTNOMA NARXLARI) -->
+<div class="modal-overlay" id="specialPricesModal" style="display:none; z-index:999999;">
+  <div class="modal-card" style="max-width: 720px; width: 95%; max-height: 90vh; overflow-y: auto;">
+    <div class="modal-header" style="background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color:#fff; border-radius: 16px 16px 0 0; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+      <span class="modal-title" id="spModalTitle" style="color:#fff; font-size: 16px; font-weight: 800;">🏷️ Maxsus / Choyxona Narxlari</span>
+      <button class="modal-close" style="color:#fff; font-size: 24px; background: transparent; border: none; cursor: pointer;" onclick="closeSpecialPricesModal()">&times;</button>
+    </div>
+    <div style="padding: 24px;">
+      <p style="font-size: 13px; color: #6B7280; margin-bottom: 16px;">
+        Ushbu mijozga doimiy beriladigan kelishilgan arzonlashtirilgan yoki shaxsiy narxlar (Kassada savdo paytida avtomatik qo'llanadi).
+      </p>
+      
+      <!-- Existing Special Prices Table -->
+      <div style="border: 1px solid rgba(0,0,0,0.08); border-radius: 14px; overflow: hidden; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+          <thead style="background: #F8F6F2; font-size: 11px; text-transform: uppercase; color: #6B7280;">
+            <tr>
+              <th style="padding: 10px 14px;">Mahsulot</th>
+              <th style="padding: 10px;">Standart</th>
+              <th style="padding: 10px;">Kelishilgan</th>
+              <th style="padding: 10px;">Farq</th>
+              <th style="padding: 10px;">Izoh</th>
+              <th style="padding: 10px 14px; text-align: right;">Amal</th>
+            </tr>
+          </thead>
+          <tbody id="spTableBody">
+            <!-- JS Populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Add New Special Price Form -->
+      <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 16px; padding: 18px;">
+        <h6 style="font-weight: 800; color: #15803D; margin-bottom: 12px; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
+          <span>➕</span> Yangi Maxsus Narx Biriktirish
+        </h6>
+        <div class="sp-form-grid" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 10px; align-items: end;">
+          <div>
+            <label style="font-size: 11px; font-weight: 700; color: #374151; display: block; margin-bottom: 4px;">Mahsulot *</label>
+            <select id="spProductSelect" class="form-input" style="padding: 8px 10px; font-size: 13px; width: 100%;">
+              <!-- Populated via API -->
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: 700; color: #374151; display: block; margin-bottom: 4px;">Maxsus Narx (so'm/kg) *</label>
+            <input type="number" id="spPriceInput" class="form-input" style="padding: 8px 10px; font-size: 13px; font-family: monospace; font-weight: bold; width: 100%;" placeholder="140000">
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: 700; color: #374151; display: block; margin-bottom: 4px;">Izoh</label>
+            <input type="text" id="spNotesInput" class="form-input" style="padding: 8px 10px; font-size: 13px; width: 100%;" placeholder="Choyxona narxi">
+          </div>
+          <div>
+            <button type="button" class="btn-submit" style="padding: 9px 18px; font-size: 13px; font-weight: 800; border-radius: 10px; cursor: pointer; height: 38px; width:100%;" onclick="saveSpecialPrice()">
+              Saqlash
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UNIFIED CUSTOMER DEBT HISTORY MODAL -->
+<div class="modal-overlay" id="customerDebtHistoryModal" style="display:none; z-index:999999;" onclick="if(event.target===this) closeCustomerDebtHistoryModal()">
+  <div class="modal-card" style="max-width: 680px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; border-radius: 24px; padding: 0; background: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.3);">
+    <!-- HEADER -->
+    <div style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); color: #fff; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h4 style="margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+          <span style="background: rgba(239, 68, 68, 0.2); color: #F87171; border-radius: 8px; padding: 4px 8px; font-size: 0.85rem;">📋 Qarzlar Tarixi</span>
+          <span id="debtHistoryCustomerName">Mijoz</span>
+        </h4>
+        <p style="margin: 4px 0 0; font-size: 0.82rem; color: #94A3B8;" id="debtHistoryCustomerMeta">Barcha olingan qarzlar va to'lovlar tafsilotlari</p>
+      </div>
+      <button onclick="closeCustomerDebtHistoryModal()" style="background: rgba(255,255,255,0.12); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;">✕</button>
+    </div>
+
+    <!-- SUMMARY METRICS -->
+    <div class="debt-hist-metrics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px 20px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+      <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 14px; padding: 10px 12px; text-align: center;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #DC2626; text-transform: uppercase;">🔴 Jami Qarz Olingan</div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #991B1B; margin-top: 2px;" id="debtHistTotalTaken">0 so'm</div>
+      </div>
+      <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 14px; padding: 10px 12px; text-align: center;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #16A34A; text-transform: uppercase;">🟢 Jami To'langan</div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #166534; margin-top: 2px;" id="debtHistTotalPaid">0 so'm</div>
+      </div>
+      <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 14px; padding: 10px 12px; text-align: center;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #2563EB; text-transform: uppercase;">💳 Hozirgi Qoldiq</div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #1E40AF; margin-top: 2px;" id="debtHistCurrentBalance">0 so'm</div>
+      </div>
+    </div>
+
+    <!-- TIMELINE LIST CONTAINER -->
+    <div style="flex: 1; overflow-y: auto; padding: 18px 20px; background: #FFFFFF; max-height: 440px;" id="debtHistListContainer">
+      <div style="text-align: center; padding: 40px 0; color: #94A3B8;">
+        <div class="spinner-border spinner-border-sm text-primary mb-2"></div>
+        <div>Tarix yuklanmoqda...</div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding: 12px 20px; background: #F8FAFC; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end;">
+      <button type="button" class="btn-submit" onclick="closeCustomerDebtHistoryModal()" style="border-radius: 10px; font-weight: 600; font-size: 0.88rem; padding: 8px 20px; background: #64748B;">Yopish</button>
+    </div>
+  </div>
+</div>
 {% endblock %}

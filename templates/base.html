@@ -199,8 +199,14 @@
       overflow-y: auto; box-shadow: 8px 0 40px rgba(0,0,0,.4);
     }
     .mfp-mobile-panel .close-btn {
-      color: rgba(255,255,255,.6); font-size: 22px; cursor: pointer;
-      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+      color: rgba(255,255,255,.95); font-size: 13.5px; cursor: pointer;
+      margin-bottom: 20px; display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 16px; background: rgba(255,255,255,0.12); border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2); font-weight: 700;
+      transition: all 0.15s ease;
+    }
+    .mfp-mobile-panel .close-btn:hover {
+      background: rgba(255,255,255,0.22);
     }
     .mfp-mobile-link {
       display: flex; align-items: center; gap: 10px; padding: 11px 14px;
@@ -341,6 +347,9 @@
         </div>
       </div>
       {% else %}
+      <a href="javascript:void(0)" onclick="openGlobalAiSearchModal()" class="mfp-pill pill-amber d-none d-sm-inline-flex" style="padding:6px 14px; font-weight:700;" title="Daftardagi ism yoki ID orqali profilingizni toping">
+        <i class="bi bi-robot text-warning me-1"></i> Daftardan topish
+      </a>
       <a href="{% url 'login' %}" class="mfp-pill pill-emerald" style="padding:6px 16px;">Kirish</a>
       <a href="{% url 'signup' %}" class="mfp-pill" style="background:#D4A853;color:#04110D;padding:6px 16px;font-weight:800;">Ro'yxat</a>
       {% endif %}
@@ -410,6 +419,9 @@
     </a>
     {% else %}
     <div class="mfp-mobile-label">Navigatsiya</div>
+    <a href="javascript:void(0)" onclick="closeMobileDrawer(); openGlobalAiSearchModal();" class="mfp-mobile-link" style="color:#FBBF24; font-weight:700;">
+      <i class="bi bi-robot text-warning"></i> Daftardan Topish (AI)
+    </a>
     <a href="{% url 'article_list' %}" class="mfp-mobile-link">
       <i class="bi bi-shop"></i> Go'sht Katalogi
     </a>
@@ -505,13 +517,13 @@
         <h6 style="color:#D4A853;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:16px;">Bog'lanish</h6>
         <div class="d-flex flex-column gap-3" style="font-size:13.5px;color:rgba(255,255,255,.55);">
           <div><i class="bi bi-telephone-fill text-warning me-2"></i>+998 77 082 4477</div>
-          <div><i class="bi bi-geo-alt-fill text-danger me-2"></i>Toshkent sh., Chilonzor t.</div>
+          <div><i class="bi bi-geo-alt-fill text-danger me-2"></i>Jizzax viloyati, Baxmal tumani, Sangzor Guzari</div>
+          <div><i class="bi bi-telegram text-info me-2"></i><a href="https://t.me/baxmalmeatbot" target="_blank" style="color:rgba(255,255,255,.8);text-decoration:none;">@baxmalmeatbot</a></div>
           <div><i class="bi bi-clock-fill text-info me-2"></i>Har kuni: 08:00 – 22:00</div>
         </div>
         <div class="d-flex gap-2 mt-4">
           <a href="tel:+998770824477" style="width:36px;height:36px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#10B981;text-decoration:none;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#10B981';this.style.color='#fff'" onmouseout="this.style.background='rgba(16,185,129,.2)';this.style.color='#10B981'"><i class="bi bi-telephone"></i></a>
-          <a href="#" style="width:36px;height:36px;background:rgba(212,168,83,.2);border:1px solid rgba(212,168,83,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#D4A853;text-decoration:none;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#D4A853';this.style.color='#fff'" onmouseout="this.style.background='rgba(212,168,83,.2)';this.style.color='#D4A853'"><i class="bi bi-instagram"></i></a>
-          <a href="#" style="width:36px;height:36px;background:rgba(56,189,248,.2);border:1px solid rgba(56,189,248,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#38BDF8;text-decoration:none;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#0EA5E9';this.style.color='#fff'" onmouseout="this.style.background='rgba(56,189,248,.2)';this.style.color='#38BDF8'"><i class="bi bi-telegram"></i></a>
+          <a href="https://t.me/baxmalmeatbot" target="_blank" style="width:36px;height:36px;background:rgba(56,189,248,.2);border:1px solid rgba(56,189,248,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#38BDF8;text-decoration:none;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#0EA5E9';this.style.color='#fff'" onmouseout="this.style.background='rgba(56,189,248,.2)';this.style.color='#38BDF8'" title="Telegram Bot: @baxmalmeatbot"><i class="bi bi-telegram"></i></a>
         </div>
       </div>
     </div>
@@ -522,6 +534,9 @@
     </div>
   </div>
 </footer>
+
+<!-- AI Profile Search Modal Component -->
+{% include 'components/ai_profile_search_modal.html' %}
 
 <!-- Scripts -->
 
@@ -579,7 +594,442 @@ function loadNotifications() {
       }
     }).catch(() => {});
 }
+
+// ═════════════════════════════════════════════════════════════════════════
+// 👤 GLOBAL CUSTOMER 360° QUICK INFO MODAL & CONTROLLER
+// ═════════════════════════════════════════════════════════════════════════
+let current360CustomerId = null;
+let current360CustomerDebt = 0;
+
+window.showCustomerQuickInfo = function(customerId, fallbackName = '') {
+  if (!customerId) return;
+  current360CustomerId = customerId;
+  const modalEl = document.getElementById('globalCustomer360Modal');
+  if (!modalEl) return;
+
+  const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  bsModal.show();
+
+  document.getElementById('c360Name').innerText = fallbackName || "Mijoz ma'lumotlari...";
+  document.getElementById('c360Phone').innerText = "Yuklanmoqda...";
+  document.getElementById('c360IdBadge').innerText = "ID: ...";
+  document.getElementById('c360LoadingSpinner').style.display = 'flex';
+  document.getElementById('c360ContentBody').style.display = 'none';
+  document.getElementById('c360QuickPaySection').style.display = 'none';
+
+  fetch(`/pos/api/customer-360/${customerId}/`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('c360LoadingSpinner').style.display = 'none';
+      if (data.status === 'success') {
+        renderCustomer360Data(data);
+        document.getElementById('c360ContentBody').style.display = 'block';
+      } else {
+        alert("Xatolik: " + (data.message || "Mijoz topilmadi"));
+        bsModal.hide();
+      }
+    })
+    .catch(err => {
+      console.error("Customer 360 load error:", err);
+      document.getElementById('c360LoadingSpinner').style.display = 'none';
+      alert("Mijoz ma'lumotlarini yuklashda xatolik yuz berdi!");
+      bsModal.hide();
+    });
+};
+
+function renderCustomer360Data(data) {
+  const c = data.customer;
+  current360CustomerDebt = c.debt_amount || 0;
+
+  // 1. Header Info
+  document.getElementById('c360Name').innerText = c.full_name;
+  document.getElementById('c360Phone').innerText = c.phone || "Telefon kiritilmagan";
+  document.getElementById('c360IdBadge').innerText = `ID: ${c.custom_id}`;
+  document.getElementById('c360Avatar').src = c.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+  document.getElementById('c360RegDate').innerText = c.created_at ? `A'zo bo'lgan: ${c.created_at}` : '';
+
+  // Badges
+  const scoreBadge = document.getElementById('c360ScoreBadge');
+  if (scoreBadge) {
+    if (c.is_blacklisted) {
+      scoreBadge.className = "badge bg-danger text-white border border-danger";
+      scoreBadge.innerHTML = `<i class="bi bi-slash-circle-fill me-1"></i> Qora Ro'yxatda`;
+    } else {
+      scoreBadge.className = "badge bg-success-subtle text-success border border-success-subtle";
+      scoreBadge.innerHTML = `<i class="bi bi-star-fill text-warning me-1"></i> ${c.credit_score} (${c.smart_score} ball)`;
+    }
+  }
+
+  // 2. Stat Cards
+  const debtFormatted = Math.round(c.debt_amount).toLocaleString('fr-FR');
+  const limitFormatted = Math.round(c.debt_limit).toLocaleString('fr-FR');
+  document.getElementById('c360Debt').innerText = `${debtFormatted} so'm`;
+  document.getElementById('c360DebtLimit').innerText = `Limit: ${limitFormatted} so'm`;
+  
+  if (c.debt_amount > 0) {
+    document.getElementById('c360DebtBox').style.borderColor = 'rgba(239, 68, 68, 0.4)';
+    document.getElementById('c360DebtBox').style.background = '#FEF2F2';
+    document.getElementById('c360Debt').style.color = '#DC2626';
+  } else {
+    document.getElementById('c360DebtBox').style.borderColor = '#E2E8F0';
+    document.getElementById('c360DebtBox').style.background = '#F8FAFC';
+    document.getElementById('c360Debt').style.color = '#059669';
+  }
+
+  const totalSalesFormatted = Math.round(c.total_sales_sum).toLocaleString('fr-FR');
+  document.getElementById('c360TotalSales').innerText = `${totalSalesFormatted} so'm`;
+  document.getElementById('c360SalesCount').innerText = `${c.sales_count} ta savdo`;
+
+  document.getElementById('c360Bonus').innerText = `${c.bonus_points} ball`;
+  
+  // Barter / Supplier
+  const supBox = document.getElementById('c360SupplierBox');
+  if (c.supplier_id || c.slaughter_total > 0) {
+    supBox.style.display = 'block';
+    const slFormatted = Math.round(c.slaughter_total).toLocaleString('fr-FR');
+    document.getElementById('c360SlaughterTotal').innerText = `${slFormatted} so'm`;
+  } else {
+    supBox.style.display = 'none';
+  }
+
+  // 3. Action Links
+  document.getElementById('c360BtnCabinet').href = data.links.cabinet_url;
+  document.getElementById('c360BtnTerminal').href = data.links.terminal_url;
+  document.getElementById('c360BtnChat').href = data.links.chat_url;
+  document.getElementById('c360BtnCall').href = data.links.call_url;
+
+  // 4. Render Tabs
+  // Tab 1: Sales
+  const salesTbody = document.getElementById('c360SalesTbody');
+  if (data.recent_sales && data.recent_sales.length > 0) {
+    salesTbody.innerHTML = data.recent_sales.map((s, idx) => `
+      <tr>
+        <td class="text-muted fw-bold">#${s.id}</td>
+        <td><span class="small font-monospace"><i class="bi bi-clock me-1 text-muted"></i>${s.created_at}</span></td>
+        <td><span class="fw-bold text-dark">${Math.round(s.total_amount).toLocaleString('fr-FR')} so'm</span></td>
+        <td>
+          ${s.debt_added > 0 ? `<span class="badge bg-danger-subtle text-danger border border-danger-subtle me-1">Nasiya: +${Math.round(s.debt_added).toLocaleString('fr-FR')}</span>` : ''}
+          ${s.paid_naqd > 0 ? `<span class="badge bg-success-subtle text-success border border-success-subtle me-1">Naqd: ${Math.round(s.paid_naqd).toLocaleString('fr-FR')}</span>` : ''}
+          ${s.paid_karta > 0 ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle">Karta: ${Math.round(s.paid_karta).toLocaleString('fr-FR')}</span>` : ''}
+        </td>
+        <td><span class="small text-muted text-truncate d-inline-block" style="max-width: 180px;">${s.items_summary || 'Mahsulotlar'}</span></td>
+      </tr>
+    `).join('');
+  } else {
+    salesTbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Kassa orqali xaridlar mavjud emas</td></tr>';
+  }
+
+  // Tab 2: Logs
+  const logsTbody = document.getElementById('c360LogsTbody');
+  if (data.recent_logs && data.recent_logs.length > 0) {
+    logsTbody.innerHTML = data.recent_logs.map(l => {
+      let typeBadge = '<span class="badge bg-secondary">Boshqa</span>';
+      let amtColor = '#1E293B';
+      if (l.log_type === 'debt_add') {
+        typeBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle">➕ Qarz / Nasiya</span>';
+        amtColor = '#DC2626';
+      } else if (l.log_type === 'debt_pay') {
+        typeBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle">✅ To\'lov</span>';
+        amtColor = '#16A34A';
+      } else if (l.log_type === 'bonus') {
+        typeBadge = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle">⭐ Bonus</span>';
+        amtColor = '#D97706';
+      }
+      return `
+        <tr>
+          <td><span class="small font-monospace text-muted">${l.created_at}</span></td>
+          <td>${typeBadge}</td>
+          <td><span class="fw-bold" style="color: ${amtColor}">${l.amount > 0 ? Math.round(l.amount).toLocaleString('fr-FR') + ' so\'m' : '—'}</span></td>
+          <td><div class="small text-dark">${l.title ? `<b>${l.title}</b>: ` : ''}${l.message || ''}</div></td>
+        </tr>
+      `;
+    }).join('');
+  } else {
+    logsTbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Qarz yoki to\'lovlar tarixi topilmadi</td></tr>';
+  }
+
+  // Tab 3: Special Prices & Notes
+  const specList = document.getElementById('c360SpecialsList');
+  if (data.special_prices && data.special_prices.length > 0) {
+    specList.innerHTML = data.special_prices.map(sp => `
+      <div class="d-flex justify-content-between align-items-center p-2 mb-1 rounded bg-light border">
+        <span class="fw-bold text-dark">🥩 ${sp.product_name}</span>
+        <div>
+          <span class="text-muted text-decoration-line-through me-2 small">${Math.round(sp.default_price).toLocaleString('fr-FR')} so'm</span>
+          <span class="fw-bold text-success">${Math.round(sp.special_price).toLocaleString('fr-FR')} so'm</span>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    specList.innerHTML = '<div class="text-muted small py-2">Maxsus individual narxlar belgilanmagan. Standart do\'kon narxlari amal qiladi.</div>';
+  }
+
+  document.getElementById('c360NoteText').innerText = c.note || "Mijoz bo'yicha maxsus izoh yo'q.";
+}
+
+// ── QUICK INLINE DEBT PAYMENT CONTROLLER ──
+function toggleC360QuickPay() {
+  const sec = document.getElementById('c360QuickPaySection');
+  if (sec.style.display === 'none' || !sec.style.display) {
+    sec.style.display = 'block';
+    document.getElementById('c360PayAmount').value = current360CustomerDebt > 0 ? current360CustomerDebt : '';
+    document.getElementById('c360PayComment').value = "Kassa orqali qarz to'lovi";
+    document.getElementById('c360PayAmount').focus();
+  } else {
+    sec.style.display = 'none';
+  }
+}
+
+function submitC360DebtPayment() {
+  const amt = parseFloat(document.getElementById('c360PayAmount').value) || 0;
+  const comment = document.getElementById('c360PayComment').value.trim();
+
+  if (!current360CustomerId || amt <= 0) {
+    alert("Iltimos, to'g'ri to'lov summasini kiriting!");
+    return;
+  }
+
+  const btn = document.getElementById('c360BtnSubmitPay');
+  btn.disabled = true;
+  btn.innerText = "To'lov o'tkazilmoqda...";
+
+  fetch('/pos/api/process-debt-payment/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      customer_id: current360CustomerId,
+      amount: amt,
+      comment: comment
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerText = "To'lovni Tasdiqlash";
+    if (data.status === 'success') {
+      alert("✅ To'lov muvaffaqiyatli qabul qilindi!");
+      document.getElementById('c360QuickPaySection').style.display = 'none';
+      // Reload fresh 360 data
+      window.showCustomerQuickInfo(current360CustomerId);
+    } else {
+      alert("❌ Xatolik: " + (data.message || "To'lov qabul qilinmadi"));
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerText = "To'lovni Tasdiqlash";
+    alert("❌ Tarmoq xatoligi yuz berdi!");
+  });
+}
+
+// Global click event delegation for any element with data-customer-id
+document.addEventListener('click', function(e) {
+  const el = e.target.closest('[data-customer-id]');
+  if (el) {
+    // Only intercept if not explicitly an internal action
+    if (!el.classList.contains('no-c360-modal')) {
+      e.preventDefault();
+      const custId = el.getAttribute('data-customer-id');
+      const custName = el.getAttribute('data-customer-name') || el.innerText.trim();
+      window.showCustomerQuickInfo(custId, custName);
+    }
+  }
+});
 </script>
+
+<!-- ═════════════════════════════════════════════════════════════════════════
+     👤 GLOBAL CUSTOMER 360° MODAL DIALOG
+═════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="globalCustomer360Modal" tabindex="-1" aria-labelledby="globalCustomer360ModalLabel" aria-hidden="true" style="z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius: 24px; border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 25px 65px rgba(0,0,0,0.22); overflow: hidden; background: #fff;">
+      
+      <!-- TOP BANNER -->
+      <div style="background: linear-gradient(135deg, #06281C 0%, #064E3B 60%, #10B981 100%); padding: 22px 26px; color: #fff; position: relative;">
+        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+        
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <img id="c360Avatar" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Avatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #D4A853; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+          
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <h4 class="mb-0 fw-bold" id="c360Name" style="letter-spacing: -0.3px;">Mijoz Ismi</h4>
+              <span id="c360IdBadge" class="badge bg-light text-dark font-monospace fw-bold px-2 py-1">ID: ...</span>
+              <span id="c360ScoreBadge" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">⭐ A (Ishonchli)</span>
+            </div>
+            <div class="d-flex align-items-center gap-3 mt-1 flex-wrap" style="font-size: 0.88rem; opacity: 0.9;">
+              <span><i class="bi bi-telephone-fill text-warning me-1"></i> <b id="c360Phone">+998 ...</b></span>
+              <span id="c360RegDate" class="text-white-50 small">A'zo bo'lgan: ...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOADING SPINNER -->
+      <div id="c360LoadingSpinner" class="d-flex flex-column align-items-center justify-content-center py-5">
+        <div class="spinner-border text-success mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+        <div class="text-muted fw-bold">Mijoz ma'lumotlari yuklanmoqda...</div>
+      </div>
+
+      <!-- MAIN CONTENT BODY -->
+      <div id="c360ContentBody" class="modal-body p-4" style="display: none;">
+        
+        <!-- 4 STAT CARDS -->
+        <div class="row g-2 mb-3">
+          <!-- 1. Qarz -->
+          <div class="col-6 col-md-3">
+            <div id="c360DebtBox" class="p-3 rounded-4 border text-center h-100" style="background: #F8FAFC; transition: transform 0.15s;">
+              <div class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">🔴 Joriy Qarz</div>
+              <div id="c360Debt" class="fw-bold fs-5 my-1" style="color: #DC2626;">0 so'm</div>
+              <div id="c360DebtLimit" class="small text-muted" style="font-size: 0.72rem;">Limit: 1 000 000</div>
+            </div>
+          </div>
+          <!-- 2. Jami Xaridlar -->
+          <div class="col-6 col-md-3">
+            <div class="p-3 rounded-4 border text-center h-100" style="background: #F8FAFC; transition: transform 0.15s;">
+              <div class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">🛍 Jami Xaridlar</div>
+              <div id="c360TotalSales" class="fw-bold fs-5 my-1 text-dark">0 so'm</div>
+              <div id="c360SalesCount" class="small text-success fw-semibold" style="font-size: 0.72rem;">0 ta savdo</div>
+            </div>
+          </div>
+          <!-- 3. Bonus -->
+          <div class="col-6 col-md-3">
+            <div class="p-3 rounded-4 border text-center h-100" style="background: #F8FAFC; transition: transform 0.15s;">
+              <div class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">⭐ Bonus Ballar</div>
+              <div id="c360Bonus" class="fw-bold fs-5 my-1 text-warning">0 ball</div>
+              <div class="small text-muted" style="font-size: 0.72rem;">Cashback hisobi</div>
+            </div>
+          </div>
+          <!-- 4. Barter / Ta'minot -->
+          <div class="col-6 col-md-3" id="c360SupplierBox" style="display: none;">
+            <div class="p-3 rounded-4 border text-center h-100" style="background: #EFF6FF; border-color: #BFDBFE;">
+              <div class="small fw-bold text-primary text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">🥩 Topshirgan Go'shti</div>
+              <div id="c360SlaughterTotal" class="fw-bold fs-5 my-1 text-primary">0 so'm</div>
+              <div class="small text-muted" style="font-size: 0.72rem;">Chorvador hisobi</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK ACTION BUTTONS GRID -->
+        <div class="d-flex gap-2 flex-wrap mb-4">
+          <a id="c360BtnCabinet" href="#" class="btn btn-outline-success fw-bold flex-fill py-2 d-inline-flex align-items-center justify-content-center gap-2 rounded-3 shadow-sm">
+            <i class="bi bi-person-badge-fill"></i> Shaxsiy Kabinet
+          </a>
+          <button type="button" class="btn btn-danger fw-bold flex-fill py-2 d-inline-flex align-items-center justify-content-center gap-2 rounded-3 shadow-sm" onclick="toggleC360QuickPay()">
+            <i class="bi bi-cash-stack"></i> Qarz To'lash
+          </button>
+          <a id="c360BtnTerminal" href="#" class="btn btn-primary fw-bold flex-fill py-2 d-inline-flex align-items-center justify-content-center gap-2 rounded-3 shadow-sm">
+            <i class="bi bi-cart-plus-fill"></i> Kassa Savdosi
+          </a>
+          <a id="c360BtnChat" href="#" class="btn btn-outline-primary fw-bold flex-fill py-2 d-inline-flex align-items-center justify-content-center gap-2 rounded-3 shadow-sm">
+            <i class="bi bi-chat-dots-fill"></i> Xabar Yozish
+          </a>
+          <a id="c360BtnCall" href="#" class="btn btn-outline-secondary fw-bold flex-fill py-2 d-inline-flex align-items-center justify-content-center gap-2 rounded-3">
+            <i class="bi bi-telephone-outbound-fill text-success"></i> Qo'ng'iroq
+          </a>
+        </div>
+
+        <!-- QUICK PAY ACCORDION FORM (INLINE) -->
+        <div id="c360QuickPaySection" class="p-3 mb-4 rounded-4 border border-danger bg-danger-subtle" style="display: none;">
+          <h6 class="fw-bold text-danger mb-2 d-flex align-items-center gap-2">
+            <i class="bi bi-credit-card-2-front-fill"></i> Tezkor Qarz To'lovini Qabul Qilish
+          </h6>
+          <div class="row g-2">
+            <div class="col-md-5">
+              <label class="small fw-bold text-muted">To'lov Summasi (so'm):</label>
+              <input type="number" id="c360PayAmount" class="form-control fw-bold fs-6 text-danger" placeholder="Summa...">
+            </div>
+            <div class="col-md-5">
+              <label class="small fw-bold text-muted">Izoh / Kassa eslatmasi:</label>
+              <input type="text" id="c360PayComment" class="form-control" placeholder="Izoh...">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="button" id="c360BtnSubmitPay" class="btn btn-danger w-100 fw-bold py-2 shadow-sm" onclick="submitC360DebtPayment()">
+                To'lash
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABS FOR DETAILED ACTIVITY -->
+        <ul class="nav nav-tabs nav-fill mb-3" id="c360Tabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold text-dark py-2" id="c360-tab-sales" data-bs-toggle="tab" data-bs-target="#c360-pane-sales" type="button" role="tab">
+              <i class="bi bi-receipt me-1 text-primary"></i> Oxirgi Xaridlar
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-dark py-2" id="c360-tab-logs" data-bs-toggle="tab" data-bs-target="#c360-pane-logs" type="button" role="tab">
+              <i class="bi bi-clock-history me-1 text-danger"></i> Qarz & To'lovlar Tarixi
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-dark py-2" id="c360-tab-specs" data-bs-toggle="tab" data-bs-target="#c360-pane-specs" type="button" role="tab">
+              <i class="bi bi-tag-fill me-1 text-success"></i> Maxsus Narxlar & Izoh
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="c360TabContent">
+          <!-- Pane 1: Sales -->
+          <div class="tab-pane fade show active" id="c360-pane-sales" role="tabpanel">
+            <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+              <table class="table table-hover table-sm align-middle mb-0" style="font-size: 0.86rem;">
+                <thead class="table-light sticky-top">
+                  <tr>
+                    <th>Chek</th>
+                    <th>Sana</th>
+                    <th>Summa</th>
+                    <th>To'lov turi</th>
+                    <th>Mahsulotlar</th>
+                  </tr>
+                </thead>
+                <tbody id="c360SalesTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pane 2: Logs -->
+          <div class="tab-pane fade" id="c360-pane-logs" role="tabpanel">
+            <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+              <table class="table table-hover table-sm align-middle mb-0" style="font-size: 0.86rem;">
+                <thead class="table-light sticky-top">
+                  <tr>
+                    <th>Vaqti</th>
+                    <th>Operatsiya</th>
+                    <th>Summa</th>
+                    <th>Izoh</th>
+                  </tr>
+                </thead>
+                <tbody id="c360LogsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pane 3: Special Prices & Notes -->
+          <div class="tab-pane fade" id="c360-pane-specs" role="tabpanel">
+            <h6 class="fw-bold small text-muted text-uppercase mb-2">Mijozga biriktirilgan maxsus narxlar:</h6>
+            <div id="c360SpecialsList" class="mb-3"></div>
+            
+            <h6 class="fw-bold small text-muted text-uppercase mb-1">Mijoz haqida maxsus izoh:</h6>
+            <div id="c360NoteText" class="p-2.5 rounded bg-light border text-muted small"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer bg-light py-2 px-3 justify-content-between">
+        <span class="small text-muted">MeatFlow Pro Mijoz 360° Tizimi</span>
+        <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Yopish</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 {% block extrascripts %}{% endblock %}
 </body>
 </html>

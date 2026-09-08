@@ -3,71 +3,102 @@
 
 {% block extrahead %}
 <style>
-    .nb-page { max-width: 1200px; margin: 0 auto; padding: 20px 12px 40px; }
+    :root {
+        --nb-primary: #1B6B4A;
+        --nb-primary-dark: #124e35;
+        --nb-primary-light: #2D9B6E;
+        --nb-gold: #D4A853;
+        --nb-gold-light: #FBF4E4;
+        --nb-danger: #EF4444;
+        --nb-card-bg: #FFFFFF;
+        --nb-border: #E2E8F0;
+    }
 
-    /* ── HEADER ── */
-    .nb-header {
-        background: linear-gradient(135deg, #1B6B4A 0%, #2D9B6E 60%, #D4A853 100%);
-        border-radius: 22px;
-        padding: 32px 28px;
-        color: #fff;
+    .nb-page {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 20px 14px 60px;
+    }
+
+    /* ── HEADER BANNER ── */
+    .nb-hero {
+        background: linear-gradient(135deg, #124e35 0%, #1B6B4A 50%, #2D9B6E 85%, #D4A853 100%);
+        border-radius: 24px;
+        padding: 32px 30px;
+        color: #ffffff;
         margin-bottom: 24px;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 12px 30px rgba(18, 78, 53, 0.22);
     }
-    .nb-header::before {
+    .nb-hero::after {
         content: '📋';
         position: absolute;
         right: 24px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 72px;
-        opacity: 0.15;
+        font-size: 88px;
+        opacity: 0.14;
+        pointer-events: none;
     }
-    .nb-header h1 {
+    .nb-hero-title {
         font-family: 'DM Serif Display', serif;
-        font-size: 1.75rem;
-        margin: 0 0 6px;
+        font-size: 1.85rem;
+        margin: 0 0 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
     }
-    .nb-header p {
-        font-size: 0.9rem;
-        opacity: 0.85;
-        margin: 0;
+    .nb-hero-sub {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin: 0 0 16px;
+        max-width: 700px;
+        line-height: 1.45;
     }
-    .nb-header .btn-back {
+    .nb-hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .nb-hero-btn {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        background: rgba(255,255,255,0.18);
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
         color: #fff;
-        border: 1px solid rgba(255,255,255,0.25);
+        border: 1px solid rgba(255, 255, 255, 0.35);
         border-radius: 12px;
-        padding: 8px 18px;
-        font-size: 0.85rem;
+        padding: 9px 18px;
+        font-size: 0.88rem;
         font-weight: 600;
-        cursor: pointer;
         text-decoration: none;
-        transition: all 0.2s;
-        margin-top: 12px;
+        transition: all 0.2s ease;
+        cursor: pointer;
     }
-    .nb-header .btn-back:hover {
-        background: rgba(255,255,255,0.3);
+    .nb-hero-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
         color: #fff;
+        transform: translateY(-1px);
     }
 
     /* ── STAT CARDS ── */
-    .nb-stats {
+    .nb-stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
         gap: 14px;
         margin-bottom: 24px;
     }
     .nb-stat-card {
-        background: #fff;
-        border-radius: 16px;
+        background: var(--nb-card-bg);
+        border-radius: 18px;
         padding: 18px 20px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--nb-border);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         display: flex;
         align-items: center;
         gap: 14px;
@@ -75,7 +106,7 @@
     }
     .nb-stat-card:hover {
         transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     }
     .nb-stat-icon {
         width: 48px;
@@ -84,397 +115,602 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.3rem;
+        font-size: 1.35rem;
         flex-shrink: 0;
     }
     .nb-stat-label {
-        font-size: 0.72rem;
+        font-size: 0.74rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: var(--text-muted);
-        margin-bottom: 2px;
+        color: #64748B;
+        margin-bottom: 3px;
     }
-    .nb-stat-value {
-        font-size: 1.15rem;
+    .nb-stat-val {
+        font-size: 1.2rem;
         font-weight: 800;
-        color: var(--text-main);
+        color: #0F172A;
         font-family: 'Inter', sans-serif;
     }
 
-    /* ── SECTION CARDS ── */
-    .nb-card {
-        background: #fff;
-        border-radius: 18px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
+    /* ── MAIN CARD CONTAINERS ── */
+    .nb-panel {
+        background: var(--nb-card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--nb-border);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         padding: 24px;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
     }
-    .nb-card-title {
+    .nb-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .nb-panel-title {
         font-family: 'DM Serif Display', serif;
-        font-size: 1.15rem;
-        color: var(--primary);
+        font-size: 1.25rem;
+        color: var(--nb-primary-dark);
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
+        gap: 10px;
+        margin: 0;
     }
-    .nb-card-desc {
-        font-size: 0.82rem;
-        color: var(--text-muted);
-        margin-bottom: 18px;
+    .nb-panel-desc {
+        font-size: 0.85rem;
+        color: #64748B;
+        margin: 4px 0 0;
     }
 
     /* ── NOTEBOOK GRID ── */
-    .nb-grid {
+    .nb-book-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 12px;
-        margin-bottom: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
     }
-    .nb-item {
-        background: var(--bg-surface-2);
+    .nb-book-card {
+        background: #F8FAFC;
         border: 2px solid transparent;
-        border-radius: 14px;
-        padding: 16px;
+        border-radius: 16px;
+        padding: 18px 16px;
         cursor: pointer;
-        transition: all 0.25s;
+        transition: all 0.25s ease;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 120px;
     }
-    .nb-item:hover {
-        border-color: var(--primary-light);
-        box-shadow: 0 4px 16px rgba(27,107,74,0.12);
+    .nb-book-card:hover {
+        border-color: var(--nb-primary-light);
+        background: #FFFFFF;
+        box-shadow: 0 8px 24px rgba(27, 107, 74, 0.12);
         transform: translateY(-2px);
     }
-    .nb-item.active {
-        border-color: var(--primary);
-        background: rgba(27,107,74,0.06);
-        box-shadow: 0 4px 20px rgba(27,107,74,0.15);
+    .nb-book-card.active {
+        border-color: var(--nb-primary);
+        background: #F0FDF4;
+        box-shadow: 0 8px 24px rgba(27, 107, 74, 0.18);
     }
-    .nb-item-icon {
-        font-size: 1.5rem;
-        margin-bottom: 6px;
-    }
-    .nb-item-name {
-        font-weight: 700;
-        font-size: 0.95rem;
-        color: var(--text-main);
-        margin-bottom: 4px;
-        word-break: break-word;
-    }
-    .nb-item-meta {
-        font-size: 0.72rem;
-        color: var(--text-muted);
-    }
-    .nb-item-count-badge {
+    .nb-book-badge {
         position: absolute;
         top: 12px;
         right: 12px;
-        font-size: 0.7rem;
+        font-size: 0.72rem;
         font-weight: 700;
-        padding: 2px 8px;
+        padding: 3px 9px;
         border-radius: 20px;
-        color: #fff;
     }
-    .nb-item-delete {
+    .nb-book-icon {
+        font-size: 1.8rem;
+        margin-bottom: 6px;
+    }
+    .nb-book-name {
+        font-weight: 800;
+        font-size: 1.05rem;
+        color: #1E293B;
+        margin-bottom: 6px;
+        word-break: break-word;
+    }
+    .nb-book-meta {
+        font-size: 0.78rem;
+        color: #64748B;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .nb-book-del {
         position: absolute;
-        bottom: 10px;
-        right: 10px;
-        background: rgba(220,53,69,0.08);
-        color: var(--danger);
-        border: none;
+        bottom: 12px;
+        right: 12px;
+        width: 30px;
+        height: 30px;
         border-radius: 8px;
-        width: 28px;
-        height: 28px;
-        font-size: 0.75rem;
+        background: rgba(239, 68, 68, 0.08);
+        color: var(--nb-danger);
+        border: none;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 0.85rem;
         opacity: 0;
-        transition: opacity 0.2s;
-    }
-    .nb-item:hover .nb-item-delete { opacity: 1; }
-    .nb-item-delete:hover { background: rgba(220,53,69,0.18); }
-
-    /* ── TYPE TOGGLE SWITCH ── */
-    .nb-type-toggle {
-        display: flex;
-        gap: 8px;
-        border-bottom: 2px solid var(--border-color);
-        padding-bottom: 8px;
-        margin-bottom: 20px;
-    }
-    .nb-type-toggle .btn-toggle {
-        background: transparent;
-        border: none;
-        padding: 10px 20px;
-        font-weight: 700;
-        font-size: 0.92rem;
-        color: var(--text-muted);
-        border-bottom: 3px solid transparent;
-        cursor: pointer;
         transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
     }
-    .nb-type-toggle .btn-toggle.active {
-        color: var(--primary);
-        border-bottom-color: var(--primary);
+    .nb-book-card:hover .nb-book-del {
+        opacity: 1;
+    }
+    .nb-book-del:hover {
+        background: var(--nb-danger);
+        color: #fff;
     }
 
-    /* ── CREATE NOTEBOOK ── */
-    .nb-create-row {
+    /* ── QUICK NOTEBOOK ADD ROW ── */
+    .nb-add-row {
         display: flex;
         gap: 10px;
-        flex-wrap: wrap;
         align-items: center;
+        flex-wrap: wrap;
+        background: #F8FAFC;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px dashed var(--nb-border);
     }
-    .nb-create-row input {
+    .nb-add-row input {
         flex: 1;
         min-width: 200px;
-        height: 44px;
-        border-radius: 12px;
-        border: 1.5px solid var(--border-color);
-        padding: 0 16px;
-        font-size: 0.9rem;
-        font-family: var(--font-sans);
-        outline: none;
-        transition: border-color 0.2s;
-    }
-    .nb-create-row input:focus { border-color: var(--primary); }
-    .nb-btn {
-        height: 44px;
-        padding: 0 24px;
-        border-radius: 12px;
-        border: none;
-        font-weight: 700;
-        font-size: 0.9rem;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.2s;
-        font-family: var(--font-sans);
-    }
-    .nb-btn-primary {
-        background: var(--primary-gradient);
-        color: #fff;
-    }
-    .nb-btn-primary:hover {
-        box-shadow: 0 4px 16px rgba(27,107,74,0.3);
-        transform: translateY(-1px);
-    }
-    .nb-btn-outline {
-        background: transparent;
-        color: var(--primary);
-        border: 2px solid var(--primary);
-    }
-    .nb-btn-outline:hover {
-        background: rgba(27,107,74,0.06);
-    }
-    .nb-btn-danger {
-        background: var(--danger);
-        color: #fff;
-    }
-
-    /* ── MIGRATION FORM ── */
-    .nb-form-section {
-        display: none;
-        border-top: 1.5px solid var(--border-color);
-        padding-top: 22px;
-        margin-top: 18px;
-        animation: fadeInUp 0.3s ease;
-    }
-    .nb-form-section.visible { display: block; }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .nb-form-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 14px;
-    }
-    .nb-form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 10px;
-        margin-bottom: 12px;
-    }
-    .nb-form-grid input, .nb-form-grid select {
-        width: 100%;
-        height: 44px;
-        border-radius: 12px;
-        border: 1.5px solid var(--border-color);
+        height: 42px;
+        border-radius: 10px;
+        border: 1.5px solid #CBD5E1;
         padding: 0 14px;
         font-size: 0.9rem;
-        font-family: var(--font-sans);
         outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        transition: border-color 0.2s;
         background: #fff;
     }
-    .nb-form-grid input:focus, .nb-form-grid select:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(27,107,74,0.1);
+    .nb-add-row input:focus {
+        border-color: var(--nb-primary);
     }
-    .nb-form-grid input.debt-input {
-        font-weight: 800;
-        font-size: 1.1rem;
-        color: var(--danger);
-        border-color: rgba(220,53,69,0.3);
-    }
-    .nb-form-grid input.debt-input:focus {
-        border-color: var(--danger);
-        box-shadow: 0 0 0 3px rgba(220,53,69,0.1);
-    }
-    .nb-form-actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-    .nb-status-msg {
-        font-size: 0.85rem;
-        font-weight: 600;
-        min-height: 22px;
-        padding: 6px 0;
-        transition: all 0.3s;
-    }
-    .nb-status-msg.success { color: var(--primary); }
-    .nb-status-msg.error { color: var(--danger); }
 
-    /* ── CUSTOMERS TABLE ── */
-    .nb-table-section {
+    /* ── MIGRATION FORM SECTION ── */
+    .nb-form-container {
         display: none;
-        border-top: 1.5px solid var(--border-color);
-        padding-top: 20px;
-        margin-top: 18px;
-        animation: fadeInUp 0.3s ease;
+        background: #FFFFFF;
+        border-radius: 20px;
+        border: 2px solid #10B981;
+        box-shadow: 0 12px 36px rgba(16, 185, 129, 0.12);
+        padding: 24px 26px;
+        margin-bottom: 24px;
+        animation: formSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .nb-table-section.visible { display: block; }
-    .nb-table-header {
+    .nb-form-container.visible {
+        display: block;
+    }
+    @keyframes formSlideDown {
+        from { opacity: 0; transform: translateY(-12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── TYPE & DIRECTION TOOLBAR ── */
+    .nb-toolbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 14px;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 14px;
+        background: #F8FAFC;
+        border-radius: 16px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        border: 1px solid #E2E8F0;
     }
-    .nb-table-title {
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-    }
-    .nb-table-total {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--danger);
-        background: rgba(220,53,69,0.08);
-        padding: 4px 14px;
-        border-radius: 20px;
-    }
-    .nb-table-wrap {
-        max-height: 400px;
-        overflow-y: auto;
+    .nb-pill-group {
+        display: inline-flex;
+        background: #E2E8F0;
         border-radius: 12px;
-        border: 1px solid var(--border-color);
+        padding: 4px;
+        gap: 4px;
     }
-    .nb-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .nb-table thead th {
-        background: var(--bg-surface-2);
-        font-size: 0.72rem;
+    .nb-pill-btn {
+        border: none;
+        background: transparent;
+        padding: 8px 16px;
+        border-radius: 9px;
+        font-size: 0.86rem;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-        padding: 10px 14px;
-        border-bottom: 1px solid var(--border-color);
-        position: sticky;
-        top: 0;
-        z-index: 1;
+        color: #475569;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
     }
-    .nb-table tbody td {
-        padding: 10px 14px;
-        font-size: 0.88rem;
-        border-bottom: 1px solid rgba(0,0,0,0.04);
-        vertical-align: middle;
+    .nb-pill-btn.active {
+        background: #FFFFFF;
+        color: var(--nb-primary-dark);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
-    .nb-table tbody tr:hover {
-        background: rgba(27,107,74,0.03);
+    .nb-pill-btn.dir-active-forward {
+        background: var(--nb-primary);
+        color: #fff;
     }
-    .nb-table .debt-cell {
-        font-weight: 800;
-        color: var(--danger);
-    }
-    .nb-table .name-cell {
-        font-weight: 600;
-        color: var(--text-main);
-    }
-    .nb-table .empty-row td {
-        text-align: center;
-        padding: 28px;
-        color: var(--text-muted);
-        font-size: 0.9rem;
+    .nb-pill-btn.dir-active-backward {
+        background: #D97706;
+        color: #fff;
     }
 
-    /* ── ALL NOTEBOOKS SUMMARY TABLE ── */
-    .nb-summary-table {
-        width: 100%;
-        border-collapse: collapse;
+    /* ── FORM GRID ── */
+    .nb-fgrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 16px;
     }
-    .nb-summary-table thead th {
-        background: var(--bg-surface-2);
-        font-size: 0.72rem;
+    .nb-fg {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .nb-fg label {
+        font-size: 0.78rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: var(--text-muted);
-        padding: 10px 14px;
-        border-bottom: 1px solid var(--border-color);
+        color: #475569;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
-    .nb-summary-table tbody td {
-        padding: 10px 14px;
-        font-size: 0.88rem;
-        border-bottom: 1px solid rgba(0,0,0,0.04);
+    .nb-fg input, .nb-fg select {
+        height: 46px;
+        border-radius: 12px;
+        border: 1.5px solid #CBD5E1;
+        padding: 0 14px;
+        font-size: 0.92rem;
+        outline: none;
+        transition: all 0.2s ease;
+        background: #FFFFFF;
+        color: #0F172A;
     }
-    .nb-summary-table tbody tr:hover {
-        background: rgba(27,107,74,0.03);
+    .nb-fg input:focus, .nb-fg select:focus {
+        border-color: var(--nb-primary);
+        box-shadow: 0 0 0 3.5px rgba(27, 107, 74, 0.14);
+    }
+
+    /* ── ID STEPPER BOX ── */
+    .nb-id-stepper {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .nb-id-stepper input {
+        flex: 1;
+        text-align: center;
+        font-weight: 800;
+        font-size: 1.05rem;
+        color: var(--nb-primary-dark);
+        font-family: monospace;
+        letter-spacing: 0.5px;
+    }
+    .nb-step-btn {
+        width: 38px;
+        height: 46px;
+        border: 1.5px solid #CBD5E1;
+        background: #F1F5F9;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #334155;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+    }
+    .nb-step-btn:hover {
+        background: #E2E8F0;
+        border-color: #94A3B8;
+        color: #0F172A;
+    }
+    .nb-step-btn:active {
+        transform: scale(0.94);
+    }
+
+    /* ── DATE QUICK BUTTONS ── */
+    .nb-date-quick {
+        display: flex;
+        gap: 6px;
+        margin-top: 4px;
+    }
+    .nb-date-btn {
+        border: none;
+        background: #F1F5F9;
+        color: #475569;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .nb-date-btn:hover {
+        background: #E2E8F0;
+        color: #0F172A;
+    }
+
+    /* ── DEBT AMOUNT INPUT HIGHLIGHT ── */
+    .nb-debt-input {
+        font-weight: 800 !important;
+        font-size: 1.25rem !important;
+        color: #DC2626 !important;
+        border-color: rgba(220, 38, 38, 0.4) !important;
+        background: #FEF2F2 !important;
+    }
+    .nb-debt-input:focus {
+        border-color: #DC2626 !important;
+        box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.15) !important;
+    }
+    .nb-quick-chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+    }
+    .nb-chip {
+        background: #F1F5F9;
+        border: 1px solid #E2E8F0;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .nb-chip:hover {
+        background: #E2E8F0;
+        color: var(--nb-primary);
+        border-color: var(--nb-primary-light);
+    }
+
+    /* ── SAVE ACTIONS ── */
+    .nb-form-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+        padding-top: 14px;
+        border-top: 1.5px solid #F1F5F9;
+    }
+    .nb-btn-save {
+        height: 48px;
+        padding: 0 30px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #1B6B4A 0%, #2D9B6E 100%);
+        color: #fff;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 6px 20px rgba(27, 107, 74, 0.28);
+        transition: all 0.2s ease;
+    }
+    .nb-btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(27, 107, 74, 0.38);
+    }
+    .nb-btn-save:active {
+        transform: translateY(0);
+    }
+    .nb-shortcut-tip {
+        font-size: 0.78rem;
+        color: #64748B;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    kbd {
+        background: #E2E8F0;
+        color: #1E293B;
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-size: 0.75rem;
+        font-family: monospace;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* ── LIVE TOAST STATUS ── */
+    .nb-toast-msg {
+        font-size: 0.88rem;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 10px;
+        display: none;
+        align-items: center;
+        gap: 8px;
+    }
+    .nb-toast-msg.success {
+        display: inline-flex;
+        background: #DCFCE7;
+        color: #15803D;
+        border: 1px solid #BBF7D0;
+    }
+    .nb-toast-msg.error {
+        display: inline-flex;
+        background: #FEE2E2;
+        color: #B91C1C;
+        border: 1px solid #FECACA;
+    }
+
+    /* ── TABLE SECTION ── */
+    .nb-table-container {
+        display: none;
+        background: var(--nb-card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--nb-border);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        padding: 24px;
+        margin-bottom: 24px;
+        animation: formSlideDown 0.35s ease;
+    }
+    .nb-table-container.visible {
+        display: block;
+    }
+    .nb-table-filter-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .nb-search-box {
+        position: relative;
+        min-width: 260px;
+        flex: 1;
+        max-width: 400px;
+    }
+    .nb-search-box i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94A3B8;
+    }
+    .nb-search-box input {
+        width: 100%;
+        height: 40px;
+        border-radius: 10px;
+        border: 1.5px solid #CBD5E1;
+        padding: 0 14px 0 38px;
+        font-size: 0.88rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .nb-search-box input:focus {
+        border-color: var(--nb-primary);
+    }
+    .nb-table-total-badge {
+        background: #FEF2F2;
+        border: 1px solid #FECACA;
+        color: #DC2626;
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .nb-data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .nb-data-table th {
+        background: #F8FAFC;
+        font-size: 0.74rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748B;
+        padding: 12px 16px;
+        border-bottom: 2px solid #E2E8F0;
+        text-align: left;
+    }
+    .nb-data-table td {
+        padding: 13px 16px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #F1F5F9;
+        vertical-align: middle;
+    }
+    .nb-data-table tbody tr {
+        transition: background 0.15s;
+    }
+    .nb-data-table tbody tr:hover {
+        background: #F8FAFC;
+    }
+    .nb-tag-id {
+        background: rgba(27, 107, 74, 0.09);
+        color: var(--nb-primary-dark);
+        padding: 3px 9px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        font-family: monospace;
+    }
+    .nb-tag-date {
+        font-size: 0.78rem;
+        color: #64748B;
+        background: #F1F5F9;
+        padding: 2px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .nb-debt-cell {
+        font-weight: 800;
+        color: #DC2626;
+        font-size: 0.98rem;
+        font-family: 'Inter', sans-serif;
+    }
+    .nb-btn-edit-rec {
+        background: rgba(37, 99, 235, 0.08);
+        border: 1px solid #BFDBFE;
+        color: #2563EB;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .nb-btn-edit-rec:hover {
+        background: #2563EB;
+        color: #fff;
+        border-color: #2563EB;
+    }
+    .nb-btn-del-rec {
+        background: rgba(220, 38, 38, 0.08);
+        border: 1px solid #FECACA;
+        color: #DC2626;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .nb-btn-del-rec:hover {
+        background: #DC2626;
+        color: #fff;
+        border-color: #DC2626;
     }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-        .nb-page { padding: 12px 6px 30px; }
-        .nb-header { padding: 22px 18px; border-radius: 16px; }
-        .nb-header h1 { font-size: 1.35rem; }
-        .nb-header::before { font-size: 48px; right: 12px; }
-        .nb-card { padding: 16px; border-radius: 14px; }
-        .nb-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .nb-stat-card { padding: 12px 14px; }
-        .nb-stat-icon { width: 40px; height: 40px; font-size: 1.1rem; }
-        .nb-stat-value { font-size: 0.95rem; }
-        .nb-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-        .nb-form-grid { grid-template-columns: 1fr 1fr; }
-        .nb-table-wrap { max-height: 300px; }
-    }
-    @media (max-width: 480px) {
-        .nb-stats { grid-template-columns: 1fr; }
-        .nb-form-grid { grid-template-columns: 1fr; }
-        .nb-grid { grid-template-columns: 1fr; }
-        .nb-create-row { flex-direction: column; }
-        .nb-create-row input { width: 100%; min-width: 0; }
+        .nb-hero { padding: 22px 18px; border-radius: 18px; }
+        .nb-hero-title { font-size: 1.4rem; }
+        .nb-stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .nb-toolbar { flex-direction: column; align-items: flex-start; }
+        .nb-fgrid { grid-template-columns: 1fr; }
+        .nb-form-foot { flex-direction: column; align-items: stretch; }
+        .nb-btn-save { width: 100%; justify-content: center; }
     }
 </style>
 {% endblock %}
@@ -482,42 +718,51 @@
 {% block content %}
 <div class="nb-page">
 
-    <!-- HEADER -->
-    <div class="nb-header">
-        <h1>Daftardan Qarzlarni Ko'chirish</h1>
-        <p>Eski qog'oz daftarlardagi mijozlar va ta'minotchilar qarzlarini tizimga tezkor va xavfsiz import qiling</p>
-        <a href="{% url 'customers' %}" class="btn-back">
-            <i class="bi bi-arrow-left"></i> Mijozlarga qaytish
-        </a>
+    <!-- HERO HEADER -->
+    <div class="nb-hero">
+        <h1 class="nb-hero-title">
+            <i class="bi bi-journal-bookmark-fill"></i> Daftardan Qarz Ko'chirish
+        </h1>
+        <p class="nb-hero-sub">
+            Eski qog'oz daftarlardagi mijozlar va ta'minotchilar qarzlarini yangi aqlli tizimga avtomatlashtirilgan ketma-ketlikda tezkor kiritish paneli.
+        </p>
+        <div class="nb-hero-actions">
+            <a href="{% url 'customers' %}" class="nb-hero-btn">
+                <i class="bi bi-people-fill"></i> Mijozlar ro'yxatiga qaytish
+            </a>
+            <a href="{% url 'debt_payment' %}" class="nb-hero-btn">
+                <i class="bi bi-cash-stack"></i> Nasiya to'lovlarini qabul qilish
+            </a>
+        </div>
     </div>
 
-    <!-- STATISTICS -->
-    <div class="nb-stats">
+    <!-- STATS CARDS -->
+    <div class="nb-stats-grid">
         <div class="nb-stat-card">
-            <div class="nb-stat-icon" style="background: rgba(27,107,74,0.1); color: var(--primary);">
+            <div class="nb-stat-icon" style="background: rgba(27,107,74,0.1); color: var(--nb-primary);">
                 <i class="bi bi-journals"></i>
             </div>
             <div>
                 <div class="nb-stat-label">Jami daftarlar</div>
-                <div class="nb-stat-value" id="statNotebooks">{{ notebooks|length }} ta</div>
+                <div class="nb-stat-val" id="statNotebooks">{{ notebooks|length }} ta</div>
             </div>
         </div>
         <div class="nb-stat-card">
-            <div class="nb-stat-icon" style="background: rgba(220,53,69,0.08); color: var(--danger);">
-                <i class="bi bi-people-fill"></i>
+            <div class="nb-stat-icon" style="background: rgba(220,38,38,0.09); color: var(--nb-danger);">
+                <i class="bi bi-person-lines-fill"></i>
             </div>
             <div>
-                <div class="nb-stat-label">Xaridorlar</div>
-                <div class="nb-stat-value" id="statMigrated">{{ total_migrated }} kishi</div>
+                <div class="nb-stat-label">Ko'chirilgan xaridorlar</div>
+                <div class="nb-stat-val" id="statMigrated">{{ total_migrated }} kishi</div>
             </div>
         </div>
         <div class="nb-stat-card">
-            <div class="nb-stat-icon" style="background: rgba(212,168,83,0.15); color: var(--accent);">
-                <i class="bi bi-cash-stack"></i>
+            <div class="nb-stat-icon" style="background: rgba(212,168,83,0.15); color: #B45309;">
+                <i class="bi bi-cash-coin"></i>
             </div>
             <div>
-                <div class="nb-stat-label">Mijozlar qarzi</div>
-                <div class="nb-stat-value" id="statTotalDebt">{{ total_debt_display }}</div>
+                <div class="nb-stat-label">Xaridorlar qarzi</div>
+                <div class="nb-stat-val" id="statTotalDebt">{{ total_debt_display }}</div>
             </div>
         </div>
         <div class="nb-stat-card">
@@ -526,69 +771,86 @@
             </div>
             <div>
                 <div class="nb-stat-label">Ta'minotchilar</div>
-                <div class="nb-stat-value" id="statMigratedSuppliers">{{ total_migrated_suppliers }} ta</div>
+                <div class="nb-stat-val" id="statMigratedSuppliers">{{ total_migrated_suppliers }} ta</div>
             </div>
         </div>
         <div class="nb-stat-card">
-            <div class="nb-stat-icon" style="background: rgba(220,53,69,0.08); color: var(--danger);">
-                <i class="bi bi-cash-coin"></i>
+            <div class="nb-stat-icon" style="background: rgba(220,38,38,0.09); color: var(--nb-danger);">
+                <i class="bi bi-wallet2"></i>
             </div>
             <div>
                 <div class="nb-stat-label">Bizning qarzimiz</div>
-                <div class="nb-stat-value" id="statTotalSupplierDebt">{{ total_supplier_debt_display }}</div>
+                <div class="nb-stat-val" id="statTotalSupplierDebt">{{ total_supplier_debt_display }}</div>
             </div>
         </div>
     </div>
 
-    <!-- ALL NOTEBOOKS SUMMARY TABLE -->
-    {% if notebooks %}
-    <div class="nb-card">
-        <div class="nb-card-title">
-            <i class="bi bi-list-columns-reverse"></i> Barcha daftarlar ro'yxati
+    <!-- PENDING ONLINE PAYMENT PROOFS BANNER & TABLE -->
+    {% if pending_proofs %}
+    <div class="nb-panel" style="border: 2px solid rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, #ffffff 0%, #F0FDF4 100%);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div class="nb-panel-title text-success m-0">
+                <span class="spinner-grow spinner-grow-sm text-success me-1"></span>
+                <i class="bi bi-receipt-cutoff"></i> Kutilayotgan Onlayn To'lov Cheklari ({{ pending_proofs|length }} ta)
+            </div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill font-monospace fw-bold">
+                ⚡ Jonli Sinxronizatsiya
+            </span>
         </div>
-        <div class="nb-card-desc">Daftarni tanlash va ishlash uchun ustiga bosing</div>
-        <div style="overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color);">
-            <table class="nb-summary-table">
-                <thead>
+        <div class="nb-panel-desc mb-3">Mijozlar kabinetdan yuklagan to'lov cheklari. Chekni tekshirib bir bosishda qarzdan yopishingiz mumkin.</div>
+        
+        <div class="table-responsive" style="border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.2); background: #fff;">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: #F8FAFC; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748B;">
                     <tr>
-                        <th>#</th>
-                        <th>Daftar nomi</th>
-                        <th>Mijozlar (Qarz)</th>
-                        <th>Ta'minotchilar (Bizning qarzimiz)</th>
-                        <th>Yaratilgan</th>
-                        <th></th>
+                        <th class="ps-3 py-3">Mijoz</th>
+                        <th class="py-3">Tizim</th>
+                        <th class="py-3">Summa</th>
+                        <th class="py-3">Joriy Qarzi</th>
+                        <th class="py-3">Chek Rasmi</th>
+                        <th class="py-3">Vaqti & Izoh</th>
+                        <th class="text-end pe-3 py-3">Amallar</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for nb in notebook_data %}
-                    <tr onclick="selectNotebook({{ nb.id }}, '{{ nb.name }}')" id="nb-row-{{ nb.id }}">
-                        <td style="font-weight: 600; color: var(--text-muted);">{{ forloop.counter }}</td>
-                        <td>
-                            <span style="font-weight: 700; color: var(--text-main);">📒 {{ nb.name }}</span>
+                <tbody style="font-size: 0.9rem;">
+                    {% for p in pending_proofs %}
+                    <tr id="proof-row-{{ p.id }}">
+                        <td class="ps-3 py-3">
+                            <div class="fw-bold text-dark">{{ p.customer.first_name }} {{ p.customer.last_name|default:'' }}</div>
+                            <div class="small text-muted font-monospace"><i class="bi bi-telephone-fill me-1"></i>{{ p.customer.phone }} | <span class="badge bg-light text-dark border">ID: {{ p.customer.custom_id }}</span></div>
                         </td>
                         <td>
-                            <span style="background: rgba(27,107,74,0.08); color: var(--primary); padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;">
-                                {{ nb.customer_count }} kishi
-                            </span>
-                            <span style="font-weight: 700; color: var(--danger); margin-left: 6px; font-size: 0.85rem;">
-                                {{ nb.total_debt_display }}
-                            </span>
+                            <span class="badge bg-primary px-2.5 py-1.5 rounded-pill text-uppercase">{{ p.provider }}</span>
                         </td>
                         <td>
-                            <span style="background: rgba(13,110,253,0.08); color: #0d6efd; padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;">
-                                {{ nb.supplier_count }} ta
-                            </span>
-                            <span style="font-weight: 700; color: var(--danger); margin-left: 6px; font-size: 0.85rem;">
-                                {{ nb.total_supplier_debt_display }}
-                            </span>
-                        </td>
-                        <td style="font-size: 0.8rem; color: var(--text-muted);">
-                            {{ nb.created_at|date:"d.m.Y" }}
+                            <span class="fw-bolder text-success fs-6">{{ p.amount|floatformat:0 }} so'm</span>
                         </td>
                         <td>
-                            <button class="nb-item-delete" style="opacity:1; position:static;" onclick="event.stopPropagation(); deleteNotebook({{ nb.id }}, '{{ nb.name }}');" title="O'chirish">
-                                <i class="bi bi-trash3"></i>
-                            </button>
+                            <span class="fw-bold text-danger">{{ p.customer.debt_amount|floatformat:0 }} so'm</span>
+                        </td>
+                        <td>
+                            {% if p.image %}
+                            <a href="{{ p.image.url }}" target="_blank" class="d-inline-flex align-items-center gap-1 text-decoration-none border rounded p-1 shadow-sm bg-white hover-zoom" title="Kattalashtirib ko'rish">
+                                <img src="{{ p.image.url }}" alt="Chek" style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px;">
+                                <i class="bi bi-box-arrow-up-right small text-primary ms-1"></i>
+                            </a>
+                            {% else %}
+                            <span class="badge bg-secondary">Rasm yo'q</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small text-muted">{{ p.created_at|date:"d.m.Y H:i" }}</div>
+                            {% if p.note %}<div class="small text-dark italic">"{{ p.note }}"</div>{% endif %}
+                        </td>
+                        <td class="text-end pe-3">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-success fw-semibold shadow-sm d-inline-flex align-items-center gap-1" onclick="approveProofWeb({{ p.id }}, '{{ p.customer.first_name|escapejs }}', {{ p.amount|floatformat:0 }})" id="btn-appr-{{ p.id }}">
+                                    <i class="bi bi-check-circle-fill"></i> Qarzni Yopish
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="rejectProofWeb({{ p.id }})" id="btn-rej-{{ p.id }}" title="Rad etish">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -598,101 +860,341 @@
     </div>
     {% endif %}
 
-    <!-- NOTEBOOK MANAGEMENT -->
-    <div class="nb-card">
-        <div class="nb-card-title">
-            <i class="bi bi-plus-circle-fill"></i> Yangi daftar yaratish
+    <!-- NOTEBOOKS SELECTION SECTION -->
+    <div class="nb-panel">
+        <div class="nb-panel-header">
+            <div>
+                <h3 class="nb-panel-title">
+                    <i class="bi bi-journal-text"></i> Daftarlar Ro'yxati
+                </h3>
+                <p class="nb-panel-desc">Qarz ko'chirmoqchi bo'lgan daftarni tanlang yoki yangi daftar nomini kiriting</p>
+            </div>
+            <div class="nb-add-row">
+                <input type="text" id="newNotebookName" placeholder="Yangi daftar nomi (masalan: 2025-yil Daftar 1)..." onkeydown="if(event.key==='Enter') createNotebook()">
+                <button class="btn btn-sm btn-success fw-bold px-3 py-2 rounded-3 shadow-sm d-inline-flex align-items-center gap-1" onclick="createNotebook()">
+                    <i class="bi bi-plus-circle-fill"></i> Daftar yaratish
+                </button>
+            </div>
         </div>
-        <div class="nb-card-desc">Har bir eski qog'oz daftar uchun alohida nom bering (masalan: "Asosiy daftar", "Ta'minotchilar daftari")</div>
-        <div class="nb-create-row">
-            <input type="text" id="newNotebookName" placeholder="Yangi daftar nomi kiriting..." onkeydown="if(event.key==='Enter') createNotebook()">
-            <button class="nb-btn nb-btn-primary" onclick="createNotebook()">
-                <i class="bi bi-journal-plus"></i> Daftar yaratish
-            </button>
-        </div>
-    </div>
 
-    <!-- NOTEBOOKS GRID -->
-    {% if notebooks %}
-    <div class="nb-card">
-        <div class="nb-card-title">
-            <i class="bi bi-grid-3x3-gap-fill"></i> Daftarlarni tanlang
-        </div>
-        <div class="nb-card-desc">Qarz kiritish uchun daftarni tanlang</div>
-        <div class="nb-grid" id="notebooksGrid">
+        <div class="nb-book-grid" id="notebooksGrid">
+            <!-- MASTER NOTEBOOK 1: ALL CUSTOMER DEBTORS -->
+            <div class="nb-book-card" id="nb-card-0" onclick="selectNotebook(0, 'Barcha Xaridorlar Qarz Daftari')" style="border: 2px solid #3B82F6; background: linear-gradient(180deg, #FFFFFF 0%, #EFF6FF 100%);">
+                <div class="nb-book-badge" style="background: rgba(59, 130, 246, 0.15); color: #1D4ED8;">
+                    ⭐ UMUMIY JAMLANMA
+                </div>
+                <div class="nb-book-icon">📚</div>
+                <div>
+                    <div class="nb-book-name" style="color: #1E40AF;">Barcha Xaridorlar Daftari</div>
+                    <div class="nb-book-meta">
+                        <span><i class="bi bi-people-fill me-1"></i>{{ all_debt_custs_count }} ta mijoz</span>
+                        <span class="text-danger fw-bold ms-auto">{{ all_cust_debt_sum_display }}</span>
+                    </div>
+                </div>
+            </div>
+
             {% for nb in notebook_data %}
-            <div class="nb-item" id="nb-card-{{ nb.id }}" onclick="selectNotebook({{ nb.id }}, '{{ nb.name }}')">
-                <div class="nb-item-count-badge" style="background: var(--primary); top:12px; right:12px;" title="Xaridorlar soni">{{ nb.customer_count }}</div>
-                <div class="nb-item-count-badge" style="background: #0d6efd; top:32px; right:12px;" title="Ta'minotchilar soni">{{ nb.supplier_count }}</div>
-                <div class="nb-item-icon">📒</div>
-                <div class="nb-item-name">{{ nb.name }}</div>
-                <div class="nb-item-meta">Mijozlar: {{ nb.customer_count }} / Ta'min: {{ nb.supplier_count }}</div>
-                <button class="nb-item-delete" onclick="event.stopPropagation(); deleteNotebook({{ nb.id }}, '{{ nb.name }}');" title="O'chirish">
-                    <i class="bi bi-trash3"></i>
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- MIGRATION FORM (hidden until notebook selected) -->
-        <div class="nb-form-section" id="migFormSection">
-            <div class="nb-form-title">
-                <i class="bi bi-pencil-square"></i>
-                <span id="migNotebookTitle">Daftarga qarz kiritish</span>
-            </div>
-
-            <!-- Segment toggle for type selection -->
-            <div class="nb-type-toggle">
-                <button class="btn-toggle active" id="btnTypeCustomer" onclick="changeRecordType('customer')">
-                    <i class="bi bi-person-fill"></i> Xaridor (Mijoz) qarzi
-                </button>
-                <button class="btn-toggle" id="btnTypeSupplier" onclick="changeRecordType('supplier')">
-                    <i class="bi bi-truck"></i> Ta'minotchi qarzi (Bizning qarzimiz)
-                </button>
-            </div>
-
-            <div class="nb-form-grid">
-                <input type="text" id="migFirstname" placeholder="Ismi (yoki tashkilot nomi) *" autofocus>
-                <input type="text" id="migLastname" placeholder="Familiyasi">
-                <input type="text" id="migPhone" placeholder="Telefon raqami">
-                <input type="text" id="migCustomId" placeholder="ID (avto)">
-            </div>
-            <div class="nb-form-grid" style="grid-template-columns: 1fr auto;">
-                <input type="number" id="migDebt" class="debt-input" placeholder="Qarz summasi (so'm) *" onkeydown="if(event.key==='Enter') saveMigCustomer()">
-                <div class="nb-form-actions">
-                    <button class="nb-btn nb-btn-primary" onclick="saveMigCustomer()" style="height: 44px;">
-                        <i class="bi bi-person-plus-fill" id="saveIcon"></i> Saqlash
+            <div class="nb-book-card" id="nb-card-{{ nb.id }}" onclick="selectNotebook({{ nb.id }}, '{{ nb.name|escapejs }}')">
+                <div class="nb-book-badge" style="background: rgba(27,107,74,0.12); color: var(--nb-primary-dark);">
+                    👥 {{ nb.customer_count }} | 🚚 {{ nb.supplier_count }}
+                </div>
+                <div class="nb-book-icon">📒</div>
+                <div>
+                    <div class="nb-book-name">{{ nb.name }}</div>
+                    <div class="nb-book-meta">
+                        <span><i class="bi bi-calendar-event me-1"></i>{{ nb.created_at|date:"d.m.Y" }}</span>
+                        <span class="text-danger fw-bold ms-auto">{{ nb.total_debt_display }}</span>
+                    </div>
+                </div>
+                <div class="nb-book-actions" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px;">
+                    <button type="button" class="btn btn-sm btn-light border py-1 px-2 text-primary" onclick="event.stopPropagation(); renameNotebook({{ nb.id }}, '{{ nb.name|escapejs }}');" title="Daftar nomini tahrirlash" style="border-radius: 8px; font-size: 12px;">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light border py-1 px-2 text-danger" onclick="event.stopPropagation(); deleteNotebook({{ nb.id }}, '{{ nb.name|escapejs }}');" title="Daftarni o'chirish" style="border-radius: 8px; font-size: 12px;">
+                        <i class="bi bi-trash3-fill"></i>
                     </button>
                 </div>
             </div>
-            <div class="nb-status-msg" id="migStatusMsg"></div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- MIGRATION RAPID ENTRY FORM -->
+    <div class="nb-form-container visible" id="migFormSection" style="display: block;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h3 class="nb-panel-title text-success" id="migNotebookTitle">
+                <i class="bi bi-pencil-square"></i> {% if initial_notebook %}{{ initial_notebook.name }} — Qarz kiritish{% else %}Daftarga qarz kiritish{% endif %}
+            </h3>
+            <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill font-monospace fw-bold">
+                ⚡ Tezkor Klaviatura Rejimi
+            </span>
         </div>
 
-        <!-- MIGRATED CUSTOMERS TABLE (hidden until notebook selected) -->
-        <div class="nb-table-section" id="migTableSection">
-            <div class="nb-table-header">
-                <div class="nb-table-title" id="migTableTitle">Ushbu daftardagi xaridorlar</div>
-                <div class="nb-table-total" id="migTotalDebt">Jami: 0 so'm</div>
+        <!-- TYPE & DIRECTION TOOLBAR -->
+        <div class="nb-toolbar">
+            <!-- Type switcher -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small fw-bold text-uppercase">Qarz turi:</span>
+                <div class="nb-pill-group">
+                    <button class="nb-pill-btn active" id="btnTypeCustomer" onclick="changeRecordType('customer')">
+                        <i class="bi bi-person-fill"></i> Xaridor qarzi
+                    </button>
+                    <button class="nb-pill-btn" id="btnTypeSupplier" onclick="changeRecordType('supplier')">
+                        <i class="bi bi-truck"></i> Ta'minotchi qarzi
+                    </button>
+                </div>
             </div>
-            <div class="nb-table-wrap">
-                <table class="nb-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th id="thNameCol">Mijoz</th>
-                            <th>Telefon</th>
-                            <th id="thIdCol">Mijoz ID</th>
-                            <th>Qarz summasi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="migCustomersTableBody">
-                        <tr class="empty-row"><td colspan="5">Daftar tanlanmagan</td></tr>
-                    </tbody>
-                </table>
+
+            <!-- Auto ID Direction Switcher -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small fw-bold text-uppercase">ID ketma-ketligi:</span>
+                <div class="nb-pill-group">
+                    <button class="nb-pill-btn dir-active-forward" id="btnDirForward" onclick="setDirection('forward')" title="Har saqlanganda keyingi ID = oldingi ID + 1 (O'sish)">
+                        <i class="bi bi-arrow-right-circle-fill"></i> Oldinga qarab (+1)
+                    </button>
+                    <button class="nb-pill-btn" id="btnDirBackward" onclick="setDirection('backward')" title="Har saqlanganda keyingi ID = oldingi ID - 1 (Kamayish)">
+                        <i class="bi bi-arrow-left-circle-fill"></i> Orqaga qarab (-1)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM INPUTS -->
+        <div class="nb-fgrid">
+            <!-- 1. Ismi & Realtime Autocomplete for existing customer -->
+            <div class="nb-fg" style="position: relative;">
+                <label for="migFirstname">
+                    <span><i class="bi bi-person me-1"></i> Ismi / Qidiruv *</span>
+                    <span class="badge bg-light text-muted border" id="migCustModeBadge">Yangi yoki Mavjud</span>
+                </label>
+                <input type="text" id="migFirstname" placeholder="Masalan: Asadbek (yoki mavjud mijozni qidiring...)" autocomplete="off" oninput="handleCustomerSearch(this.value)" onkeydown="handleInputKey(event, 'migLastname')">
+                <div id="migCustomerDropdown" class="nb-autocomplete-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1.5px solid #10B981; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,0.15); z-index:1000; max-height:220px; overflow-y:auto; margin-top:4px;"></div>
+                <div id="migSelectedCustBadge" style="display:none; margin-top: 6px;" class="badge bg-success-subtle text-success border border-success-subtle p-2 text-wrap text-start"></div>
+            </div>
+
+            <!-- 2. Familiyasi -->
+            <div class="nb-fg">
+                <label for="migLastname">
+                    <span><i class="bi bi-person-badge me-1"></i> Familiyasi</span>
+                    <span class="small text-muted">Ixtiyoriy</span>
+                </label>
+                <input type="text" id="migLastname" placeholder="Masalan: Umarov" autocomplete="off" onkeydown="handleInputKey(event, 'migPhone')">
+            </div>
+
+            <!-- 3. Telefon raqami -->
+            <div class="nb-fg">
+                <label for="migPhone">
+                    <span><i class="bi bi-telephone me-1"></i> Telefon</span>
+                    <span class="small text-muted">(Yo'q bo'lsa avto)</span>
+                </label>
+                <input type="text" id="migPhone" placeholder="+998 90 123 45 67" autocomplete="off" onkeydown="handleInputKey(event, 'migCustomId')">
+            </div>
+
+            <!-- 4. ID raqami with step controls -->
+            <div class="nb-fg">
+                <label for="migCustomId">
+                    <span><i class="bi bi-hash me-1"></i> ID Raqami *</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle" id="idDirIndicator">+1 rejimida</span>
+                </label>
+                <div class="nb-id-stepper">
+                    <button type="button" class="nb-step-btn" onclick="stepCustomId(-1)" title="ID raqamini bittaga kamaytirish (-1)">-</button>
+                    <input type="text" id="migCustomId" placeholder="15" autocomplete="off" onkeydown="handleInputKey(event, 'migEntryDate')">
+                    <button type="button" class="nb-step-btn" onclick="stepCustomId(1)" title="ID raqamini bittaga oshirish (+1)">+</button>
+                </div>
+            </div>
+
+            <!-- 5. Sana va Vaqt (Date & Time) with persistence -->
+            <div class="nb-fg">
+                <label for="migEntryDate">
+                    <span><i class="bi bi-calendar3 me-1"></i> Daftar Sanasi & Vaqti</span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" title="Keyingi kiritishlarda bu sana avtomatik saqlanib turadi">🔒 Saqlanuvchi sana</span>
+                </label>
+                <input type="datetime-local" id="migEntryDate" onkeydown="handleInputKey(event, 'migNote')">
+                <div class="nb-date-quick">
+                    <button type="button" class="nb-date-btn" onclick="setDatePreset('now')">⚡ Hozir</button>
+                    <button type="button" class="nb-date-btn" onclick="setDatePreset('today')">📅 Bugun 09:00</button>
+                    <button type="button" class="nb-date-btn" onclick="setDatePreset('yesterday')">⏪ Kecha 18:00</button>
+                </div>
+            </div>
+
+            <!-- 6. Izoh / Daftar sahifasi (Multi-entry support) -->
+            <div class="nb-fg">
+                <label for="migNote">
+                    <span><i class="bi bi-journal-text me-1"></i> Izoh / Daftar sahifasi</span>
+                    <span class="small text-muted">Ixtiyoriy</span>
+                </label>
+                <input type="text" id="migNote" placeholder="Masalan: 12-bet, Lahm uchun" autocomplete="off" onkeydown="handleInputKey(event, 'migDebt')">
+            </div>
+
+            <!-- 7. Qarz summasi -->
+            <div class="nb-fg">
+                <label for="migDebt">
+                    <span><i class="bi bi-cash-stack me-1"></i> Qarz Summasi (so'm) *</span>
+                    <span class="text-danger fw-bold" id="formattedDebtPreview">0 so'm</span>
+                </label>
+                <input type="number" id="migDebt" class="nb-debt-input" placeholder="Masalan: 350000" autocomplete="off" oninput="updateDebtPreview(this.value)" onkeydown="if(event.key==='Enter') saveMigCustomer()">
+                <div class="nb-quick-chips">
+                    <span class="nb-chip" onclick="addDebtQuick(50000)">+50 ming</span>
+                    <span class="nb-chip" onclick="addDebtQuick(100000)">+100 ming</span>
+                    <span class="nb-chip" onclick="addDebtQuick(500000)">+500 ming</span>
+                    <span class="nb-chip" onclick="addDebtQuick(1000000)">+1 mln</span>
+                    <span class="nb-chip" onclick="addDebtQuick(5000000)">+5 mln</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM FOOTER & SAVE BUTTON -->
+        <div class="nb-form-foot">
+            <div class="d-flex align-items-center gap-3">
+                <button type="button" class="nb-btn-save" id="btnSaveRecord" onclick="saveMigCustomer()">
+                    <i class="bi bi-check2-circle fs-5" id="saveIcon"></i> Qarzni Saqlash & Keyingisiga O'tish
+                </button>
+                <div class="nb-toast-msg" id="migStatusToast"></div>
+            </div>
+            <div class="nb-shortcut-tip">
+                <i class="bi bi-keyboard text-primary"></i>
+                <span>Tez saqlash: <kbd>Enter</kbd> | Maydonlar o'rtasida: <kbd>Tab</kbd></span>
             </div>
         </div>
     </div>
-    {% endif %}
+
+    <!-- MIGRATED CUSTOMERS LIVE TABLE -->
+    <div class="nb-table-container visible" id="migTableSection" style="display: block;">
+        <div class="nb-table-filter-row">
+            <div>
+                <h4 class="nb-panel-title" id="migTableTitle">
+                    <i class="bi bi-table"></i> {% if initial_notebook %}{{ initial_notebook.name }} — Qarzdorlar ro'yxati{% else %}Daftardagi qarzdorlar{% endif %}
+                </h4>
+                <p class="nb-panel-desc mb-0" id="migTableSubtitle">Kiritilgan barcha yozuvlar jonli tartibda</p>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- EXCEL DOWNLOAD BUTTON -->
+                <a id="btnExportExcel" href="/pos/notebooks/export/{% if initial_notebook %}{{ initial_notebook.id }}{% else %}0{% endif %}/?type=customer" class="btn btn-sm btn-success fw-bold shadow-sm d-inline-flex align-items-center gap-2" style="border-radius: 10px; padding: 7px 14px; text-decoration: none;">
+                    <i class="bi bi-file-earmark-excel-fill"></i> Daftarni Excelda Yuklab Olish
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold d-inline-flex align-items-center gap-1" onclick="window.print()" style="border-radius: 10px; padding: 7px 12px;" title="Chop etish yoki PDF saqlash">
+                    <i class="bi bi-printer"></i> Chop etish
+                </button>
+                <div class="nb-search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="tableFilterInput" placeholder="Ism, telefon yoki ID bo'yicha izlash..." oninput="filterMigTable(this.value)">
+                </div>
+                <div class="nb-table-total-badge" id="migTotalDebtBadge">
+                    <i class="bi bi-calculator"></i> Jami: {% if initial_notebook %}{{ initial_notebook.total_debt_display }}{% else %}0 so'm{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive" style="border-radius: 14px; border: 1px solid #E2E8F0; max-height: 480px; overflow-y: auto;">
+            <table class="nb-data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45px;">#</th>
+                        <th>Sana & Vaqt</th>
+                        <th id="thNameCol">Mijoz (Xaridor)</th>
+                        <th>Telefon & ID</th>
+                        <th>Izoh / Sahifa</th>
+                        <th>Kiritilgan Qarz</th>
+                        <th>Jami Qarz Balansi</th>
+                        <th style="text-align: right; width: 140px;">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody id="migCustomersTableBody">
+                    {% for c in initial_records %}
+                    <tr id="mig-rec-row-{{ c.id }}">
+                        <td style="font-weight:700; color: #94A3B8;">{{ forloop.counter }}</td>
+                        <td>
+                            <span class="nb-tag-date"><i class="bi bi-clock"></i> {{ c.created_at|default:"—" }}</span>
+                        </td>
+                        <td>
+                            <a href="javascript:void(0)" class="customer-clickable fw-bold text-dark" onclick="showCustomerQuickInfo({{ c.customer_id|default:c.id }}, '{{ c.first_name|escapejs }} {{ c.last_name|default:''|escapejs }}')" title="Mijoz haqida 360° to'liq ma'lumot va sahifalarga o'tish">
+                                <i class="bi bi-person-fill text-success small"></i> {{ c.first_name }} {{ c.last_name|default:"" }}
+                            </a>
+                        </td>
+                        <td>
+                            <div class="small font-monospace text-muted">{{ c.phone|default:"—" }}</div>
+                            <span class="nb-tag-id">ID: {{ c.custom_id|default:"—" }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-secondary border text-wrap text-start" style="font-weight:500; max-width:180px;">{{ c.note|default:"—" }}</span>
+                        </td>
+                        <td class="nb-debt-cell" style="color:#DC2626;">+{{ c.entry_amount|floatformat:0 }} so'm</td>
+                        <td>
+                            <span class="fw-bold text-dark font-monospace">{{ c.debt_balance|floatformat:0 }} so'm</span>
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <button type="button" class="btn btn-sm btn-outline-danger me-1" onclick="openCustomerDebtHistoryModal({{ c.customer_id|default:c.id }}, '{{ c.first_name }} {{ c.last_name|default:'' }}')" title="Ushbu mijozning barcha qarzlar tarixini ko'rish" style="border-radius:8px; padding:3px 8px; font-weight:700; font-size:0.78rem;">
+                                <i class="bi bi-clock-history me-1"></i> Tarix
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal({{ c.id }})" title="Ushbu qarz yozuvini tahrirlash" style="border-radius:8px; padding:3px 8px; font-weight:700; font-size:0.78rem;">
+                                <i class="bi bi-pencil-square me-1"></i> Tahrirlash
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteMigRecord({{ c.id }})" title="Ushbu qarz yozuvini o'chirish" style="border-radius:8px; padding:3px 8px; font-weight:700; font-size:0.78rem;">
+                                <i class="bi bi-trash3-fill me-1"></i> O'chirish
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-center py-4 text-muted">Daftar tanlang yoki yangi qarz kiritishni boshlang!</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- EDIT RECORD MODAL -->
+    <div class="modal fade" id="editRecordModal" tabindex="-1" aria-labelledby="editRecordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: 1px solid #CBD5E1; box-shadow: 0 20px 45px rgba(0,0,0,0.18); overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border-bottom: 1.5px solid #E2E8F0; padding: 18px 24px;">
+                    <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="editRecordModalLabel">
+                        <i class="bi bi-pencil-square text-primary"></i> <span id="editModalTitleText">Qarz Yozuvini Tahrirlash</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <input type="hidden" id="editRecordId">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-1">Ism / Tashkilot *</label>
+                            <input type="text" class="form-control rounded-3" id="editFirstname" placeholder="Ismi..." required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-1">Familiya</label>
+                            <input type="text" class="form-control rounded-3" id="editLastname" placeholder="Familiyasi...">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-1">Telefon</label>
+                            <input type="text" class="form-control rounded-3 font-monospace" id="editPhone" placeholder="+998...">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-1">ID Raqami *</label>
+                            <input type="text" class="form-control rounded-3 font-monospace fw-bold" id="editCustomId" placeholder="15" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-1">Daftar Sanasi & Vaqti</label>
+                            <input type="datetime-local" class="form-control rounded-3" id="editEntryDate">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-1">Izoh / Daftar sahifasi</label>
+                            <input type="text" class="form-control rounded-3" id="editNote" placeholder="Masalan: 12-bet, Lahm uchun">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-1">Qarz Summasi (so'm) *</label>
+                            <input type="number" class="form-control rounded-3 fw-bold text-danger fs-5" id="editDebt" placeholder="0" required onkeydown="if(event.key==='Enter') saveEditedRecord()">
+                        </div>
+                    </div>
+                    <div class="mt-3 alert alert-danger py-2 small fw-bold" id="editModalError" style="display:none;"></div>
+                </div>
+                <div class="modal-footer" style="background: #F8FAFC; border-top: 1.5px solid #E2E8F0; padding: 14px 24px;">
+                    <button type="button" class="btn btn-light fw-semibold rounded-3 px-4 border" data-bs-dismiss="modal">Bekor qilish</button>
+                    <button type="button" class="btn btn-success fw-bold rounded-3 px-4 shadow-sm d-inline-flex align-items-center gap-2" id="btnSaveEdit" onclick="saveEditedRecord()">
+                        <i class="bi bi-check2-circle"></i> O'zgarishlarni Saqlash
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -700,43 +1202,148 @@
 let currentNotebookId = null;
 let currentNotebookName = "";
 let currentRecordType = "customer"; // 'customer' or 'supplier'
+let currentDirection = "forward"; // 'forward' (+1) or 'backward' (-1)
+let allMigratedRecords = []; // Local cache for instant filtering
+
+// ── DATE PRESET HELPERS ──
+function setDatePreset(type) {
+    const input = document.getElementById('migEntryDate');
+    const now = new Date();
+    
+    if (type === 'now') {
+        input.value = formatDateTimeLocal(now);
+    } else if (type === 'today') {
+        const today9am = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0);
+        input.value = formatDateTimeLocal(today9am);
+    } else if (type === 'yesterday') {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setHours(18, 0, 0, 0);
+        input.value = formatDateTimeLocal(yesterday);
+    }
+}
+
+function formatDateTimeLocal(date) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// ── DIRECTION SWITCHER (+1 / -1) ──
+function setDirection(dir) {
+    currentDirection = dir;
+    localStorage.setItem('meatflow_nb_direction', dir);
+    
+    const btnFwd = document.getElementById('btnDirForward');
+    const btnBwd = document.getElementById('btnDirBackward');
+    const indicator = document.getElementById('idDirIndicator');
+    
+    if (dir === 'forward') {
+        btnFwd.className = 'nb-pill-btn dir-active-forward';
+        btnBwd.className = 'nb-pill-btn';
+        if (indicator) {
+            indicator.className = 'badge bg-success-subtle text-success border border-success-subtle';
+            indicator.innerText = '⏩ +1 rejimida (Oldinga)';
+        }
+    } else {
+        btnFwd.className = 'nb-pill-btn';
+        btnBwd.className = 'nb-pill-btn dir-active-backward';
+        if (indicator) {
+            indicator.className = 'badge bg-warning-subtle text-warning border border-warning-subtle';
+            indicator.innerText = '⏪ -1 rejimida (Orqaga)';
+        }
+    }
+}
+
+// ── CUSTOM ID SMART STEPPER (+1 / -1 with prefix support) ──
+function stepCustomId(delta) {
+    const input = document.getElementById('migCustomId');
+    let val = input.value.trim();
+    if (!val) {
+        val = currentRecordType === 'supplier' ? 'T-1' : '1';
+    }
+    
+    const match = val.match(/^(.*?)(\d+)$/);
+    if (match) {
+        const prefix = match[1];
+        const numStr = match[2];
+        const padLen = numStr.length;
+        let num = parseInt(numStr, 10) + delta;
+        if (num < 1) num = 1;
+        
+        let newNumStr = String(num);
+        if (padLen > 1 && numStr.startsWith('0')) {
+            newNumStr = newNumStr.padStart(padLen, '0');
+        }
+        input.value = prefix + newNumStr;
+    } else {
+        input.value = val + '1';
+    }
+}
+
+function calculateNextId(currentId) {
+    if (!currentId) return "1";
+    const delta = currentDirection === 'forward' ? 1 : -1;
+    const match = String(currentId).match(/^(.*?)(\d+)$/);
+    if (match) {
+        const prefix = match[1];
+        const numStr = match[2];
+        const padLen = numStr.length;
+        let num = parseInt(numStr, 10) + delta;
+        if (num < 1) num = 1;
+        let newNumStr = String(num);
+        if (padLen > 1 && numStr.startsWith('0')) {
+            newNumStr = newNumStr.padStart(padLen, '0');
+        }
+        return prefix + newNumStr;
+    }
+    return currentId;
+}
 
 // ── SELECT NOTEBOOK ──
-function selectNotebook(id, name) {
+function selectNotebook(id, name, shouldScroll = true) {
     currentNotebookId = id;
     currentNotebookName = name;
+    localStorage.setItem('meatflow_last_selected_nb_id', id);
+    localStorage.setItem('meatflow_last_selected_nb_name', name);
 
-    // Highlight active card
-    document.querySelectorAll('.nb-item').forEach(el => el.classList.remove('active'));
+    // Highlight card
+    document.querySelectorAll('.nb-book-card').forEach(el => el.classList.remove('active'));
     const card = document.getElementById('nb-card-' + id);
     if (card) card.classList.add('active');
 
-    // Highlight active table row
-    document.querySelectorAll('.nb-summary-table tbody tr').forEach(el => el.style.background = '');
-    const row = document.getElementById('nb-row-' + id);
-    if (row) row.style.background = 'rgba(27,107,74,0.06)';
+    // Show form & table
+    const formSec = document.getElementById('migFormSection');
+    const tableSec = document.getElementById('migTableSection');
+    if (formSec) formSec.classList.add('visible');
+    if (tableSec) tableSec.classList.add('visible');
 
-    // Show form + table
-    const formSection = document.getElementById('migFormSection');
-    const tableSection = document.getElementById('migTableSection');
-    formSection.classList.add('visible');
-    tableSection.classList.add('visible');
+    // Update Excel export button href
+    const btnExp = document.getElementById('btnExportExcel');
+    if (btnExp) {
+        btnExp.href = `/pos/notebooks/export/${id}/?type=${currentRecordType}`;
+    }
 
     updateFormLabels();
     loadMigCustomers();
 
-    // Scroll to form
-    setTimeout(() => {
-        formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        document.getElementById('migFirstname').focus();
-    }, 150);
+    if (shouldScroll) {
+        setTimeout(() => {
+            if (formSec) formSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const fn = document.getElementById('migFirstname');
+            if (fn) fn.focus();
+        }, 150);
+    }
 }
 
 // ── CHANGE RECORD TYPE ──
 function changeRecordType(type) {
     currentRecordType = type;
     
-    // Toggle active classes on buttons
     document.getElementById('btnTypeCustomer').classList.toggle('active', type === 'customer');
     document.getElementById('btnTypeSupplier').classList.toggle('active', type === 'supplier');
     
@@ -745,46 +1352,653 @@ function changeRecordType(type) {
     document.getElementById('migFirstname').focus();
 }
 
-// ── UPDATE LABELS BASED ON TYPE ──
+// ── UPDATE LABELS & PLACEHOLDERS ──
 function updateFormLabels() {
     if (!currentNotebookName) return;
     
     const titleEl = document.getElementById('migNotebookTitle');
     const nameInput = document.getElementById('migFirstname');
-    const idInput = document.getElementById('migCustomId');
     const thName = document.getElementById('thNameCol');
     const thId = document.getElementById('thIdCol');
     const tableTitle = document.getElementById('migTableTitle');
     const saveIcon = document.getElementById('saveIcon');
     
-    // Auto generate custom_id prefix
-    const prefix = currentRecordType === 'supplier' ? 'S-' : 'M-';
-    idInput.value = prefix + Math.floor(1000 + Math.random() * 9000);
-    
-    // Clear inputs
-    nameInput.value = '';
-    document.getElementById('migLastname').value = '';
-    document.getElementById('migPhone').value = '';
-    document.getElementById('migDebt').value = '';
-    document.getElementById('migStatusMsg').innerText = '';
-    
     if (currentRecordType === 'supplier') {
-        titleEl.innerText = '📖 ' + currentNotebookName + ' — Ta\'minotchi qarzini kiritish';
-        nameInput.placeholder = "Ta'minotchi ismi / Tashkilot nomi *";
-        idInput.placeholder = "Ta'minotchi ID (avto)";
+        titleEl.innerHTML = `<i class="bi bi-truck me-1"></i> ${currentNotebookName} — Ta'minotchi qarzini ko'chirish`;
+        nameInput.placeholder = "Ta'minotchi / Chorvador ismi *";
         thName.innerText = "Ta'minotchi";
         thId.innerText = "Ta'minotchi ID";
-        tableTitle.innerText = "Ushbu daftardagi ta'minotchilar";
-        saveIcon.className = "bi bi-truck";
+        tableTitle.innerHTML = `<i class="bi bi-truck me-2"></i> ${currentNotebookName} — Ta'minotchilar ro'yxati`;
+        saveIcon.className = "bi bi-truck fs-5";
     } else {
-        titleEl.innerText = '📖 ' + currentNotebookName + ' — Xaridor qarzini kiritish';
+        titleEl.innerHTML = `<i class="bi bi-person-plus-fill me-1"></i> ${currentNotebookName} — Xaridor qarzini ko'chirish`;
         nameInput.placeholder = "Mijoz ismi *";
-        idInput.placeholder = "Mijoz ID (avto)";
-        thName.innerText = "Xaridor";
-        thId.innerText = "Xaridor ID";
-        tableTitle.innerText = "Ushbu daftardagi xaridorlar";
-        saveIcon.className = "bi bi-person-plus-fill";
+        thName.innerText = "Xaridor (Mijoz)";
+        thId.innerText = "Mijoz ID";
+        tableTitle.innerHTML = `<i class="bi bi-people-fill me-2"></i> ${currentNotebookName} — Xaridorlar ro'yxati`;
+        saveIcon.className = "bi bi-check2-circle fs-5";
     }
+}
+
+// ── KEYBOARD NAVIGATION FLOW ──
+function handleInputKey(event, nextId) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const nextEl = document.getElementById(nextId);
+        if (nextEl) {
+            nextEl.focus();
+            if (nextEl.select) nextEl.select();
+        }
+    }
+}
+
+let allExistingCustomersList = []; // Global customer cache for instant matching
+
+const DJANGO_NOTEBOOKS = [
+    { id: 0, name: "Barcha Xaridorlar Qarz Daftari" },
+    {% for nb in notebook_data %}
+    { id: {{ nb.id }}, name: "{{ nb.name|escapejs }}" },
+    {% endfor %}
+];
+
+// ── INITIALIZATION ──
+function initDebtNotebookPage() {
+    // Set initial date/time to now
+    setDatePreset('now');
+    
+    // Restore saved direction preference if available
+    const savedDir = localStorage.getItem('meatflow_nb_direction');
+    if (savedDir) {
+        setDirection(savedDir);
+    }
+
+    // Preload existing customers list for instant autocomplete
+    preloadExistingCustomers();
+
+    // Direct auto-select notebook
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlNbId = urlParams.has('notebook_id') ? parseInt(urlParams.get('notebook_id')) : null;
+    const savedNbIdStr = localStorage.getItem('meatflow_last_selected_nb_id');
+    const savedNbId = savedNbIdStr !== null ? parseInt(savedNbIdStr) : null;
+
+    let targetNb = null;
+    if (urlNbId !== null && DJANGO_NOTEBOOKS.some(n => n.id === urlNbId)) {
+        targetNb = DJANGO_NOTEBOOKS.find(n => n.id === urlNbId);
+    } else if (savedNbId !== null && DJANGO_NOTEBOOKS.some(n => n.id === savedNbId)) {
+        targetNb = DJANGO_NOTEBOOKS.find(n => n.id === savedNbId);
+    } else if (DJANGO_NOTEBOOKS.length > 1) {
+        targetNb = DJANGO_NOTEBOOKS[1]; // Select first actual notebook by default
+    } else if (DJANGO_NOTEBOOKS.length > 0) {
+        targetNb = DJANGO_NOTEBOOKS[0];
+    }
+
+    if (targetNb) {
+        selectNotebook(targetNb.id, targetNb.name, false);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDebtNotebookPage);
+} else {
+    initDebtNotebookPage();
+}
+
+let searchDebounceTimer = null;
+
+function preloadExistingCustomers() {
+    fetch('/pos/api/customers/')
+    .then(r => r.json())
+    .then(data => {
+        if (Array.isArray(data)) {
+            allExistingCustomersList = data;
+        }
+    })
+    .catch(e => console.log("Customer preload note:", e));
+}
+
+// ── CUSTOMER AUTOCOMPLETE SEARCH ──
+function handleCustomerSearch(query) {
+    const dropdown = document.getElementById('migCustomerDropdown');
+    const q = query.trim();
+
+    if (!q || q.length < 1) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    // 1. Instant local search if available
+    let localMatches = [];
+    if (allExistingCustomersList && allExistingCustomersList.length) {
+        const qLow = q.toLowerCase();
+        localMatches = allExistingCustomersList.filter(c => {
+            const name = `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase();
+            const phone = (c.phone || '').toLowerCase();
+            const customId = (c.custom_id || '').toLowerCase();
+            return name.includes(qLow) || phone.includes(qLow) || customId.includes(qLow);
+        }).slice(0, 8);
+    }
+
+    if (localMatches.length > 0) {
+        renderCustomerDropdown(localMatches);
+    }
+
+    // 2. Live API search to guarantee any newly created customer is found immediately
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+        fetch(`/pos/api/customers/?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+                // Merge into global cache
+                data.forEach(item => {
+                    if (!allExistingCustomersList.some(x => x.id === item.id)) {
+                        allExistingCustomersList.unshift(item);
+                    }
+                });
+                renderCustomerDropdown(data.slice(0, 8));
+            } else if (localMatches.length === 0) {
+                dropdown.style.display = 'none';
+            }
+        })
+        .catch(() => {});
+    }, 150);
+}
+
+function renderCustomerDropdown(matches) {
+    const dropdown = document.getElementById('migCustomerDropdown');
+    if (!matches || matches.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    let html = '';
+    matches.forEach(c => {
+        const fullName = escapeHtml(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+        const phone = escapeHtml(c.phone || '—');
+        const customId = escapeHtml(c.custom_id || '—');
+        const debt = Math.round(c.debt_amount || 0).toLocaleString('fr-FR');
+        html += `
+            <div onclick="selectExistingCustomerForMigration(${c.id})" style="padding: 10px 14px; border-bottom: 1px solid #F1F5F9; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s;" onmouseover="this.style.background='#F0FDF4'" onmouseout="this.style.background='#fff'">
+                <div>
+                    <div style="font-weight: 700; color: #1E293B; font-size: 0.92rem;">
+                        👤 ${fullName} <span style="font-family: monospace; font-size: 0.8rem; background: #DCFCE7; color: #166534; padding: 2px 6px; border-radius: 4px; font-weight: 700;">ID: ${customId}</span>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748B;">📞 ${phone}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.72rem; color: #94A3B8; font-weight: 700; text-transform: uppercase;">Joriy qarzi:</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #DC2626;">${debt} so'm</div>
+                </div>
+            </div>
+        `;
+    });
+
+    dropdown.innerHTML = html;
+    dropdown.style.display = 'block';
+}
+
+function selectExistingCustomerForMigration(custId) {
+    const cust = allExistingCustomersList.find(c => c.id === custId);
+    if (!cust) return;
+
+    document.getElementById('migFirstname').value = cust.first_name || '';
+    document.getElementById('migLastname').value = cust.last_name || '';
+    document.getElementById('migPhone').value = cust.phone || '';
+    document.getElementById('migCustomId').value = cust.custom_id || '';
+
+    // Hide dropdown
+    const dropdown = document.getElementById('migCustomerDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    // Show selected badge
+    const badge = document.getElementById('migSelectedCustBadge');
+    if (badge) {
+        const debtStr = Math.round(cust.debt_amount || 0).toLocaleString('fr-FR');
+        badge.innerHTML = `
+            <div class="d-flex align-items-center justify-content-between gap-2">
+                <span>➕ <b>Mavjud mijoz tanlandi:</b> ${cust.first_name} ${cust.last_name || ''} (ID: ${cust.custom_id}) · Joriy qarzi: <b class="text-danger">${debtStr} so'm</b></span>
+                <button type="button" class="btn btn-sm btn-light border py-0 px-2" onclick="clearSelectedCustomerMigration()" title="Tozalash">✕</button>
+            </div>
+        `;
+        badge.style.display = 'block';
+    }
+
+    const modeBadge = document.getElementById('migCustModeBadge');
+    if (modeBadge) {
+        modeBadge.className = "badge bg-success text-white";
+        modeBadge.innerText = "Mavjud mijozga qo'shilmoqda";
+    }
+
+    // Focus to Note or Debt input
+    setTimeout(() => {
+        const noteInp = document.getElementById('migNote');
+        if (noteInp) {
+            noteInp.focus();
+        } else {
+            document.getElementById('migDebt').focus();
+        }
+    }, 100);
+}
+
+function clearSelectedCustomerMigration() {
+    document.getElementById('migFirstname').value = '';
+    document.getElementById('migLastname').value = '';
+    document.getElementById('migPhone').value = '';
+    document.getElementById('migSelectedCustBadge').style.display = 'none';
+    const modeBadge = document.getElementById('migCustModeBadge');
+    if (modeBadge) {
+        modeBadge.className = "badge bg-light text-muted border";
+        modeBadge.innerText = "Yangi yoki Mavjud";
+    }
+    document.getElementById('migFirstname').focus();
+}
+
+// Close autocomplete dropdown on click outside
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('migCustomerDropdown');
+    const input = document.getElementById('migFirstname');
+    if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
+        dropdown.style.display = 'none';
+    }
+});
+
+// ── REALTIME DEBT AMOUNT PREVIEW ──
+function updateDebtPreview(val) {
+    const num = parseFloat(val) || 0;
+    const preview = document.getElementById('formattedDebtPreview');
+    preview.innerText = num > 0 ? `${Math.round(num).toLocaleString('fr-FR')} so'm` : '0 so\'m';
+}
+
+function addDebtQuick(amount) {
+    const debtInput = document.getElementById('migDebt');
+    const current = parseFloat(debtInput.value) || 0;
+    debtInput.value = current + amount;
+    updateDebtPreview(debtInput.value);
+    debtInput.focus();
+}
+
+// ── LOAD NOTEBOOK RECORDS ──
+function loadMigCustomers() {
+    if (currentNotebookId === null || currentNotebookId === undefined) return;
+    const tbody = document.getElementById('migCustomersTableBody');
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-success me-2"></div> Ma\'lumotlar yuklanmoqda...</td></tr>';
+
+    fetch(`/pos/api/get-notebook-customers/${currentNotebookId}/?type=${currentRecordType}`)
+    .then(res => res.json())
+    .then(data => {
+        allMigratedRecords = data;
+        renderMigTable(data);
+        
+        // Auto-suggest next ID based on latest record if ID input is empty
+        const idInput = document.getElementById('migCustomId');
+        if (!idInput.value.trim() && data.length > 0) {
+            idInput.value = calculateNextId(data[0].custom_id);
+        } else if (!idInput.value.trim()) {
+            idInput.value = currentRecordType === 'supplier' ? 'T-1' : '1';
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger">Server bilan aloqada xatolik yuz berdi!</td></tr>';
+    });
+}
+
+// ── RENDER TABLE ──
+function renderMigTable(records) {
+    const tbody = document.getElementById('migCustomersTableBody');
+    if (!records || records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Ushbu daftarga hali ${currentRecordType === 'supplier' ? 'ta\'minotchi' : 'xaridor'} qarzi ko'chirilmagan. Yuqoridagi formadan kiritishni boshlang!</td></tr>`;
+        document.getElementById('migTotalDebtBadge').innerHTML = '<i class="bi bi-calculator"></i> Jami: 0 so\'m';
+        return;
+    }
+
+    let html = '';
+    let totalDebt = 0;
+    records.forEach((c, idx) => {
+        const entryAmt = c.entry_amount !== undefined ? c.entry_amount : (c.debt_balance || 0);
+        totalDebt += entryAmt;
+        const fullName = escapeHtml(`${c.first_name || ''} ${c.last_name || ''}`.trim());
+        const phoneDisplay = escapeHtml(c.phone || '—');
+        const customIdDisplay = escapeHtml(c.custom_id || '');
+        const dateDisplay = escapeHtml(c.created_at || '—');
+        const noteDisplay = escapeHtml(c.note || '—');
+        const targetCustId = c.customer_id || c.id;
+
+        html += `
+            <tr id="mig-rec-row-${c.id}">
+                <td style="font-weight:700; color: #94A3B8;">${idx + 1}</td>
+                <td>
+                    <span class="nb-tag-date"><i class="bi bi-clock"></i> ${dateDisplay}</span>
+                </td>
+                <td>
+                    <a href="javascript:void(0)" class="customer-clickable fw-bold text-dark" onclick="showCustomerQuickInfo(${targetCustId}, '${escapeHtml(fullName)}')" title="Mijoz haqida 360° to'liq ma'lumot va sahifalarga o'tish">
+                        <i class="bi bi-person-fill text-success small"></i> ${fullName}
+                    </a>
+                </td>
+                <td>
+                    <div class="small font-monospace text-muted">${phoneDisplay}</div>
+                    <span class="nb-tag-id">ID: ${customIdDisplay}</span>
+                </td>
+                <td>
+                    <span class="badge bg-light text-secondary border text-wrap text-start" style="font-weight:500; max-width:180px;">${noteDisplay}</span>
+                </td>
+                <td class="nb-debt-cell" style="color:#DC2626;">+${Math.round(entryAmt).toLocaleString('fr-FR')} so'm</td>
+                <td>
+                    <span class="fw-bold text-dark font-monospace">${Math.round(c.debt_balance || entryAmt).toLocaleString('fr-FR')} so'm</span>
+                </td>
+                <td style="text-align: right; white-space: nowrap;">
+                    <button type="button" class="btn btn-sm btn-outline-danger me-1" onclick="openCustomerDebtHistoryModal(${targetCustId}, '${escapeHtml(fullName)}')" title="Ushbu mijozning barcha qarzlar tarixini ko'rish" style="border-radius:8px; padding:3px 8px; font-weight:700; font-size:0.78rem;">
+                        <i class="bi bi-clock-history me-1"></i> Tarix
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${c.id})" title="Ushbu qarz yozuvini tahrirlash" style="border-radius:8px; padding:3px 8px; font-weight:700; font-size:0.78rem;">
+                        <i class="bi bi-pencil-square me-1"></i> Tahrirlash
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteMigRecord(${c.id})" title="Ushbu qarz yozuvini o'chirish" style="border-radius:8px; padding:3px 8px; font-weight:700; font-size:0.78rem;">
+                        <i class="bi bi-trash3-fill me-1"></i> O'chirish
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+    document.getElementById('migTotalDebtBadge').innerHTML = `<i class="bi bi-calculator"></i> Jami: ${Math.round(totalDebt).toLocaleString('fr-FR')} so'm`;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// ── FILTER TABLE LIVE ──
+function filterMigTable(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) {
+        renderMigTable(allMigratedRecords);
+        return;
+    }
+    const filtered = allMigratedRecords.filter(r => 
+        (r.first_name && r.first_name.toLowerCase().includes(q)) ||
+        (r.last_name && r.last_name.toLowerCase().includes(q)) ||
+        (r.phone && r.phone.toLowerCase().includes(q)) ||
+        (r.custom_id && r.custom_id.toLowerCase().includes(q)) ||
+        (r.note && r.note.toLowerCase().includes(q))
+    );
+    renderMigTable(filtered);
+}
+
+// ── SAVE MIGRATED CUSTOMER / SUPPLIER (RAPID ENTRY) ──
+function saveMigCustomer() {
+    const name = document.getElementById('migFirstname').value.trim();
+    const lastname = document.getElementById('migLastname').value.trim();
+    let phone = document.getElementById('migPhone').value.trim();
+    let customId = document.getElementById('migCustomId').value.trim();
+    const entryDate = document.getElementById('migEntryDate').value;
+    const note = document.getElementById('migNote') ? document.getElementById('migNote').value.trim() : '';
+    const debt = parseFloat(document.getElementById('migDebt').value) || 0;
+
+    if (!name) {
+        showToast('error', '⚠️ Ism/Tashkilot nomini kiriting!');
+        document.getElementById('migFirstname').focus();
+        return;
+    }
+    if (debt <= 0) {
+        showToast('error', '⚠️ Qarz summasini to\'g\'ri kiriting!');
+        document.getElementById('migDebt').focus();
+        return;
+    }
+
+    if (!customId) {
+        customId = currentRecordType === 'supplier' ? 'T-1' : '1';
+    }
+
+    const saveBtn = document.getElementById('btnSaveRecord');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div> Saqlanmoqda...';
+
+    fetch('/pos/api/save-migrated-debt/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            type: currentRecordType,
+            first_name: name,
+            last_name: lastname,
+            phone: phone,
+            custom_id: customId,
+            entry_date: entryDate,
+            note: note,
+            debt_balance: debt,
+            notebook_name: currentNotebookName
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = `<i class="${currentRecordType === 'supplier' ? 'bi bi-truck' : 'bi bi-check2-circle'} fs-5"></i> Qarzni Saqlash & Keyingisiga O'tish`;
+
+        if (data.status === 'success') {
+            showToast('success', `✅ ${name} (ID: ${customId}) — ${Math.round(debt).toLocaleString('fr-FR')} so'm saqlandi!`);
+
+            // 1. Calculate NEXT ID automatically based on direction
+            const nextId = calculateNextId(customId);
+            document.getElementById('migCustomId').value = nextId;
+
+            // 2. Clear customer fields but PRESERVE DATE
+            document.getElementById('migFirstname').value = '';
+            document.getElementById('migLastname').value = '';
+            document.getElementById('migPhone').value = '';
+            document.getElementById('migDebt').value = '';
+            if (document.getElementById('migNote')) document.getElementById('migNote').value = '';
+            if (document.getElementById('migSelectedCustBadge')) document.getElementById('migSelectedCustBadge').style.display = 'none';
+            const modeBadge = document.getElementById('migCustModeBadge');
+            if (modeBadge) {
+                modeBadge.className = "badge bg-light text-muted border";
+                modeBadge.innerText = "Yangi yoki Mavjud";
+            }
+            updateDebtPreview(0);
+
+            // 3. Immediately focus back on Firstname for high speed typing
+            document.getElementById('migFirstname').focus();
+
+            // 4. Update table & cache immediately
+            if (data.record) {
+                allMigratedRecords.unshift(data.record);
+                renderMigTable(allMigratedRecords);
+            }
+            loadMigCustomers();
+            preloadExistingCustomers();
+
+            // 5. Update stat counters
+            if (currentRecordType === 'supplier') {
+                const statEl = document.getElementById('statMigratedSuppliers');
+                if (statEl) statEl.innerText = (parseInt(statEl.innerText) || 0) + 1 + ' ta';
+            } else {
+                const statEl = document.getElementById('statMigrated');
+                if (statEl) statEl.innerText = (parseInt(statEl.innerText) || 0) + 1 + ' kishi';
+            }
+        } else {
+            showToast('error', `❌ Xatolik: ${data.message}`);
+        }
+    })
+    .catch(err => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="bi bi-check2-circle fs-5"></i> Qarzni Saqlash & Keyingisiga O\'tish';
+        console.error(err);
+        showToast('error', '❌ Tarmoq xatoligi yuz berdi!');
+    });
+}
+
+function showToast(type, message) {
+    const toast = document.getElementById('migStatusToast');
+    toast.className = `nb-toast-msg ${type}`;
+    toast.innerText = message;
+    setTimeout(() => {
+        toast.style.display = 'none';
+        toast.className = 'nb-toast-msg';
+    }, 4500);
+}
+
+// ── EDIT MIGRATED RECORD ──
+function openEditModal(recordId) {
+    const record = allMigratedRecords.find(r => r.id === recordId);
+    if (!record) return;
+
+    document.getElementById('editRecordId').value = record.id;
+    document.getElementById('editFirstname').value = record.first_name || '';
+    document.getElementById('editLastname').value = record.last_name || '';
+    document.getElementById('editPhone').value = record.phone || '';
+    document.getElementById('editCustomId').value = record.custom_id || '';
+    document.getElementById('editDebt').value = (record.entry_amount !== undefined ? record.entry_amount : record.debt_balance) || 0;
+    if (document.getElementById('editNote')) {
+        document.getElementById('editNote').value = record.note || '';
+    }
+    
+    // Set date/time
+    if (record.raw_date) {
+        document.getElementById('editEntryDate').value = record.raw_date;
+    } else {
+        document.getElementById('editEntryDate').value = '';
+    }
+
+    const modalTitle = document.getElementById('editModalTitleText');
+    if (modalTitle) {
+        modalTitle.innerText = `${record.first_name} (ID: ${record.custom_id}) — Tahrirlash`;
+    }
+
+    const errEl = document.getElementById('editModalError');
+    if (errEl) errEl.style.display = 'none';
+    
+    const modalEl = document.getElementById('editRecordModal');
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    } else if (window.$ && $.fn.modal) {
+        $(modalEl).modal('show');
+    } else {
+        modalEl.style.display = 'block';
+        modalEl.classList.add('show');
+    }
+
+    setTimeout(() => {
+        const fn = document.getElementById('editFirstname');
+        if (fn) { fn.focus(); fn.select(); }
+    }, 400);
+}
+
+function saveEditedRecord() {
+    const recordId = document.getElementById('editRecordId').value;
+    const name = document.getElementById('editFirstname').value.trim();
+    const lastname = document.getElementById('editLastname').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+    const customId = document.getElementById('editCustomId').value.trim();
+    const entryDate = document.getElementById('editEntryDate').value;
+    const note = document.getElementById('editNote') ? document.getElementById('editNote').value.trim() : '';
+    const debt = parseFloat(document.getElementById('editDebt').value) || 0;
+    const errEl = document.getElementById('editModalError');
+
+    if (!name) {
+        errEl.innerText = "⚠️ Ism kiritilishi shart!";
+        errEl.style.display = 'block';
+        return;
+    }
+    if (debt < 0) {
+        errEl.innerText = "⚠️ Qarz summasi manfiy bo'lishi mumkin emas!";
+        errEl.style.display = 'block';
+        return;
+    }
+
+    const btn = document.getElementById('btnSaveEdit');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saqlanmoqda...';
+
+    fetch('/pos/api/update-migrated-record/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            id: recordId,
+            type: currentRecordType,
+            first_name: name,
+            last_name: lastname,
+            phone: phone,
+            custom_id: customId,
+            entry_date: entryDate,
+            note: note,
+            debt_balance: debt
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check2-circle"></i> O\'zgarishlarni Saqlash';
+
+        if (data.status === 'success') {
+            const modalEl = document.getElementById('editRecordModal');
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } else if (window.$ && $.fn.modal) {
+                $(modalEl).modal('hide');
+            } else {
+                modalEl.style.display = 'none';
+                modalEl.classList.remove('show');
+            }
+
+            showToast('success', `✅ "${name}" ma'lumotlari muvaffaqiyatli yangilandi!`);
+            loadMigCustomers();
+        } else {
+            errEl.innerText = "❌ Xatolik: " + data.message;
+            errEl.style.display = 'block';
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check2-circle"></i> O\'zgarishlarni Saqlash';
+        errEl.innerText = "❌ Server bilan bog'lanishda xatolik!";
+        errEl.style.display = 'block';
+    });
+}
+
+// ── DELETE MIGRATED RECORD ──
+function deleteMigRecord(recordId) {
+    const record = allMigratedRecords.find(r => r.id === recordId);
+    const displayName = record ? `${record.first_name} (ID: ${record.custom_id})` : `ID #${recordId}`;
+
+    if (!confirm(`Haqiqatan ham "${displayName}" qarz yozuvini o'chirmoqchimisiz?`)) return;
+    
+    fetch('/pos/api/delete-migrated-record/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            id: recordId,
+            type: currentRecordType
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast('success', `🗑️ "${displayName}" yozuvi muvaffaqiyatli o'chirildi!`);
+            loadMigCustomers();
+            preloadExistingCustomers();
+        } else {
+            alert("Xatolik: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("Server bilan bog'lanishda xatolik!");
+    });
 }
 
 // ── CREATE NOTEBOOK ──
@@ -819,141 +2033,181 @@ function createNotebook() {
     });
 }
 
-// ── DELETE NOTEBOOK ──
-function deleteNotebook(id, name) {
-    if (!confirm(`"${name}" daftarini o'chirishni xohlaysizmi?\n\nEslatma: Mijozlar va Ta'minotchilar o'chirilmaydi, faqat daftar nomi o'chadi.`)) return;
-    window.location.href = `/pos/notebooks/delete/${id}/`;
-}
+// ── RENAME NOTEBOOK ──
+function renameNotebook(id, currentName) {
+    const newName = prompt("Daftar yangi nomini kiriting:", currentName);
+    if (!newName || !newName.trim() || newName.trim() === currentName) return;
 
-// ── LOAD MIGRATED RECORDS ──
-function loadMigCustomers() {
-    if (!currentNotebookId) return;
-    const tbody = document.getElementById('migCustomersTableBody');
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="5"><div style="display:flex;align-items:center;justify-content:center;gap:8px;"><div class="spinner-border spinner-border-sm text-muted"></div> Yuklanmoqda...</div></td></tr>';
-
-    fetch(`/pos/api/get-notebook-customers/${currentNotebookId}/?type=${currentRecordType}`)
-    .then(res => res.json())
-    .then(data => {
-        if (data.length === 0) {
-            tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Bu daftarga hali ${currentRecordType === 'supplier' ? 'ta\'minotchi' : 'xaridor'} qarzi ko'chirilmagan. Yuqoridagi formadan boshlang!</td></tr>`;
-            document.getElementById('migTotalDebt').innerText = 'Jami: 0 so\'m';
-            return;
-        }
-
-        let html = '';
-        let totalDebt = 0;
-        data.forEach((c, idx) => {
-            totalDebt += c.debt_balance;
-            html += `
-                <tr>
-                    <td style="font-weight:600; color: var(--text-muted);">${idx + 1}</td>
-                    <td class="name-cell">${c.first_name} ${c.last_name || ''}</td>
-                    <td style="color: var(--text-muted);">${c.phone || '—'}</td>
-                    <td><span style="background:rgba(27,107,74,0.08);color:var(--primary);padding:2px 8px;border-radius:8px;font-size:0.8rem;font-weight:600;">${c.custom_id}</span></td>
-                    <td class="debt-cell">${Math.round(c.debt_balance).toLocaleString('fr-FR')} so'm</td>
-                </tr>
-            `;
-        });
-        tbody.innerHTML = html;
-        document.getElementById('migTotalDebt').innerText = `Jami: ${Math.round(totalDebt).toLocaleString('fr-FR')} so'm`;
-    })
-    .catch(err => {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="color:var(--danger);">Server xatosi!</td></tr>';
-    });
-}
-
-// ── SAVE MIGRATED RECORD ──
-function saveMigCustomer() {
-    const name = document.getElementById('migFirstname').value.trim();
-    const lastname = document.getElementById('migLastname').value.trim();
-    let phone = document.getElementById('migPhone').value.trim();
-    const customId = document.getElementById('migCustomId').value.trim();
-    const debt = parseFloat(document.getElementById('migDebt').value) || 0;
-    const statusMsg = document.getElementById('migStatusMsg');
-
-    if (!name) {
-        statusMsg.className = 'nb-status-msg error';
-        statusMsg.innerText = '⚠️ Ism/Tashkilot nomini kiriting!';
-        document.getElementById('migFirstname').focus();
-        return;
-    }
-    if (debt <= 0) {
-        statusMsg.className = 'nb-status-msg error';
-        statusMsg.innerText = '⚠️ Qarz summasini kiriting!';
-        document.getElementById('migDebt').focus();
-        return;
-    }
-
-    if (!phone) {
-        phone = (currentRecordType === 'supplier' ? 'No-Phone-S-' : 'No-Phone-M-') + Math.floor(100000 + Math.random() * 900000);
-    }
-
-    // Disable button
-    const saveBtn = document.querySelector('#migFormSection .nb-btn-primary');
-    saveBtn.disabled = true;
-    saveBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Saqlanmoqda...';
-
-    fetch('/pos/api/save-migrated-debt/', {
+    fetch('/pos/api/rename-notebook/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'
         },
-        body: JSON.stringify({
-            type: currentRecordType,
-            first_name: name,
-            last_name: lastname,
-            phone: phone,
-            custom_id: customId,
-            debt_balance: debt,
-            notebook_name: currentNotebookName
-        })
+        body: JSON.stringify({ id: id, name: newName.trim() })
     })
     .then(res => res.json())
     .then(data => {
-        saveBtn.disabled = false;
-        const iconClass = currentRecordType === 'supplier' ? 'bi bi-truck' : 'bi bi-person-plus-fill';
-        saveBtn.innerHTML = `<i class="${iconClass}"></i> Saqlash`;
-
         if (data.status === 'success') {
-            statusMsg.className = 'nb-status-msg success';
-            statusMsg.innerText = `✅ ${name} — ${Math.round(debt).toLocaleString('fr-FR')} so'm muvaffaqiyatli saqlandi!`;
-
-            // Clear inputs
-            document.getElementById('migFirstname').value = '';
-            document.getElementById('migLastname').value = '';
-            document.getElementById('migPhone').value = '';
-            document.getElementById('migDebt').value = '';
-            
-            const prefix = currentRecordType === 'supplier' ? 'S-' : 'M-';
-            document.getElementById('migCustomId').value = prefix + Math.floor(1000 + Math.random() * 9000);
-
-            document.getElementById('migFirstname').focus();
-            loadMigCustomers();
-
-            // Update stats
-            if (currentRecordType === 'supplier') {
-                const statMigratedSuppliers = document.getElementById('statMigratedSuppliers');
-                statMigratedSuppliers.innerText = (parseInt(statMigratedSuppliers.innerText) || 0) + 1 + ' ta';
-            } else {
-                const statMigrated = document.getElementById('statMigrated');
-                statMigrated.innerText = (parseInt(statMigrated.innerText) || 0) + 1 + ' kishi';
-            }
-
-            setTimeout(() => { statusMsg.innerText = ''; }, 4000);
+            window.location.reload();
         } else {
-            statusMsg.className = 'nb-status-msg error';
-            statusMsg.innerText = `❌ Xatolik: ${data.message}`;
+            alert("Xatolik: " + data.message);
         }
     })
     .catch(err => {
-        saveBtn.disabled = false;
-        const iconClass = currentRecordType === 'supplier' ? 'bi bi-truck' : 'bi bi-person-plus-fill';
-        saveBtn.innerHTML = `<i class="${iconClass}"></i> Saqlash`;
         console.error(err);
-        statusMsg.className = 'nb-status-msg error';
-        statusMsg.innerText = '❌ Server bilan aloqa uzildi!';
+        alert("Serverga ulanib bo'lmadi.");
     });
 }
+
+// ── DELETE NOTEBOOK ──
+function deleteNotebook(id, name) {
+    if (!confirm(`"${name}" daftarini o'chirishni xohlaysizmi?\n\nEslatma: Ushbu daftardagi mijozlar o'chirilmaydi, faqat daftar belgisi o'chadi.`)) return;
+    window.location.href = `/pos/notebooks/delete/${id}/`;
+}
+
+// ── UNIFIED CUSTOMER DEBT HISTORY MODAL FUNCTIONS ──
+function openCustomerDebtHistoryModal(customerId, customerName) {
+    let modal = document.getElementById('customerDebtHistoryModal');
+    if (!modal) {
+        console.error("Modal not found");
+        return;
+    }
+
+    document.getElementById('debtHistoryCustomerName').innerText = customerName || "Mijoz";
+    document.getElementById('debtHistTotalTaken').innerText = "—";
+    document.getElementById('debtHistTotalPaid').innerText = "—";
+    document.getElementById('debtHistCurrentBalance').innerText = "—";
+
+    const container = document.getElementById('debtHistListContainer');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 0; color: #94A3B8;">
+            <div class="spinner-border spinner-border-sm text-primary mb-2"></div>
+            <div>Qarzlar va to'lovlar tarixi yuklanmoqda...</div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    fetch(`/pos/api/customers/${customerId}/debt-history/`)
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const cust = data.customer || {};
+            const summ = data.summary || {};
+            const timeline = data.timeline || [];
+
+            document.getElementById('debtHistoryCustomerName').innerText = cust.name || customerName;
+            document.getElementById('debtHistoryCustomerMeta').innerText = `ID: ${cust.custom_id || '—'} · Telefon: ${cust.phone || '—'}`;
+            document.getElementById('debtHistTotalTaken').innerText = `${Math.round(summ.total_debt_taken || 0).toLocaleString('fr-FR')} so'm`;
+            document.getElementById('debtHistTotalPaid').innerText = `${Math.round(summ.total_debt_paid || 0).toLocaleString('fr-FR')} so'm`;
+            document.getElementById('debtHistCurrentBalance').innerText = `${Math.round(summ.current_balance || 0).toLocaleString('fr-FR')} so'm`;
+
+            if (timeline.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px 20px; color: #94A3B8;">
+                        <i class="bi bi-shield-check" style="font-size: 42px; color: #10B981; display: block; margin-bottom: 10px;"></i>
+                        <h6 style="color: #1E293B; font-weight: 700;">Qarz yozuvlari topilmadi</h6>
+                        <p style="font-size: 0.85rem; margin: 0;">Ushbu mijozda hali hech qanday qarz yoki to'lov qayd etilmagan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+            timeline.forEach((item) => {
+                const isDebt = item.type === 'debt_add';
+                const amtFormatted = Math.abs(Math.round(item.amount)).toLocaleString('fr-FR');
+                const badgeBg = isDebt ? '#FEF2F2' : '#F0FDF4';
+                const badgeColor = isDebt ? '#DC2626' : '#16A34A';
+                const icon = isDebt ? 'bi-plus-circle-fill' : 'bi-dash-circle-fill';
+                const sign = isDebt ? '+' : '-';
+
+                html += `
+                    <div style="border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 16px; background: #fff; display: flex; justify-content: space-between; align-items: center; gap: 12px; transition: all 0.2s;" onmouseover="this.style.borderColor='#94A3B8'" onmouseout="this.style.borderColor='#E2E8F0'">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span style="background: ${badgeBg}; color: ${badgeColor}; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
+                                    ${escapeHtml(item.badge || (isDebt ? 'Qarz' : 'To\'lov'))}
+                                </span>
+                                <span style="font-size: 0.76rem; color: #64748B;"><i class="bi bi-clock me-1"></i> ${escapeHtml(item.created_at)}</span>
+                            </div>
+                            <div style="font-weight: 700; color: #1E293B; font-size: 0.92rem;">
+                                ${escapeHtml(item.title || '')}
+                            </div>
+                            <div style="font-size: 0.82rem; color: #475569; margin-top: 2px;">
+                                ${escapeHtml(item.note || '')}
+                            </div>
+                        </div>
+                        <div style="text-align: right; flex-shrink: 0;">
+                            <div style="font-size: 1.05rem; font-weight: 800; color: ${badgeColor}; font-family: monospace;">
+                                ${sign}${amtFormatted} so'm
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = `<div class="alert alert-danger">${data.message || 'Xatolik yuz berdi'}</div>`;
+        }
+    })
+    .catch(err => {
+        container.innerHTML = `<div class="alert alert-danger">Ma'lumotlarni yuklab bo'lmadi</div>`;
+    });
+}
+
+function closeCustomerDebtHistoryModal() {
+    const modal = document.getElementById('customerDebtHistoryModal');
+    if (modal) modal.style.display = 'none';
+}
 </script>
+
+<!-- UNIFIED CUSTOMER DEBT HISTORY MODAL -->
+<div class="modal-overlay" id="customerDebtHistoryModal" style="display:none;" onclick="if(event.target===this) closeCustomerDebtHistoryModal()">
+  <div class="modal-card" style="max-width: 680px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; border-radius: 24px; padding: 0; background: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.3);">
+    <!-- HEADER -->
+    <div style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); color: #fff; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h4 style="margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+          <span style="background: rgba(239, 68, 68, 0.2); color: #F87171; border-radius: 8px; padding: 4px 8px; font-size: 0.85rem;">📋 Qarzlar Tarixi</span>
+          <span id="debtHistoryCustomerName">Mijoz</span>
+        </h4>
+        <p style="margin: 4px 0 0; font-size: 0.82rem; color: #94A3B8;" id="debtHistoryCustomerMeta">Barcha olingan qarzlar va to'lovlar tafsilotlari</p>
+      </div>
+      <button onclick="closeCustomerDebtHistoryModal()" style="background: rgba(255,255,255,0.12); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;">✕</button>
+    </div>
+
+    <!-- SUMMARY METRICS -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px 20px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+      <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 14px; padding: 10px 12px; text-align: center;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #DC2626; text-transform: uppercase;">🔴 Jami Qarz Olingan</div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #991B1B; margin-top: 2px;" id="debtHistTotalTaken">0 so'm</div>
+      </div>
+      <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 14px; padding: 10px 12px; text-align: center;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #16A34A; text-transform: uppercase;">🟢 Jami To'langan</div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #166534; margin-top: 2px;" id="debtHistTotalPaid">0 so'm</div>
+      </div>
+      <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 14px; padding: 10px 12px; text-align: center;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: #2563EB; text-transform: uppercase;">💳 Hozirgi Qoldiq</div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #1E40AF; margin-top: 2px;" id="debtHistCurrentBalance">0 so'm</div>
+      </div>
+    </div>
+
+    <!-- TIMELINE LIST CONTAINER -->
+    <div style="flex: 1; overflow-y: auto; padding: 18px 20px; background: #FFFFFF; max-height: 440px;" id="debtHistListContainer">
+      <div style="text-align: center; padding: 40px 0; color: #94A3B8;">
+        <div class="spinner-border spinner-border-sm text-primary mb-2"></div>
+        <div>Tarix yuklanmoqda...</div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding: 12px 20px; background: #F8FAFC; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end;">
+      <button type="button" class="btn btn-secondary" onclick="closeCustomerDebtHistoryModal()" style="border-radius: 10px; font-weight: 600; font-size: 0.88rem; padding: 8px 20px;">Yopish</button>
+    </div>
+  </div>
+</div>
 {% endblock %}
+

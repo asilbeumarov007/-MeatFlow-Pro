@@ -11,6 +11,8 @@ from decimal import Decimal
 
 import json
 import random
+import difflib
+import re
 from datetime import timedelta
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -269,20 +271,20 @@ def customer_display_view(request):
 @staff_required
 def search_customers(request):
     query = request.GET.get('q', '').strip()
-    if not query:
-        return JsonResponse([], safe=False)
-
     script_mode = request.session.get('script_mode', 'latin')
-    query_latin = cyrillic_to_latin(query)
-    query_cyrillic = latin_to_cyrillic(query)
 
-    customers = Customer.objects.filter(
-        Q(first_name__icontains=query) | Q(last_name__icontains=query) |
-        Q(first_name__icontains=query_latin) | Q(last_name__icontains=query_latin) |
-        Q(first_name__icontains=query_cyrillic) | Q(last_name__icontains=query_cyrillic) |
-        Q(custom_id__icontains=query) |
-        Q(phone__icontains=query)
-    ).distinct()[:5]
+    if not query:
+        customers = Customer.objects.order_by('-id')[:10]
+    else:
+        query_latin = cyrillic_to_latin(query)
+        query_cyrillic = latin_to_cyrillic(query)
+        customers = Customer.objects.filter(
+            Q(first_name__icontains=query) | Q(last_name__icontains=query) |
+            Q(first_name__icontains=query_latin) | Q(last_name__icontains=query_latin) |
+            Q(first_name__icontains=query_cyrillic) | Q(last_name__icontains=query_cyrillic) |
+            Q(custom_id__icontains=query) |
+            Q(phone__icontains=query)
+        ).distinct()[:15]
 
     results = []
     for c in customers:
@@ -796,14 +798,24 @@ def daily_report_view(request):
     local_now = timezone.localtime(timezone.now())
     today = local_now.date()
 
-    todays_sales = Sale.objects.filter(created_at__date=today).select_related("customer")
+    todays_sales = Sale.objects.filter(created_at__date=today).select_related("customer").prefetch_related("items__product").order_by('-id')
 
-    naqd_total = todays_sales.filter(payment_method="naqd").aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
-    karta_total = todays_sales.filter(payment_method="karta").aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
-    qr_total = todays_sales.filter(payment_method="qr").aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
-    nasiya_total = todays_sales.filter(payment_method="nasiya").aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
+    naqd_pure = todays_sales.filter(payment_method="naqd").aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
+    karta_pure = todays_sales.filter(payment_method="karta").aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
+    qr_pure = todays_sales.filter(payment_method="qr").aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
+    nasiya_pure = todays_sales.filter(payment_method="nasiya").aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
 
-    overall_total = naqd_total + karta_total + qr_total + nasiya_total
+    aralash_naqd = todays_sales.filter(payment_method="aralash").aggregate(Sum("paid_naqd"))["paid_naqd__sum"] or Decimal("0.00")
+    aralash_karta = todays_sales.filter(payment_method="aralash").aggregate(Sum("paid_karta"))["paid_karta__sum"] or Decimal("0.00")
+    aralash_qr = todays_sales.filter(payment_method="aralash").aggregate(Sum("paid_qr"))["paid_qr__sum"] or Decimal("0.00")
+    aralash_nasiya = todays_sales.filter(payment_method="aralash").aggregate(Sum("debt_added"))["debt_added__sum"] or Decimal("0.00")
+
+    naqd_total = naqd_pure + aralash_naqd
+    karta_total = karta_pure + aralash_karta
+    qr_total = qr_pure + aralash_qr
+    nasiya_total = nasiya_pure + aralash_nasiya
+
+    overall_total = naqd_total + karta_total + qr_total
 
     # Cash Flow Kirim/Chiqim calculations for today
     today_cash_ins = CashTransaction.objects.filter(created_at__date=today, transaction_type='in')
@@ -817,6 +829,17 @@ def daily_report_view(request):
     naqd_outs_today = today_cash_outs.filter(payment_method='naqd').aggregate(Sum("amount"))["amount__sum"] or Decimal("0.00")
     today_net_drawer_change = naqd_total + naqd_ins_today - naqd_outs_today
 
+    active_products = Product.objects.filter(is_active=True).select_related('stock')
+    all_customers = Customer.objects.order_by('-id')[:100]
+
+    from .models import StockBatch
+    active_batches = StockBatch.objects.filter(current_quantity__gt=Decimal('0.05')).select_related('product').order_by('created_at')
+    aging_alerts = []
+    for b in active_batches:
+        rec = b.get_ai_recommendation()
+        if rec:
+            aging_alerts.append(rec)
+
     context = {
         "today": today,
         "naqd": naqd_total,
@@ -826,6 +849,10 @@ def daily_report_view(request):
         "overall": overall_total,
         "sales_count": todays_sales.count(),
         "todays_sales": todays_sales,
+        "active_products": active_products,
+        "all_customers": all_customers,
+        "active_batches": active_batches,
+        "aging_alerts": aging_alerts,
         # Cash Flow metrics
         "cash_in_total": cash_in_total,
         "cash_out_total": cash_out_total,
@@ -1038,14 +1065,227 @@ def customer_chats_dashboard(request):
     customers = Customer.objects.all().order_by('-debt_amount')
     return render(request, 'customer_chats.html', {'customers': customers})
 
+def mask_phone(phone):
+    """Telefon raqamini xavfsiz qisman yashirish: +998 90 *** 4567"""
+    if not phone or len(str(phone)) < 6:
+        return phone or "Yashiringan"
+    clean = ''.join(filter(str.isdigit, str(phone)))
+    if len(clean) >= 9:
+        return f"+{clean[:3]} {clean[3:5]} *** {clean[-4:]}"
+    return f"{str(phone)[:2]}***{str(phone)[-2:]}"
+
+
+def smart_find_customers(query, limit=8):
+    """
+    Mijozlar bazasi va daftardagi barcha qaydlar orasidan AI / Smart qidiruv.
+    Lotin, Kirill, ID, telefon, eslatmalar va xatoliklarni (typo) hisobga oladi.
+    """
+    query = (query or '').strip()
+    if not query:
+        return []
+
+    q_clean = query.lower()
+    q_latin = cyrillic_to_latin(query).lower()
+    q_cyrillic = latin_to_cyrillic(query).lower()
+    digits = ''.join(filter(str.isdigit, query))
+
+    filters = (
+        Q(first_name__icontains=query) | Q(last_name__icontains=query) |
+        Q(first_name__icontains=q_latin) | Q(last_name__icontains=q_latin) |
+        Q(first_name__icontains=q_cyrillic) | Q(last_name__icontains=q_cyrillic) |
+        Q(custom_id__iexact=query) | Q(custom_id__icontains=query) |
+        Q(note__icontains=query) | Q(note__icontains=q_latin) | Q(note__icontains=q_cyrillic)
+    )
+
+    words = [w for w in re.split(r'[\s,._-]+', query) if len(w) >= 2]
+    if len(words) > 1:
+        for w in words:
+            w_lat = cyrillic_to_latin(w)
+            w_cyr = latin_to_cyrillic(w)
+            filters |= (
+                Q(first_name__icontains=w) | Q(last_name__icontains=w) |
+                Q(first_name__icontains=w_lat) | Q(last_name__icontains=w_lat) |
+                Q(first_name__icontains=w_cyr) | Q(last_name__icontains=w_cyr) |
+                Q(note__icontains=w) | Q(note__icontains=w_lat) | Q(note__icontains=w_cyr)
+            )
+
+    if digits:
+        filters |= (
+            Q(custom_id__iexact=digits) | 
+            Q(custom_id__iexact=f"M-{digits}") | 
+            Q(custom_id__iexact=f"S-{digits}") | 
+            Q(custom_id__icontains=digits)
+        )
+        if len(digits) >= 3:
+            filters |= Q(phone__icontains=digits)
+
+    matches = list(Customer.objects.filter(filters).order_by('-debt_amount', 'id').distinct()[:limit * 2])
+
+    # If results are fewer than limit, apply fuzzy similarity matching on customer names and notes
+    if len(matches) < limit:
+        existing_ids = {c.id for c in matches}
+        pool = Customer.objects.exclude(id__in=existing_ids).only(
+            'id', 'first_name', 'last_name', 'custom_id', 'phone', 'note', 'debt_amount', 'bonus_points'
+        )[:250]
+        fuzzy_scored = []
+        for c in pool:
+            last = c.last_name or ""
+            name_str = f"{c.first_name} {last}".lower()
+            name_lat = cyrillic_to_latin(name_str).lower()
+            name_cyr = latin_to_cyrillic(name_str).lower()
+            note_str = (c.note or "").lower()
+
+            scores = [
+                difflib.SequenceMatcher(None, q_clean, name_str).ratio(),
+                difflib.SequenceMatcher(None, q_latin, name_lat).ratio(),
+                difflib.SequenceMatcher(None, q_cyrillic, name_cyr).ratio(),
+            ]
+
+            for w in words or [q_clean]:
+                for part in name_str.split():
+                    scores.append(difflib.SequenceMatcher(None, w, part).ratio())
+                for nw in note_str.split()[:15]:
+                    scores.append(difflib.SequenceMatcher(None, w, nw).ratio() * 0.85)
+
+            best_score = max(scores) if scores else 0
+            if best_score >= 0.52:
+                fuzzy_scored.append((best_score, c))
+
+        fuzzy_scored.sort(key=lambda x: x[0], reverse=True)
+        for _, c in fuzzy_scored:
+            if len(matches) >= limit:
+                break
+            matches.append(c)
+
+    return matches[:limit]
+
+
+@csrf_exempt
+def api_smart_profile_search(request):
+    """
+    Saytda Telegram kabi AI / Smart daftardan qidirish API-si.
+    Mijoz taxminiy ism, familiya, daftar qaydi yoki ID kiritganda mos profillarni qaytaradi.
+    """
+    query = request.GET.get('q') or request.POST.get('q') or ''
+    if not query and request.body:
+        try:
+            data = json.loads(request.body)
+            query = data.get('q', '')
+        except Exception:
+            pass
+
+    query = query.strip()
+    if not query:
+        return JsonResponse({'status': 'success', 'candidates': [], 'count': 0})
+
+    matches = smart_find_customers(query, limit=8)
+
+    candidates = []
+    for c in matches:
+        full_name = f"{c.first_name} {c.last_name or ''}".strip()
+        phone_raw = c.phone or ''
+        clean_digits = ''.join(filter(str.isdigit, phone_raw))
+        phone_masked = mask_phone(phone_raw)
+        has_debt = c.debt_amount > 0
+        debt_fmt = f"{c.debt_amount:,.0f} so'm" if has_debt else "0 so'm (Qarzsiz)"
+
+        candidates.append({
+            'id': c.id,
+            'name': full_name,
+            'first_name': c.first_name,
+            'last_name': c.last_name or '',
+            'custom_id': c.custom_id,
+            'phone_masked': phone_masked,
+            'has_phone': len(clean_digits) >= 4,
+            'phone_last4': clean_digits[-4:] if len(clean_digits) >= 4 else '',
+            'debt_amount': float(c.debt_amount),
+            'debt_formatted': debt_fmt,
+            'has_debt': has_debt,
+            'bonus_points': int(c.bonus_points or 0),
+            'note_snippet': (c.note or '')[:70],
+            'cabinet_url': f"/pos/my-cabinet/?customer_id={c.id}",
+        })
+
+    return JsonResponse({
+        'status': 'success',
+        'query': query,
+        'count': len(candidates),
+        'candidates': candidates
+    })
+
+
+@csrf_exempt
+def api_claim_customer_profile(request):
+    """
+    Foydalanuvchi topilgan profilni tanlaganda profilni sessiyaga biriktiradi
+    va shaxsiy kabinetiga yo'naltiradi.
+    """
+    if request.method not in ['POST', 'GET']:
+        return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovi qabul qilinadi"}, status=405)
+
+    try:
+        if request.body:
+            data = json.loads(request.body)
+        else:
+            data = request.POST or request.GET
+    except Exception:
+        data = request.POST or request.GET
+
+    customer_id = data.get('customer_id')
+    if not customer_id:
+        return JsonResponse({'status': 'error', 'message': "Mijoz ID parametri ko'rsatilmadi"}, status=400)
+
+    try:
+        customer = Customer.objects.get(id=int(customer_id))
+    except (Customer.DoesNotExist, ValueError):
+        return JsonResponse({'status': 'error', 'message': "Profil topilmadi"}, status=404)
+
+    # Optional phone verification
+    phone_verify = str(data.get('phone_verify', '')).strip()
+    if phone_verify:
+        clean_verify = ''.join(filter(str.isdigit, phone_verify))
+        clean_phone = ''.join(filter(str.isdigit, customer.phone or ''))
+        if clean_phone and clean_verify and not clean_phone.endswith(clean_verify):
+            return JsonResponse({
+                'status': 'error',
+                'message': "Kiritilgan telefon raqami oxirgi raqamlari mos kelmadi!"
+            }, status=400)
+
+    # Sessiyada saqlash
+    request.session['customer_id'] = customer.id
+
+    # CustomerLog audit yozuvi
+    try:
+        CustomerLog.objects.create(
+            customer=customer,
+            log_type='status',
+            title="Veb-saytdan AI orqali kirish",
+            details=f"Foydalanuvchi daftardan AI qidiruv orqali profilinga kirdi (IP: {request.META.get('REMOTE_ADDR')})"
+        )
+    except Exception:
+        pass
+
+    return JsonResponse({
+        'status': 'success',
+        'message': f"Xush kelibsiz, {customer.first_name}!",
+        'customer_id': customer.id,
+        'customer_name': f"{customer.first_name} {customer.last_name or ''}".strip(),
+        'redirect_url': f"/pos/my-cabinet/?customer_id={customer.id}"
+    })
+
+
 def resolve_customer_for_request(request, cust_id=None):
-    """Mijozni har qanday holatda (Telegram WebApp, admin, xodim, telefon yoki yangi ro'yxatdan o'tgan foydalanuvchi) xavfsiz aniqlaydi."""
-    # 1. By explicit ID or GET param
+    """Mijozni har qanday holatda (Telegram WebApp, admin, xodim, telefon, sessiya yoki yangi ro'yxatdan o'tgan foydalanuvchi) xavfsiz aniqlaydi."""
+    # 1. By explicit ID, GET param or session
     if not cust_id:
-        cust_id = request.GET.get('customer_id') or request.GET.get('id')
+        cust_id = request.GET.get('customer_id') or request.GET.get('id') or request.session.get('customer_id')
     if cust_id and str(cust_id).isdigit():
         c = Customer.objects.filter(id=int(cust_id)).first()
         if c:
+            try:
+                request.session['customer_id'] = c.id
+            except Exception:
+                pass
             return c
 
     # 2. By Telegram Chat ID (WebApp query param)
@@ -1053,6 +1293,10 @@ def resolve_customer_for_request(request, cust_id=None):
     if chat_id:
         c = Customer.objects.filter(telegram_chat_id=str(chat_id).strip()).first()
         if c:
+            try:
+                request.session['customer_id'] = c.id
+            except Exception:
+                pass
             return c
 
     # 3. By Phone Number
@@ -1061,6 +1305,10 @@ def resolve_customer_for_request(request, cust_id=None):
         clean_p = str(phone_param).strip().replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
         c = Customer.objects.filter(Q(phone__icontains=clean_p) | Q(phone__icontains=clean_p[-9:])).first()
         if c:
+            try:
+                request.session['customer_id'] = c.id
+            except Exception:
+                pass
             return c
 
     # 4. Authenticated user
@@ -1072,6 +1320,10 @@ def resolve_customer_for_request(request, cust_id=None):
             Q(first_name__iexact=user_ident)
         ).first()
         if c:
+            try:
+                request.session['customer_id'] = c.id
+            except Exception:
+                pass
             return c
             
         # Superuser yoki xodim bo'lsa birinchi mijozni qaytarish (yoki ID bo'yicha)
@@ -1091,6 +1343,10 @@ def resolve_customer_for_request(request, cust_id=None):
                 'note': f"Saytdan ro'yxatdan o'tgan mijoz: {request.user.username}"
             }
         )
+        try:
+            request.session['customer_id'] = c.id
+        except Exception:
+            pass
         return c
 
     return None
@@ -1135,7 +1391,7 @@ def customer_profile_cabinet(request):
     products = Product.objects.filter(is_active=True)
     b2b_orders = customer.b2b_orders.all().order_by('-created_at')
     
-    # ── DETAILED RECONCILIATION (AKT-SVERKA) CALCULATIONS ──
+    # ── DETAILED RECONCILIATION & DEBT CALCULATIONS ──
     from .models import Slaughter, CashTransaction
     
     # 1. Jami topshirilgan chorva go'shti (Bizning qarzimiz)
@@ -1149,14 +1405,33 @@ def customer_profile_cabinet(request):
         category='supplier_pay'
     ).aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
     
-    # 3. Uning bizdan nasiyaga olgan go'shtlari
-    sales_debt_sum = customer.sales.aggregate(s=Sum('debt_added'))['s'] or Decimal('0.00')
+    # 3. Mijozning jami qarz balansi (Migratsiya qilingan daftar qarzlar + Kassa nasiya savdolari)
+    actual_debt_balance = Decimal(str(customer.debt_amount or '0.00'))
+    pos_sales_sum = customer.sales.aggregate(s=Sum('total_amount'))['s'] or Decimal('0.00')
+    pos_debt_sum = customer.sales.aggregate(s=Sum('debt_added'))['s'] or Decimal('0.00')
     
-    # 4. Jami uning olganlari (Nasiya go'sht + Naqd pul)
-    drawings_total = sales_debt_sum + supplier_pay_sum
+    # Daftardan ko'chirilgan qarz/xaridlar (POS savdolariga kirmagan qarzlar)
+    notebook_debt_sum = Decimal('0.00')
+    for lg in logs.filter(log_type='debt_add'):
+        title_lower = (lg.title or '').lower()
+        if not ('chek #' in title_lower or 'cheki' in title_lower or 'savdo' in title_lower):
+            notebook_debt_sum += Decimal(str(lg.amount or '0.00'))
+            
+    if notebook_debt_sum == 0 and actual_debt_balance > pos_debt_sum:
+        notebook_debt_sum = actual_debt_balance - pos_debt_sum
+
+    # Jami xaridlar = POS savdolari + Daftardan olingan nasiya xaridlar
+    total_sales_sum = pos_sales_sum + notebook_debt_sum
+    
+    # 4. Jami uning olgan qarz va to'lovlari
+    drawings_total = actual_debt_balance + supplier_pay_sum
     
     # 5. Yakuniy balans (Bizning qarzimiz - Uning olganlari)
-    net_balance = slaughter_total - drawings_total
+    if slaughter_total > 0:
+        net_balance = slaughter_total - drawings_total
+    else:
+        net_balance = -actual_debt_balance if actual_debt_balance > 0 else Decimal('0.00')
+        
     net_balance_abs = abs(net_balance)
     
     total_bonus_earned = logs.filter(log_type='bonus').filter(title__icontains="yig'ildi").aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
@@ -1193,7 +1468,8 @@ def customer_profile_cabinet(request):
         'b2b_orders': b2b_orders,
         'slaughter_total': slaughter_total,
         'supplier_pay_sum': supplier_pay_sum,
-        'sales_debt_sum': sales_debt_sum,
+        'total_sales_sum': total_sales_sum,
+        'sales_debt_sum': actual_debt_balance,
         'drawings_total': drawings_total,
         'net_balance': net_balance,
         'net_balance_abs': net_balance_abs,
@@ -1937,6 +2213,130 @@ def get_pending_b2b_orders_count(request):
 # =====================================================================
 # QARZ KO'CHIRISH VA MIGRATSIYA
 # =====================================================================
+def get_notebook_records_data(nb=None, record_type='customer'):
+    """Helper to fetch and format records for a specific notebook or all debts."""
+    if record_type == 'supplier':
+        from .models import Supplier
+        if nb:
+            suppliers = Supplier.objects.filter(
+                Q(note__icontains=f"Daftar: {nb.name}") |
+                Q(note__icontains=nb.name)
+            ).order_by('-created_at', '-id')
+        else:
+            suppliers = Supplier.objects.filter(our_debt__gt=0).order_by('-created_at', '-id')
+
+        return [{
+            'id':           s.id,
+            'log_id':       None,
+            'customer_id':  s.id,
+            'first_name':   s.first_name,
+            'last_name':    s.last_name or '',
+            'phone':        s.phone or '',
+            'custom_id':    s.custom_id,
+            'entry_amount': float(s.our_debt),
+            'debt_balance': float(s.our_debt),
+            'note':         s.note or '',
+            'created_at':   timezone.localtime(s.created_at).strftime('%d.%m.%Y %H:%M') if s.created_at else '',
+            'raw_date':     timezone.localtime(s.created_at).strftime('%Y-%m-%dT%H:%M') if s.created_at else ''
+        } for s in suppliers]
+    else:
+        if nb:
+            logs = CustomerLog.objects.filter(
+                log_type='debt_add'
+            ).filter(
+                Q(message__icontains=f"Daftar: {nb.name}") | 
+                Q(title__icontains=f"Daftar: {nb.name}") |
+                Q(message__icontains=nb.name) |
+                Q(title__icontains=nb.name) |
+                Q(details__notebook=nb.name)
+            ).select_related('customer').order_by('-created_at', '-id')
+
+            data = []
+            covered_customer_ids = set()
+
+            for log in logs:
+                c = log.customer
+                covered_customer_ids.add(c.id)
+                data.append({
+                    'id':           log.id,
+                    'log_id':       log.id,
+                    'customer_id':  c.id,
+                    'first_name':   c.first_name,
+                    'last_name':    c.last_name or '',
+                    'phone':        c.phone or '',
+                    'custom_id':    c.custom_id,
+                    'entry_amount': float(log.amount),
+                    'debt_balance': float(c.debt_amount),
+                    'note':         log.message or (log.title or ''),
+                    'created_at':   timezone.localtime(log.created_at).strftime('%d.%m.%Y %H:%M') if log.created_at else '',
+                    'raw_date':     timezone.localtime(log.created_at).strftime('%Y-%m-%dT%H:%M') if log.created_at else ''
+                })
+
+            legacy_customers = Customer.objects.filter(
+                Q(note__icontains=f"Daftar: {nb.name}") |
+                Q(note__icontains=nb.name)
+            ).exclude(id__in=covered_customer_ids).order_by('-created_at', '-id')
+
+            for c in legacy_customers:
+                data.append({
+                    'id':           c.id,
+                    'log_id':       None,
+                    'customer_id':  c.id,
+                    'first_name':   c.first_name,
+                    'last_name':    c.last_name or '',
+                    'phone':        c.phone or '',
+                    'custom_id':    c.custom_id,
+                    'entry_amount': float(c.debt_amount),
+                    'debt_balance': float(c.debt_amount),
+                    'note':         c.note or '',
+                    'created_at':   timezone.localtime(c.created_at).strftime('%d.%m.%Y %H:%M') if c.created_at else '',
+                    'raw_date':     timezone.localtime(c.created_at).strftime('%Y-%m-%dT%H:%M') if c.created_at else ''
+                })
+            return data
+        else:
+            # Master notebook: show all debt entries ordered by latest created_at
+            logs = CustomerLog.objects.filter(
+                log_type='debt_add'
+            ).select_related('customer').order_by('-created_at', '-id')
+
+            data = []
+            covered_customer_ids = set()
+            for log in logs:
+                c = log.customer
+                covered_customer_ids.add(c.id)
+                data.append({
+                    'id':           log.id,
+                    'log_id':       log.id,
+                    'customer_id':  c.id,
+                    'first_name':   c.first_name,
+                    'last_name':    c.last_name or '',
+                    'phone':        c.phone or '',
+                    'custom_id':    c.custom_id,
+                    'entry_amount': float(log.amount),
+                    'debt_balance': float(c.debt_amount),
+                    'note':         log.message or (log.title or ''),
+                    'created_at':   timezone.localtime(log.created_at).strftime('%d.%m.%Y %H:%M') if log.created_at else '',
+                    'raw_date':     timezone.localtime(log.created_at).strftime('%Y-%m-%dT%H:%M') if log.created_at else ''
+                })
+
+            legacy_customers = Customer.objects.filter(debt_amount__gt=0).exclude(id__in=covered_customer_ids).order_by('-created_at', '-id')
+            for c in legacy_customers:
+                data.append({
+                    'id':           c.id,
+                    'log_id':       None,
+                    'customer_id':  c.id,
+                    'first_name':   c.first_name,
+                    'last_name':    c.last_name or '',
+                    'phone':        c.phone or '',
+                    'custom_id':    c.custom_id,
+                    'entry_amount': float(c.debt_amount),
+                    'debt_balance': float(c.debt_amount),
+                    'note':         c.note or '',
+                    'created_at':   timezone.localtime(c.created_at).strftime('%d.%m.%Y %H:%M') if c.created_at else '',
+                    'raw_date':     timezone.localtime(c.created_at).strftime('%Y-%m-%dT%H:%M') if c.created_at else ''
+                })
+            return data
+
 @staff_required
 def debt_migration_page(request):
     notebooks = Notebook.objects.all().order_by('-id')
@@ -1949,18 +2349,17 @@ def debt_migration_page(request):
     total_supplier_debt = Decimal('0.00')
     
     for nb in notebooks:
-        customers = Customer.objects.filter(note__icontains=f"Daftar: {nb.name}")
-        c_count = customers.count()
-        nb_debt = customers.aggregate(total=Sum('debt_amount'))['total'] or Decimal('0.00')
+        cust_records = get_notebook_records_data(nb, 'customer')
+        c_count = len(cust_records)
+        nb_debt = sum(r['entry_amount'] for r in cust_records)
         total_migrated += c_count
-        total_debt += nb_debt
+        total_debt += Decimal(str(nb_debt))
         
-        from .models import Supplier
-        suppliers = Supplier.objects.filter(note__icontains=f"Daftar: {nb.name}")
-        s_count = suppliers.count()
-        nb_sup_debt = suppliers.aggregate(total=Sum('our_debt'))['total'] or Decimal('0.00')
+        sup_records = get_notebook_records_data(nb, 'supplier')
+        s_count = len(sup_records)
+        nb_sup_debt = sum(r['entry_amount'] for r in sup_records)
         total_migrated_suppliers += s_count
-        total_supplier_debt += nb_sup_debt
+        total_supplier_debt += Decimal(str(nb_sup_debt))
         
         notebook_data.append({
             'id': nb.id,
@@ -1978,9 +2377,24 @@ def debt_migration_page(request):
     pending_proofs = PaymentProof.objects.filter(is_verified=False).select_related('customer').order_by('-created_at')
     verified_proofs = PaymentProof.objects.filter(is_verified=True).select_related('customer').order_by('-created_at')[:10]
 
+    # Pre-render initial records for first notebook (SSR to guarantee zero blank state)
+    initial_notebook = notebook_data[0] if notebook_data else None
+    initial_records = []
+    if notebooks.exists():
+        first_nb = notebooks.first()
+        initial_records = get_notebook_records_data(first_nb, 'customer')
+
+    # Total all customers with debt
+    all_debt_custs = Customer.objects.filter(debt_amount__gt=0)
+    all_cust_debt_sum = all_debt_custs.aggregate(total=Sum('debt_amount'))['total'] or Decimal('0.00')
+
     context = {
         'notebooks': notebooks,
         'notebook_data': notebook_data,
+        'initial_notebook': initial_notebook,
+        'initial_records': initial_records,
+        'all_debt_custs_count': all_debt_custs.count(),
+        'all_cust_debt_sum_display': f"{int(all_cust_debt_sum):,}".replace(",", " ") + " so'm",
         'total_migrated': total_migrated,
         'total_debt': total_debt,
         'total_debt_display': f"{int(total_debt):,}".replace(",", " ") + " so'm",
@@ -1991,6 +2405,427 @@ def debt_migration_page(request):
         'verified_proofs': verified_proofs,
     }
     return render(request, 'debt_notebook.html', context)
+
+@staff_required
+def get_notebook_customers(request, notebook_id):
+    record_type = request.GET.get('type', 'customer')
+    if notebook_id == 0:
+        data = get_notebook_records_data(None, record_type)
+    else:
+        nb = get_object_or_404(Notebook, id=notebook_id)
+        data = get_notebook_records_data(nb, record_type)
+        
+    return JsonResponse(data, safe=False)
+
+@staff_required
+def export_notebook_excel(request, notebook_id):
+    """Export all customer debts in a notebook to a formatted Excel file."""
+    import openpyxl
+    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+    from django.http import HttpResponse
+
+    record_type = request.GET.get('type', 'customer')
+    
+    if notebook_id == 0 or request.GET.get('all') == 'true':
+        nb_name = "Barcha Xaridorlar Qarz Daftari" if record_type == 'customer' else "Barcha Ta'minotchilar Qarz Daftari"
+        rows = get_notebook_records_data(None, record_type)
+    else:
+        nb = get_object_or_404(Notebook, id=notebook_id)
+        nb_name = nb.name
+        rows = get_notebook_records_data(nb, record_type)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = nb_name[:30]
+
+    title_font = Font(name='Arial', size=14, bold=True, color='1B6B4A')
+    header_font = Font(name='Arial', size=11, bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='1B6B4A', end_color='1B6B4A', fill_type='solid')
+    total_font = Font(name='Arial', size=12, bold=True, color='991B1B')
+    total_fill = PatternFill(start_color='FEE2E2', end_color='FEE2E2', fill_type='solid')
+    thin_border = Border(
+        left=Side(style='thin', color='CBD5E1'),
+        right=Side(style='thin', color='CBD5E1'),
+        top=Side(style='thin', color='CBD5E1'),
+        bottom=Side(style='thin', color='CBD5E1')
+    )
+
+    # Title
+    ws.merge_cells('A1:G1')
+    ws['A1'] = f"BAXMAL MEAT — {nb_name.upper()} ({timezone.localtime().strftime('%d.%m.%Y %H:%M')})"
+    ws['A1'].font = title_font
+    ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
+    ws.row_dimensions[1].height = 32
+
+    # Headers
+    headers = ["#", "Sana & Vaqt", "Xaridor / Ta'minotchi", "Telefon", "ID Raqami", "Daftar Sahifasi / Izoh", "Qarz Summasi (so'm)"]
+    ws.append(headers)
+    ws.row_dimensions[2].height = 24
+
+    for col_num, cell in enumerate(ws[2], 1):
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+
+    # Rows
+    total_debt = 0
+    for idx, r in enumerate(rows, 1):
+        amt = r.get('entry_amount', 0) or r.get('debt_balance', 0)
+        total_debt += amt
+        row_data = [
+            idx,
+            r.get('created_at', '—'),
+            f"{r.get('first_name', '')} {r.get('last_name', '')}".strip(),
+            r.get('phone', '—'),
+            r.get('custom_id', '—'),
+            r.get('note', '—'),
+            amt
+        ]
+        ws.append(row_data)
+        curr_row = ws.max_row
+        ws.row_dimensions[curr_row].height = 20
+        for cell in ws[curr_row]:
+            cell.border = thin_border
+            cell.alignment = Alignment(vertical='center')
+        ws.cell(row=curr_row, column=1).alignment = Alignment(horizontal='center')
+        ws.cell(row=curr_row, column=5).alignment = Alignment(horizontal='center')
+        ws.cell(row=curr_row, column=7).number_format = '#,##0 "so\'m"'
+
+    # Total Row
+    curr_row = ws.max_row + 1
+    ws.merge_cells(start_row=curr_row, start_column=1, end_row=curr_row, end_column=6)
+    total_label = ws.cell(row=curr_row, column=1, value="JAMI QARZ SUMMASI:")
+    total_label.font = total_font
+    total_label.alignment = Alignment(horizontal='right', vertical='center')
+    total_label.fill = total_fill
+
+    total_val = ws.cell(row=curr_row, column=7, value=total_debt)
+    total_val.font = total_font
+    total_val.number_format = '#,##0 "so\'m"'
+    total_val.alignment = Alignment(horizontal='right', vertical='center')
+    total_val.fill = total_fill
+    ws.row_dimensions[curr_row].height = 24
+
+    from openpyxl.utils import get_column_letter
+    for col_idx in range(1, 8):
+        col_letter = get_column_letter(col_idx)
+        max_len = 0
+        for row_idx in range(2, ws.max_row + 1):
+            val = str(ws.cell(row=row_idx, column=col_idx).value or '')
+            if len(val) > max_len:
+                max_len = len(val)
+        ws.column_dimensions[col_letter].width = max(max_len + 5, 14)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    clean_fn = nb_name.replace(" ", "_")
+    response['Content-Disposition'] = f'attachment; filename=daftar_{clean_fn}.xlsx'
+    wb.save(response)
+    return response
+
+@csrf_exempt
+@staff_required
+@transaction.atomic
+def save_migrated_debt(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            record_type  = body.get('type', 'customer')
+            first_name   = body.get('first_name', '').strip()
+            last_name    = body.get('last_name', '').strip()
+            phone        = body.get('phone', '').strip()
+            custom_id    = body.get('custom_id', '').strip()
+            debt_balance = Decimal(str(body.get('debt_balance', 0)))
+            notebook_name = body.get('notebook_name', '').strip()
+            entry_date   = body.get('entry_date', '').strip()
+            note         = body.get('note', '').strip()
+
+            if not first_name:
+                return JsonResponse({'status': 'error', 'message': "Ism majburiy!"}, status=400)
+
+            # Auto-generate ID if missing
+            if not custom_id:
+                prefix = "S-" if record_type == 'supplier' else "M-"
+                custom_id = f"{prefix}{random.randint(1000, 9999)}"
+
+            # Auto-generate unique placeholder phone if missing
+            if not phone:
+                clean_id = ''.join(c for c in custom_id if c.isdigit())
+                if clean_id:
+                    phone = f"+99800{clean_id.zfill(7)}"
+                else:
+                    phone = f"+99800{random.randint(1000000, 9999999)}"
+                while Customer.objects.filter(phone=phone).exists():
+                    phone = f"+99800{random.randint(1000000, 9999999)}"
+
+            # Parse entry_date
+            import datetime
+            from django.utils.dateparse import parse_datetime, parse_date
+            parsed_dt = None
+            if entry_date:
+                try:
+                    if 'T' in entry_date:
+                        parsed_dt = parse_datetime(entry_date)
+                    elif ' ' in entry_date:
+                        parsed_dt = datetime.datetime.strptime(entry_date, "%Y-%m-%d %H:%M")
+                    else:
+                        d = parse_date(entry_date)
+                        if d:
+                            now_time = timezone.localtime().time()
+                            parsed_dt = datetime.datetime.combine(d, now_time)
+                    if parsed_dt and timezone.is_naive(parsed_dt):
+                        parsed_dt = timezone.make_aware(parsed_dt)
+                except Exception:
+                    parsed_dt = None
+
+            saved_record = {}
+            if record_type == 'supplier':
+                from .models import Supplier
+                supplier = Supplier.objects.filter(Q(phone=phone) | Q(custom_id=custom_id)).first()
+                if not supplier:
+                    supplier = Supplier.objects.create(
+                        first_name=first_name,
+                        last_name=last_name,
+                        phone=phone,
+                        custom_id=custom_id,
+                        our_debt=debt_balance,
+                        note=f"{note} | Daftar: {notebook_name}".strip(" |") if notebook_name else note
+                    )
+                else:
+                    supplier.our_debt += debt_balance
+                    if first_name and not supplier.first_name:
+                        supplier.first_name = first_name
+                    if last_name and not supplier.last_name:
+                        supplier.last_name = last_name
+                    if notebook_name and f"Daftar: {notebook_name}" not in (supplier.note or ''):
+                        supplier.note = f"{supplier.note or ''} | Daftar: {notebook_name}".strip(" |")
+                    supplier.save()
+
+                if parsed_dt:
+                    Supplier.objects.filter(id=supplier.id).update(created_at=parsed_dt)
+
+                saved_record = {
+                    'id': supplier.id,
+                    'first_name': supplier.first_name,
+                    'last_name': supplier.last_name or '',
+                    'phone': supplier.phone,
+                    'custom_id': supplier.custom_id,
+                    'entry_amount': float(debt_balance),
+                    'debt_balance': float(supplier.our_debt),
+                    'note': note or f"Daftar: {notebook_name}",
+                    'created_at': timezone.localtime(parsed_dt or supplier.created_at).strftime('%d.%m.%Y %H:%M'),
+                    'raw_date': (parsed_dt or supplier.created_at).strftime('%Y-%m-%dT%H:%M') if (parsed_dt or supplier.created_at) else ''
+                }
+            else:
+                customer = Customer.objects.filter(Q(phone=phone) | Q(custom_id=custom_id)).first()
+                if not customer:
+                    customer = Customer.objects.create(
+                        first_name=first_name,
+                        last_name=last_name,
+                        phone=phone,
+                        custom_id=custom_id,
+                        debt_amount=debt_balance,
+                        note=f"{note} | Daftar: {notebook_name}".strip(" |") if notebook_name else note
+                    )
+                    create_user_for_customer(customer)
+                else:
+                    customer.debt_amount += debt_balance
+                    if first_name and not customer.first_name:
+                        customer.first_name = first_name
+                    if last_name and not customer.last_name:
+                        customer.last_name = last_name
+                    if notebook_name and f"Daftar: {notebook_name}" not in (customer.note or ''):
+                        customer.note = f"{customer.note or ''} | Daftar: {notebook_name}".strip(" |")
+                    customer.save()
+
+                if parsed_dt:
+                    Customer.objects.filter(id=customer.id).update(created_at=parsed_dt)
+
+                # Format log message
+                log_title = f"Daftar: {notebook_name}" if notebook_name else "Qarz migratsiya qilindi"
+                log_message = f"{note} (Daftar: {notebook_name})" if (note and notebook_name) else (note or f"'{notebook_name}' daftaridan {int(debt_balance):,} so'm qarz ko'chirildi.".replace(",", " "))
+
+                log = None
+                if debt_balance > 0:
+                    log = CustomerLog.objects.create(
+                        customer=customer,
+                        log_type='debt_add',
+                        title=log_title,
+                        message=log_message,
+                        amount=debt_balance,
+                        details={
+                            'notebook': notebook_name,
+                            'entry_amount': float(debt_balance),
+                            'note': note
+                        }
+                    )
+                    if parsed_dt:
+                        CustomerLog.objects.filter(id=log.id).update(created_at=parsed_dt)
+
+                saved_record = {
+                    'id': log.id if log else customer.id,
+                    'log_id': log.id if log else None,
+                    'customer_id': customer.id,
+                    'first_name': customer.first_name,
+                    'last_name': customer.last_name or '',
+                    'phone': customer.phone,
+                    'custom_id': customer.custom_id,
+                    'entry_amount': float(debt_balance),
+                    'debt_balance': float(customer.debt_amount),
+                    'note': log_message,
+                    'created_at': timezone.localtime(parsed_dt or customer.created_at).strftime('%d.%m.%Y %H:%M'),
+                    'raw_date': (parsed_dt or customer.created_at).strftime('%Y-%m-%dT%H:%M') if (parsed_dt or customer.created_at) else ''
+                }
+
+            return JsonResponse({
+                'status': 'success',
+                'message': "Qarz muvaffaqiyatli saqlandi!",
+                'record': saved_record
+            })
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovlar"}, status=405)
+
+@csrf_exempt
+@staff_required
+@transaction.atomic
+def update_migrated_record(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            record_id    = body.get('id')
+            record_type  = body.get('type', 'customer')
+            first_name   = body.get('first_name', '').strip()
+            last_name    = body.get('last_name', '').strip()
+            phone        = body.get('phone', '').strip()
+            custom_id    = body.get('custom_id', '').strip()
+            debt_balance = Decimal(str(body.get('debt_balance', 0)))
+            entry_date   = body.get('entry_date', '').strip()
+            note         = body.get('note', '').strip()
+
+            if not record_id or not first_name:
+                return JsonResponse({'status': 'error', 'message': "ID va Ism majburiy!"}, status=400)
+
+            # Parse entry_date if provided
+            import datetime
+            from django.utils.dateparse import parse_datetime, parse_date
+            parsed_dt = None
+            if entry_date:
+                try:
+                    if 'T' in entry_date:
+                        parsed_dt = parse_datetime(entry_date)
+                    elif ' ' in entry_date:
+                        parsed_dt = datetime.datetime.strptime(entry_date, "%Y-%m-%d %H:%M")
+                    else:
+                        d = parse_date(entry_date)
+                        if d:
+                            now_time = timezone.localtime().time()
+                            parsed_dt = datetime.datetime.combine(d, now_time)
+                    if parsed_dt and timezone.is_naive(parsed_dt):
+                        parsed_dt = timezone.make_aware(parsed_dt)
+                except Exception:
+                    parsed_dt = None
+
+            if record_type == 'supplier':
+                from .models import Supplier
+                supplier = get_object_or_404(Supplier, id=record_id)
+                supplier.first_name = first_name
+                supplier.last_name = last_name
+                if phone:
+                    existing_s = Supplier.objects.filter(phone=phone).exclude(id=supplier.id).first()
+                    if not existing_s:
+                        supplier.phone = phone
+                if custom_id:
+                    existing_id = Supplier.objects.filter(custom_id=custom_id).exclude(id=supplier.id).first()
+                    if not existing_id:
+                        supplier.custom_id = custom_id
+                supplier.our_debt = debt_balance
+                if note:
+                    supplier.note = note
+                supplier.save()
+
+                if parsed_dt:
+                    Supplier.objects.filter(id=supplier.id).update(created_at=parsed_dt)
+
+                updated_record = {
+                    'id': supplier.id,
+                    'first_name': supplier.first_name,
+                    'last_name': supplier.last_name or '',
+                    'phone': supplier.phone,
+                    'custom_id': supplier.custom_id,
+                    'entry_amount': float(supplier.our_debt),
+                    'debt_balance': float(supplier.our_debt),
+                    'note': supplier.note or '',
+                    'created_at': timezone.localtime(parsed_dt or supplier.created_at).strftime('%d.%m.%Y %H:%M'),
+                    'raw_date': (parsed_dt or supplier.created_at).strftime('%Y-%m-%dT%H:%M') if (parsed_dt or supplier.created_at) else ''
+                }
+            else:
+                # Check if record_id corresponds to a CustomerLog or Customer
+                log = CustomerLog.objects.filter(id=record_id, log_type='debt_add').first()
+                if log:
+                    customer = log.customer
+                    old_amount = log.amount
+                    diff = debt_balance - old_amount
+                    customer.debt_amount = max(Decimal('0.00'), customer.debt_amount + diff)
+                    customer.first_name = first_name
+                    customer.last_name = last_name
+                    if phone:
+                        existing_c = Customer.objects.filter(phone=phone).exclude(id=customer.id).first()
+                        if not existing_c:
+                            customer.phone = phone
+                    if custom_id:
+                        existing_id = Customer.objects.filter(custom_id=custom_id).exclude(id=customer.id).first()
+                        if not existing_id:
+                            customer.custom_id = custom_id
+                    customer.save()
+
+                    log.amount = debt_balance
+                    if note:
+                        log.message = note
+                    if parsed_dt:
+                        log.created_at = parsed_dt
+                    log.save()
+                else:
+                    customer = get_object_or_404(Customer, id=record_id)
+                    customer.first_name = first_name
+                    customer.last_name = last_name
+                    if phone:
+                        existing_c = Customer.objects.filter(phone=phone).exclude(id=customer.id).first()
+                        if not existing_c:
+                            customer.phone = phone
+                    if custom_id:
+                        existing_id = Customer.objects.filter(custom_id=custom_id).exclude(id=customer.id).first()
+                        if not existing_id:
+                            customer.custom_id = custom_id
+                    customer.debt_amount = debt_balance
+                    if note:
+                        customer.note = note
+                    customer.save()
+
+                    if parsed_dt:
+                        Customer.objects.filter(id=customer.id).update(created_at=parsed_dt)
+
+                updated_record = {
+                    'id': record_id,
+                    'customer_id': customer.id,
+                    'first_name': customer.first_name,
+                    'last_name': customer.last_name or '',
+                    'phone': customer.phone,
+                    'custom_id': customer.custom_id,
+                    'entry_amount': float(debt_balance),
+                    'debt_balance': float(customer.debt_amount),
+                    'note': note or customer.note or '',
+                    'created_at': timezone.localtime(parsed_dt or customer.created_at).strftime('%d.%m.%Y %H:%M'),
+                    'raw_date': (parsed_dt or customer.created_at).strftime('%Y-%m-%dT%H:%M') if (parsed_dt or customer.created_at) else ''
+                }
+
+            return JsonResponse({
+                'status': 'success',
+                'message': "Yozuv muvaffaqiyatli yangilandi!",
+                'record': updated_record
+            })
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovlar"}, status=405)
 
 @csrf_exempt
 @staff_required
@@ -2015,103 +2850,187 @@ def create_notebook(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovlar"}, status=405)
 
+@csrf_exempt
 @staff_required
-def get_notebook_customers(request, notebook_id):
-    nb = get_object_or_404(Notebook, id=notebook_id)
-    record_type = request.GET.get('type', 'customer')
-    
-    if record_type == 'supplier':
-        from .models import Supplier
-        suppliers = Supplier.objects.filter(note__icontains=f"Daftar: {nb.name}")
-        data = [{
-            'id':           s.id,
-            'first_name':   s.first_name,
-            'last_name':    s.last_name or '',
-            'phone':        s.phone,
-            'custom_id':    s.custom_id,
-            'debt_balance': float(s.our_debt)
-        } for s in suppliers]
-    else:
-        customers = Customer.objects.filter(note__icontains=f"Daftar: {nb.name}")
-        data = [{
-            'id':           c.id,
-            'first_name':   c.first_name,
-            'last_name':    c.last_name or '',
-            'phone':        c.phone,
-            'custom_id':    c.custom_id,
-            'debt_balance': float(c.debt_amount)
-        } for c in customers]
-        
-    return JsonResponse(data, safe=False)
+@transaction.atomic
+def rename_notebook(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            notebook_id = body.get('id')
+            new_name = body.get('name', '').strip()
+            if not notebook_id or not new_name:
+                return JsonResponse({'status': 'error', 'message': "ID va Yangi nom kiritilmadi!"}, status=400)
+            
+            nb = get_object_or_404(Notebook, id=notebook_id)
+            old_name = nb.name
+            nb.name = new_name
+            nb.save()
+
+            # Update existing CustomerLogs
+            CustomerLog.objects.filter(title__icontains=f"Daftar: {old_name}").update(title=f"Daftar: {new_name}")
+
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Daftar nomi '{new_name}'ga o'zgartirildi!",
+                'notebook': {
+                    'id': nb.id,
+                    'name': nb.name
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovlar"}, status=405)
 
 @csrf_exempt
 @staff_required
 @transaction.atomic
-def save_migrated_debt(request):
+def delete_migrated_record(request):
     if request.method == 'POST':
         try:
             body = json.loads(request.body)
-            record_type  = body.get('type', 'customer')
-            first_name   = body.get('first_name', '').strip()
-            last_name    = body.get('last_name', '').strip()
-            phone        = body.get('phone', '').strip()
-            custom_id    = body.get('custom_id', '').strip()
-            debt_balance = Decimal(str(body.get('debt_balance', 0)))
-            notebook_name = body.get('notebook_name', '').strip()
-
-            if not first_name or not phone or not custom_id:
-                return JsonResponse({'status': 'error', 'message': "Ism, telefon va ID majburiy!"}, status=400)
-
+            record_id = body.get('id')
+            record_type = body.get('type', 'customer')
+            
+            if not record_id:
+                return JsonResponse({'status': 'error', 'message': "ID kiritilmadi!"}, status=400)
+                
             if record_type == 'supplier':
                 from .models import Supplier
-                supplier, created = Supplier.objects.get_or_create(
-                    phone=phone,
-                    defaults={
-                        'first_name':  first_name,
-                        'last_name':   last_name,
-                        'custom_id':   custom_id,
-                        'our_debt':    debt_balance,
-                        'note':        f"Daftar: {notebook_name}" if notebook_name else ""
-                    }
-                )
-                if not created:
-                    supplier.our_debt += debt_balance
-                    if notebook_name and f"Daftar: {notebook_name}" not in (supplier.note or ''):
-                        supplier.note = f"{supplier.note or ''} | Daftar: {notebook_name}".strip(" |")
-                    supplier.save()
+                supp = get_object_or_404(Supplier, id=record_id)
+                supp.delete()
             else:
-                customer, created = Customer.objects.get_or_create(
-                    phone=phone,
-                    defaults={
-                        'first_name':  first_name,
-                        'last_name':   last_name,
-                        'custom_id':   custom_id,
-                        'debt_amount': debt_balance,
-                        'note':        f"Daftar: {notebook_name}" if notebook_name else ""
-                    }
-                )
-
-                if created:
-                    create_user_for_customer(customer)
+                log = CustomerLog.objects.filter(id=record_id, log_type='debt_add').first()
+                if log:
+                    c = log.customer
+                    c.debt_amount = max(Decimal('0.00'), c.debt_amount - log.amount)
+                    c.save()
+                    log.delete()
                 else:
-                    customer.debt_amount += debt_balance
-                    if notebook_name and f"Daftar: {notebook_name}" not in customer.note:
-                        customer.note = f"{customer.note} | Daftar: {notebook_name}".strip(" |")
-                    customer.save()
-
-                if debt_balance > 0:
-                    CustomerLog.objects.create(
-                        customer=customer,
-                        log_type='debt_add',
-                        title="Qarz migratsiya qilindi",
-                        message=f"Migratsiya orqali '{notebook_name}' daftaridan {debt_balance} so'm qarz ko'chirildi.",
-                        amount=debt_balance
-                    )
-
-            return JsonResponse({'status': 'success', 'message': "Qarz muvaffaqiyatli saqlandi!"})
+                    cust = Customer.objects.filter(id=record_id).first()
+                    if cust:
+                        cust.delete()
+                
+            return JsonResponse({'status': 'success', 'message': "Yozuv o'chirildi!"})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovlar"}, status=405)
+
+@staff_required
+def get_customer_360_api(request, customer_id):
+    """Mijoz haqida 360 darajali to'liq ma'lumotlar, moliyaviy hisobot va harakatlar."""
+    try:
+        from .models import Customer, Sale, CustomerLog, Slaughter, CashTransaction, CustomerSpecialPrice, Supplier
+        customer = get_object_or_404(Customer, id=customer_id)
+        
+        # 1. Total purchases & sales count
+        sales = customer.sales.all().order_by('-created_at')
+        pos_sales_sum = sales.aggregate(s=Sum('total_amount'))['s'] or Decimal('0.00')
+        pos_debt_sum = sales.aggregate(s=Sum('debt_added'))['s'] or Decimal('0.00')
+        sales_count = sales.count()
+        
+        # Notebook credit purchases
+        logs = customer.logs.all().order_by('-created_at')
+        notebook_debt_sum = Decimal('0.00')
+        for lg in logs.filter(log_type='debt_add'):
+            title_lower = (lg.title or '').lower()
+            if not ('chek #' in title_lower or 'cheki' in title_lower or 'savdo' in title_lower):
+                notebook_debt_sum += Decimal(str(lg.amount or '0.00'))
+                
+        actual_debt_balance = Decimal(str(customer.debt_amount or '0.00'))
+        if notebook_debt_sum == 0 and actual_debt_balance > pos_debt_sum:
+            notebook_debt_sum = actual_debt_balance - pos_debt_sum
+            
+        total_sales_sum = pos_sales_sum + notebook_debt_sum
+
+        # 2. Supplier connection if linked
+        supplier = Supplier.objects.filter(customer=customer).first() or Supplier.objects.filter(phone=customer.phone).first()
+        supplier_id = supplier.id if supplier else None
+        supplier_debt = float(supplier.our_debt) if supplier else 0.0
+        
+        slaughter_total = Slaughter.objects.filter(
+            Q(supplier__customer=customer) | Q(customer=customer)
+        ).aggregate(s=Sum('total_cost'))['s'] or Decimal('0.00')
+        
+        # 3. Recent 5 sales
+        recent_sales = []
+        for s in sales[:5]:
+            recent_sales.append({
+                'id': s.id,
+                'total_amount': float(s.total_amount),
+                'paid_naqd': float(s.paid_naqd or 0),
+                'paid_karta': float(s.paid_karta or 0),
+                'debt_added': float(s.debt_added or 0),
+                'cashier_name': s.cashier.get_full_name() or s.cashier.username if s.cashier else 'Kassir',
+                'created_at': timezone.localtime(s.created_at).strftime('%d.%m.%Y %H:%M') if s.created_at else '',
+                'items_count': s.items.count(),
+                'items_summary': ", ".join([f"{it.product.name} ({it.weight}kg)" for it in s.items.all()[:3]])
+            })
+            
+        # 4. Recent 8 logs (debts, payments, bonus)
+        recent_logs = []
+        for lg in logs.exclude(Q(title="Mijoz xabari") | Q(title="Do'kon xabari"))[:8]:
+            recent_logs.append({
+                'id': lg.id,
+                'log_type': lg.log_type,
+                'title': lg.title or '',
+                'message': lg.message or '',
+                'amount': float(lg.amount) if lg.amount else 0.0,
+                'created_at': timezone.localtime(lg.created_at).strftime('%d.%m.%Y %H:%M') if lg.created_at else ''
+            })
+
+        # 5. Special prices
+        specials = []
+        for sp in customer.special_prices.all().select_related('product'):
+            specials.append({
+                'product_name': sp.product.name,
+                'special_price': float(sp.special_price),
+                'default_price': float(sp.product.price)
+            })
+
+        # Image URL
+        image_url = customer.image.url if customer.image else 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+        
+        data = {
+            'status': 'success',
+            'customer': {
+                'id': customer.id,
+                'first_name': customer.first_name,
+                'last_name': customer.last_name or '',
+                'full_name': f"{customer.first_name} {customer.last_name or ''}".strip(),
+                'phone': customer.phone or '',
+                'custom_id': customer.custom_id or str(customer.id),
+                'image': image_url,
+                'debt_amount': float(actual_debt_balance),
+                'debt_limit': float(customer.debt_limit or 1000000),
+                'bonus_points': customer.bonus_points or 0,
+                'credit_score': customer.credit_score or 'A (Ishonchli)',
+                'smart_score': customer.smart_score or 100,
+                'is_blacklisted': bool(customer.is_blacklisted),
+                'is_barter': bool(customer.is_barter),
+                'note': customer.note or '',
+                'created_at': timezone.localtime(customer.created_at).strftime('%d.%m.%Y %H:%M') if customer.created_at else '',
+                'total_sales_sum': float(total_sales_sum),
+                'pos_sales_sum': float(pos_sales_sum),
+                'sales_count': sales_count,
+                'supplier_id': supplier_id,
+                'supplier_debt': supplier_debt,
+                'slaughter_total': float(slaughter_total),
+            },
+            'recent_sales': recent_sales,
+            'recent_logs': recent_logs,
+            'special_prices': specials,
+            'links': {
+                'cabinet_url': f"/pos/my-cabinet/?customer_id={customer.id}",
+                'terminal_url': f"/pos/terminal/?customer_id={customer.id}",
+                'debt_pay_url': f"/pos/debt-payment/?customer_id={customer.id}",
+                'chat_url': f"/pos/chats/?customer_id={customer.id}",
+                'call_url': f"tel:{customer.phone}" if customer.phone else '#',
+            }
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 @staff_required
 def debt_payment_view(request):
@@ -2449,6 +3368,13 @@ def customers_view(request):
         customers = customers.filter(debt_amount__lt=0)
     elif filter_type == 'clean':
         customers = customers.filter(debt_amount=0)
+    elif filter_type == 'online':
+        customers = customers.filter(
+            Q(note__icontains="Saytdan") | 
+            Q(note__icontains="Bot") | 
+            Q(note__icontains="Onlayn") |
+            Q(telegram_chat_id__isnull=False)
+        )
     elif filter_type == 'long_term':
         one_month_ago = timezone.now() - timedelta(days=30)
         customers = customers.filter(debt_amount__gt=0, logs__created_at__lte=one_month_ago).distinct()
@@ -2458,6 +3384,12 @@ def customers_view(request):
     total_customers = Customer.objects.count()
     debt_customers_count = Customer.objects.filter(debt_amount__gt=0).count()
     our_debt_customers_count = Customer.objects.filter(debt_amount__lt=0).count()
+    online_customers_count = Customer.objects.filter(
+        Q(note__icontains="Saytdan") | 
+        Q(note__icontains="Bot") | 
+        Q(note__icontains="Onlayn") |
+        Q(telegram_chat_id__isnull=False)
+    ).count()
     total_debt = Customer.objects.filter(debt_amount__gt=0).aggregate(t=Sum('debt_amount'))['t'] or 0
     total_our_debt = abs(Customer.objects.filter(debt_amount__lt=0).aggregate(t=Sum('debt_amount'))['t'] or 0)
     total_bonus = Customer.objects.aggregate(t=Sum('bonus_points'))['t'] or 0
@@ -2467,17 +3399,18 @@ def customers_view(request):
     top_debtors = Customer.objects.filter(debt_amount__gt=0).order_by('-debt_amount')[:5]
 
     context = {
-        'customers':            customers,
-        'total_customers':      total_customers,
-        'debt_customers_count': debt_customers_count,
+        'customers':              customers,
+        'total_customers':        total_customers,
+        'debt_customers_count':   debt_customers_count,
         'our_debt_customers_count': our_debt_customers_count,
-        'total_debt':           total_debt,
-        'total_our_debt':       total_our_debt,
-        'total_bonus':          total_bonus,
-        'notebooks':            notebooks,
-        'current_filter':       filter_type,
-        'current_notebook':     notebook_id,
-        'top_debtors':          top_debtors,
+        'online_customers_count': online_customers_count,
+        'total_debt':             total_debt,
+        'total_our_debt':         total_our_debt,
+        'total_bonus':            total_bonus,
+        'notebooks':              notebooks,
+        'current_filter':         filter_type,
+        'current_notebook':       notebook_id,
+        'top_debtors':            top_debtors,
     }
     return render(request, 'customers.html', context)
 
@@ -3578,11 +4511,38 @@ def slaughter_report_view(request, slaughter_id):
 
 
 @staff_required
-def batch_report_view(request, batch_id):
-    from django.shortcuts import get_object_or_404, render
+def batch_report_view(request, batch_id=None):
+    from django.shortcuts import render
     from .models import StockBatch, SaleItem
     
-    batch = get_object_or_404(StockBatch, id=batch_id)
+    if not batch_id:
+        batch_id = request.GET.get('batch_id') or request.GET.get('id')
+        
+    all_batches = StockBatch.objects.select_related('product').order_by('-id')
+    
+    batch = None
+    if batch_id:
+        try:
+            batch = all_batches.get(id=batch_id)
+        except (StockBatch.DoesNotExist, ValueError):
+            batch = None
+            
+    if not batch and all_batches.exists():
+        batch = all_batches.first()
+        
+    if not batch:
+        context = {
+            'batch': None,
+            'all_batches': [],
+            'sale_items': [],
+            'total_sold_weight': 0,
+            'total_revenue': 0,
+            'purchase_cost': 0,
+            'profit': 0,
+            'decay_loss': 0,
+            'decay_weight': 0,
+        }
+        return render(request, 'pos/batch_report.html', context)
     
     # Get all sale items linked to this product batch
     sale_items = batch.items_sold.select_related('sale', 'sale__customer').order_by('-id')
@@ -3590,14 +4550,15 @@ def batch_report_view(request, batch_id):
     total_sold_weight = sum(item.weight for item in sale_items)
     total_revenue = sum(item.item_total for item in sale_items)
     
-    purchase_cost = batch.initial_quantity * batch.purchase_price_per_kg
+    purchase_cost = (batch.initial_quantity or 0) * (batch.purchase_price_per_kg or 0)
     profit = total_revenue - purchase_cost
     
-    decay_loss = batch.get_decay_loss()
-    decay_weight = batch.get_decayed_weight()
+    decay_loss = batch.get_decay_loss() if hasattr(batch, 'get_decay_loss') else 0
+    decay_weight = batch.get_decayed_weight() if hasattr(batch, 'get_decayed_weight') else 0
     
     context = {
         'batch': batch,
+        'all_batches': all_batches[:60],
         'sale_items': sale_items,
         'total_sold_weight': total_sold_weight,
         'total_revenue': total_revenue,
@@ -3607,6 +4568,201 @@ def batch_report_view(request, batch_id):
         'decay_weight': decay_weight,
     }
     return render(request, 'pos/batch_report.html', context)
+
+
+@staff_required
+def export_batch_report_excel(request, batch_id=None):
+    """Partiya hisoboti va barcha chakana sotuvlarini Excel (.xlsx) formatida yuklab berish."""
+    from django.shortcuts import get_object_or_404
+    from django.http import HttpResponse
+    from django.utils import timezone
+    from .models import StockBatch
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    if not batch_id:
+        batch_id = request.GET.get('batch_id') or request.GET.get('id')
+
+    if batch_id:
+        batch = get_object_or_404(StockBatch, id=batch_id)
+    else:
+        batch = StockBatch.objects.select_related('product').order_by('-id').first()
+
+    if not batch:
+        return HttpResponse("Partiya topilmadi", status=404)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Partiya #{batch.id}"
+    ws.views.sheetView[0].showGridLines = True
+
+    # Colors & Fonts
+    green_fill = PatternFill(start_color="1B6B4A", end_color="1B6B4A", fill_type="solid")
+    white_font_bold = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+    title_font = Font(name="Calibri", size=15, bold=True, color="1B6B4A")
+    bold_font = Font(name="Calibri", size=11, bold=True, color="111827")
+    regular_font = Font(name="Calibri", size=11, color="334155")
+    
+    thin_border = Border(
+        left=Side(style='thin', color='CBD5E1'),
+        right=Side(style='thin', color='CBD5E1'),
+        top=Side(style='thin', color='CBD5E1'),
+        bottom=Side(style='thin', color='CBD5E1')
+    )
+
+    # 1. Header Title
+    ws.merge_cells("A1:F1")
+    ws["A1"] = f"BAXMAL MEAT PRO — GO'SHT PARTIYASI HISOBOTI #{batch.id}"
+    ws["A1"].font = title_font
+    ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[1].height = 32
+
+    ws.merge_cells("A2:F2")
+    created_str = timezone.localtime(batch.created_at).strftime("%d.%m.%Y %H:%M")
+    status_str = "Sotuvda Faol" if batch.current_quantity > 0 else "To'liq Sotib Tugatilgan"
+    ws["A2"] = f"Mahsulot: {batch.product.name}  |  Kiritilgan sana: {created_str}  |  Holati: {status_str}"
+    ws["A2"].font = Font(name="Calibri", size=10, italic=True, color="64748B")
+    ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[2].height = 20
+
+    # 2. KPI Summary Table
+    ws["A4"] = "KO'RSATKICH"
+    ws["B4"] = "QIYMATI"
+    ws["D4"] = "MOLIYAVIY TAHLIL"
+    ws["E4"] = "SUMMA"
+
+    for col in ["A4", "B4", "D4", "E4"]:
+        ws[col].fill = green_fill
+        ws[col].font = white_font_bold
+        ws[col].alignment = Alignment(horizontal="left", vertical="center")
+
+    sale_items = batch.items_sold.select_related('sale', 'sale__customer').order_by('-id')
+    total_sold_weight = sum(item.weight for item in sale_items)
+    total_revenue = sum(item.item_total for item in sale_items)
+    purchase_cost = (batch.initial_quantity or 0) * (batch.purchase_price_per_kg or 0)
+    profit = total_revenue - purchase_cost
+    decay_loss = batch.get_decay_loss() if hasattr(batch, 'get_decay_loss') else 0
+
+    kpis_left = [
+        ("Mahsulot nomi", batch.product.name),
+        ("Dastlabki og'irlik", f"{batch.initial_quantity:,.3f} kg"),
+        ("Qolgan og'irlik (FIFO)", f"{batch.current_quantity:,.3f} kg"),
+        ("Xarid narxi (1 kg)", f"{batch.purchase_price_per_kg:,.0f} so'm"),
+    ]
+
+    kpis_right = [
+        ("Jami Xarid Tannarxi", f"{purchase_cost:,.0f} so'm"),
+        ("Jami Sotuv Tushumi", f"{total_revenue:,.0f} so'm"),
+        ("Muzlatgichda qurish zarari", f"{decay_loss:,.3f} kg"),
+        ("Yakuniy Sof Foyda", f"{profit:,.0f} so'm"),
+    ]
+
+    for idx in range(4):
+        r = 5 + idx
+        # Left
+        ws.cell(row=r, column=1, value=kpis_left[idx][0]).font = regular_font
+        ws.cell(row=r, column=2, value=kpis_left[idx][1]).font = bold_font
+        ws.cell(row=r, column=1).border = thin_border
+        ws.cell(row=r, column=2).border = thin_border
+        # Right
+        ws.cell(row=r, column=4, value=kpis_right[idx][0]).font = regular_font
+        ws.cell(row=r, column=5, value=kpis_right[idx][1]).font = bold_font
+        ws.cell(row=r, column=4).border = thin_border
+        ws.cell(row=r, column=5).border = thin_border
+
+    # 3. Table Header for Sales
+    start_row = 11
+    ws.merge_cells("A10:F10")
+    ws["A10"] = "PARTIYADAN AMALGA OSHIRILGAN CHAKANA SOTUVLAR"
+    ws["A10"].font = Font(name="Calibri", size=12, bold=True, color="1B6B4A")
+    ws["A10"].alignment = Alignment(horizontal="left", vertical="center")
+
+    headers = ["Chek #", "Sana va Vaqt", "Xaridor", "Sotilgan Vazn (kg)", "Narx (1 kg so'm)", "Jami Summa (so'm)"]
+    for col_num, h_text in enumerate(headers, 1):
+        cell = ws.cell(row=start_row, column=col_num, value=h_text)
+        cell.fill = green_fill
+        cell.font = white_font_bold
+        cell.alignment = Alignment(horizontal="center" if col_num in [1, 4, 5, 6] else "left", vertical="center")
+        cell.border = thin_border
+    ws.row_dimensions[start_row].height = 24
+
+    # 4. Table Data Rows
+    current_r = start_row + 1
+    for item in sale_items:
+        sale_date_str = timezone.localtime(item.sale.created_at).strftime("%d.%m.%Y %H:%M")
+        cust_name = str(item.sale.customer) if item.sale.customer else "Noma'lum xaridor (Naqd)"
+        
+        row_vals = [
+            f"#{item.sale.id}",
+            sale_date_str,
+            cust_name,
+            float(item.weight),
+            float(item.price_at_sale),
+            float(item.item_total)
+        ]
+        
+        for col_num, val in enumerate(row_vals, 1):
+            cell = ws.cell(row=current_r, column=col_num, value=val)
+            cell.font = regular_font
+            cell.border = thin_border
+            if col_num == 1:
+                cell.alignment = Alignment(horizontal="center")
+            elif col_num == 4:
+                cell.number_format = '#,##0.000'
+                cell.alignment = Alignment(horizontal="right")
+            elif col_num in [5, 6]:
+                cell.number_format = '#,##0'
+                cell.alignment = Alignment(horizontal="right")
+                if col_num == 6:
+                    cell.font = bold_font
+            else:
+                cell.alignment = Alignment(horizontal="left")
+                
+        current_r += 1
+
+    # If no sales
+    if not sale_items:
+        ws.merge_cells(f"A{current_r}:F{current_r}")
+        ws[f"A{current_r}"] = "Ushbu partiyadan hali birorta ham sotuv amalga oshirilmagan."
+        ws[f"A{current_r}"].alignment = Alignment(horizontal="center")
+        ws[f"A{current_r}"].font = Font(name="Calibri", italic=True, color="94A3B8")
+        current_r += 1
+
+    # 5. Total Summary Row
+    ws.cell(row=current_r, column=1, value="JAMI").font = white_font_bold
+    ws.cell(row=current_r, column=1).fill = green_fill
+    ws.cell(row=current_r, column=1).alignment = Alignment(horizontal="center")
+    
+    for c in range(2, 4):
+        ws.cell(row=current_r, column=c, value="").fill = green_fill
+        
+    cell_w = ws.cell(row=current_r, column=4, value=float(total_sold_weight))
+    cell_w.font = white_font_bold
+    cell_w.fill = green_fill
+    cell_w.number_format = '#,##0.000'
+    cell_w.alignment = Alignment(horizontal="right")
+    
+    ws.cell(row=current_r, column=5, value="").fill = green_fill
+    
+    cell_tot = ws.cell(row=current_r, column=6, value=float(total_revenue))
+    cell_tot.font = white_font_bold
+    cell_tot.fill = green_fill
+    cell_tot.number_format = '#,##0'
+    cell_tot.alignment = Alignment(horizontal="right")
+    ws.row_dimensions[current_r].height = 24
+
+    ws.column_dimensions['A'].width = 14
+    ws.column_dimensions['B'].width = 20
+    ws.column_dimensions['C'].width = 28
+    ws.column_dimensions['D'].width = 24
+    ws.column_dimensions['E'].width = 20
+    ws.column_dimensions['F'].width = 22
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    clean_pname = batch.product.name.replace(" ", "_").replace("'", "")
+    response['Content-Disposition'] = f'attachment; filename=partiya_{batch.id}_{clean_pname}.xlsx'
+    wb.save(response)
+    return response
 
 
 @login_required
@@ -3638,6 +4794,7 @@ def get_current_shift_status(request):
     })
 
 
+@csrf_exempt
 @login_required
 @transaction.atomic
 def open_shift(request):
@@ -3682,6 +4839,7 @@ def open_shift(request):
     })
 
 
+@csrf_exempt
 @login_required
 @transaction.atomic
 def close_shift(request):
@@ -3704,7 +4862,9 @@ def close_shift(request):
     # Calculate sums
     sales = Sale.objects.filter(shift=shift)
     cash_sales = sales.filter(payment_method='naqd').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
-    card_sales = sales.filter(payment_method__in=['karta', 'qr']).aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    card_only_sales = sales.filter(payment_method='karta').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    qr_sales = sales.filter(payment_method='qr').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    card_sales = card_only_sales + qr_sales
     debt_sales = sales.filter(payment_method='nasiya').aggregate(s=Sum('debt_added'))['s'] or Decimal('0.00')
     
     # Calculate CashTransactions (manual Cash In / Out, supplier payments, expenses) during the shift
@@ -3728,6 +4888,25 @@ def close_shift(request):
     shift.is_open = False
     shift.closed_at = timezone.now()
     shift.save()
+
+    z_report_dict = {
+        'shift_id': shift.id,
+        'cashier_name': request.user.get_full_name() or request.user.username,
+        'opened_at': timezone.localtime(shift.opened_at).strftime('%d.%m.%Y %H:%M'),
+        'closed_at': timezone.localtime(shift.closed_at).strftime('%d.%m.%Y %H:%M'),
+        'sales_count': sales.count(),
+        'opening_cash': float(shift.opening_cash),
+        'cash_sales': float(cash_sales),
+        'card_sales': float(card_only_sales),
+        'qr_sales': float(qr_sales),
+        'debt_sales': float(debt_sales),
+        'cash_in': float(cash_in),
+        'cash_out': float(cash_out),
+        'expected_cash': float(expected_cash),
+        'actual_cash': float(actual_cash),
+        'difference': float(difference),
+        'notes': notes or ''
+    }
     
     # Send Telegram Notification with Z-Report details!
     try:
@@ -3757,7 +4936,8 @@ def close_shift(request):
         'status': 'success',
         'message': 'Shift muvaffaqiyatli yopildi! Z-Report Telegram botga jo\'natildi.',
         'shift_id': shift.id,
-        'difference': float(difference)
+        'difference': float(difference),
+        'z_report': z_report_dict
     })
 
 
@@ -3820,7 +5000,7 @@ def process_supplier_payment_api(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Faqat POST!'}, status=405)
         
-    from .models import Supplier, CashTransaction
+    from .models import Supplier, CashTransaction, CustomerLog
     from decimal import Decimal
     import json
     
@@ -3832,21 +5012,11 @@ def process_supplier_payment_api(request):
         desc = data.get('description', '').strip()
         
         if not supplier_id or amount <= 0:
-            return JsonResponse({'status': 'error', 'message': 'Noto\'g\'ri ma\'lumotlar!'}, status=400)
+            return JsonResponse({'status': 'error', 'message': "To'lov summasi 0 dan katta bo'lishi kerak!"}, status=400)
             
         supplier = Supplier.objects.get(id=supplier_id)
         
-        if payment_method == 'naqd':
-            from django.db.models import Sum
-            from .models import Sale
-            naqd_sales = Sale.objects.filter(payment_method='naqd').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
-            naqd_in = CashTransaction.objects.filter(transaction_type='in', payment_method='naqd').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
-            naqd_out = CashTransaction.objects.filter(transaction_type='out', payment_method='naqd').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
-            current_bal = naqd_sales + naqd_in - naqd_out
-            if amount > current_bal:
-                return JsonResponse({'status': 'error', 'message': 'Kassada yetarli naqd pul yo\'q!'}, status=400)
-                
-        # Chiqim tranzaksiyasini yaratish
+        # Chiqim tranzaksiyasini yaratish (CashTransaction)
         tx = CashTransaction.objects.create(
             transaction_type='out',
             amount=amount,
@@ -3863,17 +5033,38 @@ def process_supplier_payment_api(request):
         
         # Log to CustomerLog if customer profile is linked
         if supplier.customer:
-            CustomerLog.objects.create(
-                customer=supplier.customer,
-                log_type='supplier_pay',
-                title="💸 Ta'minotchiga to'lov",
-                message=f"To'lov: Ta'minotchiga {amount:,.0f} so'm to'lov qilindi. Usul: {'Naqd' if payment_method == 'naqd' else 'Plastik karta'}. {desc or ''}",
-                amount=amount
+            try:
+                CustomerLog.objects.create(
+                    customer=supplier.customer,
+                    log_type='debt_pay',
+                    title="💸 Ta'minotchiga to'lov berildi",
+                    message=f"Ta'minotchi {supplier.first_name}ga {amount:,.0f} so'm to'landi ({'Naqd' if payment_method == 'naqd' else 'Plastik karta'}). {desc or ''}",
+                    amount=amount
+                )
+            except Exception as le:
+                print("CustomerLog error:", le)
+            
+        # Send Telegram notification
+        try:
+            from .views_api import send_telegram_notification
+            method_str = "💵 Naqd pul" if payment_method == 'naqd' else "💳 Plastik karta"
+            t_msg = (
+                f"💸 **TA'MINOTCHIGA TO'LOV AMALGA OSHIRILDI**\n"
+                f"👤 Hamkor: {supplier.first_name} {supplier.last_name or ''} (ID: {supplier.custom_id})\n"
+                f"💰 To'langan summa: **{amount:,.0f} so'm**\n"
+                f"💳 To'lov usuli: {method_str}\n"
+                f"📊 Qolgan qarzimiz: **{supplier.our_debt:,.0f} so'm**\n"
+                f"📝 Izoh: {desc or 'Izohsiz'}\n"
+                f"👨‍💼 Mas'ul: {request.user.username}"
             )
+            send_telegram_notification(t_msg)
+        except Exception as te:
+            print("Telegram supplier payment error:", te)
             
         return JsonResponse({
             'status': 'success',
-            'message': f"Ta'minotchi {supplier.first_name}ga {amount:,.0f} so'm to'lov muvaffaqiyatli saqlandi!"
+            'message': f"Ta'minotchi {supplier.first_name}ga {amount:,.0f} so'm to'lov muvaffaqiyatli saqlandi!",
+            'new_debt': float(supplier.our_debt)
         })
         
     except Supplier.DoesNotExist:
@@ -3954,6 +5145,7 @@ def get_supplier_ledger_api(request, supplier_id):
                 'id': supplier.id,
                 'name': f"{supplier.first_name} {supplier.last_name or ''}".strip(),
                 'custom_id': supplier.custom_id,
+                'phone': supplier.phone,
                 'our_debt': float(supplier.our_debt)
             },
             'ledger': ledger
@@ -4224,60 +5416,6 @@ def api_broadcast_message(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': "Faqat POST so'rovlar"}, status=405)
 
-
-@staff_required
-def get_supplier_ledger_api(request, supplier_id):
-    """Ta'minotchi bilan barter hisob-kitob (Акт сверки) ma'lumotlarini qaytarish."""
-    try:
-        supplier = Supplier.objects.get(id=supplier_id)
-        
-        # 1. Slaughters (Chorva qabullari — biz ta'minotchidan olgan chorva)
-        slaughters = supplier.slaughters.all().order_by('created_at')
-        
-        # 2. Barter Sales (Ta'minotchi do'kondan olib ketgan go'shtlar)
-        barter_sales = []
-        if supplier.customer:
-            barter_sales = Sale.objects.filter(customer=supplier.customer).order_by('created_at')
-
-        timeline = []
-
-        for s in slaughters:
-            loc_time = timezone.localtime(s.created_at)
-            timeline.append({
-                'date': loc_time.strftime('%d.%m.%Y %H:%M'),
-                'raw_date': s.created_at,
-                'type': 'slaughter',
-                'title': f"🐂 So'yim qabuli #{s.id} ({s.get_animal_type_display()})",
-                'details': f"Og'irlik: {s.total_weight:.3f} kg | Narx: {s.purchase_price_per_kg:,.0f} so'm/kg",
-                'credit': float(s.total_cost),
-                'debit': 0.0
-            })
-
-        for sale in barter_sales:
-            loc_time = timezone.localtime(sale.created_at)
-            items_str = ", ".join([f"{it.product.name} ({it.weight} kg)" for it in sale.items.all()])
-            timeline.append({
-                'date': loc_time.strftime('%d.%m.%Y %H:%M'),
-                'raw_date': sale.created_at,
-                'type': 'sale',
-                'title': f"🥩 Barter go'sht olish #{sale.id}",
-                'details': items_str,
-                'credit': 0.0,
-                'debit': float(sale.total_amount)
-            })
-
-        timeline = sorted(timeline, key=lambda x: x['raw_date'])
-
-        return JsonResponse({
-            'status': 'success',
-            'supplier_name': f"{supplier.first_name} {supplier.last_name or ''}".strip(),
-            'custom_id': supplier.custom_id,
-            'phone': supplier.phone,
-            'our_debt': float(supplier.our_debt),
-            'timeline': timeline
-        })
-    except Supplier.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': "Ta'minotchi topilmadi!"}, status=404)
 
 
 @staff_required

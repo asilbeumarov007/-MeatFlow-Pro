@@ -234,14 +234,47 @@ body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', san
   transition: all 0.15s;
 }
 .btn-cash:hover { box-shadow: 0 6px 18px rgba(27,107,74,0.35); transform: translateY(-1px); }
-.btn-back {
-  width: 100%; padding: 12px; background: transparent;
-  border: 1.5px solid rgba(0,0,0,0.1); border-radius: 14px;
-  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase; color: #9CA3AF;
-  cursor: pointer; margin-bottom: 8px;
+
+.btn-terminal-header {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  color: #81EFBB;
+  border: 1px solid rgba(129, 239, 187, 0.4);
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  cursor: pointer;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-.btn-back:hover { border-color: #6B7280; color: #6B7280; }
+.btn-terminal-header:hover {
+  background: rgba(129, 239, 187, 0.25);
+  color: #FFFFFF;
+  border-color: #81EFBB;
+  transform: translateY(-1px);
+}
+
+.btn-back {
+  width: 100%; padding: 14px; background: #FFFFFF;
+  border: 1.5px solid #CBD5E1; border-radius: 14px;
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase; color: #334155;
+  cursor: pointer; margin-bottom: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  transition: all 0.15s ease;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-back:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: #0F172A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
 
 .confirm-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
 .confirm-card {
@@ -271,13 +304,14 @@ body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', san
 .pay-select-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9CA3AF; margin-bottom: 10px; display: block; }
 .pay-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
 .pay-opt {
-  background: #fff; border: 1.5px solid rgba(0,0,0,0.07); border-radius: 12px;
-  padding: 12px 16px; cursor: pointer;
+  background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 14px;
+  padding: 13px 16px; cursor: pointer;
   font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
-  color: #6B7280; text-align: center; transition: all 0.15s;
+  color: #1E293B; text-align: center; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
 }
-.pay-opt:hover { border-color: #1B6B4A; color: #1B6B4A; }
-.pay-opt.selected { background: #1B6B4A; border-color: #1B6B4A; color: #fff; }
+.pay-opt:hover { border-color: #1B6B4A; color: #1B6B4A; background: #F0FDF4; }
+.pay-opt.selected { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); border-color: transparent; color: #fff; box-shadow: 0 4px 14px rgba(27,107,74,0.25); }
 
 .btn-confirm {
   width: 100%; padding: 20px; background: linear-gradient(135deg, #1B6B4A, #2D9B6E); color: #fff;
@@ -466,6 +500,15 @@ body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', san
   }
 
   /* ── ACTION BUTTONS: Large, full-width, easy to tap ── */
+  .pos-top-ctrl-row {
+    width: 100%;
+    margin-bottom: 8px !important;
+  }
+  .btn-terminal-header {
+    padding: 7px 12px !important;
+    font-size: 11.5px !important;
+    border-radius: 10px !important;
+  }
   .btn-cash {
     padding: 18px !important;
     font-size: 16px !important;
@@ -475,9 +518,13 @@ body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', san
   }
   .btn-back {
     padding: 14px !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
     border-radius: 14px !important;
     min-height: 48px;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1.5px solid #CBD5E1 !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
   }
 
   /* ── CONFIRM STEP: Cards + buttons ── */
@@ -633,13 +680,24 @@ body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', san
 
   <!-- ════ LEFT PANEL ════ -->
   <div class="left-panel">
-    <div class="app-label">POS Terminal</div>
+    <div class="pos-top-ctrl-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 8px;">
+      <div class="app-label" style="margin-bottom: 0;">POS Terminal</div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button type="button" onclick="toggleFaceCamModal()" class="btn-terminal-header" title="AI Kamera va Yuzni Tanish (Face ID)">
+          <span id="faceCamStatusDot" style="width:7px; height:7px; border-radius:50%; background:#81EFBB; display:inline-block; box-shadow:0 0 6px #81EFBB;"></span> 📷 Face ID
+        </button>
+        <button type="button" onclick="window.open('/pos/customer-display/', 'CustomerDisplay', 'width=1200,height=800')" class="btn-terminal-header" title="Mijoz uchun 2-Ekranni yangi oynada ochish">
+          🖥️ 2-Ekran
+        </button>
+      </div>
+    </div>
 
     <!-- Shift Control panel -->
     <div style="margin: -6px 0 16px 0; display: flex; gap: 8px; align-items: center;">
       <span id="shift-status-badge" style="background:#EF4444; color:#fff; padding:4px 10px; border-radius:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">YOPILGAN SHIFT</span>
       <button id="shift-action-btn" onclick="toggleShiftAction()" style="background:var(--primary); color:#fff; border:none; padding:5px 12px; border-radius:8px; font-size:11px; cursor:pointer; font-weight:700; box-shadow:var(--shadow-sm); transition:all 0.2s;">Shiftni ochish</button>
     </div>
+
 
     <div class="scale-tabs">
       <button id="scale-btn-1" class="scale-tab on" onclick="changeActiveScale('1')">⚡ Kassa</button>
@@ -731,8 +789,30 @@ body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', san
 
     <!-- STEP 2: Mijoz -->
     <div id="step-2" class="d-none">
-      <div class="step-title">Mijoz</div>
-      <div class="step-sub">Mijozni qidiring yoki yangi qo'shing</div>
+      <div class="step-title d-flex justify-content-between align-items-center">
+        <span>Mijoz</span>
+        <button type="button" onclick="toggleFaceCamModal()" style="background:#1B6B4A; color:#fff; border:none; padding:5px 12px; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:5px;">
+          📷 AI Face ID Skaner
+        </button>
+      </div>
+      <div class="step-sub">Mijozni yuzidan taning, qidiring yoki yangi qo'shing</div>
+
+      <!-- AI Face Recognized Quick Alert Banner -->
+      <div id="aiFaceRecognizedBanner" style="display:none; margin-bottom:12px; background:linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border:1.5px solid #10B981; border-radius:14px; padding:12px; box-shadow:0 4px 14px rgba(16,185,129,0.15);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <img id="aiRecBannerImg" src="" style="width:42px; height:42px; border-radius:10px; object-fit:cover; border:2px solid #10B981;" alt="">
+            <div>
+              <div style="font-size:13.5px; font-weight:800; color:#065F46;" id="aiRecBannerName">-</div>
+              <div style="font-size:11px; color:#047857;" id="aiRecBannerSub">AI Kamera orqali tanildi ✨</div>
+            </div>
+          </div>
+          <button id="aiRecBannerSelectBtn" type="button" class="btn btn-sm btn-success" style="background:#10B981; border:none; font-weight:700; border-radius:8px;">
+            Tanlash &rarr;
+          </button>
+        </div>
+      </div>
+
       <div class="search-row">
         <input type="text" id="searchInput" class="search-field"
                placeholder="Ism yoki telefon..." oninput="doSearch(this.value)" autocomplete="off">
@@ -1173,6 +1253,16 @@ function showStep(s) {
   }
 }
 
+// ── CUSTOMER FACING DISPLAY (2-EKRAN) SYNC ──
+const cfdChannel = new BroadcastChannel('pos_customer_display');
+
+function broadcastToCustomerDisplay(data) {
+  try {
+    cfdChannel.postMessage(data);
+    localStorage.setItem('pos_customer_display_event', JSON.stringify(data));
+  } catch(e){}
+}
+
 let selectedProductStock = 0;
 
 // ── MAHSULOT ──
@@ -1187,6 +1277,17 @@ function selectProduct(id, name, stock) {
   const el = document.getElementById('current-prod-name');
   el.innerText = name;
   el.classList.remove('none');
+
+  const p = getPrice();
+  const w = parseFloat(document.getElementById('vazn').innerText) || 0;
+  broadcastToCustomerDisplay({
+    type: 'ITEM_UPDATE',
+    product_name: name,
+    price: p,
+    weight: w,
+    total: p * w
+  });
+
   showStep(2);
 }
 
@@ -1202,6 +1303,7 @@ function getPrice() {
     .replace(',', '.');
   return parseFloat(cleaned) || 0;
 }
+
 
 // ── VAZN NUMPAD ──
 function openNumpad() {
@@ -1450,8 +1552,21 @@ function startWeightPolling() {
           const f = parseFloat(v).toFixed(3);
           document.getElementById('vazn').innerText   = f;
           document.getElementById('vazn-input').value = f;
+
+          if (selectedProductName) {
+            const p = getPrice();
+            const w = parseFloat(f) || 0;
+            broadcastToCustomerDisplay({
+              type: 'ITEM_UPDATE',
+              product_name: selectedProductName,
+              price: p,
+              weight: w,
+              total: p * w
+            });
+          }
         }
         if (d.button_pressed && parseFloat(v||0) > 0 && selectedProductId) {
+
           if (typeof addToCartWithWeight === "function") addToCartWithWeight(v);
         }
       })
@@ -1624,8 +1739,16 @@ function confirmSale(id, name, debt=0, debtLimit=0, creditScore='', isBlackliste
     }
   }
 
+  broadcastToCustomerDisplay({
+    type: 'CUSTOMER_UPDATE',
+    name: name,
+    custom_id: id,
+    bonus_points: 0
+  });
+
   showStep('confirm');
   generateQuickAmounts();
+
 
   // Reset payment method: default to Barter (nasiya) for suppliers, else Naqd (cash)
   document.querySelectorAll('.pay-opt').forEach(b => b.classList.remove('selected'));
@@ -1733,12 +1856,28 @@ function submitSaleBackend() {
   .then(r => { if (!r.ok) throw new Error('Server ' + r.status); return r.json(); })
   .then(d => {
     if (d.status === 'success') {
-      let msg = `Saqlandi!\nChek: #${d.sale_id}\nSumma: ${Math.round(d.total_amount).toLocaleString()} so'm`;
-      if (d.bonus_used > 0) msg += `\nBonus: ${Math.round(d.bonus_used).toLocaleString()} so'm ishlatildi`;
-      if (d.debt_added > 0) msg += `\nQarzga yozildi: ${Math.round(d.debt_added).toLocaleString()} so'm`;
-      alert(msg);
-      location.reload();
+      const custName = document.getElementById('confirmName') ? document.getElementById('confirmName').innerText : 'Anonim';
+      
+      broadcastToCustomerDisplay({
+        type: 'SALE_COMPLETE',
+        sale_id: d.sale_id,
+        total: d.total_amount,
+        bonus_earned: d.bonus_earned || 0
+      });
+
+      showThermalReceipt({
+        id: d.sale_id,
+        total: d.total_amount,
+        customer: custName,
+        pay_method: pay,
+        product: selectedProductName,
+        weight: w,
+        bonus_earned: d.bonus_earned || 0,
+        bonus_used: d.bonus_used || 0
+      });
     } else {
+
+
       alert("Xatolik: " + d.message);
       btn.disabled  = false;
       btn.innerText = "Savdoni tasdiqlash";
@@ -2070,6 +2209,969 @@ document.addEventListener("DOMContentLoaded", () => {
   updateOfflineSyncUI();
   syncOfflineSales();
   checkShiftStatus();
+});
+
+// ── POS KEYBOARD SHORTCUTS (F2, F4, F8, ESC) ──
+document.addEventListener('keydown', (e) => {
+  // F1: Mijoz qidiruvi
+  if (e.key === 'F1') {
+    e.preventDefault();
+    const custSearch = document.getElementById('search-cust-input') || document.getElementById('quickCustomerSearch') || document.getElementById('custSearchInput');
+    if (custSearch) custSearch.focus();
+  }
+  // F2: Qo'lda vazn kiritish
+  if (e.key === 'F2') {
+    e.preventDefault();
+    const vaznInput = document.getElementById('vazn-input') || document.getElementById('manualWeightInput');
+    if (vaznInput) {
+      vaznInput.focus();
+      vaznInput.select();
+    }
+  }
+  // F3: Tarozi almashtirish (Scale 1 / Scale 2)
+  if (e.key === 'F3') {
+    e.preventDefault();
+    const activeTab = document.querySelector('.scale-tab.on');
+    const allTabs = document.querySelectorAll('.scale-tab');
+    if (allTabs.length > 1) {
+      allTabs.forEach(t => {
+        if (t !== activeTab) t.click();
+      });
+    }
+  }
+  // F4: Naqd to'lov usuli
+  if (e.key === 'F4') {
+    e.preventDefault();
+    const btnNaqd = document.querySelector('.pay-opt[data-val="naqd"]');
+    if (btnNaqd) btnNaqd.click();
+  }
+  // F6: Karta to'lov usuli
+  if (e.key === 'F6') {
+    e.preventDefault();
+    const btnKarta = document.querySelector('.pay-opt[data-val="karta"]');
+    if (btnKarta) btnKarta.click();
+  }
+  // F7: Nasiya to'lov usuli
+  if (e.key === 'F7') {
+    e.preventDefault();
+    const btnNasiya = document.querySelector('.pay-opt[data-val="nasiya"]');
+    if (btnNasiya) btnNasiya.click();
+  }
+  // F8 yoki Ctrl+Enter: Savdoni yakunlash / Chek
+  if (e.key === 'F8' || (e.ctrlKey && e.key === 'Enter')) {
+    e.preventDefault();
+    const btnSubmit = document.getElementById('saveSaleBtn') || document.getElementById('btnConfirmSale') || document.querySelector('.btn-pay');
+    if (btnSubmit && !btnSubmit.disabled) btnSubmit.click();
+  }
+
+  // Escape: Modallarni yopish
+  if (e.key === 'Escape') {
+    const receiptModal = document.getElementById('thermalReceiptModal');
+    if (receiptModal && receiptModal.classList.contains('show')) {
+      bootstrap.Modal.getInstance(receiptModal)?.hide();
+    }
+  }
+});
+</script>
+
+
+<!-- THERMAL RECEIPT PRINT MODAL -->
+<div class="modal fade" id="thermalReceiptModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+    <div class="modal-content" style="border-radius: 18px; border: none; box-shadow: 0 12px 40px rgba(0,0,0,0.25);">
+      <div class="modal-body p-4 text-center" id="thermal-receipt-printable">
+        <style>
+          @media print {
+            body * { visibility: hidden; }
+            #thermal-receipt-printable, #thermal-receipt-printable * { visibility: visible; }
+            #thermal-receipt-printable { position: absolute; left: 0; top: 0; width: 78mm; padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+          }
+        </style>
+        <div style="font-family: 'Courier New', Courier, monospace; font-size: 13px; color: #000; text-align: center; line-height: 1.4;">
+          <h4 style="font-weight: 800; margin-bottom: 2px; font-size: 16px;">🥩 BAXMAL MEAT DO'KONI</h4>
+          <p style="font-size: 11px; margin-bottom: 6px;">Jizzax viloyati, Baxmal tumani, Sangzor Guzari<br>Tel: +998 77 082 4477 | @baxmalmeatbot</p>
+          <div style="border-bottom: 1px dashed #000; margin: 6px 0;"></div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px;">
+            <span>Chek #: <strong id="rec-id">#000</strong></span>
+            <span id="rec-date">11.08.2026</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+            <span>Mijoz: <strong id="rec-cust">Anonim</strong></span>
+            <span>To'lov: <strong id="rec-pay">Naqd</strong></span>
+          </div>
+          <div style="border-bottom: 1px dashed #000; margin: 6px 0;"></div>
+          <table style="width: 100%; font-size: 12px; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid #000;">
+                <th>Mahsulot</th>
+                <th style="text-align: right;">Vazn</th>
+                <th style="text-align: right;">Summa</th>
+              </tr>
+            </thead>
+            <tbody id="rec-items">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div style="border-bottom: 1px dashed #000; margin: 6px 0;"></div>
+          <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; margin-top: 4px;">
+            <span>JAMI TO'LANDI:</span>
+            <span id="rec-total">0 so'm</span>
+          </div>
+          <div id="rec-bonus-row" style="display: none; justify-content: space-between; font-size: 11px; color: #1B6B4A; font-weight: 700; margin-top: 4px;">
+            <span>🎁 KESHBEK (BONUS):</span>
+            <span id="rec-bonus-val">+0 ball</span>
+          </div>
+          <div style="font-size: 10px; margin-top: 10px; color: #333;">
+            Rahmat! Xaridingiz fayzli bo'lsin!<br>MeatFlow Pro Smart Terminal
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between no-print" style="border-top: none; background: #F8F9FA; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;">
+        <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal" onclick="location.reload()">Yopish</button>
+        <button type="button" class="btn btn-success rounded-3 font-weight-bold" onclick="window.print()"><i class="bi bi-printer-fill me-1"></i> Chop Etish (ESC/POS)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showThermalReceipt(data) {
+  document.getElementById('rec-id').innerText = '#' + (data.id || '000');
+  document.getElementById('rec-date').innerText = new Date().toLocaleDateString('ru-RU') + ' ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('rec-cust').innerText = data.customer || 'Anonim';
+  document.getElementById('rec-pay').innerText = (data.pay_method === 'naqd' ? 'Naqd' : (data.pay_method === 'karta' ? 'Karta' : 'Nasiya'));
+  document.getElementById('rec-total').innerText = Math.round(data.total || 0).toLocaleString() + " so'm";
+
+  const bonusRow = document.getElementById('rec-bonus-row');
+  if (data.bonus_earned && data.bonus_earned > 0) {
+    bonusRow.style.display = 'flex';
+    document.getElementById('rec-bonus-val').innerText = '+' + Math.round(data.bonus_earned).toLocaleString() + ' ball';
+  } else {
+    bonusRow.style.display = 'none';
+  }
+
+  const tbody = document.getElementById('rec-items');
+  tbody.innerHTML = `
+    <tr>
+      <td>${data.product || 'Go\'sht'}</td>
+      <td style="text-align: right;">${parseFloat(data.weight || 0).toFixed(3)} kg</td>
+      <td style="text-align: right;">${Math.round(data.total || 0).toLocaleString()} so'm</td>
+    </tr>
+  `;
+
+  new bootstrap.Modal(document.getElementById('thermalReceiptModal')).show();
+}
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- 🤖 AI SMART KAMERA & BIOMETRIK FACE ID NEURAL ENGINE             -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<script src="/static/js/face-api.js"></script>
+
+<style>
+@keyframes laserScan {
+  0% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(190px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.7; }
+}
+@keyframes pulseDotLive {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+@keyframes popInModal {
+  0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.ai-vector-ticker {
+  font-family: 'Courier New', monospace;
+  font-size: 10.5px;
+  color: #38BDF8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ai-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  background: #F1F5F9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ai-tab-btn.active {
+  background: #E8F5E9;
+  color: #1B6B4A;
+  border-color: #81EFBB;
+  box-shadow: 0 2px 8px rgba(27, 107, 74, 0.12);
+}
+</style>
+
+<div id="aiFaceCamModal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.82); backdrop-filter:blur(10px); z-index:99999; justify-content:center; align-items:center; padding:16px;">
+  <div style="background:#FFFFFF; border-radius:24px; width:100%; max-width:540px; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(0,0,0,0.4); overflow:hidden; border:1px solid rgba(255,255,255,0.25); animation:popInModal 0.22s ease-out;">
+    
+    <!-- Modal Header -->
+    <div style="background:linear-gradient(135deg, #1B6B4A 0%, #0F3D2A 100%); padding:16px 20px; color:#fff; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">🤖</div>
+        <div>
+          <h4 style="margin:0; font-size:16px; font-weight:800; letter-spacing:-0.3px;">AI Smart Face ID & Neyrotarmoq</h4>
+          <div style="font-size:11px; opacity:0.85;" id="aiModelReadyStatus">68 Nuqta &bull; 128-D Biometriya &bull; Ovozli Salom</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button type="button" onclick="switchCameraFacing()" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); color:#fff; padding:6px 12px; border-radius:10px; font-size:11.5px; font-weight:700; cursor:pointer;" title="Kamerani almashtirish">
+          🔄 <span id="cameraFacingLabel">Oldi</span>
+        </button>
+        <button type="button" onclick="closeFaceCamModal()" style="background:rgba(255,255,255,0.18); border:none; color:#fff; width:34px; height:34px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1;">&times;</button>
+      </div>
+    </div>
+
+    <!-- Video & Canvas Viewport -->
+    <div style="position:relative; background:#080D0A; height:270px; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+      <video id="aiFaceVideo" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; transform:scaleX(-1);"></video>
+      <canvas id="aiFaceCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; transform:scaleX(-1);"></canvas>
+
+      <!-- Target Laser HUD Overlay -->
+      <div id="aiLaserTargetBox" style="position:absolute; width:170px; height:190px; border:2px dashed #81EFBB; border-radius:18px; box-shadow:0 0 24px rgba(129,239,187,0.25); pointer-events:none; display:flex; flex-direction:column; justify-content:space-between; padding:8px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#81EFBB; font-weight:800; font-size:14px;">⌜</span>
+          <span style="color:#81EFBB; font-weight:800; font-size:14px;">⌝</span>
+        </div>
+        <div style="height:2.5px; background:linear-gradient(90deg, transparent, #81EFBB, transparent); box-shadow:0 0 12px #81EFBB; animation:laserScan 2.2s infinite linear;"></div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#81EFBB; font-weight:800; font-size:14px;">⌞</span>
+          <span style="color:#81EFBB; font-weight:800; font-size:14px;">⌟</span>
+        </div>
+      </div>
+
+      <!-- Live 128-D Vector Stream Strip (HUD Top) -->
+      <div style="position:absolute; top:10px; left:12px; right:12px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); padding:5px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.25);">
+        <div class="ai-vector-ticker" id="aiVectorTicker">🧠 128-D Vektor: Yuz qidirilmoqda...</div>
+        <span style="font-size:10px; font-weight:800; color:#38BDF8; background:rgba(56,189,248,0.15); padding:1px 6px; border-radius:4px; margin-left:8px; flex-shrink:0;" id="aiMeshBadge">68 Mesh</span>
+      </div>
+
+      <!-- Live Scanner HUD Bottom Strip -->
+      <div style="position:absolute; bottom:10px; left:12px; right:12px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); padding:7px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.12);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="aiFacePulseDot" style="width:8px; height:8px; border-radius:50%; background:#10B981; animation:pulseDotLive 1.5s infinite;"></span>
+          <span id="aiFaceStatusText" style="font-size:12px; font-weight:700; color:#FFFFFF;">Yuz qidirilmoqda...</span>
+        </div>
+        <span id="aiConfidenceBadge" style="font-size:11px; font-weight:800; color:#81EFBB; background:rgba(129,239,187,0.18); padding:2px 8px; border-radius:6px;">Auto 1.2s</span>
+      </div>
+    </div>
+
+    <!-- Scrollable Content Body -->
+    <div style="padding:16px 20px; overflow-y:auto; flex:1;">
+
+      <!-- Matched Customer Card (When recognized) -->
+      <div id="aiMatchedCard" style="display:none; background:#F0FDF4; border:1.5px solid #86EFAC; border-radius:16px; padding:12px 14px; margin-bottom:14px; box-shadow:0 4px 14px rgba(22,163,74,0.1);">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <img id="aiMatchImg" src="/static/images/default-avatar.png" style="width:46px; height:46px; border-radius:12px; object-fit:cover; border:2px solid #16A34A;" alt="">
+            <div>
+              <div style="font-size:14.5px; font-weight:800; color:#14532D;" id="aiMatchName">-</div>
+              <div style="font-size:11.5px; color:#166534; font-weight:600;" id="aiMatchDetails">Qarz: 0 so'm | Bonus: 0 ball</div>
+            </div>
+          </div>
+          <button type="button" onclick="selectAiMatchedCustomer()" style="background:linear-gradient(135deg, #16A34A 0%, #15803D 100%); color:#fff; border:none; padding:9px 16px; border-radius:10px; font-weight:800; font-size:12.5px; cursor:pointer; box-shadow:0 4px 12px rgba(22,163,74,0.25);">
+            ⚡ Kassaga Ulash
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Tabs: 1. Mavjud Mijozga Biriktirish | 2. Yangi Mijoz Yaratish -->
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <button type="button" class="ai-tab-btn active" id="tabBtnAssign" onclick="switchAiTab('assign')">
+          🔍 Mavjud Mijozga Biriktirish
+        </button>
+        <button type="button" class="ai-tab-btn" id="tabBtnCreate" onclick="switchAiTab('create')">
+          📸 Yangi Mijoz Yaratish
+        </button>
+      </div>
+
+      <!-- TAB 1: Searchable Customer Selection -->
+      <div id="aiTabAssignSection">
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:16px; padding:12px 14px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:6px;">
+            🔍 Mijozni qidirish (Ismi yoki Telefon raqami):
+          </label>
+          <div style="position:relative;">
+            <input
+              type="text"
+              id="aiCustSearchInput"
+              placeholder="Ism yoki telefon yozing..."
+              oninput="filterAiCustomers(this.value)"
+              style="width:100%; padding:9px 12px; border-radius:10px; border:1.5px solid #CBD5E1; font-size:13px; outline:none; background:#FFFFFF;"
+            />
+            <div id="aiCustSearchResults" style="display:none; position:absolute; top:105%; left:0; right:0; max-height:160px; overflow-y:auto; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:100;"></div>
+          </div>
+
+          <!-- Selected Customer Banner -->
+          <div id="aiSelectedCustBadge" style="display:none; margin-top:10px; padding:8px 12px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:12.5px; font-weight:800; color:#1E40AF;" id="aiSelectedCustName">-</div>
+              <div style="font-size:11px; color:#3B82F6;" id="aiSelectedCustPhone">-</div>
+            </div>
+            <button type="button" onclick="saveFaceToSelectedCustomer()" style="background:#2563EB; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;">
+              💾 Face ID Saqlash
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Instant Create New Customer from Snapshot -->
+      <div id="aiTabCreateSection" style="display:none;">
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:16px; padding:12px 14px;">
+          <div style="font-size:12px; font-weight:700; color:#1E293B; margin-bottom:8px;">
+            📸 Kameradagi yuzdan to'g'ridan-to'g'ri yangi mijoz yaratish:
+          </div>
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <div>
+              <label style="display:block; font-size:11px; font-weight:700; color:#475569; margin-bottom:3px;">Ism va Familiya *</label>
+              <input type="text" id="aiNewCustName" placeholder="Masalan: Sardor Aliyev" style="width:100%; padding:8px 10px; border-radius:8px; border:1.5px solid #CBD5E1; font-size:12.5px;" />
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; font-weight:700; color:#475569; margin-bottom:3px;">Telefon raqami *</label>
+              <input type="text" id="aiNewCustPhone" placeholder="+998 90 123 45 67" style="width:100%; padding:8px 10px; border-radius:8px; border:1.5px solid #CBD5E1; font-size:12.5px;" />
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <div style="font-size:11px; color:#64748B;">
+              128-D Yuz vektori va surat avtomatik biriktiriladi
+            </div>
+            <button type="button" onclick="submitCreateNewCustomerWithFace()" style="background:linear-gradient(135deg, #1B6B4A 0%, #2D9B6E 100%); color:#fff; border:none; padding:8px 16px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(27,107,74,0.25);">
+              ✨ Yaratish & Face ID Saqlash
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Toggle Toolbar -->
+      <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-top:14px;">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button id="btnToggleCamStream" type="button" onclick="toggleCameraStream()" style="background:#F1F5F9; color:#1E293B; border:1px solid #CBD5E1; padding:7px 12px; border-radius:10px; font-size:11.5px; font-weight:700; cursor:pointer;">
+            🛑 O'chirish
+          </button>
+          <button type="button" onclick="scanFaceNow(false)" style="background:#1B6B4A; color:#fff; border:none; padding:7px 14px; border-radius:10px; font-size:11.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 4px 12px rgba(27,107,74,0.2);">
+            📸 Hozir Skanerlash
+          </button>
+        </div>
+
+        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:700; color:#334155; margin:0;">
+          <input type="checkbox" id="aiVoiceToggle" checked style="accent-color:#1B6B4A; width:16px; height:16px;">
+          <span>🔊 Ovozli Salom</span>
+        </label>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── AI SMART FACE RECOGNITION & NEURAL BIOMETRICS ENGINE ──
+let faceVideoStream = null;
+let faceScanInterval = null;
+let faceCameraFacing = 'user'; // 'user' (front) or 'environment' (back)
+let isFaceApiLoaded = false;
+let faceMatcher = null;
+let cachedFaceCustomers = [];
+let allDbCustomers = [];
+let selectedAssignCustId = null;
+let lastGreetedCustId = null;
+let lastGreetingTimestamp = 0;
+let recognizedCustomerData = null;
+let lastExtractedDescriptor = null;
+
+// Initialize face-api models from /static/models/
+async function initFaceApiModels() {
+  if (isFaceApiLoaded) return;
+  const statusEl = document.getElementById('aiModelReadyStatus');
+  try {
+    const MODEL_PATH = '/static/models';
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_PATH),
+      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_PATH),
+      faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_PATH)
+    ]);
+    isFaceApiLoaded = true;
+    if (statusEl) statusEl.innerText = "✅ AI Neyrotarmoq Tayyor (68 Nuqta • 128-D Vektor)";
+    console.log("FaceAPI models loaded successfully!");
+    await loadServerFaceDescriptors();
+    await fetchAllCustomersForSearch();
+  } catch (e) {
+    console.warn("Local models load error, fallback to CDN:", e);
+    try {
+      const CDN_PATH = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(CDN_PATH),
+        faceapi.nets.faceLandmark68Net.loadFromUri(CDN_PATH),
+        faceapi.nets.faceRecognitionNet.loadFromUri(CDN_PATH)
+      ]);
+      isFaceApiLoaded = true;
+      if (statusEl) statusEl.innerText = "✅ AI Neyrotarmoq Tayyor (CDN)";
+      await loadServerFaceDescriptors();
+      await fetchAllCustomersForSearch();
+    } catch (cdnErr) {
+      console.error("FaceAPI load failed completely:", cdnErr);
+      if (statusEl) statusEl.innerText = "⚠️ Neyromodel yuklanmadi";
+    }
+  }
+}
+
+// Load customer 128-d descriptors from server
+async function loadServerFaceDescriptors() {
+  try {
+    const res = await fetch('/pos/api/ai/customers-face-descriptors/');
+    const data = await res.json();
+    if (data.status === 'success' && Array.isArray(data.customers)) {
+      cachedFaceCustomers = data.customers;
+      const labeledDescriptors = [];
+      data.customers.forEach(c => {
+        if (c.face_descriptor && Array.isArray(c.face_descriptor) && c.face_descriptor.length >= 64) {
+          labeledDescriptors.push(
+            new faceapi.LabeledFaceDescriptors(String(c.id), [new Float32Array(c.face_descriptor)])
+          );
+        }
+      });
+      if (labeledDescriptors.length > 0) {
+        // Optimal Euclidean threshold 0.60 allows natural poses & angles
+        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.60);
+        console.log(`FaceMatcher loaded with ${labeledDescriptors.length} customer profiles`);
+      } else {
+        faceMatcher = null;
+      }
+    }
+  } catch (err) {
+    console.error("Error loading face descriptors:", err);
+  }
+}
+
+// Fetch all customers for live search
+async function fetchAllCustomersForSearch() {
+  try {
+    const res = await fetch('/pos/api/customers/');
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      allDbCustomers = data;
+    }
+  } catch (e) {}
+}
+
+function toggleFaceCamModal() {
+  const modal = document.getElementById('aiFaceCamModal');
+  if (modal.style.display === 'none' || !modal.style.display) {
+    modal.style.display = 'flex';
+    initFaceApiModels();
+    startFaceCamera();
+  } else {
+    closeFaceCamModal();
+  }
+}
+
+function closeFaceCamModal() {
+  document.getElementById('aiFaceCamModal').style.display = 'none';
+  stopFaceCamera();
+}
+
+function switchCameraFacing() {
+  faceCameraFacing = faceCameraFacing === 'user' ? 'environment' : 'user';
+  document.getElementById('cameraFacingLabel').innerText = faceCameraFacing === 'user' ? 'Oldi' : 'Orqa';
+  const video = document.getElementById('aiFaceVideo');
+  const canvas = document.getElementById('aiFaceCanvas');
+  if (video) video.style.transform = faceCameraFacing === 'user' ? 'scaleX(-1)' : 'none';
+  if (canvas) canvas.style.transform = faceCameraFacing === 'user' ? 'scaleX(-1)' : 'none';
+  stopFaceCamera();
+  startFaceCamera();
+}
+
+async function startFaceCamera() {
+  const video = document.getElementById('aiFaceVideo');
+  const statusEl = document.getElementById('aiFaceStatusText');
+  const dot = document.getElementById('faceCamStatusDot');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("Kameraga ulanish imkoni bo'lmadi (Brauzer kamera ruxsatini yoqing)");
+    return;
+  }
+
+  try {
+    if (faceVideoStream) {
+      faceVideoStream.getTracks().forEach(t => t.stop());
+      faceVideoStream = null;
+    }
+
+    faceVideoStream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: faceCameraFacing },
+      audio: false
+    });
+    video.srcObject = faceVideoStream;
+    if (dot) dot.style.background = '#81EFBB';
+    if (statusEl) statusEl.innerText = "👀 AI Kamera faol — Yuz skanerlanmoqda...";
+
+    // Run rapid scan every 800ms
+    if (!faceScanInterval) {
+      faceScanInterval = setInterval(() => {
+        scanFaceNow(true);
+      }, 800);
+    }
+  } catch (err) {
+    console.error("Camera error:", err);
+    if (statusEl) statusEl.innerText = "Kameraga ulanib bo'lmadi";
+    if (dot) dot.style.background = '#EF4444';
+  }
+}
+
+function stopFaceCamera() {
+  if (faceScanInterval) {
+    clearInterval(faceScanInterval);
+    faceScanInterval = null;
+  }
+  if (faceVideoStream) {
+    faceVideoStream.getTracks().forEach(t => t.stop());
+    faceVideoStream = null;
+  }
+  const video = document.getElementById('aiFaceVideo');
+  if (video) video.srcObject = null;
+  const canvas = document.getElementById('aiFaceCanvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  const dot = document.getElementById('faceCamStatusDot');
+  if (dot) dot.style.background = '#94A3B8';
+  document.getElementById('aiFaceStatusText').innerText = "Kamera o'chirilgan";
+}
+
+function toggleCameraStream() {
+  const btn = document.getElementById('btnToggleCamStream');
+  if (faceVideoStream) {
+    stopFaceCamera();
+    btn.innerText = "▶️ Yoqish";
+    btn.style.background = "#1B6B4A";
+    btn.style.color = "#fff";
+  } else {
+    startFaceCamera();
+    btn.innerText = "🛑 O'chirish";
+    btn.style.background = "#F1F5F9";
+    btn.style.color = "#1E293B";
+  }
+}
+
+// ── REAL-TIME NEURAL SCANNING & 68-LANDMARK MESH DRAWING ──
+async function scanFaceNow(isAuto = false) {
+  const video = document.getElementById('aiFaceVideo');
+  const canvas = document.getElementById('aiFaceCanvas');
+  const statusEl = document.getElementById('aiFaceStatusText');
+  const confBadge = document.getElementById('aiConfidenceBadge');
+  const vectorTicker = document.getElementById('aiVectorTicker');
+
+  if (!video || !video.videoWidth || !canvas) return;
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (!isFaceApiLoaded || !faceapi.nets.tinyFaceDetector.isLoaded) {
+    if (!isAuto) statusEl.innerText = "AI Neyrotarmoq yuklanmoqda...";
+    return;
+  }
+
+  try {
+    // Detect face + 68 landmarks + 128-d descriptor
+    const detection = await faceapi
+      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.4 }))
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (!detection) {
+      if (!isAuto) {
+        statusEl.innerText = "👀 Kamera oldida yuz topilmadi";
+        confBadge.innerText = "Yuz yo'q";
+      }
+      return;
+    }
+
+    const { detection: detBox, landmarks, descriptor } = detection;
+    const box = detBox.box;
+    lastExtractedDescriptor = Array.from(descriptor);
+
+    // 1. Draw 68 Facial Landmarks Mesh Points
+    const positions = landmarks.positions;
+    ctx.fillStyle = '#38BDF8';
+    positions.forEach(pt => {
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 2.2, 0, 2 * Math.PI);
+      ctx.fill();
+    });
+
+    // 2. Draw Cyber Bounding Box
+    ctx.strokeStyle = '#10B981';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+    // Corner Reticles
+    const cl = Math.min(22, box.width / 4);
+    ctx.strokeStyle = '#38BDF8';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(box.x, box.y + cl); ctx.lineTo(box.x, box.y); ctx.lineTo(box.x + cl, box.y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(box.right - cl, box.y); ctx.lineTo(box.right, box.y); ctx.lineTo(box.right, box.y + cl); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(box.x, box.bottom - cl); ctx.lineTo(box.x, box.bottom); ctx.lineTo(box.x + cl, box.bottom); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(box.right - cl, box.bottom); ctx.lineTo(box.right, box.bottom); ctx.lineTo(box.right, box.bottom - cl); ctx.stroke();
+
+    // 3. Update 128-D Vector Stream Ticker
+    if (descriptor) {
+      const previewVec = Array.from(descriptor.slice(0, 6)).map(v => v.toFixed(3)).join(', ');
+      if (vectorTicker) vectorTicker.innerText = `🧠 128-D: [${previewVec}, ...] (68 Nuqta)`;
+    }
+
+    // 4. Match against loaded customer descriptors
+    let matchedCustomer = null;
+    let confidence = 0;
+
+    if (faceMatcher) {
+      const match = faceMatcher.findBestMatch(descriptor);
+      if (match && match.label !== 'unknown') {
+        const custId = parseInt(match.label, 10);
+        matchedCustomer = cachedFaceCustomers.find(c => c.id === custId);
+        confidence = Math.max(50, Math.min(99, Math.round((1 - match.distance / 0.60) * 100)));
+      }
+    }
+
+    const now = Date.now();
+
+    if (matchedCustomer) {
+      const c = matchedCustomer;
+      recognizedCustomerData = c;
+      statusEl.innerHTML = `<span style="color:#81EFBB;">✨ Tanildi: ${c.name}</span>`;
+      confBadge.innerText = `${confidence}% Moslik`;
+
+      // Draw Name Tag on Canvas
+      const tagText = `✨ ${c.name} (${confidence}%)`;
+      ctx.font = 'bold 13px sans-serif';
+      const tw = ctx.measureText(tagText).width + 16;
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+      ctx.fillRect(box.x, Math.max(0, box.y - 28), tw, 26);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(tagText, box.x + 8, Math.max(16, box.y - 10));
+
+      // Show Matched Card
+      const card = document.getElementById('aiMatchedCard');
+      if (card) {
+        card.style.display = 'block';
+        document.getElementById('aiMatchImg').src = c.image || '/static/images/default-avatar.png';
+        document.getElementById('aiMatchName').innerText = `${c.name} (ID: ${c.custom_id || c.id})`;
+        document.getElementById('aiMatchDetails').innerText = `Qarz: ${Math.round(c.debt_amount || 0).toLocaleString()} so'm | Bonus: ${c.bonus_points || 0} ball`;
+      }
+
+      // Voice greeting with 20s cooldown
+      if (lastGreetedCustId !== c.id || (now - lastGreetingTimestamp) > 20000) {
+        lastGreetedCustId = c.id;
+        lastGreetingTimestamp = now;
+        let greeting = `Assalomu alaykum, ${c.first_name}! Baxmal Meat sarxil go'shtlar do'koniga xush kelibsiz!`;
+        if (c.bonus_points >= 2000) {
+          greeting = `Assalomu alaykum, hurmatli VIP mijozimiz ${c.first_name}! Baxmal Meat sarxil go'shtlar do'koniga xush kelibsiz! Sizda ${c.bonus_points} ta bonus mavjud.`;
+        } else if (c.debt_amount > 0) {
+          greeting = `Assalomu alaykum, ${c.first_name}! Do'konimizga xush kelibsiz! Bugun qanday sarxil go'sht tortib beraylik?`;
+        }
+        playAiVoiceGreeting(greeting);
+      }
+    } else {
+      // General visitor
+      ctx.fillStyle = 'rgba(14, 165, 233, 0.85)';
+      ctx.fillRect(box.x, Math.max(0, box.y - 26), 130, 24);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText("👋 Yangi Xaridor", box.x + 6, Math.max(15, box.y - 9));
+
+      if (!isAuto) {
+        statusEl.innerText = "👋 Yangi Xaridor (Face ID da ro'yxatdan o'tmagan)";
+        confBadge.innerText = "Yangi";
+      } else {
+        statusEl.innerText = "👋 Xaridor qaramoqda";
+      }
+
+      if ((now - lastGreetingTimestamp) > 25000) {
+        lastGreetedCustId = 'visitor_' + Math.floor(now / 25000);
+        lastGreetingTimestamp = now;
+        const greetings = [
+          "Assalomu alaykum! Baxmal Meat sarxil go'shtlar do'koniga xush kelibsiz! Marhamat, yangi sarxil go'shtlarimizdan tanlang!",
+          "Xush kelibsiz! Bugun do'konimizda yangi mol va qo'y go'shtlari keltirildi. Qaysi biridan tortib beraylik?"
+        ];
+        playAiVoiceGreeting(greetings[Math.floor(Math.random() * greetings.length)]);
+      }
+    }
+  } catch (err) {
+    console.error("Face scan error:", err);
+  }
+}
+
+function selectAiMatchedCustomer() {
+  if (!recognizedCustomerData) return;
+  const c = recognizedCustomerData;
+  if (typeof confirmSale === 'function') {
+    confirmSale(c.id, `${c.name} (ID: ${c.custom_id || c.id})`, c.debt_amount, c.debt_limit, c.credit_score, false, false, 0);
+  }
+  closeFaceCamModal();
+}
+
+// ── TAB SWITCHING ──
+function switchAiTab(tab) {
+  const btnAssign = document.getElementById('tabBtnAssign');
+  const btnCreate = document.getElementById('tabBtnCreate');
+  const secAssign = document.getElementById('aiTabAssignSection');
+  const secCreate = document.getElementById('aiTabCreateSection');
+
+  if (tab === 'assign') {
+    btnAssign.classList.add('active');
+    btnCreate.classList.remove('active');
+    secAssign.style.display = 'block';
+    secCreate.style.display = 'none';
+  } else {
+    btnCreate.classList.add('active');
+    btnAssign.classList.remove('active');
+    secCreate.style.display = 'block';
+    secAssign.style.display = 'none';
+  }
+}
+
+// ── LIVE CUSTOMER SEARCH AUTOCOMPLETE ──
+function filterAiCustomers(query) {
+  const q = query.trim().toLowerCase();
+  const resultsBox = document.getElementById('aiCustSearchResults');
+  if (!q || allDbCustomers.length === 0) {
+    resultsBox.style.display = 'none';
+    return;
+  }
+
+  const matches = allDbCustomers.filter(c => {
+    const n = (c.name || `${c.first_name} ${c.last_name || ''}`).toLowerCase();
+    const p = (c.phone || '').toLowerCase();
+    return n.includes(q) || p.includes(q);
+  }).slice(0, 8);
+
+  if (matches.length === 0) {
+    resultsBox.innerHTML = '<div style="padding:10px; font-size:12px; color:#94A3B8; text-align:center;">Mijoz topilmadi</div>';
+    resultsBox.style.display = 'block';
+    return;
+  }
+
+  resultsBox.innerHTML = matches.map(c => `
+    <div onclick="selectCustomerForFaceAssign(${c.id}, '${escapeQuotes(c.name || c.first_name)}', '${escapeQuotes(c.phone || '')}')" style="padding:8px 12px; border-bottom:1px solid #F1F5F9; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#FFFFFF'">
+      <div>
+        <div style="font-weight:700; font-size:12.5px; color:#1E293B;">${c.name || c.first_name}</div>
+        <div style="font-size:11px; color:#64748B;">${c.phone || 'Tel ko\'rsatilmagan'} &bull; Qarz: ${Math.round(c.debt_amount || 0).toLocaleString()} so'm</div>
+      </div>
+      <span style="font-size:11px; font-weight:800; color:#2563EB; background:#EFF6FF; padding:2px 8px; border-radius:6px;">Tanlash</span>
+    </div>
+  `).join('');
+  resultsBox.style.display = 'block';
+}
+
+function escapeQuotes(str) {
+  return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function selectCustomerForFaceAssign(id, name, phone) {
+  selectedAssignCustId = id;
+  document.getElementById('aiCustSearchResults').style.display = 'none';
+  document.getElementById('aiCustSearchInput').value = name;
+  document.getElementById('aiSelectedCustName').innerText = `Tanlandi: ${name}`;
+  document.getElementById('aiSelectedCustPhone').innerText = phone || 'ID: ' + id;
+  document.getElementById('aiSelectedCustBadge').style.display = 'flex';
+}
+
+// ── SAVE FACE TO SELECTED CUSTOMER ──
+async function saveFaceToSelectedCustomer() {
+  if (!selectedAssignCustId) {
+    alert("Iltimos, avval mijozni qidirib tanlang!");
+    return;
+  }
+  const video = document.getElementById('aiFaceVideo');
+  if (!video || !video.videoWidth) {
+    alert("Kamera tasviri topilmadi!");
+    return;
+  }
+
+  // 1. Snapshot olinayotgan aniq freymdan 128-D vektorni hisoblash
+  let descriptorToSave = lastExtractedDescriptor;
+  try {
+    if (isFaceApiLoaded && faceapi.nets.tinyFaceDetector.isLoaded) {
+      const instantDet = await faceapi
+        .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 }))
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      if (instantDet && instantDet.descriptor) {
+        descriptorToSave = Array.from(instantDet.descriptor);
+      }
+    }
+  } catch (err) {
+    console.warn("Instant descriptor extraction error:", err);
+  }
+
+  if (!descriptorToSave || descriptorToSave.length < 64) {
+    alert("⚠️ Yuz aniq topilmadi! Iltimos, yuzingizni kameraga to'g'ri qaratib, yaxshi yorug'likda qayta urinib ko'ring.");
+    return;
+  }
+
+  const snapCanvas = document.createElement('canvas');
+  snapCanvas.width = video.videoWidth;
+  snapCanvas.height = video.videoHeight;
+  const ctx = snapCanvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+  const imgBase64 = snapCanvas.toDataURL('image/jpeg', 0.85);
+
+  try {
+    const res = await fetch('/pos/api/ai/save-customer-face/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        customer_id: selectedAssignCustId,
+        image: imgBase64,
+        descriptor: descriptorToSave
+      })
+    });
+    const d = await res.json();
+    if (d.status === 'success') {
+      alert("✅ " + d.message);
+      await loadServerFaceDescriptors();
+      scanFaceNow(false);
+    } else {
+      alert("❌ Xatolik: " + d.message);
+    }
+  } catch (e) {
+    alert("Xatolik yuz berdi: " + e.message);
+  }
+}
+
+// ── CREATE NEW CUSTOMER WITH FACE SNAPSHOT ──
+async function submitCreateNewCustomerWithFace() {
+  const name = document.getElementById('aiNewCustName').value.trim();
+  const phone = document.getElementById('aiNewCustPhone').value.trim();
+
+  if (!name || !phone) {
+    alert("Iltimos, Ism va Telefon raqamini to'liq kiriting!");
+    return;
+  }
+
+  const video = document.getElementById('aiFaceVideo');
+  if (!video || !video.videoWidth) {
+    alert("Kamera tasviri topilmadi!");
+    return;
+  }
+
+  // 1. Snapshot olinayotgan aniq freymdan 128-D vektorni hisoblash
+  let descriptorToSave = lastExtractedDescriptor;
+  try {
+    if (isFaceApiLoaded && faceapi.nets.tinyFaceDetector.isLoaded) {
+      const instantDet = await faceapi
+        .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 }))
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      if (instantDet && instantDet.descriptor) {
+        descriptorToSave = Array.from(instantDet.descriptor);
+      }
+    }
+  } catch (err) {
+    console.warn("Instant descriptor extraction error:", err);
+  }
+
+  if (!descriptorToSave || descriptorToSave.length < 64) {
+    alert("⚠️ Yuz aniq topilmadi! Iltimos, yuzingizni kameraga to'g'ri qaratib, yaxshi yorug'likda qayta urinib ko'ring.");
+    return;
+  }
+
+  const snapCanvas = document.createElement('canvas');
+  snapCanvas.width = video.videoWidth;
+  snapCanvas.height = video.videoHeight;
+  const ctx = snapCanvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+  const imgBase64 = snapCanvas.toDataURL('image/jpeg', 0.85);
+
+  try {
+    const res = await fetch('/pos/api/ai/create-customer-with-face/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        name: name,
+        phone: phone,
+        debt_limit: '1000000',
+        image: imgBase64,
+        descriptor: descriptorToSave
+      })
+    });
+    const d = await res.json();
+    if (d.status === 'success') {
+      alert("✅ " + d.message);
+      document.getElementById('aiNewCustName').value = '';
+      document.getElementById('aiNewCustPhone').value = '';
+      await loadServerFaceDescriptors();
+      await fetchAllCustomersForSearch();
+      scanFaceNow(false);
+    } else {
+      alert("❌ Xatolik: " + d.message);
+    }
+  } catch (e) {
+    alert("Xatolik yuz berdi: " + e.message);
+  }
+}
+
+// ── SMART VOICE GREETING ──
+function playAiVoiceGreeting(text) {
+  const voiceToggle = document.getElementById('aiVoiceToggle');
+  if (voiceToggle && !voiceToggle.checked) return;
+
+  try {
+    const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtxClass) {
+      const audioCtx = new AudioCtxClass();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+  } catch (e) {}
+
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'uz-UZ';
+    utterance.rate = 1.0;
+    utterance.pitch = 1.05;
+
+    const voices = window.speechSynthesis.getVoices();
+    const uzVoice = voices.find(v => v.lang.startsWith('uz') || v.lang.startsWith('tr') || v.lang.startsWith('ru'));
+    if (uzVoice) utterance.voice = uzVoice;
+
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// Preload models on page load
+document.addEventListener('DOMContentLoaded', () => {
+  initFaceApiModels();
 });
 </script>
 {% endblock %}

@@ -205,10 +205,18 @@
 
     /* ─── RIGHT PANEL ─── */
     .panel-right {
-        width:320px; min-width:300px; background:#fff;
+        width:340px; min-width:320px; background:#fff;
         border-left:1px solid #E5E7EB; display:flex;
-        flex-direction:column; overflow-y:auto;
+        flex-direction:column; overflow:hidden;
     }
+    .crm-tab-btn {
+        flex: 1; padding: 8px 12px; border-radius: 8px; border: 1.5px solid transparent;
+        background: transparent; color: #64748B; font-size: 12px; font-weight: 700;
+        cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .crm-tab-btn:hover { background: #E2E8F0; color: #1E293B; }
+    .crm-tab-btn.active { background: #1B6B4A; color: #fff; border-color: #1B6B4A; box-shadow: 0 2px 6px rgba(27,107,74,0.25); }
+
     .right-section { padding:14px 14px 10px; }
     .right-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:#1B6B4A; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
 
@@ -239,24 +247,17 @@
     .btn-complete { width:100%; padding:6px 0; border:1.5px solid #1B6B4A; background:transparent; color:#1B6B4A; border-radius:7px; font-size:12px; font-weight:700; cursor:pointer; margin-top:8px; }
     .btn-complete:hover { background:#1B6B4A; color:#fff; }
 
-    /* Modal / Lightbox */
+    /* Modal / Lightbox Overlay */
     .proof-overlay {
         display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
         background:rgba(0,0,0,.85); z-index:999999 !important;
-        align-items:center; justify-content:center; padding:20px;
+        align-items:center; justify-content:center; padding:16px;
     }
     .proof-overlay.open { display:flex !important; }
-    .proof-modal {
-        background:#111; border-radius:14px; overflow:hidden; max-width:90vw;
-        max-height:90vh; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.5);
+
+    @media (max-width:768px) {
+        .proof-split-body { flex-direction:column !important; }
     }
-    .proof-modal-header { background:#1a1a1a; padding:12px 18px; display:flex; justify-content:space-between; align-items:center; }
-    .proof-modal-title { color:#fff; font-size:14px; font-weight:700; }
-    .proof-close-btn { background:none; border:none; color:#aaa; font-size:24px; cursor:pointer; line-height:1; }
-    .proof-modal img { max-width:100%; max-height:75vh; object-fit:contain; display:block; background:#000; }
-    .proof-modal-footer { background:#222; padding:10px 18px; display:flex; justify-content:space-between; align-items:center; }
-    .proof-open-link { color:#60A5FA; font-size:12px; font-weight:600; text-decoration:none; }
-    .proof-open-link:hover { color:#93C5FD; }
 
     @media (max-width:1100px) { .panel-right { display:none; } }
     @media (max-width:767px) {
@@ -355,6 +356,9 @@
                 </div>
                 <div class="chat-hdr-right">
                     <span class="pill-debt" id="hdr-debt">Qarz: 0 so'm</span>
+                    <button class="btn btn-sm btn-success fw-bold d-flex align-items-center gap-1 shadow-sm" onclick="openQuickPayModal()" id="btn-quick-pay-hdr" style="border-radius:20px; font-size:11.5px; padding:4px 12px; border:none; background:#10B981; color:#fff; cursor:pointer;" title="Qarz to'lovini qabul qilish va yopish">
+                        <i class="bi bi-cash-stack"></i> Qarzni Yopish
+                    </button>
                     <span class="pill-bonus" id="hdr-bonus">Bonus: 0</span>
                     <a id="hdr-edit-btn" href="#" target="_blank" class="btn-edit-hdr" title="Mijoz kartochkasi"><i class="bi bi-pencil"></i></a>
                     <div class="refresh-indicator" title="Avtomatik yangilanish yoqilgan"><span class="pulse-dot"></span> Live</div>
@@ -373,6 +377,7 @@
 
             <!-- Quick presets -->
             <div class="presets-bar">
+                <span class="preset" onclick="openQuickPayModal()" style="background:#ECFDF5; border-color:#10B981; color:#065F46; font-weight:700;">💳 Qarzni Yopish</span>
                 <span class="preset" onclick="usePreset('Qarzingiz haqida eslatma: Iltimos, to\'lovni amalga oshiring. Rahmat! 🙏')">📌 Qarz eslatmasi</span>
                 <span class="preset" onclick="loadAndSendCard()">💳 Karta raqam</span>
                 <span class="preset" onclick="usePreset('Assalomu alaykum! Buyurtmangiz qabul qilindi va tayyorlanmoqda. 🥩')">✅ Buyurtma qabul</span>
@@ -382,41 +387,181 @@
 
             <!-- Input row -->
             <div class="chat-input-row">
-                <textarea id="msg-input" class="chat-textarea" rows="1" placeholder="Mijozga Telegram orqali xabar yozing..." onkeydown="onMsgKey(event)" oninput="autoResize(this)"></textarea>
-                <button class="btn-send" id="btn-send" onclick="sendMessage()">
-                    <i class="bi bi-telegram"></i> Yuborish
-                </button>
+                <textarea id="msg-input" class="chat-textarea" rows="1" placeholder="Mijozga Telegram/SMS orqali xabar yozing..." onkeydown="onMsgKey(event)" oninput="autoResize(this)"></textarea>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#1E40AF;background:#EFF6FF;padding:6px 10px;border-radius:8px;cursor:pointer;" title="Mijoz telefoniga SMS ham yuborish">
+                    <input type="checkbox" id="chk-send-sms" style="cursor:pointer;"> SMS
+                  </label>
+                  <button class="btn-send" id="btn-send" onclick="sendMessage()">
+                      <i class="bi bi-send-fill"></i> Yuborish
+                  </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════ -->
-    <!--  RIGHT PANEL — B2B Orders                              -->
+    <!--  RIGHT PANEL — B2B Orders & Payment Proofs (Tabs)     -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <div class="panel-right" id="panel-right">
-        <div class="right-section" style="flex:1;overflow-y:auto;padding-bottom:20px;">
+        <!-- Tabs Switcher Header -->
+        <div style="display:flex; border-bottom:1px solid #E5E7EB; background:#F8FAFC; padding:8px 10px; gap:6px;">
+            <button class="crm-tab-btn active" id="btn-tab-b2b" onclick="switchRightTab('b2b')">
+                <i class="bi bi-cart-check-fill"></i> B2B (<span id="r-b2b-count">0</span>)
+            </button>
+            <button class="crm-tab-btn" id="btn-tab-proofs" onclick="switchRightTab('proofs')">
+                <i class="bi bi-receipt"></i> Cheklar (<span id="r-proof-count">0</span>)
+            </button>
+        </div>
+
+        <!-- Tab Pane 1: B2B Orders -->
+        <div id="tab-pane-b2b" class="right-section" style="flex:1; overflow-y:auto; padding:12px;">
             <div class="right-title">
                 <span><i class="bi bi-cart-check-fill me-1"></i>B2B Buyurtmalar</span>
-                <span class="badge bg-primary" id="r-b2b-count" style="border-radius:20px;">0</span>
             </div>
             <div id="r-b2b-list">
                 <div style="text-align:center;color:#9CA3AF;font-size:12px;padding:20px 0;">Mijoz tanlanganda ko'rinadi</div>
             </div>
         </div>
+
+        <!-- Tab Pane 2: Payment Proofs & Quick Debt Pay -->
+        <div id="tab-pane-proofs" class="right-section" style="flex:1; overflow-y:auto; padding:12px; display:none;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="right-title m-0">
+                    <span><i class="bi bi-receipt me-1"></i>To'lov Cheklari</span>
+                </div>
+                <button class="btn btn-sm btn-success fw-bold d-flex align-items-center gap-1 shadow-sm" onclick="openQuickPayModal()" style="font-size:11.5px; padding:4px 10px; border-radius:8px;">
+                    <i class="bi bi-plus-lg"></i> Qarz Yopish
+                </button>
+            </div>
+            <div id="r-proof-list">
+                <div style="text-align:center;color:#9CA3AF;font-size:12px;padding:20px 0;">To'lov cheklari yo'q</div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- ─── Payment Proof Lightbox Modal ─── -->
-<div class="proof-overlay" id="proof-overlay" onclick="closeProofIfBg(event)" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,.85); z-index:999999; align-items:center; justify-content:center; padding:20px;">
-    <div class="proof-modal" style="background:#111; border-radius:14px; overflow:hidden; max-width:90vw; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-        <div class="proof-modal-header" style="background:#1a1a1a; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
-            <span class="proof-modal-title" id="proof-title" style="color:#fff; font-size:14px; font-weight:700;">📸 To'lov Cheki Fotosi</span>
-            <button class="proof-close-btn" onclick="closeProof()" style="background:none; border:none; color:#aaa; font-size:24px; cursor:pointer; line-height:1;">×</button>
+<!-- ─── Payment Proof Full Inspection Modal ─── -->
+<div class="proof-overlay" id="proof-inspect-overlay" onclick="closeProofInspectIfBg(event)" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div class="proof-inspect-card" style="background:#fff; border-radius:18px; max-width:850px; width:100%; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.4);">
+        <div style="background:#1B6B4A; color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-shield-check fs-5"></i>
+                <span class="fw-bold fs-6" id="inspect-title">To'lov Chekini Tekshirish & Tasdiqlash</span>
+            </div>
+            <button onclick="closeProofInspect()" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer; line-height:1;">×</button>
         </div>
-        <img id="proof-img" src="" alt="To'lov cheki" style="max-width:100%; max-height:75vh; object-fit:contain; display:block; background:#000;">
-        <div class="proof-modal-footer" style="background:#222; padding:10px 18px; display:flex; justify-content:space-between; align-items:center;">
-            <a id="proof-open-link" href="#" target="_blank" class="proof-open-link" style="color:#60A5FA; font-size:12px; font-weight:600; text-decoration:none;"><i class="bi bi-box-arrow-up-right me-1"></i>To'liq o'lchamda ochish</a>
-            <button onclick="closeProof()" style="background:#333;color:#fff;border:none;border-radius:7px;padding:6px 16px;font-size:12px;cursor:pointer;">Yopish</button>
+
+        <div style="display:flex; flex-direction:row; flex:1; min-height:0; overflow:hidden;" class="proof-split-body">
+            <!-- Left: Image with Zoom -->
+            <div style="flex:1.2; background:#0F172A; display:flex; align-items:center; justify-content:center; padding:12px; position:relative; min-height:350px;">
+                <img id="inspect-img" src="" alt="Chek rasmi" style="max-width:100%; max-height:65vh; object-fit:contain; border-radius:8px; cursor:zoom-in;" onclick="window.open(this.src, '_blank')">
+                <a id="inspect-open-raw" href="#" target="_blank" style="position:absolute; bottom:12px; right:12px; background:rgba(0,0,0,0.75); color:#fff; padding:4px 10px; border-radius:6px; font-size:11px; text-decoration:none;">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Asl o'lchamda ochish
+                </a>
+            </div>
+
+            <!-- Right: Details & Action Buttons -->
+            <div style="flex:1; padding:20px; display:flex; flex-direction:column; justify-content:space-between; background:#FAFAFA; border-left:1px solid #E5E7EB; overflow-y:auto;">
+                <div>
+                    <div class="text-uppercase text-muted fw-bold mb-2" style="font-size:11px; letter-spacing:0.5px;">To'lov Ma'lumotlari</div>
+                    <div class="p-3 mb-3 rounded-3" style="background:#fff; border:1px solid #E2E8F0;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Mijoz:</span>
+                            <strong class="text-dark" id="inspect-cust-name">---</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">To'lov Tizimi:</span>
+                            <span class="badge bg-primary text-uppercase px-2.5 py-1" id="inspect-provider">CLICK</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Chekdagi Summa:</span>
+                            <strong class="text-success fs-5 font-monospace" id="inspect-amount">0 so'm</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Joriy Qarzdorlik:</span>
+                            <strong class="text-danger font-monospace" id="inspect-current-debt">0 so'm</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Yuborilgan Vaqt:</span>
+                            <span class="text-dark small" id="inspect-time">---</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="text-muted small">Izoh:</span>
+                            <span class="text-dark small fst-italic text-end" id="inspect-note" style="max-width:180px;">---</span>
+                        </div>
+                    </div>
+
+                    <div id="inspect-status-banner" class="alert alert-warning py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        <span>Chekni rasmda tekshirib, qarzni yopishni tasdiqlang.</span>
+                    </div>
+                </div>
+
+                <div id="inspect-actions-box" class="d-flex flex-column gap-2">
+                    <button type="button" class="btn btn-success fw-bold py-2.5 shadow-sm d-flex align-items-center justify-content-center gap-2" id="btn-inspect-approve" onclick="approveCurrentInspectedProof()">
+                        <i class="bi bi-check-circle-fill fs-6"></i> ✅ Tasdiqlash va Qarzni Yopish
+                    </button>
+                    <button type="button" class="btn btn-outline-danger fw-semibold py-2 d-flex align-items-center justify-content-center gap-1" id="btn-inspect-reject" onclick="rejectCurrentInspectedProof()">
+                        <i class="bi bi-x-circle"></i> ❌ Chekni Rad Etish
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Quick Debt Pay Custom Modal ─── -->
+<div class="proof-overlay" id="quick-pay-custom-overlay" onclick="closeQuickPayCustomIfBg(event)" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.65); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#fff; border-radius:18px; max-width:440px; width:100%; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.35);">
+        <div style="background:#1B6B4A; color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-cash-stack fs-5"></i>
+                <span class="fw-bold fs-6">Qarz To'lovini Qabul Qilish</span>
+            </div>
+            <button onclick="closeQuickPayModal()" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer; line-height:1;">×</button>
+        </div>
+        <div style="padding:20px;">
+            <div class="p-3 mb-3 rounded-3" style="background:#F0FDF4; border:1px solid #DCFCE7;">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted small">Mijoz:</span>
+                    <strong class="text-dark" id="qp-cust-name">---</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Joriy Qarzdorlik:</span>
+                    <strong class="text-danger fs-5 font-monospace" id="qp-cust-debt">0 so'm</strong>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-dark mb-1">To'lov Summasi (so'm)</label>
+                <div class="input-group">
+                    <input type="number" class="form-control form-control-lg font-monospace fw-bold" id="qp-amount" placeholder="0" style="font-size:1.2rem;">
+                    <button class="btn btn-outline-secondary" type="button" onclick="setFullDebtAmount()" title="To'liq qarzni kiritish">To'liq</button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-dark mb-1">To'lov Usuli</label>
+                <select class="form-select fw-semibold" id="qp-payment-method">
+                    <option value="naqd">💵 Naqd pul</option>
+                    <option value="karta">💳 Plastik karta (Terminal)</option>
+                    <option value="click">📲 Click</option>
+                    <option value="payme">📲 Payme</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-dark mb-1">Izoh</label>
+                <input type="text" class="form-control" id="qp-comment" placeholder="Masalan: Kassa orqali to'landi">
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="button" class="btn btn-light flex-grow-1 py-2 fw-semibold" onclick="closeQuickPayModal()">Bekor qilish</button>
+                <button type="button" class="btn btn-success flex-grow-1 py-2 fw-bold shadow-sm" id="btn-submit-qp" onclick="submitQuickDebtPayment()">
+                    <i class="bi bi-check-circle-fill me-1"></i> Qarzni Yopish
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -517,6 +662,8 @@ function loadChat(reset) {
 }
 
 function updateHeader(d) {
+    currentCustomerDebt = d.debt_amount || 0;
+    currentCustomerName = d.customer_name || '';
     document.getElementById('hdr-avatar').src  = d.image;
     document.getElementById('hdr-name').textContent  = d.customer_name;
     document.getElementById('hdr-sub').textContent   = `ID: ${d.customer_id_num}`;
@@ -524,6 +671,9 @@ function updateHeader(d) {
     const df = fmt(d.debt_amount);
     document.getElementById('hdr-debt').textContent  = `Qarz: ${df} so'm`;
     document.getElementById('hdr-bonus').textContent = `Bonus: ${d.bonus_points} ball`;
+    if (d.payment_proofs) {
+        renderPaymentProofs(d.payment_proofs);
+    }
 }
 
 function renderMessages(logs, reset, hasMore) {
@@ -545,11 +695,28 @@ function renderMessages(logs, reset, hasMore) {
     }
 
     let newMaxId = lastLogId;
+    let hasIncoming = false;
     logs.forEach(log => {
         if (!reset && log.id <= lastLogId) return;
         if (log.id > newMaxId) newMaxId = log.id;
         stream.insertAdjacentHTML('beforeend', buildBubble(log));
+        if (!reset && log.title === "Mijoz xabari") {
+            hasIncoming = true;
+        }
     });
+
+    if (!reset && hasIncoming) {
+        playNotificationSound('chime');
+        if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+                new Notification("Mijozdan yangi xabar!", {
+                    body: "Yangi Telegram/Web xabar keldi",
+                    icon: '/static/images/logo.png'
+                });
+            } catch (e) {}
+        }
+    }
+
     lastLogId = newMaxId;
 
     if (reset || wasAtBottom) {
@@ -557,6 +724,28 @@ function renderMessages(logs, reset, hasMore) {
     } else if (logs.some(l => l.id > lastLogId - logs.length)) {
         showNewMsgToast();
     }
+}
+
+// ─── NOTIFICATION SOUND & CHIME (Web Audio API) ───────────────────────────
+function playNotificationSound(type = 'chime') {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(659.25, now);
+        osc.frequency.setValueAtTime(880.00, now + 0.12);
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.exponentialRampToValueAtTime(0.25, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        osc.start(now);
+        osc.stop(now + 0.46);
+    } catch (err) {}
 }
 
 function buildBubble(log) {
@@ -737,13 +926,7 @@ function buildB2BCard(o) {
     let proofHtml = '';
     if (proofUrl) {
         proofHtml = `
-            <button class="btn-proof" onclick="showProof('${proofUrl}','${o.id}')">
-                <i class="bi bi-file-earmark-image me-1"></i> 📸 To'lov Chekini Ko'rish
-            </button>
-        `;
-    } else if (o.status === 'payment_uploaded' || o.status === 'pending') {
-        proofHtml = `
-            <button class="btn-proof" style="background:#EFF6FF;border-color:#3B82F6;color:#1D4ED8;" onclick="findAndShowChatProof('${o.id}')">
+            <button class="btn-proof" onclick="showProofImage('${proofUrl}','Buyurtma #${o.id}')">
                 <i class="bi bi-file-earmark-image me-1"></i> 📸 To'lov Chekini Ko'rish
             </button>
         `;
@@ -802,13 +985,15 @@ function sendMessage() {
     if (!msg || !CID) return;
 
     const btn = document.getElementById('btn-send');
+    const sendSms = document.getElementById('chk-send-sms') ? document.getElementById('chk-send-sms').checked : false;
+
     btn.disabled = true;
     btn.textContent = 'Yuborilmoqda...';
 
     fetch(`/pos/customer-chat/send/${CID}/`, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({message: msg})
+        body: JSON.stringify({message: msg, send_sms: sendSms})
     })
     .then(r=>r.json())
     .then(d=>{
@@ -822,7 +1007,7 @@ function sendMessage() {
     .catch(()=>{})
     .finally(()=>{
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-telegram"></i> Yuborish';
+        btn.innerHTML = '<i class="bi bi-send-fill"></i> Yuborish';
     });
 }
 
@@ -851,36 +1036,264 @@ function loadAndSendCard() {
         }).catch(()=>{ usePreset("To'lov uchun karta: 8600 **** **** 1234 (Baxmal Meat)"); });
 }
 
-// ─── Payment proof lightbox ────────────────────────────────────────────────
-function showProof(url, orderId) {
+function showProofImage(url, title) {
     if (!url) {
-        alert("Ushbu buyurtmada to'lov cheki fotosi mavjud emas.");
+        alert("To'lov cheki fotosi topilmadi.");
         return;
     }
-    document.getElementById('proof-title').textContent = `📸 Buyurtma #${orderId || ''} — To'lov Cheki`;
-    document.getElementById('proof-img').src = url;
-    document.getElementById('proof-open-link').href = url;
-    const overlay = document.getElementById('proof-overlay');
-    overlay.classList.add('open');
-    overlay.style.display = 'flex'; // Force display flex just in case CSS doesn't load
+    window.open(url, '_blank');
 }
 
-function findAndShowChatProof(orderId) {
-    const imgs = document.querySelectorAll('#chat-stream img');
-    if (imgs && imgs.length > 0) {
-        const lastImg = imgs[imgs.length - 1];
-        showProof(lastImg.src, orderId);
+// ─── Right Panel Tabs Switcher ──────────────────────────────────────────
+function switchRightTab(tabName) {
+    const tabB2B = document.getElementById('tab-pane-b2b');
+    const tabProofs = document.getElementById('tab-pane-proofs');
+    const btnB2B = document.getElementById('btn-tab-b2b');
+    const btnProofs = document.getElementById('btn-tab-proofs');
+
+    if (tabName === 'b2b') {
+        if (tabB2B) tabB2B.style.display = 'block';
+        if (tabProofs) tabProofs.style.display = 'none';
+        if (btnB2B) btnB2B.classList.add('active');
+        if (btnProofs) btnProofs.classList.remove('active');
+    } else {
+        if (tabB2B) tabB2B.style.display = 'none';
+        if (tabProofs) tabProofs.style.display = 'block';
+        if (btnB2B) btnB2B.classList.remove('active');
+        if (btnProofs) btnProofs.classList.add('active');
+    }
+}
+
+// ─── Payment Proofs & Inspection Modal ───────────────────────────────────
+let currentCustomerDebt = 0;
+let currentCustomerName = '';
+let currentInspectedProofId = null;
+let currentInspectedProofAmount = 0;
+let cachedProofs = [];
+
+function renderPaymentProofs(proofs) {
+    cachedProofs = proofs || [];
+    const list = document.getElementById('r-proof-list');
+    const badge = document.getElementById('r-proof-count');
+    if (!list) return;
+    if (!proofs || !proofs.length) {
+        list.innerHTML = '<div style="text-align:center;color:#9CA3AF;font-size:12px;padding:20px 0;">To\'lov cheklari yo\'q</div>';
+        if (badge) badge.textContent = '0';
         return;
     }
-    alert(`Buyurtma #${orderId} uchun to'lov cheki fotosi biriktirilmagan.`);
+    if (badge) badge.textContent = proofs.length;
+    list.innerHTML = proofs.map(p => {
+        const isAppr = p.is_verified;
+        const statusBadge = isAppr 
+            ? '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5 rounded-pill" style="font-size:10px;">✅ Tasdiqlangan</span>'
+            : '<span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-0.5 rounded-pill" style="font-size:10px;">⏳ Kutilmoqda</span>';
+        
+        return `
+            <div class="p-2.5 mb-2 rounded-3 border" style="background:#fff; font-size:12px; cursor:pointer; transition:all .15s;" onclick="openProofInspect(${p.id})" id="proof-card-${p.id}">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold text-success font-monospace" style="font-size:13px;">${fmt(p.amount)} so'm</span>
+                    ${statusBadge}
+                </div>
+                <div class="d-flex justify-content-between align-items-center text-muted" style="font-size:11px;">
+                    <span><span class="badge bg-primary text-uppercase">${p.provider}</span> · ${p.date}</span>
+                    <span class="text-primary fw-bold"><i class="bi bi-eye"></i> Chekni ko'rish</span>
+                </div>
+                ${p.note ? `<div class="text-secondary fst-italic mt-1" style="font-size:11px;">"${p.note}"</div>` : ''}
+            </div>
+        `;
+    }).join('');
 }
 
-function closeProof() { 
-    const overlay = document.getElementById('proof-overlay');
-    overlay.classList.remove('open'); 
-    overlay.style.display = 'none';
+function openProofInspect(proofId) {
+    const proof = cachedProofs.find(p => p.id === proofId);
+    if (!proof) return;
+
+    currentInspectedProofId = proof.id;
+    currentInspectedProofAmount = proof.amount;
+
+    document.getElementById('inspect-title').textContent = `To'lov Cheki #${proof.id} — Tekshirish & Tasdiqlash`;
+    document.getElementById('inspect-cust-name').textContent = currentCustomerName || 'Mijoz';
+    document.getElementById('inspect-provider').textContent = (proof.provider || 'KARTA').toUpperCase();
+    document.getElementById('inspect-amount').textContent = fmt(proof.amount) + " so'm";
+    document.getElementById('inspect-current-debt').textContent = fmt(currentCustomerDebt) + " so'm";
+    document.getElementById('inspect-time').textContent = proof.date || '---';
+    document.getElementById('inspect-note').textContent = proof.note || "Izoh yo'q";
+
+    const imgEl = document.getElementById('inspect-img');
+    const rawLink = document.getElementById('inspect-open-raw');
+    if (proof.image) {
+        imgEl.src = proof.image;
+        imgEl.style.display = 'block';
+        rawLink.href = proof.image;
+        rawLink.style.display = 'inline-block';
+    } else {
+        imgEl.src = '';
+        imgEl.style.display = 'none';
+        rawLink.style.display = 'none';
+    }
+
+    const banner = document.getElementById('inspect-status-banner');
+    const actionsBox = document.getElementById('inspect-actions-box');
+
+    if (proof.is_verified) {
+        banner.className = 'alert alert-success py-2 px-3 small d-flex align-items-center gap-2 mb-3';
+        banner.innerHTML = '<i class="bi bi-check-circle-fill fs-6"></i> <span>Ushbu to\'lov cheki allaqachon tasdiqlangan va qarzdan yopilgan.</span>';
+        actionsBox.innerHTML = '<button type="button" class="btn btn-secondary py-2" onclick="closeProofInspect()">Yopish</button>';
+    } else {
+        banner.className = 'alert alert-warning py-2 px-3 small d-flex align-items-center gap-2 mb-3';
+        banner.innerHTML = '<i class="bi bi-exclamation-circle-fill fs-6"></i> <span>Chek rasmini to\'liq tekshirib, qarzdan yopishni tasdiqlang.</span>';
+        actionsBox.innerHTML = `
+            <button type="button" class="btn btn-success fw-bold py-2.5 shadow-sm d-flex align-items-center justify-content-center gap-2" id="btn-inspect-approve" onclick="approveCurrentInspectedProof()">
+                <i class="bi bi-check-circle-fill fs-6"></i> ✅ Tasdiqlash va Qarzni Yopish (${fmt(proof.amount)} so'm)
+            </button>
+            <button type="button" class="btn btn-outline-danger fw-semibold py-2 d-flex align-items-center justify-content-center gap-1" id="btn-inspect-reject" onclick="rejectCurrentInspectedProof()">
+                <i class="bi bi-x-circle"></i> ❌ Chekni Rad Etish
+            </button>
+        `;
+    }
+
+    const overlay = document.getElementById('proof-inspect-overlay');
+    overlay.style.display = 'flex';
 }
-function closeProofIfBg(e) { if (e.target === document.getElementById('proof-overlay')) closeProof(); }
+
+function closeProofInspect() {
+    const overlay = document.getElementById('proof-inspect-overlay');
+    if (overlay) overlay.style.display = 'none';
+    currentInspectedProofId = null;
+}
+
+function closeProofInspectIfBg(e) {
+    if (e.target === document.getElementById('proof-inspect-overlay')) closeProofInspect();
+}
+
+function approveCurrentInspectedProof() {
+    if (!currentInspectedProofId) return;
+    if (!confirm(`${fmt(currentInspectedProofAmount)} so'mlik to'lovni tasdiqlab, mijozning qarzidan yopilsinmi?`)) return;
+
+    const btn = document.getElementById('btn-inspect-approve');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Tasdiqlanmoqda...'; }
+
+    fetch(`/pos/api/payment-proofs/approve/${currentInspectedProofId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert("✅ " + data.message);
+            closeProofInspect();
+            loadChat(true);
+            loadB2BOrders();
+        } else {
+            alert("Xatolik: " + data.message);
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> ✅ Tasdiqlash va Qarzni Yopish'; }
+        }
+    })
+    .catch(() => {
+        alert("Tarmoq xatoligi!");
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> ✅ Tasdiqlash va Qarzni Yopish'; }
+    });
+}
+
+function rejectCurrentInspectedProof() {
+    if (!currentInspectedProofId) return;
+    if (!confirm("Ushbu to'lov chekini rad etmoqchimisiz?")) return;
+
+    const btn = document.getElementById('btn-inspect-reject');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Rad etilmoqda...'; }
+
+    fetch(`/pos/api/payment-proofs/reject/${currentInspectedProofId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert("To'lov cheki rad etildi!");
+            closeProofInspect();
+            loadChat(true);
+            loadB2BOrders();
+        } else {
+            alert("Xatolik: " + data.message);
+            if (btn) btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        alert("Tarmoq xatoligi!");
+        if (btn) btn.disabled = false;
+    });
+}
+
+// ─── Quick Debt Pay Custom Modal ──────────────────────────────────────────
+function openQuickPayModal() {
+    if (!CID) {
+        alert("Iltimos, avval chap paneldan mijozni tanlang!");
+        return;
+    }
+    document.getElementById('qp-cust-name').textContent = currentCustomerName || 'Mijoz';
+    document.getElementById('qp-cust-debt').textContent = fmt(currentCustomerDebt) + " so'm";
+    document.getElementById('qp-amount').value = currentCustomerDebt > 0 ? currentCustomerDebt : '';
+    document.getElementById('qp-comment').value = '';
+    
+    const overlay = document.getElementById('quick-pay-custom-overlay');
+    if (overlay) overlay.style.display = 'flex';
+}
+
+function closeQuickPayModal() {
+    const overlay = document.getElementById('quick-pay-custom-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function closeQuickPayCustomIfBg(e) {
+    if (e.target === document.getElementById('quick-pay-custom-overlay')) closeQuickPayModal();
+}
+
+function setFullDebtAmount() {
+    document.getElementById('qp-amount').value = currentCustomerDebt > 0 ? currentCustomerDebt : 0;
+}
+
+function submitQuickDebtPayment() {
+    const amountVal = parseFloat(document.getElementById('qp-amount').value);
+    if (!amountVal || amountVal <= 0) {
+        alert("To'lov summasini to'g'ri kiriting!");
+        return;
+    }
+    const pm = document.getElementById('qp-payment-method').value;
+    const comment = document.getElementById('qp-comment').value.trim();
+    const btn = document.getElementById('btn-submit-qp');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Qabul qilinmoqda...';
+
+    fetch('/pos/api/process-debt-payment/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            customer_id: CID,
+            amount: amountVal,
+            payment_method: pm,
+            comment: comment || 'Mijozlar chati orqali to\'landi'
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            closeQuickPayModal();
+            alert(`✅ ${data.message}\nQolgan qarz: ${fmt(data.remaining_debt)} so'm`);
+            loadChat(true);
+            loadB2BOrders();
+        } else {
+            alert("Xatolik: " + (data.message || 'To\'lovni qabul qilib bo\'lmadi'));
+        }
+    })
+    .catch(() => alert("Tarmoq xatoligi yuz berdi!"))
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Qarzni Yopish';
+    });
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 function fmt(n) { return Math.round(n||0).toLocaleString('fr-FR').replace(/,/g,' '); }

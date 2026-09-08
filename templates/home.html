@@ -1430,124 +1430,29 @@ document.addEventListener("DOMContentLoaded", function() {
         <div class="mf-product-track" id="productTrack">
 
           {% for article in article_list %}
-          <div class="mf-pcard" data-cat="{% if 'Qo' in article.animal_type or 'qo' in article.animal_type %}qoy{% else %}mol{% endif %}">
+          <div class="mf-pcard" data-cat="{% if 'Qo' in article.name or 'qo' in article.name %}qoy{% elif 'Jigar' in article.name or 'Yurak' in article.name or 'Ilik' in article.name or 'Charvi' in article.name or 'Buyrak' in article.name or 'Dumgaza' in article.name %}qolganlar{% else %}mol{% endif %}">
             <div class="mf-pcard-img">
-              {% if article.photo %}
-                <img src="{{ article.photo.url }}" alt="{{ article.name }}">
+              {% if article.image %}
+                <img src="{{ article.image.url }}" alt="{{ article.name }}" style="object-fit: cover;">
+              {% elif 'Qo' in article.name or 'qo' in article.name %}
+                <img src="{% static 'images/mutton_card_bg.png' %}" alt="{{ article.name }}">
               {% else %}
                 <img src="{% static 'images/beef_card_bg.png' %}" alt="{{ article.name }}">
               {% endif %}
-              <span class="mf-pcard-badge">{{ article.animal_type }}</span>
+              <span class="mf-pcard-badge" {% if 'Qo' in article.name or 'qo' in article.name %}style="background: linear-gradient(135deg, #F59E0B, #D97706); color:#FFF;"{% elif 'Jigar' in article.name or 'Yurak' in article.name or 'Ilik' in article.name or 'Charvi' in article.name or 'Buyrak' in article.name %}style="background:#6B7280; color:#FFF;"{% endif %}>
+                {% if 'Qo' in article.name or 'qo' in article.name %}QO'Y{% elif 'Jigar' in article.name or 'Yurak' in article.name or 'Ilik' in article.name or 'Charvi' in article.name or 'Buyrak' in article.name %}SUBMAHSULOT{% else %}MOL{% endif %}
+              </span>
             </div>
             <div class="mf-pcard-body">
               <div class="mf-pcard-title">{{ article.name }}</div>
               <div class="mf-pcard-foot">
-                <div class="mf-pcard-price">{{ article.price|floatformat:0 }} <small>so'm / kg</small></div>
+                <div class="mf-pcard-price">{{ article.price_per_kg|floatformat:0 }} <small>so'm / kg</small></div>
                 <a href="/pos/my-cabinet/" class="mf-pcard-add" title="Buyurtma berish"><i class="bi bi-cart-plus-fill"></i></a>
               </div>
             </div>
           </div>
           {% empty %}
-
-          <!-- Default Carousel Meat Products -->
-          <div class="mf-pcard" data-cat="mol">
-            <div class="mf-pcard-img">
-              <img src="{% static 'images/beef_card_bg.png' %}" alt="Mermer Mol Steak">
-              <span class="mf-pcard-badge">MOL</span>
-            </div>
-            <div class="mf-pcard-body">
-              <div class="mf-pcard-title">Mermer Mol Steak</div>
-              <div class="mf-pcard-foot">
-                <div class="mf-pcard-price">70 000 <small>so'm / kg</small></div>
-                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="mf-pcard" data-cat="qoy">
-            <div class="mf-pcard-img">
-              <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Qovurg'asi">
-              <span class="mf-pcard-badge" style="background: linear-gradient(135deg, #F59E0B, #D97706); color:#FFF;">QO'Y</span>
-            </div>
-            <div class="mf-pcard-body">
-              <div class="mf-pcard-title">Qo'y Qovurg'asi</div>
-              <div class="mf-pcard-foot">
-                <div class="mf-pcard-price">80 000 <small>so'm / kg</small></div>
-                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="mf-pcard" data-cat="mol">
-            <div class="mf-pcard-img">
-              <img src="{% static 'images/rasm.jpg' %}" alt="Qorinli yog'li">
-              <span class="mf-pcard-badge">MOL</span>
-            </div>
-            <div class="mf-pcard-body">
-              <div class="mf-pcard-title">Qorinli yog'li go'sht</div>
-              <div class="mf-pcard-foot">
-                <div class="mf-pcard-price">60 000 <small>so'm / kg</small></div>
-                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="mf-pcard" data-cat="mol">
-            <div class="mf-pcard-img">
-              <img src="{% static 'images/WIN_20260612_07_40_18_Pro.jpg' %}" alt="Dumg'aza">
-              <span class="mf-pcard-badge">MOL</span>
-            </div>
-            <div class="mf-pcard-body">
-              <div class="mf-pcard-title">Sarxil Dumg'aza</div>
-              <div class="mf-pcard-foot">
-                <div class="mf-pcard-price">70 000 <small>so'm / kg</small></div>
-                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="mf-pcard" data-cat="mol">
-            <div class="mf-pcard-img">
-              <img src="{% static 'images/WIN_20260612_09_02_49_Pro.jpg' %}" alt="Mol Lahm Go'shti">
-              <span class="mf-pcard-badge">MOL</span>
-            </div>
-            <div class="mf-pcard-body">
-              <div class="mf-pcard-title">Baxmal Lahm Go'shti</div>
-              <div class="mf-pcard-foot">
-                <div class="mf-pcard-price">85 000 <small>so'm / kg</small></div>
-                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="mf-pcard" data-cat="qolganlar">
-            <div class="mf-pcard-img">
-              <img src="{% static 'images/photo_2026-07-16_12-08-59.jpg' %}" alt="Yurak">
-              <span class="mf-pcard-badge" style="background:#6B7280; color:#FFF;">SUBMAHSULOT</span>
-            </div>
-            <div class="mf-pcard-body">
-              <div class="mf-pcard-title">Saralangan Yurak</div>
-              <div class="mf-pcard-foot">
-                <div class="mf-pcard-price">50 000 <small>so'm / kg</small></div>
-                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="mf-pcard" data-cat="qoy">
-            <div class="mf-pcard-img">
-              <img src="{% static 'images/mutton_card_bg.png' %}" alt="Qo'y Lahm">
-              <span class="mf-pcard-badge" style="background: linear-gradient(135deg, #F59E0B, #D97706); color:#FFF;">QO'Y</span>
-            </div>
-            <div class="mf-pcard-body">
-              <div class="mf-pcard-title">Baxmal Qo'y Lahm</div>
-              <div class="mf-pcard-foot">
-                <div class="mf-pcard-price">85 000 <small>so'm / kg</small></div>
-                <a href="/pos/my-cabinet/" class="mf-pcard-add"><i class="bi bi-cart-plus-fill"></i></a>
-              </div>
-            </div>
-          </div>
-
+          <div class="p-4 text-center text-muted">Mahsulotlar yuklanmoqda...</div>
           {% endfor %}
 
         </div>
@@ -1580,8 +1485,8 @@ document.addEventListener("DOMContentLoaded", function() {
           <div class="mf-feature-icon" style="background: rgba(245, 158, 11, 0.15); color: #D97706;">
             <i class="bi bi-bicycle"></i>
           </div>
-          <h4 class="mf-feature-title">Tezkor Kuryerlik</h4>
-          <p class="mf-feature-desc">Toshkent shahri va viloyati bo'ylab 1-bosishda uyingizgacha tez yetkazish.</p>
+          <h4 class="mf-feature-title">Tezkor Xizmat</h4>
+          <p class="mf-feature-desc">Jizzax viloyati, Baxmal tumani va atrof hududlar bo'ylab tezkor xizmat ko'rsatish.</p>
         </div>
 
         <div class="mf-feature-card">

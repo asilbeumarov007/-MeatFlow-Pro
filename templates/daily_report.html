@@ -1,344 +1,926 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}📅 Kunlik Hisobot — Baxmal Meat{% endblock %}
+{% block title %}📅 Kunlik Hisobot (Z-Report) — Baxmal Meat{% endblock %}
+
 {% block extrahead %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
-        body {
-            background: #F5F1EB;
-            min-height: 100vh;
-            font-family: 'Inter', system-ui, sans-serif;
-            color: #1A1A2E;
-        }
-        .dashboard-card {
-            background: #FFFFFF;
-            border-radius: 20px;
-            color: #1A1A2E;
-            border: 1px solid rgba(0,0,0,0.07);
-        }
-        .stat-card {
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
-        }
-        .stat-card.active {
-            border-width: 5px !important;
-            background-color: #F8F6F2 !important;
-            box-shadow: inset 0 0 10px rgba(27,107,74,0.08), 0 5px 10px rgba(0,0,0,0.08) !important;
-        }
-        .badge-date {
-            background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
-            color: #fff;
-            font-size: 15px;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-weight: 600;
-        }
-        .badge-count {
-            background: rgba(212,168,83,0.15);
-            color: #D4A853;
-            border: 1px solid rgba(212,168,83,0.3);
-            font-size: 15px;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-weight: 600;
-        }
-        .hero-banner {
-            background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
-            color: #fff;
-            border-radius: 16px;
-        }
-        .hero-banner .text-secondary {
-            color: rgba(255,255,255,0.7) !important;
-        }
-        .hero-banner .text-warning {
-            color: #D4A853 !important;
-        }
-        .table thead {
-            background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
-        }
-        .table thead th {
-            color: #fff !important;
-            border: none;
-        }
-        .btn-back {
-            background: #FFFFFF;
-            border: 1.5px solid rgba(0,0,0,0.07);
-            color: #1A1A2E;
-            border-radius: 12px;
-            font-weight: 700;
-            transition: all 0.2s;
-        }
-        .btn-back:hover {
-            border-color: #1B6B4A;
-            color: #1B6B4A;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-        }
-        .btn-analytics {
-            background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 10px 20px;
-            transition: all 0.2s;
-        }
-        .btn-analytics:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(27,107,74,0.3);
-            color: #fff;
-        }
-        .filter-hint {
-            color: #6B7280;
-        }
-        .card-section {
-            background: #F8F6F2;
-            border: 1px solid rgba(0,0,0,0.07);
-        }
-        .table {
-            background: #fff;
-        }
-        .badge-filtered {
-            background: rgba(27,107,74,0.1);
-            color: #1B6B4A;
-            border: 1px solid rgba(27,107,74,0.2);
-        }
+:root {
+  --gl-bg: #EEF4F2;
+  --gl-surface: rgba(255, 255, 255, 0.92);
+  --gl-border: rgba(255, 255, 255, 0.9);
+  --gl-border-subtle: rgba(226, 232, 240, 0.8);
+  --gl-shadow: 0 14px 38px -10px rgba(15, 45, 30, 0.08), 0 4px 14px -2px rgba(15, 45, 30, 0.03);
+
+  --neon-emerald: #10B981;
+  --neon-blue: #3B82F6;
+  --neon-amber: #F59E0B;
+  --neon-red: #EF4444;
+  --neon-purple: #8B5CF6;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+}
+
+body {
+  background: radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+              radial-gradient(circle at 90% 20%, rgba(59, 130, 246, 0.07) 0%, transparent 40%),
+              radial-gradient(circle at 50% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+              var(--gl-bg) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+.daily-wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+/* Glass Main Container */
+.glass-main-card {
+  background: var(--gl-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--gl-border);
+  border-radius: 26px;
+  box-shadow: var(--gl-shadow);
+  padding: 30px;
+}
+
+/* Hero Banner */
+.glass-hero-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+  border-radius: 20px;
+  padding: 24px;
+  color: #fff;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.25);
+  margin-bottom: 24px;
+}
+.glass-hero-banner::before {
+  content: '';
+  position: absolute;
+  top: -50px; right: -50px;
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Filterable Stat Cards */
+.daily-stat-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid var(--gl-border-subtle);
+  border-radius: 18px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+.daily-stat-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+.daily-stat-btn.active {
+  border-color: var(--neon-emerald) !important;
+  background: #fff !important;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2) !important;
+  transform: translateY(-2px);
+}
+
+.daily-stat-btn.active.karta  { border-color: var(--neon-blue) !important; box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2) !important; }
+.daily-stat-btn.active.qr     { border-color: var(--neon-amber) !important; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2) !important; }
+.daily-stat-btn.active.nasiya { border-color: var(--neon-red) !important; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.2) !important; }
+.daily-stat-btn.active.all    { border-color: #6366F1 !important; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2) !important; }
+
+/* Tables */
+.glass-table-wrap {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--gl-border-subtle);
+  background: #fff;
+}
+
+.btn-action-edit {
+  background: rgba(245, 158, 11, 0.1);
+  color: #D97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-action-edit:hover {
+  background: #D97706;
+  color: #fff;
+  border-color: #D97706;
+}
+
+.btn-action-void {
+  background: rgba(239, 68, 68, 0.08);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-action-void:hover {
+  background: #DC2626;
+  color: #fff;
+  border-color: #DC2626;
+}
+
+/* Modal styles */
+.modal-glass {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 768px) {
+  .daily-wrap { padding: 10px !important; }
+  .glass-main-card { padding: 14px !important; border-radius: 16px !important; }
+  .glass-hero-banner { padding: 16px !important; border-radius: 16px !important; }
+  .glass-hero-banner strong { font-size: 24px !important; }
+  .daily-stat-btn { padding: 12px 10px !important; border-radius: 14px !important; }
+  .daily-stat-btn strong { font-size: 16px !important; }
+  .btn-action-edit, .btn-action-void {
+    padding: 7px 12px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+    min-height: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+}
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-xl-11">
-            <div class="dashboard-card p-4 p-md-5 shadow-lg border-0">
+<div class="daily-wrap">
+  <div class="glass-main-card">
 
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-4">
-                    <div class="text-center text-md-start">
-                        <h1 class="fw-bold m-0 display-6" style="font-family:'DM Serif Display',serif;color:#1B6B4A;">Baxmal meat</h1>
-                        <h4 class="m-0 mt-1 fw-medium" style="color:#6B7280;">Kunlik Savdo Tahlili</h4>
-                    </div>
-                    <div class="text-center text-md-end mt-3 mt-md-0">
-                        <span class="badge-date shadow-sm">Sana: {{ today|date:"d-M, Y-\y\i\l" }}</span>                        <span class="badge-count shadow-sm ms-2">Jami cheklar: {{ sales_count }} ta</span>
-                    </div>
-                </div>
-                <!-- image_968795.jpg dagi oq panelning tepa o'ng burchagiga qo'shish uchun -->
-<a href="{% url 'global_analytics' %}" class="btn-analytics rounded-pill px-4 py-2 shadow-sm float-end mb-3" style="text-decoration:none;">
-    <i class="bi bi-graph-up-arrow me-2"></i>Butun Davr Hisobotiga o'tish &rarr;
-</a>
-<div class="clearfix"></div>
-
-                <div class="hero-banner p-4 rounded-4 text-center mb-4 shadow-sm">
-                    <span class="fs-5 text-uppercase fw-semibold text-secondary tracking-wider">Jami Kunlik Tushum (Hamma to'lovlar)</span>
-                    <strong class="display-4 fw-bold d-block my-1 text-warning" id="overall-display">0 so'm</strong>
-                </div>
-
-                <div class="text-start mb-2"><small class="filter-hint fw-bold text-uppercase">Filtrlash uchun bloklardan birini bosing:</small></div>
-                <div class="row g-3 text-center mb-5">
-                    <div class="col-6 col-lg-3">
-                        <div id="btn-naqd" onclick="filterSales('naqd')" class="stat-card p-3 bg-white rounded-4 border-start border-4 shadow-sm" style="border-color:#1B6B4A !important;">
-                            <span class="d-block fs-5 mb-1 fw-medium" style="color:#6B7280;">Naqd Pul</span>
-                            <strong class="fs-3 d-block" style="color:#1B6B4A;" id="sum-naqd">0</strong>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div id="btn-karta" onclick="filterSales('karta')" class="stat-card p-3 bg-white rounded-4 border-start border-4 shadow-sm" style="border-color:#2D9B6E !important;">
-                            <span class="d-block fs-5 mb-1 fw-medium" style="color:#6B7280;">Plastik Karta</span>
-                            <strong class="fs-3 d-block" style="color:#2D9B6E;" id="sum-karta">0</strong>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div id="btn-qr" onclick="filterSales('qr')" class="stat-card p-3 bg-white rounded-4 border-start border-4 shadow-sm" style="border-color:#D4A853 !important;">
-                            <span class="d-block fs-5 mb-1 fw-medium" style="color:#6B7280;">Yagona QR</span>
-                            <strong class="fs-3 d-block" style="color:#D4A853;" id="sum-qr">0</strong>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div id="btn-nasiya" onclick="filterSales('nasiya')" class="stat-card p-3 bg-white rounded-4 border-start border-4 shadow-sm" style="border-color:#DC3545 !important;">
-                            <span class="d-block fs-5 mb-1 fw-medium" style="color:#6B7280;">Nasiya (Qarz)</span>
-                            <strong class="fs-3 d-block" style="color:#DC3545;" id="sum-nasiya">0</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm card-section rounded-4 p-4 mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="fw-bold m-0" style="color:#1A1A2E;" id="table-title">Savdolar ro'yxati</h4>
-                        <span class="badge badge-filtered fs-6 py-2 px-3" id="filtered-count">0 ta savdo</span>
-                    </div>
-
-                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                        <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden m-0">
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="ps-3 py-3" style="width: 15%;">Vaqt</th>
-                                    <th scope="col" class="py-3" style="width: 55%;">Mijoz (Xaridor)</th>
-                                    <th scope="col" class="text-end pe-3 py-3" style="width: 30%;">Jami Summa</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sales-table-body">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- BUGUNGI KASSA KIRIM-CHIQIM (CASH FLOW) -->
-                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background:#fff; border:1px solid rgba(0,0,0,0.07) !important;">
-                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                        <h4 class="fw-bold m-0" style="color:#1B6B4A; font-family:'DM Serif Display',serif;">Kassa Kirim-Chiqim Tahlili (Bugun)</h4>
-                        <a href="/pos/cash-flow/" class="btn btn-analytics shadow-sm py-2 px-3" style="text-decoration:none; font-size:13px; border-radius:10px;">
-                            💸 Yangi Tranzaksiya &rarr;
-                        </a>
-                    </div>
-                    
-                    <div class="row g-3 text-center mb-4">
-                        <div class="col-4">
-                            <div class="p-3 bg-light rounded-4 border-start border-success border-4 shadow-sm text-start">
-                                <span class="d-block text-muted fs-6 mb-1">Kirim (Cash In)</span>
-                                <strong class="fs-4 d-block text-success">+{{ cash_in_total|floatformat:0 }} so'm</strong>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="p-3 bg-light rounded-4 border-start border-danger border-4 shadow-sm text-start">
-                                <span class="d-block text-muted fs-6 mb-1">Chiqim (Cash Out)</span>
-                                <strong class="fs-4 d-block text-danger">-{{ cash_out_total|floatformat:0 }} so'm</strong>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="p-3 bg-light rounded-4 border-start border-warning border-4 shadow-sm text-start">
-                                <span class="d-block text-muted fs-6 mb-1">Sof Kassa O'zgarishi</span>
-                                <strong class="fs-4 d-block text-dark">{{ net_cash_flow|floatformat:0 }} so'm</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
-                        <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden m-0">
-                            <thead>
-                                <tr class="bg-light">
-                                    <th scope="col" class="ps-3 py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Turi</th>
-                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Kategoriya</th>
-                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">To'lov Turi</th>
-                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Summa</th>
-                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Izoh / Maqsad</th>
-                                    <th scope="col" class="py-2 text-dark" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Mas'ul</th>
-                                    <th scope="col" class="pe-3 py-2 text-dark text-end" style="background:#F8F6F2 !important; color:#1A1A2E !important;">Vaqti</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for tx in today_cash_transactions %}
-                                <tr>
-                                    <td class="ps-3">
-                                        {% if tx.transaction_type == 'in' %}
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-3 py-1 px-2" style="font-size:11px;">Kirim</span>
-                                        {% else %}
-                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-3 py-1 px-2" style="font-size:11px;">Chiqim</span>
-                                        {% endif %}
-                                    </td>
-                                    <td><span class="badge bg-secondary-subtle text-secondary py-1 px-2 rounded-3" style="font-size:11px;">{{ tx.get_category_display }}</span></td>
-                                    <td><span style="font-size:13px;">{% if tx.payment_method == 'naqd' %}💵 Naqd{% else %}💳 Karta{% endif %}</span></td>
-                                    <td class="fw-bold {% if tx.transaction_type == 'in' %}text-success{% else %}text-danger{% endif %}" style="font-size:13px;">
-                                        {% if tx.transaction_type == 'in' %}+{% else %}-{% endif %}{{ tx.amount|floatformat:0 }} so'm
-                                    </td>
-                                    <td><div style="font-size:13px; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ tx.description }}">{{ tx.description|default:"-" }}</div></td>
-                                    <td><span class="fw-semibold" style="font-size:13px; color:#1B6B4A;">{% if tx.created_by %}{{ tx.created_by.get_full_name|default:tx.created_by.username }}{% else %}Tizim (Avto){% endif %}</span></td>
-                                    <td class="pe-3 text-end text-muted" style="font-size:12px;">{{ tx.created_at|date:"H:i" }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted fs-6">Bugun hech qanday kassa tranzaksiyalari amalga oshirilmadi.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="text-center mt-4">
-                    <a href="/pos/terminal/" class="btn btn-back btn-lg px-5 py-3 fs-5 border-2">
-                        ← Terminalga qaytish
-                    </a>
-                </div>
-
-            </div>
-        </div>
+    <!-- HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-4 gap-3">
+      <div class="text-center text-md-start">
+        <h1 class="fw-bold m-0" style="font-family:'Outfit',sans-serif; color:#047857; font-size:28px; letter-spacing:-0.02em;">
+          🥩 Baxmal Meat — Kunlik Z-Hisobot
+        </h1>
+        <div class="text-muted small mt-1 fw-semibold">Bugungi savdolar, kassa tushumi va to'lov turlari bo'yicha tahlil</div>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
+        <span class="badge bg-success text-white px-3 py-2 rounded-pill shadow-sm fw-bold">
+          <i class="bi bi-calendar-event me-1"></i> {{ today|date:"d-M, Y-\y\i\l" }}
+        </span>
+        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 rounded-pill fw-bold font-monospace" id="sales-badge-count">
+          Cheklar: {{ sales_count }} ta
+        </span>
+        <a href="{% url 'global_analytics' %}" class="btn btn-sm btn-outline-success fw-bold px-3 py-2 rounded-pill shadow-sm text-decoration-none">
+          <i class="bi bi-graph-up-arrow me-1"></i> Global Analitika &rarr;
+        </a>
+      </div>
     </div>
+
+    <!-- HERO BANNER (OVERALL SUM) -->
+    <div class="glass-hero-banner">
+      <span class="fs-6 text-uppercase fw-bold opacity-75 tracking-wider d-block mb-1">
+        Jami Kunlik Tushum (Naqd + Karta + QR)
+      </span>
+      <strong class="display-5 fw-bold d-block font-monospace" id="overall-display" style="letter-spacing: -0.02em;">0 so'm</strong>
+    </div>
+
+    <!-- INTERACTIVE FILTER STAT CARDS -->
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+      <small class="fw-bold text-uppercase text-muted" style="font-size: 11px; letter-spacing: 0.05em;">
+        Filtrlash uchun to'lov turini bosing:
+      </small>
+      <button type="button" onclick="filterSales('all')" class="btn btn-sm fw-bold" style="font-size: 12px; background: #EEF2FF; color: #4F46E5; border: 1.5px solid #C7D2FE; border-radius: 20px; padding: 5px 14px; box-shadow: 0 2px 6px rgba(79,70,229,0.1); cursor: pointer; transition: all 0.2s;">
+        👁️ Barcha savdolarni ko'rsatish
+      </button>
+    </div>
+    <div class="row g-3 text-center mb-4">
+      <div class="col-6 col-lg-3">
+        <div id="btn-naqd" onclick="filterSales('naqd')" class="daily-stat-btn active">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-bold text-muted">💵 Naqd Pul</span>
+            <i class="bi bi-cash-coin text-success"></i>
+          </div>
+          <strong class="fs-4 d-block text-success font-monospace" id="sum-naqd">0</strong>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div id="btn-karta" onclick="filterSales('karta')" class="daily-stat-btn karta">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-bold text-muted">💳 Plastik Karta</span>
+            <i class="bi bi-credit-card-fill text-primary"></i>
+          </div>
+          <strong class="fs-4 d-block text-primary font-monospace" id="sum-karta">0</strong>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div id="btn-qr" onclick="filterSales('qr')" class="daily-stat-btn qr">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-bold text-muted">📱 Yagona QR</span>
+            <i class="bi bi-qr-code text-warning"></i>
+          </div>
+          <strong class="fs-4 d-block text-warning font-monospace" id="sum-qr">0</strong>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div id="btn-nasiya" onclick="filterSales('nasiya')" class="daily-stat-btn nasiya">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-bold text-muted">📋 Nasiya (Qarz)</span>
+            <i class="bi bi-person-exclamation text-danger"></i>
+          </div>
+          <strong class="fs-4 d-block text-danger font-monospace" id="sum-nasiya">0</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALES TABLE WITH EDIT & DELETE BUTTONS -->
+    <div class="glass-table-wrap mb-4">
+      <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <h5 class="fw-bold m-0" style="color:var(--text-main); font-size:15px;" id="table-title">Savdolar ro'yxati</h5>
+          <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold" id="filtered-count">0 ta savdo</span>
+        </div>
+        <div class="text-muted small">
+          <i class="bi bi-info-circle me-1"></i> Bekor qilingan savdo go'sht zaxirasini (kg) omborga avtomatik qaytaradi.
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+        <table class="table table-hover align-middle m-0" style="font-size:13px;">
+          <thead class="bg-light sticky-top" style="font-size:11px; text-transform:uppercase; z-index: 10;">
+            <tr>
+              <th scope="col" class="ps-3 py-3" style="width: 8%;">Chek</th>
+              <th scope="col" class="py-3" style="width: 8%;">Vaqt</th>
+              <th scope="col" class="py-3" style="width: 22%;">Mijoz (Xaridor)</th>
+              <th scope="col" class="py-3" style="width: 26%;">Mahsulot va Og'irlik</th>
+              <th scope="col" class="py-3 text-center" style="width: 12%;">To'lov</th>
+              <th scope="col" class="text-end py-3" style="width: 12%;">Summa</th>
+              <th scope="col" class="text-center pe-3 py-3" style="width: 12%;">Amallar</th>
+            </tr>
+          </thead>
+          <tbody id="sales-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CASH FLOW (KIRIM-CHIQIM) SECTION -->
+    <div class="glass-table-wrap mb-4 p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom flex-wrap gap-2">
+        <h5 class="fw-bold m-0" style="color:#047857; font-family:'Outfit',sans-serif;">
+          💸 Bugungi Kassa Kirim-Chiqim Tahlili
+        </h5>
+        <a href="/pos/cash-flow/" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold text-decoration-none">
+          + Yangi Tranzaksiya &rarr;
+        </a>
+      </div>
+
+      <div class="row g-3 mb-3 text-center">
+        <div class="col-md-4">
+          <div class="p-3 bg-light rounded-4 border-start border-success border-4 text-start">
+            <span class="d-block text-muted small mb-1 fw-bold">Kirim (Cash In)</span>
+            <strong class="fs-5 d-block text-success font-monospace">+{{ cash_in_total|floatformat:0 }} so'm</strong>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-3 bg-light rounded-4 border-start border-danger border-4 text-start">
+            <span class="d-block text-muted small mb-1 fw-bold">Chiqim (Cash Out)</span>
+            <strong class="fs-5 d-block text-danger font-monospace">-{{ cash_out_total|floatformat:0 }} so'm</strong>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-3 bg-light rounded-4 border-start border-warning border-4 text-start">
+            <span class="d-block text-muted small mb-1 fw-bold">Sof Kassa O'zgarishi</span>
+            <strong class="fs-5 d-block text-dark font-monospace">{{ net_cash_flow|floatformat:0 }} so'm</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+        <table class="table table-hover align-middle m-0" style="font-size:12.5px;">
+          <thead class="bg-light">
+            <tr>
+              <th class="ps-3 py-2">Turi</th>
+              <th class="py-2">Kategoriya</th>
+              <th class="py-2">To'lov</th>
+              <th class="py-2">Summa</th>
+              <th class="py-2">Izoh</th>
+              <th class="py-2">Mas'ul</th>
+              <th class="pe-3 py-2 text-end">Vaqti</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tx in today_cash_transactions %}
+            <tr>
+              <td class="ps-3">
+                {% if tx.transaction_type == 'in' %}
+                  <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2">Kirim</span>
+                {% else %}
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2">Chiqim</span>
+                {% endif %}
+              </td>
+              <td><span class="badge bg-secondary-subtle text-secondary rounded-pill px-2">{{ tx.get_category_display }}</span></td>
+              <td><span>{% if tx.payment_method == 'naqd' %}💵 Naqd{% else %}💳 Karta{% endif %}</span></td>
+              <td class="fw-bold font-monospace {% if tx.transaction_type == 'in' %}text-success{% else %}text-danger{% endif %}">
+                {% if tx.transaction_type == 'in' %}+{% else %}-{% endif %}{{ tx.amount|floatformat:0 }} so'm
+              </td>
+              <td><span class="text-truncate d-inline-block" style="max-width:180px;">{{ tx.description|default:"-" }}</span></td>
+              <td><span class="fw-semibold text-success">{% if tx.created_by %}{{ tx.created_by.get_full_name|default:tx.created_by.username }}{% else %}Tizim (Avto){% endif %}</span></td>
+              <td class="pe-3 text-end text-muted font-monospace">{{ tx.created_at|date:"H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-3 text-muted">Bugun qo'shimcha kassa operatsiyalari amalga oshirilmadi.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- SOVUQXONA & VITRINA NAZORATI (FRESHNESS & AGING ALERT) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background: #ffffff;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold m-0 text-dark">🥩 Sovuqxona & Vitrina Nazorati (Go'sht Muddati & AI Maslahat)</h5>
+          <small class="text-muted">Partiyalarning vitrinada turgan kunlari va qurish zarari monitoringi</small>
+        </div>
+        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill font-monospace">Partiyalar: {{ active_batches|length }} ta</span>
+      </div>
+
+      {% if aging_alerts %}
+      <div class="alert alert-warning border-0 rounded-4 p-3 mb-3 d-flex align-items-start gap-3 shadow-sm">
+        <div class="fs-3">⚠️</div>
+        <div class="flex-grow-1">
+          <strong class="d-block text-dark fw-bold mb-1">Diqqat: Vitrinada 2 kundan ortiq turgan partiyalar mavjud!</strong>
+          <ul class="m-0 ps-3 small text-secondary">
+            {% for al in aging_alerts %}
+            <li><b>{{ al.product_name }} (Partiya #{{ al.batch_id }}):</b> {{ al.days }} kun vitrinada ({{ al.quantity|floatformat:1 }} kg qolgan). <i>{{ al.action_suggestion }}</i></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle m-0" style="font-size:13px;">
+          <thead class="bg-light">
+            <tr>
+              <th class="ps-3 py-2">Partiya #</th>
+              <th class="py-2">Mahsulot</th>
+              <th class="py-2">Dastlabki</th>
+              <th class="py-2">Qoldiq kg</th>
+              <th class="py-2">Muddati</th>
+              <th class="py-2">Qurish talofati</th>
+              <th class="pe-3 py-2 text-end">Holati & AI Tavsiya</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in active_batches %}
+            <tr>
+              <td class="ps-3 fw-bold font-monospace text-muted">#{{ b.id }}</td>
+              <td class="fw-bold text-dark">{{ b.product.name }}</td>
+              <td class="font-monospace text-muted">{{ b.initial_quantity|floatformat:2 }} kg</td>
+              <td class="font-monospace fw-bold text-success">{{ b.current_quantity|floatformat:2 }} kg</td>
+              <td>
+                {% if b.get_days_passed >= 3 %}
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2">🔴 {{ b.get_days_passed }} kun o'tdi</span>
+                {% elif b.get_days_passed >= 2 %}
+                  <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2">🟡 {{ b.get_days_passed }} kun o'tdi</span>
+                {% else %}
+                  <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2">🟢 Yangi ({{ b.get_days_passed }} kun)</span>
+                {% endif %}
+              </td>
+              <td class="font-monospace text-danger">-{{ b.get_decay_loss|floatformat:3 }} kg</td>
+              <td class="pe-3 text-end">
+                {% if b.get_days_passed >= 3 %}
+                  <span class="badge bg-danger text-white rounded-pill px-2 py-1">⚡ Qiymaga aylantiring!</span>
+                {% elif b.get_days_passed >= 2 %}
+                  <span class="badge bg-warning text-dark rounded-pill px-2 py-1">💡 Chegirma / Tezroq sotish</span>
+                {% else %}
+                  <span class="text-success small fw-semibold">✅ Ideal holatda</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">Hozirda faol go'sht partiyalari mavjud emas.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BOTTOM ACTION -->
+    <div class="text-center pt-2">
+      <a href="/pos/terminal/" class="btn btn-outline-success btn-lg px-5 py-2.5 rounded-pill fw-bold shadow-sm">
+        ← POS Kassa Terminaliga qaytish
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAHRIRLASH MODAL (EDIT SALE MODAL) -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="editSaleModal" tabindex="-1" aria-labelledby="editSaleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="background:#fff;">
+      <div class="modal-header border-bottom py-3 px-4" style="background:#F8FBF9;">
+        <div>
+          <h5 class="modal-title fw-bold text-dark m-0" id="editSaleModalLabel">
+            ✏️ Savdoni Tahrirlash <span id="edit-sale-id-badge" class="badge bg-success ms-2 font-monospace"></span>
+          </h5>
+          <small class="text-muted" id="edit-sale-time"></small>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body p-4">
+        <input type="hidden" id="edit-sale-id">
+
+        <!-- To'lov turi va Mijoz -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-muted text-uppercase">To'lov Usuli</label>
+            <select class="form-select form-select-lg rounded-3 fw-bold font-monospace" id="edit-payment-method" style="font-size:15px;">
+              <option value="naqd">💵 Naqd Pul</option>
+              <option value="karta">💳 Plastik Karta</option>
+              <option value="qr">📱 Yagona QR Kod</option>
+              <option value="nasiya">📋 Nasiya (Qarz)</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-muted text-uppercase">Xaridor (Mijoz)</label>
+            <select class="form-select form-select-lg rounded-3 fw-semibold" id="edit-customer-select" style="font-size:14px;">
+              <option value="">👤 Noma'lum xaridor (Naqd)</option>
+              {% for c in all_customers %}
+              <option value="{{ c.id }}">{{ c.first_name }} {{ c.last_name|default:'' }} (ID: {{ c.custom_id }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Mahsulotlar Ro'yxati -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label fw-bold small text-muted text-uppercase m-0">Mahsulotlar va Vazn (kg)</label>
+            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="addEditItemRow()">
+              + Mahsulot qo'shish
+            </button>
+          </div>
+
+          <div id="edit-items-container" class="d-flex flex-column gap-2 mb-3">
+            <!-- Dynamic rows injected here -->
+          </div>
+        </div>
+
+        <!-- Moliyaviy yakuniy hisob -->
+        <div class="p-3 bg-light rounded-4 border">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted fw-semibold">Jami hisoblangan summa:</span>
+            <strong class="fs-5 text-dark font-monospace" id="edit-calculated-total">0 so'm</strong>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted fw-semibold">Haqiqiy to'langan summa:</span>
+            <div style="max-width: 180px;">
+              <input type="number" step="500" class="form-control text-end fw-bold font-monospace text-success" id="edit-final-paid" placeholder="To'langan">
+            </div>
+          </div>
+          <div class="small text-muted mt-2 pt-2 border-top">
+            ⚠️ <em>Vazn yoki to'lov turi o'zgarganda ombor zaxirasi va mijoz qarzi/bonusi avtomatik qayta hisoblanadi.</em>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer border-top py-3 px-4 bg-light">
+        <button type="button" class="btn btn-light px-4 fw-bold rounded-3" data-bs-dismiss="modal">Bekor qilish</button>
+        <button type="button" class="btn btn-success px-4 fw-bold rounded-3 shadow-sm" onclick="saveEditedSale()" id="btn-save-edit">
+          💾 O'zgarishlarni Saqlash
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-    // Raqamlarni chiroyli formatlash funksiyasi (Masalan: 8519760 -> 8 519 760)
-    function formatMoney(amount) {
-        // Clean any localization formatting
-        let cleanAmount = String(amount).replace(/\s/g, '').replace(',', '.');
-        return parseFloat(cleanAmount).toLocaleString('fr-FR') + " so'm";
+    // CSRF helper
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 
-    // Djangodagi summalarni ekranga chiroyli formatlab chiqaramiz safely (wrap in quotes to prevent localization syntax errors)
-    document.getElementById('overall-display').innerText = formatMoney("{{ overall|default:0 }}");
-    document.getElementById('sum-naqd').innerText = parseFloat(String("{{ naqd|default:0 }}").replace(/\s/g, '').replace(',', '.')).toLocaleString('fr-FR');
-    document.getElementById('sum-karta').innerText = parseFloat(String("{{ karta|default:0 }}").replace(/\s/g, '').replace(',', '.')).toLocaleString('fr-FR');
-    document.getElementById('sum-qr').innerText = parseFloat(String("{{ qr|default:0 }}").replace(/\s/g, '').replace(',', '.')).toLocaleString('fr-FR');
-    document.getElementById('sum-nasiya').innerText = parseFloat(String("{{ nasiya|default:0 }}").replace(/\s/g, '').replace(',', '.')).toLocaleString('fr-FR');
+    function formatMoney(amount) {
+        let cleanAmount = String(amount).replace(/\s/g, '').replace(',', '.');
+        return parseFloat(cleanAmount || 0).toLocaleString('fr-FR') + " so'm";
+    }
 
-    // Xavfsiz JSON massivini yaratamiz
-    const allSales = [
-        {% for sale in todays_sales %}
+    // Products available for selection
+    const availableProducts = [
+        {% for p in active_products %}
         {
-            time: "{{ sale.created_at|date:'H:i' }}",
-            customer: {% if sale.customer %}"{{ sale.customer.first_name }} {{ sale.customer.last_name|default:'' }} (ID: {{ sale.customer.custom_id }})"{% else %}"Mijozsiz davom etish"{% endif %},
-            amount: parseFloat(String("{{ sale.total_amount }}").replace(/\s/g, '').replace(',', '.')),
-            method: "{{ sale.payment_method }}"
+            id: {{ p.id }},
+            name: "{{ p.name|escapejs }}",
+            price: parseFloat("{{ p.price_per_kg }}".replace(/\s/g, '').replace(',', '.'))
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
     ];
 
+    // Array of all sales loaded from backend
+    let allSales = [
+        {% for sale in todays_sales %}
+        {
+            id: {{ sale.id }},
+            time: "{{ sale.created_at|date:'H:i' }}",
+            customer_id: {% if sale.customer %}{{ sale.customer.id }}{% else %}null{% endif %},
+            customer: {% if sale.customer %}"{{ sale.customer.first_name }} {{ sale.customer.last_name|default:'' }} (ID: {{ sale.customer.custom_id }})"{% else %}"Mijozsiz (Naqd)"{% endif %},
+            amount: parseFloat(String("{{ sale.total_amount }}").replace(/\s/g, '').replace(',', '.')),
+            final_paid: parseFloat(String("{{ sale.final_paid }}").replace(/\s/g, '').replace(',', '.')),
+            paid_naqd: parseFloat(String("{{ sale.paid_naqd }}").replace(/\s/g, '').replace(',', '.')),
+            paid_karta: parseFloat(String("{{ sale.paid_karta }}").replace(/\s/g, '').replace(',', '.')),
+            paid_qr: parseFloat(String("{{ sale.paid_qr }}").replace(/\s/g, '').replace(',', '.')),
+            debt_added: parseFloat(String("{{ sale.debt_added }}").replace(/\s/g, '').replace(',', '.')),
+            method: "{{ sale.payment_method }}",
+            items: [
+                {% for it in sale.items.all %}
+                {
+                    id: {{ it.id }},
+                    product_id: {{ it.product.id }},
+                    product_name: "{{ it.product.name|escapejs }}",
+                    weight: parseFloat("{{ it.weight }}".replace(/\s/g, '').replace(',', '.')),
+                    price: parseFloat("{{ it.price_at_sale }}".replace(/\s/g, '').replace(',', '.'))
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    let currentFilter = 'all';
+
+    function recalculateSummaryStats() {
+        let naqd = 0, karta = 0, qr = 0, nasiya = 0;
+        allSales.forEach(s => {
+            if (s.method === 'aralash') {
+                naqd += (s.paid_naqd || 0);
+                karta += (s.paid_karta || 0);
+                qr += (s.paid_qr || 0);
+                nasiya += (s.debt_added || 0);
+            } else if (s.method === 'naqd') naqd += s.amount;
+            else if (s.method === 'karta') karta += s.amount;
+            else if (s.method === 'qr') qr += s.amount;
+            else if (s.method === 'nasiya') nasiya += s.amount;
+        });
+
+        const overall = naqd + karta + qr;
+        document.getElementById('overall-display').innerText = formatMoney(overall);
+        document.getElementById('sum-naqd').innerText = parseFloat(naqd).toLocaleString('fr-FR');
+        document.getElementById('sum-karta').innerText = parseFloat(karta).toLocaleString('fr-FR');
+        document.getElementById('sum-qr').innerText = parseFloat(qr).toLocaleString('fr-FR');
+        document.getElementById('sum-nasiya').innerText = parseFloat(nasiya).toLocaleString('fr-FR');
+        document.getElementById('sales-badge-count').innerText = `Cheklar: ${allSales.length} ta`;
+    }
+
     function filterSales(method) {
-        // 1. Aktiv stilni o'zgartirish
-        document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
+        currentFilter = method;
+        document.querySelectorAll('.daily-stat-btn').forEach(card => card.classList.remove('active'));
         const activeCard = document.getElementById(`btn-${method}`);
         if(activeCard) activeCard.classList.add('active');
 
-        // 2. Sarlavhani yangilash
         const titles = {
-            'naqd': "Naqd puldagi savdolar ro'yxati",
-            'karta': "Plastik kartadagi savdolar ro'yxati",
-            'qr': "QR kod orqali qilingan savdolar ro'yxati",
-            'nasiya': "Nasiyaga (qarzga) berilgan savdolar ro'yxati"
+            'all': "👁️ Barcha savdolar ro'yxati",
+            'naqd': "💵 Naqd puldagi savdolar",
+            'karta': "💳 Plastik kartadagi savdolar",
+            'qr': "📱 QR kod orqali qilingan savdolar",
+            'nasiya': "📋 Nasiyaga (qarzga) berilgan savdolar"
         };
         document.getElementById('table-title').innerText = titles[method] || "Savdolar ro'yxati";
 
-        // 3. Filtrlash
-        const filtered = allSales.filter(sale => sale.method === method);
+        const filtered = method === 'all' ? allSales : allSales.filter(sale => {
+            if (sale.method === method) return true;
+            if (sale.method === 'aralash') {
+                if (method === 'naqd' && sale.paid_naqd > 0) return true;
+                if (method === 'karta' && sale.paid_karta > 0) return true;
+                if (method === 'qr' && sale.paid_qr > 0) return true;
+                if (method === 'nasiya' && sale.debt_added > 0) return true;
+            }
+            return false;
+        });
         document.getElementById('filtered-count').innerText = `${filtered.length} ta savdo`;
 
-        // 4. Jadvalni to'ldirish
         const tbody = document.getElementById('sales-table-body');
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 fs-5" style="color:#6B7280;">Bugun bu to'lov turida hali savdo qilinmadi.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Bugun ushbu to'lov turida savdo qayd etilmadi.</td></tr>`;
             return;
         }
 
         let html = '';
         filtered.forEach(sale => {
-            const textClass = method === 'nasiya' ? 'fw-bold' : '';
-            const textColor = method === 'nasiya' ? 'color:#DC3545;' : 'color:#1A1A2E;';
-            html += `<tr>
-                <td class="ps-3 fw-medium" style="color:#6B7280;">${sale.time}</td>
-                <td class="${textClass}" style="${textColor}">${sale.customer}</td>
-                <td class="text-end pe-3 fw-bold" style="color:#6B7280;">${parseFloat(sale.amount).toLocaleString('fr-FR')} so'm</td>
+            const isNasiya = sale.method === 'nasiya';
+            const itemsSummary = (sale.items || []).map(it => `<span class="badge bg-light text-dark border me-1">${it.product_name}: <b>${it.weight.toFixed(3)} kg</b></span>`).join('');
+            
+            let methodBadge = '';
+            if (sale.method === 'aralash') {
+                const parts = [];
+                if (sale.paid_naqd > 0) parts.push(`Naqd: ${(sale.paid_naqd/1000).toFixed(0)}k`);
+                if (sale.paid_karta > 0) parts.push(`Karta: ${(sale.paid_karta/1000).toFixed(0)}k`);
+                if (sale.paid_qr > 0) parts.push(`QR: ${(sale.paid_qr/1000).toFixed(0)}k`);
+                if (sale.debt_added > 0) parts.push(`Qarz: ${(sale.debt_added/1000).toFixed(0)}k`);
+                methodBadge = `<span class="badge rounded-pill px-2" style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE;">🔀 Aralash (${parts.join(', ')})</span>`;
+            } else if (sale.method === 'naqd') {
+                methodBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2">💵 Naqd</span>';
+            } else if (sale.method === 'karta') {
+                methodBadge = '<span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2">💳 Karta</span>';
+            } else if (sale.method === 'qr') {
+                methodBadge = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2">📱 QR</span>';
+            } else {
+                methodBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2">📋 Nasiya</span>';
+            }
+
+            html += `<tr id="sale-row-${sale.id}">
+                <td class="ps-3 fw-bold font-monospace text-muted">#${sale.id}</td>
+                <td class="text-muted font-monospace">${sale.time}</td>
+                <td class="${isNasiya ? 'fw-bold text-danger' : 'fw-semibold text-dark'}">${sale.customer}</td>
+                <td>${itemsSummary || '<span class="text-muted">-</span>'}</td>
+                <td class="text-center">${methodBadge}</td>
+                <td class="text-end fw-bold font-monospace ${isNasiya ? 'text-danger' : 'text-success'}">${parseFloat(sale.amount).toLocaleString('fr-FR')} so'm</td>
+                <td class="text-center pe-3">
+                  <div class="d-inline-flex gap-1">
+                    <button class="btn-action-edit" onclick="openEditSaleModal(${sale.id})" title="Savdoni tahrirlash">
+                      <i class="bi bi-pencil-square"></i> Tahrirlash
+                    </button>
+                    <button class="btn-action-void" onclick="voidSale(${sale.id})" title="Savdoni bekor qilish va zaxirani qaytarish">
+                      <i class="bi bi-trash3-fill"></i> Bekor qilish
+                    </button>
+                  </div>
+                </td>
             </tr>`;
         });
         tbody.innerHTML = html;
     }
-</script>
-{% endblock %}
 
-{% block extrascripts %}
-<script>
-    // Sahifa yuklanganda avtomat naqd pullarni ko'rsatadi
+    // ─────────────────────────────────────────────────────────────
+    // VOID / BEKOR QILISH HANDLER
+    // ─────────────────────────────────────────────────────────────
+    async function voidSale(saleId) {
+        const sale = allSales.find(s => s.id === saleId);
+        if (!sale) return;
+
+        const itemsText = (sale.items || []).map(it => `${it.product_name} (${it.weight.toFixed(3)} kg)`).join(', ');
+        const confirmMsg = `Diqqat! Chek #${sale.id} ni bekor qilmoqchimisiz?\n\n` +
+            `👤 Xaridor: ${sale.customer}\n` +
+            `🥩 Mahsulotlar: ${itemsText}\n` +
+            `💰 Summa: ${parseFloat(sale.amount).toLocaleString('fr-FR')} so'm\n\n` +
+            `⚠️ Ushbu amal go'sht zaxirasini omborga qaytaradi va mijoz hisobini to'g'rilaydi!`;
+
+        if (!window.confirm(confirmMsg)) return;
+
+        try {
+            const res = await fetch(`/pos/api/sales/void/${saleId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ sale_id: saleId })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.status === 'success') {
+                alert(`✅ ${data.message || 'Savdo muvaffaqiyatli bekor qilindi!'}`);
+                // Remove from local list
+                allSales = allSales.filter(s => s.id !== saleId);
+                recalculateSummaryStats();
+                filterSales(currentFilter);
+            } else {
+                alert(`❌ Xatolik: ${data.error || data.message || 'Savdoni bekor qilib bo\'lmadi.'}`);
+            }
+        } catch (err) {
+            console.error("Void sale error:", err);
+            alert("Texnik xatolik: " + err.message);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // EDIT MODAL HANDLERS
+    // ─────────────────────────────────────────────────────────────
+    let editModalInstance = null;
+
+    async function openEditSaleModal(saleId) {
+        const sale = allSales.find(s => s.id === saleId);
+        if (!sale) return;
+
+        document.getElementById('edit-sale-id').value = sale.id;
+        document.getElementById('edit-sale-id-badge').innerText = `#${sale.id}`;
+        document.getElementById('edit-sale-time').innerText = `Vaqt: ${sale.time}`;
+        document.getElementById('edit-payment-method').value = sale.method;
+        document.getElementById('edit-customer-select').value = sale.customer_id || '';
+        document.getElementById('edit-final-paid').value = sale.final_paid || sale.amount;
+
+        // Render item rows
+        const container = document.getElementById('edit-items-container');
+        container.innerHTML = '';
+
+        if (sale.items && sale.items.length > 0) {
+            sale.items.forEach(it => {
+                addEditItemRow(it.product_id, it.weight, it.price);
+            });
+        } else {
+            addEditItemRow();
+        }
+
+        recalcEditTotal();
+
+        if (!editModalInstance) {
+            editModalInstance = new bootstrap.Modal(document.getElementById('editSaleModal'));
+        }
+        editModalInstance.show();
+    }
+
+    function addEditItemRow(productId = null, weight = 1.0, price = null) {
+        const container = document.getElementById('edit-items-container');
+        const rowId = 'item-row-' + Math.floor(Math.random() * 100000);
+
+        let optionsHtml = '';
+        availableProducts.forEach(p => {
+            const isSelected = (productId && productId === p.id) ? 'selected' : '';
+            optionsHtml += `<option value="${p.id}" data-price="${p.price}" ${isSelected}>${p.name} (${p.price.toLocaleString('fr-FR')} so'm/kg)</option>`;
+        });
+
+        const defaultPrice = price !== null ? price : (availableProducts[0] ? availableProducts[0].price : 0);
+
+        const rowHtml = `
+          <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-3 border" id="${rowId}">
+            <div style="flex: 2;">
+              <select class="form-select form-select-sm fw-semibold edit-item-prod" onchange="onEditProductChange('${rowId}')">
+                ${optionsHtml}
+              </select>
+            </div>
+            <div style="flex: 1.2;">
+              <div class="input-group input-group-sm">
+                <input type="number" step="0.005" min="0.001" class="form-control text-end fw-bold font-monospace edit-item-weight" value="${weight}" oninput="recalcEditTotal()">
+                <span class="input-group-text">kg</span>
+              </div>
+            </div>
+            <div style="flex: 1.5;">
+              <div class="input-group input-group-sm">
+                <input type="number" step="1000" class="form-control text-end font-monospace edit-item-price" value="${defaultPrice}" oninput="recalcEditTotal()">
+                <span class="input-group-text">so'm</span>
+              </div>
+            </div>
+            <div>
+              <button type="button" class="btn btn-sm btn-outline-danger border-0 rounded-circle" onclick="removeEditItemRow('${rowId}')" title="O'chirish">
+                ✕
+              </button>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', rowHtml);
+        recalcEditTotal();
+    }
+
+    function removeEditItemRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) row.remove();
+        recalcEditTotal();
+    }
+
+    function onEditProductChange(rowId) {
+        const row = document.getElementById(rowId);
+        if (!row) return;
+        const select = row.querySelector('.edit-item-prod');
+        const selectedOpt = select.options[select.selectedIndex];
+        const price = selectedOpt.getAttribute('data-price');
+        if (price) {
+            row.querySelector('.edit-item-price').value = price;
+        }
+        recalcEditTotal();
+    }
+
+    function recalcEditTotal() {
+        const container = document.getElementById('edit-items-container');
+        const rows = container.querySelectorAll('.d-flex');
+        let total = 0;
+
+        rows.forEach(r => {
+            const w = parseFloat(r.querySelector('.edit-item-weight').value) || 0;
+            const p = parseFloat(r.querySelector('.edit-item-price').value) || 0;
+            total += (w * p);
+        });
+
+        document.getElementById('edit-calculated-total').innerText = formatMoney(total);
+        const finalPaidInput = document.getElementById('edit-final-paid');
+        const method = document.getElementById('edit-payment-method').value;
+        if (method === 'nasiya') {
+            finalPaidInput.value = 0;
+        } else {
+            finalPaidInput.value = total;
+        }
+    }
+
+    document.getElementById('edit-payment-method').addEventListener('change', function() {
+        recalcEditTotal();
+    });
+
+    async function saveEditedSale() {
+        const saleId = document.getElementById('edit-sale-id').value;
+        const method = document.getElementById('edit-payment-method').value;
+        const custId = document.getElementById('edit-customer-select').value;
+        const finalPaid = parseFloat(document.getElementById('edit-final-paid').value) || 0;
+
+        const container = document.getElementById('edit-items-container');
+        const rows = container.querySelectorAll('.d-flex');
+        const items = [];
+
+        rows.forEach(r => {
+            const pId = parseInt(r.querySelector('.edit-item-prod').value);
+            const w = parseFloat(r.querySelector('.edit-item-weight').value) || 0;
+            const p = parseFloat(r.querySelector('.edit-item-price').value) || 0;
+            if (pId && w > 0) {
+                items.push({
+                    product_id: pId,
+                    weight: w,
+                    price: p
+                });
+            }
+        });
+
+        if (items.length === 0) {
+            alert("Iltimos, kamida bitta mahsulot va vazn kiriting!");
+            return;
+        }
+
+        const btn = document.getElementById('btn-save-edit');
+        btn.disabled = true;
+        btn.innerText = "Saqlanmoqda...";
+
+        try {
+            const payload = {
+                sale_id: saleId,
+                payment_method: method,
+                customer_id: custId ? parseInt(custId) : null,
+                final_paid: finalPaid,
+                items: items
+            };
+
+            const res = await fetch(`/pos/api/sales/${saleId}/edit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (res.ok && data.status === 'success') {
+                alert("✅ " + (data.message || "Savdo muvaffaqiyatli tahrirlandi!"));
+                if (editModalInstance) editModalInstance.hide();
+                window.location.reload();
+            } else {
+                alert("❌ Xatolik: " + (data.error || data.message || "Saqlashda xato yuz berdi."));
+            }
+        } catch (err) {
+            console.error("Save edit error:", err);
+            alert("Texnik xatolik: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "💾 O'zgarishlarni Saqlash";
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
-        filterSales('naqd');
+        recalculateSummaryStats();
+        filterSales('all');
     });
 </script>
 {% endblock %}

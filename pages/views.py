@@ -1,11 +1,10 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from pos.models import Slaughter, Sale, Customer, Stock, StockBatch, B2BOrder
+from pos.models import Slaughter, Sale, Customer, Stock, StockBatch, B2BOrder, Product as PosProduct, StoreSetting
 from django.db.models import Sum
 from decimal import Decimal
 from django.utils import timezone
 from datetime import timedelta
-from articles.models import Product
 
 class HomePageView(TemplateView):
     template_name = 'home.html'
@@ -218,24 +217,27 @@ class HomePageView(TemplateView):
 
             context['ai_alerts'] = ai_alerts
             
-        from pos.models import StoreSetting
         store = StoreSetting.objects.filter(is_active=True).first()
         if not store:
             store = StoreSetting.objects.create(
                 name="Baxmal Meat Do'koni",
                 phone_number="+998 77 082 4477",
-                address="Toshkent shahri, Chilonzor tumani",
-                announcement_text="🔥 Mol va Qo'y go'shtidan buyurtma bering — Toshkent bo'ylab yetkazib berish va halol kafolat!",
+                address="Jizzax viloyati, Baxmal tumani, Sangzor Guzari",
+                announcement_text="🔥 Mol va Qo'y go'shtidan buyurtma bering — Halol va sarxil go'sht kafolati!",
                 hero_title="Sarxil Go'sht & Raqamli MeatFlow Pro Texnologiyasi",
-                hero_subtitle="Baxmal Meat — Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor kuryerlik xizmati.",
-                promo_banner_text="500,000 so'mdan yuqori buyurtmalar uchun Toshkent shahri bo'ylab yetkazib berish BEPUL!",
-                latitude=41.2995,
-                longitude=69.2401,
+                hero_subtitle="Baxmal Meat — Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor xizmat.",
+                promo_banner_text="Baxmal tumani bo'ylab buyurtmalarni tezkor yetkazib beramiz!",
+                latitude=39.9547,
+                longitude=68.4012,
                 base_delivery_fee=Decimal('10000.00'),
                 fee_per_km=Decimal('3000.00'),
                 min_free_delivery_amount=Decimal('500000.00')
             )
+        elif store.address != "Jizzax viloyati, Baxmal tumani, Sangzor Guzari":
+            store.address = "Jizzax viloyati, Baxmal tumani, Sangzor Guzari"
+            store.save(update_fields=['address'])
+
         context['store'] = store
-        context['article_list'] = Product.objects.all().order_by('-id')[:8]
+        context['article_list'] = PosProduct.objects.filter(is_active=True).order_by('id')
         return context
 

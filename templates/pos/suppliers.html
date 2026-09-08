@@ -8,6 +8,42 @@
 
 <style>
   /* ══════════════════════════════════════════════════
+     PRINT STYLES FOR AKT SVERKA
+     ══════════════════════════════════════════════════ */
+  @media print {
+    body * {
+      visibility: hidden !important;
+    }
+    #aktSverkaModal, #aktSverkaModal * {
+      visibility: visible !important;
+    }
+    #aktSverkaModal {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      box-shadow: none !important;
+    }
+    #aktSverkaModal .modal-dialog {
+      max-width: 100% !important;
+      width: 100% !important;
+      margin: 0 !important;
+    }
+    #aktSverkaModal .modal-content {
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════
      GLASSMORPHISM STYLES & THEME FOR SUPPLIERS PORTAL
      ══════════════════════════════════════════════════ */
   .sup-wrapper {
@@ -466,7 +502,7 @@
     </div>
 
     <div class="d-flex gap-2 flex-wrap">
-      <a href="/pos/yield-loss/" class="btn btn-outline-light rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm" style="font-size:13px;">
+      <a href="/pos/yield-loss/" class="btn rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm" style="font-size:13px; background:rgba(255,255,255,0.22); backdrop-filter:blur(8px); border:1.5px solid rgba(255,255,255,0.4); color:#FFFFFF;">
         <i class="bi bi-scissors text-warning"></i> 🥩 Yangi So'yim / Go'sht Kirimi
       </a>
       <button class="btn btn-success rounded-pill px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm" style="background:#10B981; border:none; font-size:13px;" onclick="openCreateModal()">
@@ -640,9 +676,12 @@
             <i class="bi bi-cash-stack"></i> To'lov
           </button>
           <button type="button" class="btn-action-ledger" onclick="openLedgerDrawer('{{ s.id }}')">
-            <i class="bi bi-journal-text"></i> Oldi-Berdi
+            <i class="bi bi-journal-text"></i> Daftari
           </button>
-          <a href="/pos/yield-loss/" class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center px-3 rounded-3" title="Yangi so'yim kiritish">
+          <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center px-2.5 rounded-3 fw-bold" onclick="openAktSverkaModal('{{ s.id }}')" title="O'zaro solishtirma dalolatnomasi (Akt Sverka)">
+            <i class="bi bi-file-earmark-text"></i> Akt
+          </button>
+          <a href="/pos/yield-loss/" class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center px-2.5 rounded-3" title="Yangi so'yim kiritish">
             <i class="bi bi-plus-lg"></i>
           </a>
         </div>
@@ -714,8 +753,11 @@
               <button class="btn btn-sm btn-success fw-bold rounded-pill px-3 me-1 shadow-sm" onclick="openPaymentModal('{{ s.id }}', '{{ s.first_name }} {{ s.last_name|default:'' }}', '{{ s.our_debt|floatformat:0 }}')">
                 <i class="bi bi-cash"></i> To'lov
               </button>
-              <button class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-3" onclick="openLedgerDrawer('{{ s.id }}')">
+              <button class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-2.5 me-1" onclick="openLedgerDrawer('{{ s.id }}')">
                 <i class="bi bi-journal-text"></i> Daftari
+              </button>
+              <button class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-2.5 shadow-sm" onclick="openAktSverkaModal('{{ s.id }}')" title="Akt Sverka">
+                <i class="bi bi-file-earmark-text"></i> Akt
               </button>
             </td>
           </tr>
@@ -732,21 +774,22 @@
      ══════════════════════════════════════ -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius: 24px; border: none; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+    <div class="modal-content" style="border-radius: 24px; border: none; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.25);">
       <div class="modal-header" style="background: linear-gradient(135deg, #04110D, #082618); color:#FFFFFF; padding: 20px 24px;">
-        <h5 class="modal-title fw-bold" style="font-size: 1.25rem;">
-          💸 Ta'minotchiga To'lov Qilish (Chiqim)
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2" style="font-size: 1.2rem;">
+          <i class="bi bi-cash-coin text-warning"></i> Ta'minotchiga To'lov Qilish (Chiqim)
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="padding: 24px;">
         
-        <div class="mb-3 p-3 rounded-3" style="background: #F8FAFC; border: 1px solid rgba(0,0,0,0.08);">
-          <div style="font-size: 11px; color: #64748B; font-weight: 700; text-transform: uppercase;">Hamkor</div>
-          <div id="modalSupName" style="font-size: 17px; font-weight: 800; color: #0F172A;">Ta'minotchi</div>
-          <div class="mt-2 d-flex justify-content-between align-items-center">
-            <span style="font-size: 13px; color: #64748B;">Joriy qarzimiz:</span>
-            <span id="modalSupDebt" class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace fs-6 px-2.5 py-1">0 so'm</span>
+        <!-- Hamkor Card Preview -->
+        <div class="mb-3 p-3 rounded-4" style="background: #F8FAFC; border: 1.5px solid #E2E8F0;">
+          <div style="font-size: 11px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Hamkor (Ta'minotchi)</div>
+          <div id="modalSupName" style="font-size: 18px; font-weight: 800; color: #0F172A; margin-top: 2px;">Ta'minotchi</div>
+          <div class="mt-2 d-flex justify-content-between align-items-center pt-2 border-top">
+            <span style="font-size: 13px; color: #64748B; font-weight: 600;">Joriy bizning qarzimiz:</span>
+            <span id="modalSupDebt" class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace fs-6 px-3 py-1.5" style="border-radius: 10px;">0 so'm</span>
           </div>
         </div>
 
@@ -754,25 +797,49 @@
           <input type="hidden" id="paySupId">
           
           <div class="mb-3">
-            <label class="form-label fw-bold small">To'lov Summasi (so'm) *</label>
-            <input type="number" id="payAmount" class="form-control font-monospace fw-bold fs-5" placeholder="0" required style="border-radius: 12px; padding: 12px 14px;">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-bold small text-dark mb-0">To'lov Summasi (so'm) *</label>
+              <span id="payAmountFormatted" class="font-monospace fw-bold text-success" style="font-size: 12px;"></span>
+            </div>
+            <input type="number" id="payAmount" class="form-control font-monospace fw-bold fs-4" placeholder="0" required 
+                   style="border-radius: 14px; padding: 12px 16px; border: 2px solid #10B981; background: #F0FDF4;"
+                   oninput="updatePayFormatted(this.value)">
+            
+            <!-- Quick Amount Chips -->
+            <div class="d-flex gap-1 flex-wrap mt-2" id="quickPayChips">
+              <button type="button" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-2.5 py-1" style="font-size:11px;" onclick="setPayQuickAmount('full')">
+                ⚡ To'liq qarz
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-2.5 py-1" style="font-size:11px;" onclick="setPayQuickAmount('half')">
+                50%
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-2.5 py-1" style="font-size:11px;" onclick="setPayDirectAmount(1000000)">
+                1 mln
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-2.5 py-1" style="font-size:11px;" onclick="setPayDirectAmount(5000000)">
+                5 mln
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-2.5 py-1" style="font-size:11px;" onclick="setPayDirectAmount(10000000)">
+                10 mln
+              </button>
+            </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-bold small">To'lov Usuli</label>
-            <select id="payMethod" class="form-select fw-bold" style="border-radius: 12px; padding: 12px 14px;">
+            <label class="form-label fw-bold small text-dark">To'lov Usuli</label>
+            <select id="payMethod" class="form-select fw-bold" style="border-radius: 12px; padding: 12px 14px; border: 1.5px solid #CBD5E1;">
               <option value="naqd">💵 Naqd pul (Kassadan chiqim)</option>
               <option value="karta">💳 Plastik karta / Bank o'tkazmasi</option>
             </select>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-bold small">Izoh / Tafsilotlar</label>
-            <textarea id="payDesc" class="form-control" placeholder="To'lov maqsadi yoki qo'shimcha eslatma..." rows="2" style="border-radius: 12px; padding: 10px 14px;"></textarea>
+          <div class="mb-4">
+            <label class="form-label fw-bold small text-dark">Izoh / Tafsilotlar (Ixtiyoriy)</label>
+            <input type="text" id="payDesc" class="form-control" placeholder="Masalan: Go'sht uchun naqd pul berildi" style="border-radius: 12px; padding: 10px 14px; border: 1.5px solid #CBD5E1;">
           </div>
 
-          <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm" id="btnSubmitPayment" style="background:#10B981; border:none; font-size:15px;">
-            <i class="bi bi-check-circle-fill me-1"></i> To'lovni Tasdiqlash & Saqlash
+          <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold shadow-sm" id="btnSubmitPayment" style="background: linear-gradient(135deg, #10B981, #059669); border:none; font-size:15px; border-radius: 14px !important;">
+            <i class="bi bi-check-circle-fill me-1"></i> To'lovni Tasdiqlash & Chiqim Qilish
           </button>
         </form>
 
@@ -814,13 +881,121 @@
     </div>
 
   </div>
-  <div class="drawer-footer-actions">
+  <div class="drawer-footer-actions d-flex flex-wrap gap-2">
+    <button type="button" id="drawerAktSverkaBtn" class="btn btn-primary flex-grow-1 py-2.5 d-flex align-items-center justify-content-center gap-2 rounded-3 fw-bold shadow-sm" style="background:#2563EB; border:none;" onclick="openAktSverkaModalFromDrawer()">
+      <i class="bi bi-file-earmark-pdf-fill"></i> 📄 Akt Sverka (PDF)
+    </button>
     <a href="#" id="excelExportLink" class="btn btn-success flex-grow-1 py-2.5 d-flex align-items-center justify-content-center gap-2 rounded-3 fw-bold shadow-sm" style="background:#10B981; border:none;">
-      <i class="bi bi-file-earmark-excel-fill"></i> Excel Daftarni Yuklash
+      <i class="bi bi-file-earmark-excel-fill"></i> Excel Yuklash
     </a>
-    <button class="btn btn-outline-secondary py-2.5 px-4 rounded-3 fw-bold" onclick="closeLedgerDrawer()">
+    <button class="btn btn-outline-secondary py-2.5 px-3 rounded-3 fw-bold" onclick="closeLedgerDrawer()">
       Yopish
     </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: O'ZARO SOLISHTIRMA DALOLATNOMASI (AKT SVERKA)
+     ══════════════════════════════════════ -->
+<div class="modal fade" id="aktSverkaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.25);">
+      <div class="modal-header d-flex justify-content-between align-items-center py-3 px-4 no-print" style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+        <h5 class="modal-title fw-bold text-dark m-0" style="font-size: 1.15rem;">
+          📄 O'zaro Solishtirma Dalolatnomasi (Akt Sverka)
+        </h5>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm" onclick="window.print()">
+            <i class="bi bi-printer-fill me-1"></i> Chop etish / PDF
+          </button>
+          <button type="button" class="btn btn-outline-secondary px-3 py-2 rounded-pill fw-bold" data-bs-dismiss="modal">
+            Yopish
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body p-4 p-md-5" style="background:#FFFFFF;">
+        <div id="aktSverkaPrintArea">
+          <!-- Document Header -->
+          <div class="text-center pb-3 mb-4 border-bottom">
+            <h4 class="fw-bold text-uppercase m-0" style="letter-spacing: 0.04em; color: #0F172A; font-size: 18px;">
+              O'ZARO HISOB-KITOB VA SOLISHTIRMA DALOLATNOMASI (AKT SVERKA)
+            </h4>
+            <p class="text-muted mt-1 mb-0" style="font-size: 12.5px;">
+              «Baxmal Meat Pro» korxonasi hamda Hamkor (Ta'minotchi) o'rtasidagi o'zaro hisob-kitoblar holati bo'yicha
+            </p>
+            <div class="mt-2 font-monospace fw-bold small text-secondary">
+              Tuzilgan sana: <span id="aktDateToday"></span>
+            </div>
+          </div>
+
+          <!-- Parties Info Grid -->
+          <div class="row g-3 mb-4 p-3 rounded-3" style="background: #F8FAFC; border: 1px solid #E2E8F0; font-size: 12.5px;">
+            <div class="col-sm-6 border-end">
+              <strong class="d-block text-uppercase text-secondary small mb-1">Xaridor (Do'kon):</strong>
+              <div class="fw-bold fs-6 text-dark">«Baxmal Meat Pro» MCHJ</div>
+              <div class="text-muted">Manzil: Baxmal Meat do'koni</div>
+              <div class="text-muted">Aloqa: +998 (90) 123-45-67</div>
+            </div>
+            <div class="col-sm-6 ps-sm-4">
+              <strong class="d-block text-uppercase text-secondary small mb-1">Ta'minotchi (Chorvador / Hamkor):</strong>
+              <div class="fw-bold fs-6 text-dark" id="aktSupName">Ta'minotchi</div>
+              <div class="text-muted">Hamkor ID: <span id="aktSupId" class="font-monospace fw-bold">--</span></div>
+              <div class="text-muted">Telefon: <span id="aktSupPhone" class="fw-bold font-monospace">--</span></div>
+            </div>
+          </div>
+
+          <!-- Ledger Table -->
+          <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle mb-0" style="font-size: 12px; border-color: #CBD5E1;">
+              <thead style="background: #F1F5F9; font-weight: 700; text-transform: uppercase; font-size: 11px;">
+                <tr class="text-center align-middle">
+                  <th style="width: 40px;">№</th>
+                  <th style="width: 125px;">Sana & Vaqt</th>
+                  <th>Operatsiya Mazmuni & Tafsilotlar</th>
+                  <th style="width: 140px;" class="text-end">Kirim Go'sht (+)<br><small class="fw-normal text-muted">Majburiyatimiz</small></th>
+                  <th style="width: 140px;" class="text-end">To'lov / Barter (-)<br><small class="fw-normal text-muted">To'langan summa</small></th>
+                  <th style="width: 140px;" class="text-end">Qoldiq Qarzimiz<br><small class="fw-normal text-muted">(so'm)</small></th>
+                </tr>
+              </thead>
+              <tbody id="aktTableBody">
+                <!-- Dynamically filled -->
+              </tbody>
+              <tfoot style="background: #F8FAFC; font-weight: 700; font-size: 12.5px;">
+                <tr>
+                  <td colspan="3" class="text-end text-uppercase">JAMI KO'RSATKICHLAR:</td>
+                  <td class="text-end font-monospace text-danger" id="aktTotalSupply">+0 so'm</td>
+                  <td class="text-end font-monospace text-success" id="aktTotalPaid">-0 so'm</td>
+                  <td class="text-end font-monospace fw-bold fs-6" id="aktFinalDebt" style="color: #0F172A;">0 so'm</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Legal statement -->
+          <div class="p-3 mb-4 rounded-3 border" style="background: #FFFBEB; font-size: 11.5px; line-height: 1.5; color: #78350F;">
+            📌 <b>Eslatma va Xulosa:</b> Ushbu dalolatnoma tuzilgan sanaga ko'ra, «Baxmal Meat»ning «<span id="aktNoteSupName"></span>» oldidagi yakuniy qarzdorlik qoldig'i <b><span id="aktNoteDebt">0</span> so'm</b>ni tashkil etadi. Tomonlar o'zaro hisob-kitoblar to'g'riligini tasdiqlaydilar.
+          </div>
+
+          <!-- Signatures Block -->
+          <div class="row pt-3 mt-3 border-top" style="font-size: 12.5px;">
+            <div class="col-6 text-start">
+              <div class="fw-bold mb-1">«Baxmal Meat Pro» nomidan:</div>
+              <div class="text-muted small mb-4">Rahbar / Bosh hisobchi:</div>
+              <div class="border-bottom border-dark d-inline-block" style="width: 180px; height: 25px;"></div>
+              <div class="text-muted small mt-1">(Imzo, M.O'.)</div>
+            </div>
+            <div class="col-6 text-end">
+              <div class="fw-bold mb-1">Ta'minotchi (Hamkor) nomidan:</div>
+              <div class="text-muted small mb-4"><span id="aktSigSupName"></span>:</div>
+              <div class="border-bottom border-dark d-inline-block" style="width: 180px; height: 25px;"></div>
+              <div class="text-muted small mt-1">(Imzo)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -957,17 +1132,50 @@
 
   // ── PAYMENT MODAL ──
   let payModalInst = null;
+  let currentSupDebtNumeric = 0;
+
   function openPaymentModal(id, name, debt) {
+    currentSupDebtNumeric = parseFloat(debt || 0);
     document.getElementById('paySupId').value = id;
     document.getElementById('modalSupName').innerText = name;
-    document.getElementById('modalSupDebt').innerText = parseInt(debt || 0).toLocaleString('uz-UZ') + " so'm";
+    document.getElementById('modalSupDebt').innerText = Math.round(currentSupDebtNumeric).toLocaleString('fr-FR') + " so'm";
     document.getElementById('payAmount').value = '';
+    document.getElementById('payAmountFormatted').innerText = '';
     document.getElementById('payDesc').value = '';
     
     if(!payModalInst) {
       payModalInst = new bootstrap.Modal(document.getElementById('paymentModal'));
     }
     payModalInst.show();
+    setTimeout(() => {
+      document.getElementById('payAmount').focus();
+    }, 400);
+  }
+
+  function updatePayFormatted(val) {
+    const num = parseFloat(val);
+    if (!isNaN(num) && num > 0) {
+      document.getElementById('payAmountFormatted').innerText = '≈ ' + Math.round(num).toLocaleString('fr-FR') + " so'm";
+    } else {
+      document.getElementById('payAmountFormatted').innerText = '';
+    }
+  }
+
+  function setPayQuickAmount(type) {
+    if (type === 'full') {
+      const amt = Math.max(0, currentSupDebtNumeric);
+      document.getElementById('payAmount').value = amt;
+      updatePayFormatted(amt);
+    } else if (type === 'half') {
+      const amt = Math.max(0, Math.round(currentSupDebtNumeric / 2));
+      document.getElementById('payAmount').value = amt;
+      updatePayFormatted(amt);
+    }
+  }
+
+  function setPayDirectAmount(amt) {
+    document.getElementById('payAmount').value = amt;
+    updatePayFormatted(amt);
   }
 
   document.getElementById('payForm').addEventListener('submit', function(e) {
@@ -977,6 +1185,11 @@
     const amount = document.getElementById('payAmount').value;
     const method = document.getElementById('payMethod').value;
     const desc = document.getElementById('payDesc').value;
+
+    if (!amount || parseFloat(amount) <= 0) {
+      alert("Iltimos, to'lov summasini kiriting!");
+      return;
+    }
 
     const btn = document.getElementById('btnSubmitPayment');
     btn.disabled = true;
@@ -1002,7 +1215,7 @@
         if(payModalInst) payModalInst.hide();
         location.reload();
       } else {
-        alert("Xatolik: " + data.message);
+        alert("Xatolik: " + (data.message || 'Xatolik yuz berdi'));
       }
     })
     .catch(err => {
@@ -1011,7 +1224,7 @@
     })
     .finally(() => {
       btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> To\'lovni Tasdiqlash & Saqlash';
+      btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> To\'lovni Tasdiqlash & Chiqim Qilish';
     });
   });
 
@@ -1089,6 +1302,86 @@
     setTimeout(() => {
       overlay.classList.remove('show');
     }, 200);
+  }
+
+  // ── AKT SVERKA MODAL ──
+  let aktModalInst = null;
+  let currentDrawerSupplierId = null;
+
+  function openAktSverkaModalFromDrawer() {
+    if(currentDrawerSupplierId) {
+      openAktSverkaModal(currentDrawerSupplierId);
+    }
+  }
+
+  function openAktSverkaModal(supplierId) {
+    currentDrawerSupplierId = supplierId;
+    if(!aktModalInst) {
+      aktModalInst = new bootstrap.Modal(document.getElementById('aktSverkaModal'));
+    }
+
+    const today = new Date();
+    const dateFormatted = String(today.getDate()).padStart(2, '0') + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + today.getFullYear();
+    document.getElementById('aktDateToday').innerText = dateFormatted;
+
+    const tbody = document.getElementById('aktTableBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span> Dalolatnoma yuklanmoqda...</td></tr>';
+
+    aktModalInst.show();
+
+    fetch(`/pos/api/supplier/ledger/${supplierId}/`)
+      .then(r => r.json())
+      .then(data => {
+        if(data.status === 'success') {
+          const sup = data.supplier;
+          document.getElementById('aktSupName').innerText = sup.name;
+          document.getElementById('aktSupId').innerText = sup.custom_id;
+          document.getElementById('aktSupPhone').innerText = sup.phone || '--';
+          document.getElementById('aktNoteSupName').innerText = sup.name;
+          document.getElementById('aktSigSupName').innerText = sup.name;
+          
+          tbody.innerHTML = '';
+          let totalSupply = 0;
+          let totalPaid = 0;
+
+          if(!data.ledger || data.ledger.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Ushbu ta\'minotchi bo\'yicha o\'zaro amallar topilmadi.</td></tr>';
+          } else {
+            data.ledger.forEach((item, idx) => {
+              const tr = document.createElement('tr');
+              const isPlus = item.effect === '+';
+              if(isPlus) totalSupply += item.amount;
+              else totalPaid += item.amount;
+
+              tr.innerHTML = `
+                <td class="text-center font-monospace text-muted">${idx + 1}</td>
+                <td class="font-monospace">${item.date}</td>
+                <td>
+                  <span class="badge ${isPlus ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'} me-1 font-monospace" style="font-size:10px;">${item.type_display}</span>
+                  <b>${item.details}</b>
+                </td>
+                <td class="text-end font-monospace text-danger">${isPlus ? '+' + Math.round(item.amount).toLocaleString('uz-UZ') + " so'm" : '-'}</td>
+                <td class="text-end font-monospace text-success">${!isPlus ? '-' + Math.round(item.amount).toLocaleString('uz-UZ') + " so'm" : '-'}</td>
+                <td class="text-end font-monospace fw-bold">${Math.round(item.balance).toLocaleString('uz-UZ')} so'm</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
+
+          document.getElementById('aktTotalSupply').innerText = '+' + Math.round(totalSupply).toLocaleString('uz-UZ') + " so'm";
+          document.getElementById('aktTotalPaid').innerText = '-' + Math.round(totalPaid).toLocaleString('uz-UZ') + " so'm";
+          document.getElementById('aktFinalDebt').innerText = Math.round(sup.our_debt).toLocaleString('uz-UZ') + " so'm";
+          document.getElementById('aktNoteDebt').innerText = Math.round(sup.our_debt).toLocaleString('uz-UZ');
+        } else {
+          alert("Xato: " + data.message);
+          aktModalInst.hide();
+        }
+      })
+      .catch(err => {
+        alert("Ma'lumot yuklashda xatolik yuz berdi!");
+        console.error(err);
+        aktModalInst.hide();
+      });
   }
 
   // ── CREATE SUPPLIER MODAL ──

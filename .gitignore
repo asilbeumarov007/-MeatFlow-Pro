@@ -30,6 +30,7 @@ ENV/
 .env
 .env.*
 secrets.json
+askpass.*
 
 # Database
 db.sqlite3
@@ -52,3 +53,12 @@ frontend/dist/
 *.swp
 *.swo
 .junie/
+
+# Archives & Large media
+*.zip
+*.tar.gz
+*.mp4
+scratch/
+frontend/test_*
+server_pos_data.json
+

@@ -20,7 +20,7 @@ class Supplier(models.Model):
         verbose_name="Mijoz profili"
     )
     note = models.TextField(blank=True, null=True, verbose_name="Eslatma/Izoh")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Qo'shilgan vaqti")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Qo'shilgan vaqti")
 
     def save(self, *args, **kwargs):
         is_new = not self.pk
@@ -47,7 +47,7 @@ class Supplier(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=255, verbose_name="Mahsulot nomi")
     price_per_kg = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Chakana narxi (so'm)")
-    is_active = models.BooleanField(default=True, verbose_name="Sotuvda bormi?")
+    is_active = models.BooleanField(default=True, db_index=True, verbose_name="Sotuvda bormi?")
     image = models.ImageField(upload_to='products/', null=True, blank=True, verbose_name="Mahsulot rasmi")
     deduct_from = models.ForeignKey(
         'self',
@@ -66,6 +66,24 @@ class Stock(models.Model):
     quantity = models.DecimalField(max_digits=12, decimal_places=3, default=Decimal('0.000'), verbose_name="Zaxira (kg/dona)")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Oxirgi yangilanish")
 
+    def save(self, *args, **kwargs):
+        is_low = self.quantity <= Decimal('3.000')
+        super().save(*args, **kwargs)
+        if is_low and self.product and self.product.is_active:
+            try:
+                from .telegram_bot import send_message, CHAT_ID
+                if CHAT_ID:
+                    alert_msg = (
+                        f"⚠️ *ZAXIRA KAMAYDI OGOHLANTIRISHI!*\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"📦 *Mahsulot:* {self.product.name}\n"
+                        f"📉 *Qolgan Zaxira:* `{self.quantity:.3f}` kg/dona\n\n"
+                        f"💡 *Tavsiya:* So'yimdan yangi partiya ajratish yoki ta'minotchiga buyurtma berish lozim."
+                    )
+                    send_message(CHAT_ID, alert_msg)
+            except Exception as e:
+                print(f"[Stock Low Alert Error]: {e}")
+
     def __str__(self):
         return f"{self.product.name}: {self.quantity} kg/dona"
 
@@ -83,14 +101,24 @@ class Slaughter(models.Model):
     purchase_price_per_kg = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Xarid narxi (so'm/kg)")
     total_cost = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Jami xarid summasi")
     due_date = models.DateField(verbose_name="To'lov muddati (Nasiya)")
-    is_paid = models.BooleanField(default=False, verbose_name="To'landimi?")
+    is_paid = models.BooleanField(default=False, db_index=True, verbose_name="To'landimi?")
     status = models.CharField(
         max_length=15,
         choices=[('active', 'Sotilmoqda'), ('completed', 'Sotib tugatildi')],
         default='active',
+        db_index=True,
         verbose_name="Status"
     )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="So'yilgan vaqti")
+    live_weight = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, verbose_name="Tirik og'irlik (kg)")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="So'yilgan vaqti")
+
+
+    @property
+    def yield_percentage(self):
+        """Tirik vaznga nisbatan toza go'sht chiquvi (Yield %)"""
+        if self.live_weight and self.live_weight > Decimal('0.000'):
+            return (self.total_weight / self.live_weight) * Decimal('100.0')
+        return None
 
     def save(self, *args, **kwargs):
         self.total_cost = Decimal(str(self.total_weight)) * Decimal(str(self.purchase_price_per_kg))
@@ -113,7 +141,7 @@ class Customer(models.Model):
         default=Decimal('0.00'),
         verbose_name="Qarz miqdori (so'm)"
     )
-    is_blacklisted = models.BooleanField(default=False, verbose_name="Qora ro'yxatdami?")
+    is_blacklisted = models.BooleanField(default=False, db_index=True, verbose_name="Qora ro'yxatdami?")
     debt_limit = models.DecimalField(
         max_digits=12, decimal_places=2,
         default=Decimal('1000000.00'), # Defolt limit: 1 mln so'm qarz limiti
@@ -121,6 +149,7 @@ class Customer(models.Model):
     )
     note = models.TextField(blank=True, null=True, verbose_name="Eslatma/Izoh")
     image = models.ImageField(upload_to='customers/', null=True, blank=True, verbose_name="Mijoz rasmi")
+    face_descriptor = models.JSONField(null=True, blank=True, verbose_name="AI Face ID Vektor (128d)")
     telegram_chat_id = models.CharField(max_length=50, blank=True, null=True, db_index=True, verbose_name="Telegram Chat ID")
     is_courier = models.BooleanField(default=False, verbose_name="Kuryermi?")
     courier_status = models.CharField(
@@ -135,7 +164,7 @@ class Customer(models.Model):
         verbose_name="Kuryerlik statusi"
     )
     courier_vehicle = models.CharField(max_length=100, blank=True, null=True, verbose_name="Transport turi")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Qo'shilgan vaqti")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Qo'shilgan vaqti")
 
     @property
     def debt_amount_abs(self):
@@ -194,12 +223,30 @@ class Customer(models.Model):
         return f"{self.first_name} {self.last_name or ''} (ID: {self.custom_id})"
 
 
+class CustomerSpecialPrice(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='special_prices', verbose_name="Mijoz")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='customer_special_prices', verbose_name="Mahsulot")
+    special_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kelishilgan maxsus narx (so'm)")
+    notes = models.CharField(max_length=150, blank=True, null=True, verbose_name="Eslatma (masalan: Choyxona narxi)")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan vaqti")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Yangilangan vaqti")
+
+    class Meta:
+        unique_together = ('customer', 'product')
+        verbose_name = "Mijoz maxsus narxi"
+        verbose_name_plural = "Mijozlar maxsus narxlari"
+
+    def __str__(self):
+        return f"{self.customer.first_name} - {self.product.name}: {self.special_price:,.0f} so'm"
+
+
 class Sale(models.Model):
     PAYMENT_METHODS = [
         ('naqd', 'Naqd'),
         ('karta', 'Plastik Karta'),
         ('qr', 'TBC QR'),
         ('nasiya', 'Nasiya (Qarz)'),
+        ('aralash', 'Aralash (Split)'),
     ]
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales', verbose_name="Xaridor")
     shift = models.ForeignKey('CashierShift', on_delete=models.SET_NULL, null=True, blank=True, related_name='sales', verbose_name="Kassa shifti")
@@ -208,8 +255,11 @@ class Sale(models.Model):
     bonus_used = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Bonusdan yechilgan summa")
     debt_added = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Qarzga yozilgan summa")
     final_paid = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Amalda to'langan summa")
-    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default='naqd', verbose_name="To'lov turi")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Savdo vaqti")
+    paid_naqd = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Naqd to'langan")
+    paid_karta = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Karta to'langan")
+    paid_qr = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="QR to'langan")
+    payment_method = models.CharField(max_length=15, choices=PAYMENT_METHODS, default='naqd', db_index=True, verbose_name="To'lov turi")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Savdo vaqti")
 
     def __str__(self):
         return f"Sotuv #{self.id} - {self.created_at.strftime('%d.%m.%Y %H:%M')} ({self.get_payment_method_display()})"
@@ -252,12 +302,12 @@ class CustomerLog(models.Model):
         ('bonus', "Bonus o'zgarishi"),
     ]
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='logs', verbose_name="Mijoz")
-    log_type = models.CharField(max_length=20, choices=LOG_TYPES, verbose_name="Amal turi")
+    log_type = models.CharField(max_length=20, choices=LOG_TYPES, db_index=True, verbose_name="Amal turi")
     title = models.CharField(max_length=255, verbose_name="Amal sarlavhasi")
     message = models.TextField(default='', verbose_name="Batafsil matn (Chat xabari)")
     details = models.JSONField(null=True, blank=True, verbose_name="Tizimli batafsil ma'lumotlar (JSON)")
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Amal summasi")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Vaqti")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Vaqti")
 
     def __str__(self):
         return f"{self.customer.first_name} - {self.get_log_type_display()} - {self.created_at.strftime('%d.%m %H:%M')}"
@@ -277,7 +327,7 @@ class StockBatch(models.Model):
     current_quantity = models.DecimalField(max_digits=12, decimal_places=3, verbose_name="Joriy og'irligi (kg)")
     purchase_price_per_kg = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Xarid narxi (so'm/kg)")
     decay_rate_per_day = models.DecimalField(max_digits=4, decimal_places=2, default=Decimal('1.00'), verbose_name="Kunlik qurish zarari (%)")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Kiritilgan vaqti")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Kiritilgan vaqti")
     updated_at = models.DateTimeField(auto_now=True)
 
     def get_days_passed(self):
@@ -302,8 +352,32 @@ class StockBatch(models.Model):
         total_cost = self.initial_quantity * self.purchase_price_per_kg
         return (total_cost / decayed).quantize(Decimal('0.01'))
 
+    def get_ai_recommendation(self):
+        """Vitrinada 2 kundan ortiq turgan partiyalar uchun AI tavsiya va ogohlantirish."""
+        days = self.get_days_passed()
+        qty = float(self.current_quantity)
+        if qty <= 0.05:
+            return None
+        if days >= 2:
+            decay_loss = float(self.get_decay_loss())
+            decay_sum = decay_loss * float(self.purchase_price_per_kg)
+            return {
+                'batch_id': self.id,
+                'product_name': self.product.name,
+                'days': days,
+                'quantity': qty,
+                'decay_loss_kg': decay_loss,
+                'decay_loss_sum': decay_sum,
+                'urgency': 'high' if days >= 3 else 'medium',
+                'title': f"⚠️ Vitrinada {days} kundan beri turibdi!",
+                'message': f"Partiya #{self.id} ({self.product.name}) vitrinada {days} kundan beri turibdi ({qty:.2f} kg qolgan). Qurish talofatini kamaytirish uchun ushbu partiyani tezroq qiymaga aylantirish yoki tezroq sotish tavsiya etiladi!",
+                'action_suggestion': "Ushbu partiyani qiymaga aylantirish yoki tezroq sotish tavsiya etiladi"
+            }
+        return None
+
     def __str__(self):
         return f"{self.product.name} Partiya #{self.id} ({self.current_quantity} kg)"
+
 
 
 class CashTransaction(models.Model):
@@ -323,15 +397,15 @@ class CashTransaction(models.Model):
         ('naqd', 'Naqd'),
         ('karta', 'Plastik karta'),
     ]
-    transaction_type = models.CharField(max_length=5, choices=TRANSACTION_TYPES, verbose_name="Turi")
+    transaction_type = models.CharField(max_length=5, choices=TRANSACTION_TYPES, db_index=True, verbose_name="Turi")
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Summa")
-    category = models.CharField(max_length=20, choices=CATEGORIES, default='other', verbose_name="Kategoriya")
+    category = models.CharField(max_length=20, choices=CATEGORIES, default='other', db_index=True, verbose_name="Kategoriya")
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default='naqd', verbose_name="To'lov turi")
     description = models.TextField(blank=True, null=True, verbose_name="Izoh / Maqsad")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Vaqti")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Vaqti")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Mas'ul")
     customer = models.ForeignKey('Customer', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Mijoz (Xaridor)")
-    supplier = models.ForeignKey('Supplier', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Ta'minotchi")
+    supplier = models.ForeignKey('Supplier', on_delete=models.SET_NULL, null=True, blank=True, related_name='cash_transactions', verbose_name="Ta'minotchi")
 
     def __str__(self):
         return f"{self.get_transaction_type_display()} - {self.amount:,} so'm ({self.get_category_display()})"
@@ -360,7 +434,7 @@ class B2BOrder(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='b2b_orders', verbose_name="Mijoz")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='b2b_orders', verbose_name="Mahsulot")
     requested_weight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kutilayotgan og'irlik (kg)")
-    delivery_type = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default='delivery', verbose_name="Yetkazib berish turi")
+    delivery_type = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default='delivery', db_index=True, verbose_name="Yetkazib berish turi")
     delivery_address = models.TextField(blank=True, null=True, verbose_name="Yetkazish manzili")
     latitude = models.FloatField(blank=True, null=True, verbose_name="GPS Latitude")
     longitude = models.FloatField(blank=True, null=True, verbose_name="GPS Longitude")
@@ -370,8 +444,8 @@ class B2BOrder(models.Model):
     assigned_courier = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries', verbose_name="Biriktirilgan Kuryer")
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Kuryerlik (Dostavka) haqsi")
     distance_km = models.FloatField(default=0.0, verbose_name="Masofa (km)")
-    status = models.CharField(max_length=25, choices=STATUS_CHOICES, default='pending', verbose_name="Status")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan vaqti")
+    status = models.CharField(max_length=25, choices=STATUS_CHOICES, default='pending', db_index=True, verbose_name="Status")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Yaratilgan vaqti")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Tahrirlangan vaqti")
 
     def __str__(self):
@@ -380,12 +454,12 @@ class B2BOrder(models.Model):
 
 class StoreSetting(models.Model):
     name = models.CharField(max_length=100, default="Baxmal Meat Do'koni", verbose_name="Do'kon nomi")
-    address = models.CharField(max_length=255, default="Toshkent shahri, Chilonzor tuman", verbose_name="Do'kon manzili")
+    address = models.CharField(max_length=255, default="Jizzax viloyati, Baxmal tumani, Sangzor Guzari", verbose_name="Do'kon manzili")
     phone_number = models.CharField(max_length=30, default="+998 77 082 4477", verbose_name="Telefon raqam")
-    announcement_text = models.CharField(max_length=255, default="🔥 Mol va Qo'y go'shtidan buyurtma bering — Toshkent bo'ylab yetkazib berish va halol kafolat!", verbose_name="Yuqori e'lon matni")
+    announcement_text = models.CharField(max_length=255, default="🔥 Mol va Qo'y go'shtidan buyurtma bering — Halol va sarxil go'sht kafolati!", verbose_name="Yuqori e'lon matni")
     hero_title = models.CharField(max_length=255, default="Sarxil Go'sht & Raqamli MeatFlow Pro Texnologiyasi", verbose_name="Bosh sahifa sarlavhasi (Hero Title)")
-    hero_subtitle = models.TextField(default="Baxmal Meat — Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor kuryerlik xizmati.", verbose_name="Bosh sahifa ta'rifi (Hero Subtitle)")
-    promo_banner_text = models.CharField(max_length=255, default="500,000 so'mdan yuqori buyurtmalar uchun Toshkent shahri bo'ylab yetkazib berish BEPUL!", verbose_name="Aksiya banneri matni")
+    hero_subtitle = models.TextField(default="Baxmal Meat — Fermadan dasturxongacha laboratoriya nazorati, IoT smart tarozilar, shaffof hisob-kitob va tezkor xizmat.", verbose_name="Bosh sahifa ta'rifi (Hero Subtitle)")
+    promo_banner_text = models.CharField(max_length=255, default="Baxmal tumani bo'ylab buyurtmalarni tezkor yetkazib beramiz!", verbose_name="Aksiya banneri matni")
     promo_badge_text = models.CharField(max_length=100, default="🔥 KATTA AKSIYA", verbose_name="Aksiya Nishoni (Badge)")
     promo_image = models.ImageField(upload_to="promos/", null=True, blank=True, verbose_name="Aksiya 3D Rasmi/Banneri")
     promo_active = models.BooleanField(default=True, verbose_name="Aksiya Banneri Faolmi?")
@@ -394,8 +468,11 @@ class StoreSetting(models.Model):
     base_delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10000.00'), verbose_name="Boshlang'ich kuryer narxi (so'm)")
     fee_per_km = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('3000.00'), verbose_name="Har bir km uchun (so'm)")
     min_free_delivery_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('500000.00'), verbose_name="Bepul yetkazish minimal summasi (so'm)")
+    cashback_percent = models.DecimalField(max_digits=4, decimal_places=2, default=Decimal('2.00'), verbose_name="Mijoz Keshbek foizi (%)")
+    send_sms_receipts = models.BooleanField(default=True, verbose_name="SMS Chek yuborish faolmi?")
     is_active = models.BooleanField(default=True, verbose_name="Faolmi?")
     created_at = models.DateTimeField(auto_now_add=True)
+
 
     class Meta:
         verbose_name = "Do'kon Sozlamasi & Lokatsiyasi"
@@ -432,9 +509,10 @@ class PaymentProof(models.Model):
 
 class CashierShift(models.Model):
     cashier = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Kassir")
-    opened_at = models.DateTimeField(auto_now_add=True, verbose_name="Shift ochilgan vaqt")
+    opened_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Shift ochilgan vaqt")
     closed_at = models.DateTimeField(null=True, blank=True, verbose_name="Shift yopilgan vaqt")
-    is_open = models.BooleanField(default=True, verbose_name="Faolmi")
+    is_open = models.BooleanField(default=True, db_index=True, verbose_name="Faolmi")
+
     
     # Opening values
     opening_cash = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), verbose_name="Boshlang'ich naqd pul (so'm)")

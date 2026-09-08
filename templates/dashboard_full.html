@@ -4,26 +4,53 @@
 
 {% block extrahead %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
 :root {
-  --green:  #1B6B4A;
-  --green-light: #2D9B6E;
-  --blue:   #3b82f6;
-  --orange: #D4A853;
-  --red:    #DC3545;
-  --purple: #a855f7;
-  --bg-main:   #F5F1EB;
-  --card:   #FFFFFF;
-  --card2:  #F8F6F2;
-  --border: rgba(0,0,0,0.07);
-  --muted:  #6B7280;
-  --text:   #1A1A2E;
+  --gl-bg-body: #EEF4F2;
+  --gl-surface: rgba(255, 255, 255, 0.85);
+  --gl-surface-hover: rgba(255, 255, 255, 0.95);
+  --gl-surface-dark: rgba(15, 23, 42, 0.75);
+  --gl-border: rgba(255, 255, 255, 0.9);
+  --gl-border-subtle: rgba(226, 232, 240, 0.8);
+  --gl-shadow: 0 14px 38px -10px rgba(15, 45, 30, 0.08), 0 4px 14px -2px rgba(15, 45, 30, 0.03);
+  --gl-shadow-hover: 0 22px 48px -12px rgba(16, 185, 129, 0.16), 0 8px 20px -4px rgba(15, 45, 30, 0.06);
+
+  /* Vivid Neon Palette */
+  --neon-emerald: #10B981;
+  --neon-emerald-dark: #047857;
+  --neon-emerald-glow: rgba(16, 185, 129, 0.25);
+  --neon-blue: #3B82F6;
+  --neon-blue-glow: rgba(59, 130, 246, 0.22);
+  --neon-amber: #F59E0B;
+  --neon-amber-glow: rgba(245, 158, 11, 0.25);
+  --neon-red: #EF4444;
+  --neon-red-glow: rgba(239, 68, 68, 0.22);
+  --neon-purple: #8B5CF6;
+  --neon-purple-glow: rgba(139, 92, 246, 0.22);
+
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+}
+
+body {
+  background: radial-gradient(circle at 5% 10%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+              radial-gradient(circle at 95% 20%, rgba(59, 130, 246, 0.07) 0%, transparent 40%),
+              radial-gradient(circle at 50% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+              var(--gl-bg-body) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-main);
+  min-height: 100vh;
 }
 
 .an-wrap {
-  max-width: 1280px;
+  max-width: 1340px;
   margin: 0 auto;
-  padding: 28px 28px 60px;
+  padding: 24px 20px 80px;
 }
 
 /* ── HEADER ── */
@@ -34,483 +61,418 @@
   margin-bottom: 24px;
   gap: 16px;
   flex-wrap: wrap;
+  padding: 18px 24px;
+  border-radius: 24px;
+  background: var(--gl-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--gl-border);
+  box-shadow: var(--gl-shadow);
 }
-.an-title { font-size: 24px; font-weight: 800; color: var(--text); font-family: 'DM Serif Display', serif; }
-.an-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
-.btn-export {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none !important;
-  transition: all 0.18s;
-  letter-spacing: 0.04em;
-}
-.btn-export:hover {
-  background: linear-gradient(135deg, #155a3e, #1B6B4A);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(27,107,74,0.3);
-  color: #fff !important;
-}
-
-/* ── STAT CARDS ── */
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 20px 22px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.15s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-}
-.stat-card.green::before  { background: linear-gradient(135deg, #1B6B4A, #2D9B6E); }
-.stat-card.blue::before   { background: var(--blue); }
-.stat-card.orange::before { background: var(--orange); }
-.stat-card.red::before    { background: var(--red); }
-
-.stat-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.stat-val {
-  font-family: 'Inter', sans-serif;
+.an-title {
+  font-family: 'Outfit', sans-serif;
   font-size: 26px;
-  font-weight: 700;
-  line-height: 1;
-}
-.stat-val.green  { color: var(--green); }
-.stat-val.blue   { color: var(--blue); }
-.stat-val.orange { color: var(--orange); }
-.stat-val.red    { color: var(--red); }
-.stat-sub {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 6px;
-  font-family: 'Inter', sans-serif;
-}
-.stat-icon {
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 36px;
-  opacity: 0.08;
-  color: var(--text);
-}
-
-/* ── MAIN GRID ── */
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 16px;
-  align-items: start;
-}
-
-/* ── FILTER BAR ── */
-.filter-bar {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 16px 20px;
-  margin-bottom: 16px;
+  font-weight: 800;
+  color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  letter-spacing: -0.02em;
 }
-.f-input, .f-select {
-  background: var(--card2) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 11px !important;
-  color: var(--text) !important;
-  font-size: 13px !important;
-  padding: 9px 14px !important;
-  outline: none !important;
-  transition: border-color 0.18s !important;
-  font-family: 'Inter', sans-serif !important;
-}
-.f-input:focus, .f-select:focus {
-  border-color: rgba(27,107,74,0.3) !important;
-  box-shadow: 0 0 0 3px rgba(27,107,74,0.08) !important;
-}
-.f-input::placeholder { color: var(--muted) !important; }
-.f-select option { background: #fff; color: var(--text); }
-.f-date { color-scheme: light; }
-.btn-filter {
-  padding: 9px 18px;
-  border-radius: 11px;
-  border: none;
-  background: linear-gradient(135deg, #1B6B4A, #2D9B6E);
-  color: #fff;
+.an-subtitle {
   font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 2px;
+}
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 18px var(--neon-emerald-glow);
+}
+.btn-export:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+  filter: brightness(1.05);
+}
+
+/* ── STAT CARDS (GLASS VIBRANT GRID) ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.glass-stat-card {
+  background: var(--gl-surface);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--gl-border);
+  border-radius: 22px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--gl-shadow);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.glass-stat-card:hover {
+  transform: translateY(-4px);
+  background: var(--gl-surface-hover);
+  box-shadow: var(--gl-shadow-hover);
+}
+
+/* Neon Top Glow Bars */
+.glass-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+}
+.glass-stat-card.emerald::before { background: linear-gradient(90deg, #10B981, #34D399); }
+.glass-stat-card.blue::before    { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+.glass-stat-card.amber::before   { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+.glass-stat-card.rose::before    { background: linear-gradient(90deg, #EF4444, #F87171); }
+.glass-stat-card.purple::before  { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+
+.stat-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.stat-tag {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;
 }
-.btn-filter:hover { box-shadow: 0 4px 12px rgba(27,107,74,0.25); }
-.btn-reset {
-  padding: 9px 14px;
-  border-radius: 11px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-  text-decoration: none !important;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.btn-reset:hover { border-color: rgba(27,107,74,0.3); color: var(--text); }
-
-/* ── CHART CARD ── */
-.chart-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.chart-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.chart-card-title {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* ── TRANSACTIONS ── */
-.tx-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.date-group {
-  padding: 12px 20px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  background: var(--card2);
-}
-.date-group-lbl {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.date-group-sum {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--green);
-}
-.tx-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
-  transition: background 0.12s;
-}
-.tx-item:last-child { border-bottom: none; }
-.tx-item:hover { background: var(--card2); }
-.tx-left { display: flex; align-items: center; gap: 14px; }
-.tx-icon {
-  width: 42px; height: 42px;
-  border-radius: 13px;
+.stat-glow-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
+  font-size: 18px;
   flex-shrink: 0;
 }
-.tx-icon.naqd   { background: rgba(27,107,74,0.08);   color: var(--green); }
-.tx-icon.karta  { background: rgba(59,130,246,0.08);   color: var(--blue); }
-.tx-icon.qr     { background: rgba(168,85,247,0.08);   color: var(--purple); }
-.tx-icon.nasiya { background: rgba(220,53,69,0.08);    color: var(--red); }
-.tx-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-}
-.tx-meta {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
-  font-family: 'Inter', sans-serif;
-}
-.tx-right { text-align: right; }
-.tx-amount {
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-}
-.tx-amount.pos   { color: var(--green); }
-.tx-amount.neg   { color: var(--red); }
-.tx-time {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
-  font-family: 'Inter', sans-serif;
-}
-.tx-empty {
-  padding: 50px;
-  text-align: center;
-  color: var(--muted);
-}
-.tx-empty i { font-size: 36px; opacity: 0.3; display: block; margin-bottom: 10px; }
+.stat-glow-icon.emerald { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.stat-glow-icon.blue    { background: rgba(59, 130, 246, 0.12); color: #2563EB; }
+.stat-glow-icon.amber   { background: rgba(245, 158, 11, 0.12); color: #D97706; }
+.stat-glow-icon.rose    { background: rgba(239, 68, 68, 0.12); color: #DC2626; }
+.stat-glow-icon.purple  { background: rgba(139, 92, 246, 0.12); color: #7C3AED; }
 
-/* ── RIGHT SIDEBAR ── */
-.side-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+.stat-val-num {
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
-.side-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 14px;
+.stat-val-num.emerald { color: #059669; }
+.stat-val-num.blue    { color: #2563EB; }
+.stat-val-num.amber   { color: #D97706; }
+.stat-val-num.rose    { color: #DC2626; }
+.stat-val-num.purple  { color: #7C3AED; }
+
+.stat-bottom-text {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
-.pay-split-row {
+
+/* ── PENDING PROOFS GLASS ALERT ── */
+.glass-alert-proofs {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px var(--neon-emerald-glow);
+  margin-bottom: 24px;
+}
+.glass-alert-header {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+  color: #fff;
+  padding: 14px 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-.pay-split-label {
+
+/* ── MAIN LAYOUT GRID ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── GLASS CARD BASE ── */
+.glass-card {
+  background: var(--gl-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--gl-border);
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: var(--gl-shadow);
+  margin-bottom: 20px;
+  transition: all 0.25s ease;
+}
+.glass-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.glass-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
 }
-.pay-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
+
+/* ── FILTER BAR ── */
+.glass-filter-bar {
+  background: var(--gl-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--gl-border);
+  border-radius: 20px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: var(--gl-shadow);
 }
-.pay-split-val {
-  font-family: 'Inter', sans-serif;
+.glass-input, .glass-select {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1.5px solid var(--gl-border-subtle) !important;
+  border-radius: 14px !important;
+  color: var(--text-main) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 10px 16px !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+}
+.glass-input:focus, .glass-select:focus {
+  border-color: var(--neon-emerald) !important;
+  box-shadow: 0 0 0 4px var(--neon-emerald-glow) !important;
+  background: #fff !important;
+}
+.btn-glass-filter {
+  padding: 10px 22px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #fff;
   font-size: 13px;
   font-weight: 700;
-  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px var(--neon-emerald-glow);
 }
-.pay-bar-wrap {
-  height: 4px;
-  background: rgba(0,0,0,0.06);
-  border-radius: 2px;
-  margin-bottom: 12px;
+.btn-glass-filter:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+.btn-glass-reset {
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--gl-border-subtle);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.btn-glass-reset:hover {
+  background: #fff;
+  border-color: var(--text-muted);
+  color: var(--text-main);
+}
+
+/* ── TRANSACTIONS GLASS LIST ── */
+.glass-tx-wrap {
+  border-radius: 20px;
   overflow: hidden;
+  border: 1px solid var(--gl-border-subtle);
 }
-.pay-bar-fill {
+.glass-date-divider {
+  background: rgba(241, 245, 249, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.glass-tx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.8);
+  background: rgba(255, 255, 255, 0.75);
+  transition: all 0.15s ease;
+}
+.glass-tx-item:hover {
+  background: rgba(255, 255, 255, 0.98);
+}
+.glass-tx-item:last-child {
+  border-bottom: none;
+}
+.tx-icon-pill {
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.tx-icon-pill.naqd   { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.tx-icon-pill.karta  { background: rgba(59, 130, 246, 0.12); color: #2563EB; }
+.tx-icon-pill.qr     { background: rgba(139, 92, 246, 0.12); color: #7C3AED; }
+.tx-icon-pill.nasiya { background: rgba(239, 68, 68, 0.12); color: #DC2626; }
+
+.meat-badge-tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(241, 245, 249, 0.9);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  color: var(--text-main);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── RIGHT SIDEBAR (SPLIT METERS & QUICK ACTIONS) ── */
+.glass-side-card {
+  background: var(--gl-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--gl-border);
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: var(--gl-shadow);
+}
+.side-title-glass {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.glass-progress-bar {
+  height: 6px;
+  background: rgba(226, 232, 240, 0.7);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+.glass-progress-fill {
   height: 100%;
-  border-radius: 2px;
-  transition: width 0.5s ease;
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* Quick filters */
-.qf-btn {
+
+.glass-action-btn {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
-  border-radius: 11px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--gl-border-subtle);
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--text-main);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s;
-  margin-bottom: 6px;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
   text-decoration: none !important;
 }
-.qf-btn:hover { background: var(--card2); border-color: rgba(27,107,74,0.2); color: var(--text) !important; }
-.qf-badge {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 6px;
-  background: rgba(27,107,74,0.08);
-  color: var(--muted);
+.glass-action-btn:hover {
+  background: #fff;
+  border-color: var(--neon-emerald);
+  transform: translateX(4px);
+  box-shadow: 0 4px 14px var(--neon-emerald-glow);
+  color: var(--text-main) !important;
 }
 
 /* ═══════════════════════════════════════════
-   MOBILE RESPONSIVE (APP-LIKE UX)
+   RESPONSIVE OPTIMIZATIONS
 ═══════════════════════════════════════════ */
-@media (max-width: 768px) {
-  .an-wrap {
-    padding: 12px 10px 60px !important;
-  }
-  .an-header {
-    flex-direction: column;
-    align-items: stretch !important;
-    gap: 12px !important;
-    margin-bottom: 16px !important;
-  }
-  .an-title {
-    font-size: 20px !important;
-  }
-  .an-subtitle {
-    font-size: 12px !important;
-  }
-  .btn-export {
-    width: 100%;
-    justify-content: center;
-    padding: 12px !important;
-    font-size: 13px !important;
-    border-radius: 12px !important;
-    min-height: 46px;
-  }
-
-  /* Stat grid: 2 columns */
-  .stat-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-    margin-bottom: 16px !important;
-  }
-  .stat-card {
-    padding: 14px !important;
-    border-radius: 14px !important;
-  }
-  .stat-label {
-    font-size: 9px !important;
-    margin-bottom: 6px !important;
-  }
-  .stat-val {
-    font-size: 18px !important;
-  }
-  .stat-sub {
-    font-size: 10px !important;
-  }
-  .stat-icon {
-    font-size: 28px !important;
-    right: 10px !important;
-  }
-
-  /* Filter bar: Stacked */
-  .filter-bar {
-    padding: 12px !important;
-    border-radius: 14px !important;
-    flex-direction: column;
-    align-items: stretch !important;
-    gap: 8px !important;
-  }
-  .f-input, .f-select {
-    width: 100% !important;
-    font-size: 16px !important; /* Prevents iOS auto-zoom */
-    padding: 12px 14px !important;
-    border-radius: 10px !important;
-    height: 46px;
-  }
-  .btn-filter {
-    width: 100%;
-    justify-content: center;
-    padding: 12px !important;
-    font-size: 13px !important;
-    border-radius: 10px !important;
-    min-height: 46px;
-  }
-  .btn-reset {
-    width: 100%;
-    justify-content: center;
-    padding: 12px !important;
-    font-size: 13px !important;
-    border-radius: 10px !important;
-    min-height: 46px;
-  }
-
-  /* Main grid: Stacks sidebar below charts */
-  .main-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  .chart-card {
-    padding: 14px !important;
-    border-radius: 14px !important;
-  }
-  .chart-card-title {
-    font-size: 11px !important;
-  }
-
-  /* List group items */
-  .date-group {
-    padding: 10px 14px !important;
-  }
-  .date-group-lbl {
-    font-size: 11px !important;
-  }
-  .date-group-sum {
-    font-size: 12px !important;
-  }
-
-  /* Prevent tap highlight */
-  button, .btn-filter, .btn-reset, .btn-export, .qf-btn {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
-  }
+@media (max-width: 1200px) {
+  .stat-grid { grid-template-columns: repeat(3, 1fr); }
 }
-
-/* Extra small screens (< 400px) */
-@media (max-width: 400px) {
-  .stat-grid {
-    grid-template-columns: 1fr !important;
-  }
+@media (max-width: 900px) {
+  .main-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .an-wrap { padding: 12px 10px 60px; }
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .glass-stat-card { padding: 14px; border-radius: 16px; }
+  .stat-val-num { font-size: 20px; }
+  .an-title { font-size: 22px; }
 }
 </style>
 {% endblock %}
@@ -518,294 +480,429 @@
 {% block content %}
 <div class="an-wrap">
 
-  <!-- HEADER -->
+  <!-- TOP HEADER -->
   <div class="an-header">
     <div>
-      <div class="an-title">📊 Analitika</div>
-      <div class="an-subtitle">Savdolar, tushum va to'lov turlari bo'yicha hisobot</div>
+      <div class="an-title">
+        <span>📊 Kengaytirilgan Analitika</span>
+        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">
+          Live Data
+        </span>
+      </div>
+      <div class="an-subtitle">Baxmal Meat — Savdolar, tushum, to'lov turlari va moliyaviy tahlil</div>
     </div>
     <div class="d-flex gap-2 flex-wrap">
       <a href="{% url 'export_analytics_excel' %}?search_query={{ search_query }}&payment_method={{ payment_method }}&start_date={{ start_date }}&end_date={{ end_date }}"
          class="btn-export">
-        <i class="bi bi-file-earmark-excel-fill"></i>
-        Savdolarni Excel
+        <i class="bi bi-file-earmark-excel-fill fs-6"></i>
+        <span>Savdolarni Excel</span>
       </a>
       <a href="{% url 'export_slaughters_excel' %}"
-         class="btn-export" style="background:#D4A853; border-color:#D4A853; color:#1A1A2E;">
-        <i class="bi bi-file-earmark-spreadsheet-fill"></i>
-        Xaridlarni Excel
+         class="btn-export" style="background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 18px var(--neon-amber-glow);" title="So'yim hisobotlarini Excelga yuklash">
+        <i class="bi bi-file-earmark-spreadsheet-fill fs-6"></i>
+        <span>So'yim Excel</span>
       </a>
     </div>
   </div>
 
-  <!-- STAT CARDS -->
+  <!-- PENDING PROOFS GLASS ALERT -->
+  {% if pending_proofs %}
+  <div class="glass-alert-proofs">
+    <div class="glass-alert-header">
+      <div class="fw-bold d-flex align-items-center gap-2">
+        <span class="spinner-grow spinner-grow-sm text-light"></span>
+        <i class="bi bi-receipt fs-5"></i>
+        <span>Kutilayotgan Onlayn To'lov Cheklari ({{ pending_proofs|length }} ta)</span>
+      </div>
+      <a href="{% url 'debt_notebook' %}" class="btn btn-sm btn-light fw-bold text-success px-3 rounded-pill shadow-sm">
+        Nasiya Daftarida Ko'rish <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    <div class="p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+          <thead class="bg-light" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">
+            <tr>
+              <th class="ps-4 py-3">Mijoz</th>
+              <th class="py-3">Tizim</th>
+              <th class="py-3">Summa</th>
+              <th class="py-3">Chek Fotosi</th>
+              <th class="py-3">Vaqti</th>
+              <th class="text-end pe-4 py-3">Tezkor Amal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in pending_proofs %}
+            <tr id="dash-proof-{{ p.id }}">
+              <td class="ps-4 py-3">
+                <div class="fw-bold text-dark">{{ p.customer.first_name }} {{ p.customer.last_name|default:'' }}</div>
+                <div class="small text-muted">{{ p.customer.phone }}</div>
+              </td>
+              <td><span class="badge bg-primary text-uppercase px-2.5 py-1">{{ p.provider }}</span></td>
+              <td><span class="fw-bold text-success font-monospace fs-6">{{ p.amount|floatformat:0 }} so'm</span></td>
+              <td>
+                {% if p.image %}
+                <a href="{{ p.image.url }}" target="_blank" class="badge bg-light text-dark border py-1.5 px-2 text-decoration-none">
+                  <i class="bi bi-image me-1 text-primary"></i> Chekni ko'rish
+                </a>
+                {% else %}
+                <span class="text-muted small">Rasm yo'q</span>
+                {% endif %}
+              </td>
+              <td class="small text-muted">{{ p.created_at|date:"d.m H:i" }}</td>
+              <td class="text-end pe-4">
+                <button class="btn btn-sm btn-success fw-bold px-3 py-1.5 rounded-pill shadow-sm" onclick="approveProofDash({{ p.id }}, '{{ p.customer.first_name }}', {{ p.amount|floatformat:0 }})" id="btn-dash-appr-{{ p.id }}">
+                  <i class="bi bi-check-circle-fill me-1"></i> Tasdiqlash
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 5 VIBRANT NEON STAT CARDS -->
   <div class="stat-grid">
-    <div class="stat-card green">
-      <div class="stat-label"><i class="bi bi-arrow-down-circle-fill" style="color:var(--green);"></i> Jami tushum</div>
-      <div class="stat-val green">{{ jami_kirim|floatformat:0 }}</div>
-      <div class="stat-sub">so'm (naqd + karta + qr)</div>
-      <i class="bi bi-cash-stack stat-icon"></i>
+    <!-- 1. Jami Tushum -->
+    <div class="glass-stat-card emerald">
+      <div>
+        <div class="stat-header-row">
+          <span class="stat-tag"><i class="bi bi-wallet2 text-success"></i> Jami Tushum</span>
+          <div class="stat-glow-icon emerald"><i class="bi bi-cash-coin"></i></div>
+        </div>
+        <div class="stat-val-num emerald">{{ jami_kirim|floatformat:0 }}</div>
+      </div>
+      <div class="stat-bottom-text">
+        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5">Naqd + Karta + QR</span>
+      </div>
     </div>
-    <div class="stat-card blue">
-      <div class="stat-label"><i class="bi bi-credit-card-fill" style="color:var(--blue);"></i> Plastik / QR</div>
-      <div class="stat-val blue">{{ karta_qr_summa|floatformat:0 }}</div>
-      <div class="stat-sub">so'm</div>
-      <i class="bi bi-credit-card stat-icon"></i>
+
+    <!-- 2. Plastik / QR -->
+    <div class="glass-stat-card blue">
+      <div>
+        <div class="stat-header-row">
+          <span class="stat-tag"><i class="bi bi-credit-card text-primary"></i> Plastik / QR</span>
+          <div class="stat-glow-icon blue"><i class="bi bi-credit-card-2-front-fill"></i></div>
+        </div>
+        <div class="stat-val-num blue">{{ karta_qr_summa|floatformat:0 }}</div>
+      </div>
+      <div class="stat-bottom-text">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-0.5">Karta + Click/Payme</span>
+      </div>
     </div>
-    <div class="stat-card red">
-      <div class="stat-label"><i class="bi bi-exclamation-triangle-fill" style="color:var(--red);"></i> Jami nasiya</div>
-      <div class="stat-val red">{{ jami_nasiya|floatformat:0 }}</div>
-      <div class="stat-sub">so'm (qarzga berilgan)</div>
-      <i class="bi bi-person-exclamation stat-icon"></i>
+
+    <!-- 3. Jami Nasiya -->
+    <div class="glass-stat-card rose">
+      <div>
+        <div class="stat-header-row">
+          <span class="stat-tag"><i class="bi bi-exclamation-octagon text-danger"></i> Jami Nasiya</span>
+          <div class="stat-glow-icon rose"><i class="bi bi-person-exclamation"></i></div>
+        </div>
+        <div class="stat-val-num rose">{{ jami_nasiya|floatformat:0 }}</div>
+      </div>
+      <div class="stat-bottom-text text-danger">
+        <i class="bi bi-clock-history"></i> Mijozlar qarzi
+      </div>
     </div>
-    <div class="stat-card red" style="border-color: rgba(220,53,69,0.15);">
-      <div class="stat-label"><i class="bi bi-arrow-up-circle-fill" style="color:var(--red);"></i> Bizning qarzimiz</div>
-      <div class="stat-val red" style="color:#DC3545;">{{ total_our_debts|floatformat:0 }}</div>
-      <div class="stat-sub">so'm (biz to'lashimiz kerak)</div>
-      <i class="bi bi-person-dash stat-icon"></i>
+
+    <!-- 4. Bizning Qarzimiz -->
+    <div class="glass-stat-card purple">
+      <div>
+        <div class="stat-header-row">
+          <span class="stat-tag"><i class="bi bi-arrow-up-right-circle text-purple" style="color:var(--neon-purple);"></i> Bizning Qarz</span>
+          <div class="stat-glow-icon purple"><i class="bi bi-truck"></i></div>
+        </div>
+        <div class="stat-val-num purple">{{ total_our_debts|floatformat:0 }}</div>
+      </div>
+      <div class="stat-bottom-text" style="color:var(--neon-purple);">
+        <i class="bi bi-shield-check"></i> Ta'minotchilarga qarz
+      </div>
     </div>
-    <div class="stat-card orange">
-      <div class="stat-label"><i class="bi bi-receipt-cutoff" style="color:var(--orange);"></i> Jami savdolar</div>
-      <div class="stat-val orange">{{ total_sales|default:0 }}</div>
-      <div class="stat-sub">ta chek (bitim)</div>
-      <i class="bi bi-bag-check stat-icon"></i>
+
+    <!-- 5. Jami Savdolar -->
+    <div class="glass-stat-card amber">
+      <div>
+        <div class="stat-header-row">
+          <span class="stat-tag"><i class="bi bi-bag-check text-warning"></i> Jami Savdolar</span>
+          <div class="stat-glow-icon amber"><i class="bi bi-receipt"></i></div>
+        </div>
+        <div class="stat-val-num amber">{{ total_sales|default:0 }} <span style="font-size:16px;font-weight:600;">ta</span></div>
+      </div>
+      <div class="stat-bottom-text text-muted">
+        <i class="bi bi-check-all"></i> Rasmiylashtirilgan bitimlar
+      </div>
     </div>
   </div>
 
   <!-- MAIN GRID -->
   <div class="main-grid">
 
-    <!-- LEFT: filters + chart + transactions -->
+    <!-- LEFT COLUMN: AI Copilot + Filters + Charts + Transactions Timeline -->
     <div>
 
-      <!-- QASSOB AI COPILOT -->
-      <div style="background: rgba(27,107,74,0.03); border: 1px solid rgba(27,107,74,0.1); border-radius: 18px; padding: 22px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-        <h4 style="font-family: 'DM Serif Display', serif; color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 1.25rem; margin-bottom: 4px;">
-          <i class="bi bi-robot" style="color: var(--accent);"></i> Qassob AI Copilot 🤖
-        </h4>
-        <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 16px;">Tizimdagi joriy savdolar, qarzlar va zaxiralarni tahlil qilish</p>
+      <!-- QASSOB AI COPILOT (GLASS NEON CARD) -->
+      <div class="glass-card" style="background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(236,253,245,0.85) 100%); border: 1.5px solid rgba(16,185,129,0.3);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="glass-card-title m-0" style="color:#047857; font-size:17px;">
+            <i class="bi bi-robot fs-5 text-success"></i> Qassob AI Copilot & Biznes Tahlilchi 🤖
+          </div>
+          <span class="badge bg-success text-white px-2.5 py-1 rounded-pill" style="font-size:10.5px;">Gemini Pro</span>
+        </div>
+        <p class="small text-muted mb-3">Do'kondagi joriy kassa tushumi, go'sht zaxiralari va qarzlar holatini sun'iy intellekt orqali tahlil qilish</p>
         
-        <div id="ai-advice-container" style="min-height: 50px;">
-          <button type="button" class="btn btn-sm btn-success rounded-pill px-4" id="btn-load-ai" onclick="loadAICopilot()" style="background: var(--primary-gradient); border: none; font-weight: 600; padding: 8px 20px;">
-            <i class="bi bi-magic me-1"></i> AI Tahlilni yuklash
+        <div id="ai-advice-container">
+          <button type="button" class="btn btn-glass-filter px-4 py-2" id="btn-load-ai" onclick="loadAICopilot()">
+            <i class="bi bi-magic"></i> AI Tahlil va Maslahatni Ko'rish
           </button>
         </div>
       </div>
 
       <!-- FILTER BAR -->
       <form method="GET" action="">
-        <div class="filter-bar">
-          <div style="position:relative;flex:1;min-width:180px;">
-            <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;"></i>
-            <input type="text" name="search_query" class="f-input"
-                   style="width:100%;padding-left:34px !important;"
+        <div class="glass-filter-bar">
+          <div style="position:relative; flex:1; min-width:180px;">
+            <i class="bi bi-search" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:14px;"></i>
+            <input type="text" name="search_query" class="glass-input"
+                   style="width:100%; padding-left:38px !important;"
                    placeholder="Xaridor ismi yoki chek ID..."
                    value="{{ search_query }}">
           </div>
-          <select name="payment_method" class="f-select" style="min-width:150px;">
-            <option value="">Hammasi</option>
+          <select name="payment_method" class="glass-select" style="min-width:140px;">
+            <option value="">Barcha to'lovlar</option>
             <option value="naqd"   {% if payment_method == 'naqd' %}selected{% endif %}>💵 Naqd</option>
             <option value="karta"  {% if payment_method == 'karta' %}selected{% endif %}>💳 Karta</option>
             <option value="qr"     {% if payment_method == 'qr' %}selected{% endif %}>📱 QR</option>
             <option value="nasiya" {% if payment_method == 'nasiya' %}selected{% endif %}>📋 Nasiya</option>
           </select>
-          <input type="date" name="start_date" class="f-input f-date" value="{{ start_date }}" title="Boshlanish">
-          <input type="date" name="end_date"   class="f-input f-date" value="{{ end_date }}"   title="Tugash">
-          <button type="submit" class="btn-filter">
+          <input type="date" name="start_date" class="glass-input" value="{{ start_date }}" title="Boshlanish sanasi">
+          <input type="date" name="end_date"   class="glass-input" value="{{ end_date }}"   title="Tugash sanasi">
+          <button type="submit" class="btn-glass-filter">
             <i class="bi bi-funnel-fill"></i> Saralash
           </button>
-          <a href="{% url 'global_analytics' %}" class="btn-reset">
-            <i class="bi bi-x"></i> Tozalash
+          <a href="{% url 'global_analytics' %}" class="btn-glass-reset">
+            <i class="bi bi-arrow-counterclockwise"></i> Tozalash
           </a>
         </div>
       </form>
 
-      <!-- CHART -->
-      <div class="chart-card">
-        <div class="chart-card-header">
-          <span class="chart-card-title">📈 Kunlik tushum dinamikasi</span>
-          <span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);">
-            so'm
+      <!-- REVENUE DYNAMICS CHART -->
+      <div class="glass-card">
+        <div class="glass-card-header">
+          <span class="glass-card-title"><i class="bi bi-graph-up-arrow text-success"></i> Kunlik Tushum Dinamikasi</span>
+          <span class="badge bg-light text-muted border px-2.5 py-1">so'm (kunlik)</span>
+        </div>
+        <div style="position:relative; min-height:220px;">
+          <canvas id="revenueChart" height="95"></canvas>
+        </div>
+      </div>
+
+      <!-- HOURLY PEAK SALES CHART -->
+      <div class="glass-card">
+        <div class="glass-card-header">
+          <span class="glass-card-title"><i class="bi bi-clock-history text-primary"></i> Soatlar Bo'yicha Savdo Aylanmasi (Pik Vaqtlar)</span>
+          <span class="badge bg-light text-muted border px-2.5 py-1">soatlik faollik</span>
+        </div>
+        <div style="position:relative; min-height:220px;">
+          <canvas id="hourlyChart" height="95"></canvas>
+        </div>
+      </div>
+
+      <!-- RECENT TRANSACTIONS TIMELINE -->
+      <div class="glass-card p-0 overflow-hidden">
+        <div class="p-3.5 px-4 bg-light border-bottom d-flex justify-content-between align-items-center">
+          <div class="glass-card-title m-0">
+            <i class="bi bi-receipt-cutoff text-success"></i> Savdolar Tarixi & Cheklar
+          </div>
+          <span class="badge bg-white text-muted border rounded-pill px-3 py-1 font-monospace">
+            {{ total_sales|default:0 }} ta tranzaksiya
           </span>
         </div>
-        <canvas id="revenueChart" height="90"></canvas>
-      </div>
 
-      <!-- HOURLY CHART -->
-      <div class="chart-card" style="margin-top: 20px;">
-        <div class="chart-card-header">
-          <span class="chart-card-title">🕒 Soatlar bo'yicha savdo aylanmasi (Pik vaqtlar)</span>
-          <span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);">
-            so'm (kunlik faollik)
-          </span>
-        </div>
-        <canvas id="hourlyChart" height="90"></canvas>
-      </div>
+        <div class="glass-tx-wrap border-0">
+          {% for date_string, data in grouped_sales.items %}
+          <div class="glass-date-divider">
+            <span><i class="bi bi-calendar3 me-2 text-success"></i>{{ date_string }}</span>
+            <span class="text-success font-monospace">+{{ data.day_total|floatformat:0 }} so'm</span>
+          </div>
 
-      <!-- TRANSACTIONS -->
-      <div class="tx-card">
-        {% for date_string, data in grouped_sales.items %}
-        <div class="date-group">
-          <span class="date-group-lbl"><i class="bi bi-calendar3 me-2"></i>{{ date_string }}</span>
-          <span class="date-group-sum">+{{ data.day_total|floatformat:0 }} so'm</span>
-        </div>
-        {% for sale in data.sales_list %}
-        <div class="tx-item" style="padding: 16px 20px;">
-          <div class="tx-left" style="align-items: flex-start;">
-            {% if sale.customer %}
-              <img src="{% if sale.customer.image %}{{ sale.customer.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}" 
-                   alt="{{ sale.customer.first_name }}" 
-                   style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(27,107,74,0.15); flex-shrink: 0;" />
-            {% else %}
-              <div class="tx-icon
-                {% if sale.payment_method == 'naqd' %}naqd
-                {% elif sale.payment_method == 'karta' %}karta
-                {% elif sale.payment_method == 'qr' %}qr
-                {% else %}nasiya{% endif %}" style="width: 44px; height: 44px; border-radius: 12px; font-size: 18px;">
-                {% if sale.payment_method == 'naqd' %}<i class="bi bi-cash-coin"></i>
-                {% elif sale.payment_method == 'karta' %}<i class="bi bi-credit-card-fill"></i>
-                {% elif sale.payment_method == 'qr' %}<i class="bi bi-qr-code-scan"></i>
-                {% else %}<i class="bi bi-person-exclamation"></i>{% endif %}
-              </div>
-            {% endif %}
-            <div>
-              <div class="tx-name" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
-                {% if sale.customer %}
-                  <strong>{{ sale.customer }}</strong>
-                  <span style="font-size: 11px; background: rgba(0,0,0,0.04); color: var(--muted); padding: 1px 6px; border-radius: 4px;">ID: {{ sale.customer.custom_id }}</span>
-                  <a href="{% url 'customer_chats_dashboard' %}?selected_customer={{ sale.customer.id }}" class="badge bg-light text-dark border" style="font-size: 10px; text-decoration: none; padding: 3px 8px; border-radius: 6px;">
-                    <i class="bi bi-person-bounding-box me-1" style="color:var(--orange);"></i>Kabinet & Chat
-                  </a>
-                {% else %}
-                  <strong>Noma'lum xaridor</strong>
-                {% endif %}
-                <span style="font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);">#{{ sale.id }}</span>
-              </div>
-              <div class="tx-meta" style="margin-top: 4px; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 11px; font-weight: 700; color: {% if sale.payment_method == 'nasiya' %}var(--red){% else %}var(--green){% endif %};">
-                  {% if sale.payment_method == 'naqd' %}💵 Naqd{% elif sale.payment_method == 'karta' %}💳 Karta{% elif sale.payment_method == 'qr' %}📱 QR{% else %}📋 Nasiya (Qarz){% endif %}
-                </span>
-                {% if sale.discount_amount > 0 %}
-                  <span style="font-size: 10px; color: var(--orange); background: rgba(212,168,83,0.08); padding: 1px 6px; border-radius: 4px; font-weight: 600;">
-                    Chegirma: -{{ sale.discount_amount|floatformat:0 }} so'm
+          {% for sale in data.sales_list %}
+          <div class="glass-tx-item">
+            <div class="d-flex align-items-start gap-3">
+              {% if sale.customer %}
+                <img src="{% if sale.customer.image %}{{ sale.customer.image.url }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}" 
+                     alt="{{ sale.customer.first_name }}" 
+                     style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(16,185,129,0.3); flex-shrink: 0;" />
+              {% else %}
+                <div class="tx-icon-pill
+                  {% if sale.payment_method == 'naqd' %}naqd
+                  {% elif sale.payment_method == 'karta' %}karta
+                  {% elif sale.payment_method == 'qr' %}qr
+                  {% else %}nasiya{% endif %}">
+                  {% if sale.payment_method == 'naqd' %}<i class="bi bi-cash-stack"></i>
+                  {% elif sale.payment_method == 'karta' %}<i class="bi bi-credit-card-fill"></i>
+                  {% elif sale.payment_method == 'qr' %}<i class="bi bi-qr-code-scan"></i>
+                  {% else %}<i class="bi bi-person-exclamation"></i>{% endif %}
+                </div>
+              {% endif %}
+              <div>
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                  {% if sale.customer %}
+                    <a href="javascript:void(0)" class="customer-clickable fw-bold text-dark text-decoration-none" onclick="showCustomerQuickInfo({{ sale.customer.id }}, '{{ sale.customer.first_name|escapejs }}')"><i class="bi bi-person-fill text-success small me-1"></i>{{ sale.customer }}</a>
+                    <span class="badge bg-light text-muted border" style="font-size:10.5px;">ID: {{ sale.customer.custom_id }}</span>
+                    <button type="button" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" onclick="showCustomerQuickInfo({{ sale.customer.id }}, '{{ sale.customer.first_name|escapejs }}')" style="cursor: pointer; border: none;">
+                      <i class="bi bi-person-badge-fill me-1"></i> 360° Profil
+                    </button>
+                  {% else %}
+                    <strong class="text-dark">Noma'lum xaridor</strong>
+                  {% endif %}
+                  <span class="text-muted small font-monospace">#{{ sale.id }}</span>
+                </div>
+
+                <div class="mt-1 d-flex align-items-center gap-2">
+                  <span class="badge {% if sale.payment_method == 'nasiya' %}bg-danger-subtle text-danger border border-danger-subtle{% else %}bg-success-subtle text-success border border-success-subtle{% endif %} px-2 py-0.5" style="font-size:11px;">
+                    {% if sale.payment_method == 'naqd' %}💵 Naqd{% elif sale.payment_method == 'karta' %}💳 Karta{% elif sale.payment_method == 'qr' %}📱 QR{% else %}📋 Nasiya (Qarz){% endif %}
                   </span>
-                {% endif %}
-              </div>
-              <!-- Sotib olingan go'sht/mahsulotlar -->
-              <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;">
-                {% for item in sale.items.all %}
-                  <span style="font-size: 11px; padding: 3px 8px; border-radius: 6px; background: var(--card2); border: 1px solid var(--border); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 500;">
-                    🥩 {{ item.product.name }} — <strong>{{ item.weight|floatformat:3 }} kg</strong>
-                  </span>
-                {% endfor %}
+                  {% if sale.discount_amount > 0 %}
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-0.5" style="font-size:10.5px;">
+                      Chegirma: -{{ sale.discount_amount|floatformat:0 }} so'm
+                    </span>
+                  {% endif %}
+                </div>
+
+                <!-- Mahsulotlar Ro'yxati -->
+                <div class="mt-2 d-flex flex-wrap gap-1.5">
+                  {% for item in sale.items.all %}
+                    <span class="meat-badge-tag">
+                      🥩 {{ item.product.name }} — <strong>{{ item.weight|floatformat:3 }} kg</strong>
+                    </span>
+                  {% endfor %}
+                </div>
               </div>
             </div>
-          </div>
-          <div class="tx-right">
-            <div class="tx-amount {% if sale.payment_method == 'nasiya' %}neg{% else %}pos{% endif %}" style="font-size: 16px;">
-              {% if sale.payment_method == 'nasiya' %}−{% else %}+{% endif %}{{ sale.total_amount|floatformat:0 }} so'm
+
+            <div class="text-end ps-3">
+              <div class="fw-bold font-monospace {% if sale.payment_method == 'nasiya' %}text-danger{% else %}text-success{% endif %}" style="font-size: 16px;">
+                {% if sale.payment_method == 'nasiya' %}−{% else %}+{% endif %}{{ sale.total_amount|floatformat:0 }} so'm
+              </div>
+              <div class="text-muted small mt-1 font-monospace">{{ sale.created_at|date:"H:i" }}</div>
             </div>
-            <div class="tx-time" style="font-size: 12px; margin-top: 4px;">{{ sale.created_at|date:"H:i" }}</div>
           </div>
+          {% endfor %}
+          {% empty %}
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block opacity-25 mb-2"></i>
+            <div class="fw-bold">Tanlangan filtrlar bo'yicha savdolar topilmadi</div>
+            <div class="small text-muted">Filtrlarni o'zgartirib qayta urinib ko'ring</div>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-        {% empty %}
-        <div class="tx-empty">
-          <i class="bi bi-inbox"></i>
-          <div>Savdo topilmadi</div>
-          <div style="font-size:12px;margin-top:4px;">Filtrlarni o'zgartiring yoki tozalang</div>
-        </div>
-        {% endfor %}
       </div>
-
-
 
     </div>
 
-    <!-- RIGHT SIDEBAR -->
+    <!-- RIGHT SIDEBAR (GLASS ANALYTICS METERS) -->
     <div>
 
-      <!-- Payment breakdown -->
-      <div class="side-card">
-        <div class="side-title">To'lov turlari</div>
-
-        <div class="pay-split-row">
-          <span class="pay-split-label"><span class="pay-dot" style="background:var(--green);"></span> Naqd pul</span>
-          <span class="pay-split-val">{{ naqd_sum|floatformat:0 }} so'm</span>
-        </div>
-        <div class="pay-bar-wrap">
-          <div class="pay-bar-fill" style="width:{{ naqd_pct|default:0 }}%;background:var(--green);"></div>
+      <!-- PAYMENT BREAKDOWN & DOUGHNUT -->
+      <div class="glass-side-card">
+        <div class="side-title-glass">
+          <span><i class="bi bi-pie-chart-fill text-success me-1"></i> To'lov Turlari</span>
+          <span class="badge bg-light text-muted border font-monospace">100%</span>
         </div>
 
-        <div class="pay-split-row">
-          <span class="pay-split-label"><span class="pay-dot" style="background:var(--blue);"></span> Karta</span>
-          <span class="pay-split-val">{{ karta_sum|floatformat:0 }} so'm</span>
+        <!-- Naqd -->
+        <div class="d-flex justify-content-between align-items-center mb-1 small fw-bold">
+          <span class="d-flex align-items-center gap-1.5"><span class="badge bg-success rounded-circle p-1"></span> Naqd pul</span>
+          <span class="font-monospace text-success">{{ naqd_sum|floatformat:0 }} so'm</span>
         </div>
-        <div class="pay-bar-wrap">
-          <div class="pay-bar-fill" style="width:{{ karta_pct|default:0 }}%;background:var(--blue);"></div>
-        </div>
-
-        <div class="pay-split-row">
-          <span class="pay-split-label"><span class="pay-dot" style="background:var(--purple);"></span> QR</span>
-          <span class="pay-split-val">{{ qr_sum|floatformat:0 }} so'm</span>
-        </div>
-        <div class="pay-bar-wrap">
-          <div class="pay-bar-fill" style="width:{{ qr_pct|default:0 }}%;background:var(--purple);"></div>
+        <div class="glass-progress-bar">
+          <div class="glass-progress-fill" style="width:{{ naqd_pct|default:0 }}%; background:linear-gradient(90deg, #10B981, #059669);"></div>
         </div>
 
-        <div class="pay-split-row">
-          <span class="pay-split-label"><span class="pay-dot" style="background:var(--red);"></span> Nasiya</span>
-          <span class="pay-split-val">{{ jami_nasiya|floatformat:0 }} so'm</span>
+        <!-- Karta -->
+        <div class="d-flex justify-content-between align-items-center mb-1 small fw-bold">
+          <span class="d-flex align-items-center gap-1.5"><span class="badge bg-primary rounded-circle p-1"></span> Plastik karta</span>
+          <span class="font-monospace text-primary">{{ karta_sum|floatformat:0 }} so'm</span>
         </div>
-        <div class="pay-bar-wrap">
-          <div class="pay-bar-fill" style="width:{{ nasiya_pct|default:0 }}%;background:var(--red);"></div>
+        <div class="glass-progress-bar">
+          <div class="glass-progress-fill" style="width:{{ karta_pct|default:0 }}%; background:linear-gradient(90deg, #3B82F6, #2563EB);"></div>
         </div>
 
-        <!-- Doughnut chart -->
-        <div style="max-width:160px;margin:16px auto 0;">
+        <!-- QR -->
+        <div class="d-flex justify-content-between align-items-center mb-1 small fw-bold">
+          <span class="d-flex align-items-center gap-1.5"><span class="badge bg-purple rounded-circle p-1" style="background:#8B5CF6;"></span> QR (Click/Payme)</span>
+          <span class="font-monospace" style="color:#7C3AED;">{{ qr_sum|floatformat:0 }} so'm</span>
+        </div>
+        <div class="glass-progress-bar">
+          <div class="glass-progress-fill" style="width:{{ qr_pct|default:0 }}%; background:linear-gradient(90deg, #8B5CF6, #7C3AED);"></div>
+        </div>
+
+        <!-- Nasiya -->
+        <div class="d-flex justify-content-between align-items-center mb-1 small fw-bold">
+          <span class="d-flex align-items-center gap-1.5"><span class="badge bg-danger rounded-circle p-1"></span> Nasiya (Qarz)</span>
+          <span class="font-monospace text-danger">{{ jami_nasiya|floatformat:0 }} so'm</span>
+        </div>
+        <div class="glass-progress-bar">
+          <div class="glass-progress-fill" style="width:{{ nasiya_pct|default:0 }}%; background:linear-gradient(90deg, #EF4444, #DC2626);"></div>
+        </div>
+
+        <!-- Doughnut Chart Container -->
+        <div style="max-width:170px; margin:16px auto 0;">
           <canvas id="payChart"></canvas>
         </div>
       </div>
 
-      <!-- Quick filters -->
-      <div class="side-card">
-        <div class="side-title">Tez filtrlar</div>
-        <a href="?payment_method=naqd" class="qf-btn">
-          <span><i class="bi bi-cash-coin me-2" style="color:var(--green);"></i>Naqd savdolar</span>
-          <span class="qf-badge">naqd</span>
+      <!-- QUICK FILTERS -->
+      <div class="glass-side-card">
+        <div class="side-title-glass">
+          <span><i class="bi bi-funnel text-primary me-1"></i> Tezkor Filtrlar</span>
+        </div>
+        <a href="?payment_method=naqd" class="glass-action-btn">
+          <span><i class="bi bi-cash-coin me-2 text-success"></i>Naqd savdolar</span>
+          <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">naqd</span>
         </a>
-        <a href="?payment_method=karta" class="qf-btn">
-          <span><i class="bi bi-credit-card me-2" style="color:var(--blue);"></i>Karta savdolar</span>
-          <span class="qf-badge">karta</span>
+        <a href="?payment_method=karta" class="glass-action-btn">
+          <span><i class="bi bi-credit-card me-2 text-primary"></i>Karta savdolar</span>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">karta</span>
         </a>
-        <a href="?payment_method=qr" class="qf-btn">
-          <span><i class="bi bi-qr-code me-2" style="color:var(--purple);"></i>QR savdolar</span>
-          <span class="qf-badge">qr</span>
+        <a href="?payment_method=qr" class="glass-action-btn">
+          <span><i class="bi bi-qr-code me-2" style="color:#8B5CF6;"></i>QR savdolar</span>
+          <span class="badge bg-purple-subtle border rounded-pill" style="color:#7C3AED;">qr</span>
         </a>
-        <a href="?payment_method=nasiya" class="qf-btn">
-          <span><i class="bi bi-person-exclamation me-2" style="color:var(--red);"></i>Nasiya savdolar</span>
-          <span class="qf-badge">nasiya</span>
+        <a href="?payment_method=nasiya" class="glass-action-btn">
+          <span><i class="bi bi-person-exclamation me-2 text-danger"></i>Nasiya savdolar</span>
+          <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">nasiya</span>
         </a>
-        <hr style="border-color:var(--border);margin:8px 0;">
-        <a href="?start_date={% now 'Y-m-d' %}&end_date={% now 'Y-m-d' %}" class="qf-btn">
-          <span><i class="bi bi-calendar-day me-2" style="color:var(--orange);"></i>Bugungi savdolar</span>
+        <hr style="border-color:var(--gl-border-subtle); margin:10px 0;">
+        <a href="?start_date={% now 'Y-m-d' %}&end_date={% now 'Y-m-d' %}" class="glass-action-btn" style="background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.3);">
+          <span class="fw-bold text-warning"><i class="bi bi-calendar-check me-2"></i>Bugungi savdolar</span>
+          <i class="bi bi-chevron-right text-warning"></i>
         </a>
       </div>
 
-      <!-- Links -->
-      <div class="side-card">
-        <div class="side-title">Tez o'tish</div>
-        <a href="{% url 'terminal' %}" class="qf-btn">
-          <span><i class="bi bi-terminal me-2" style="color:var(--blue);"></i>Terminal</span>
+      <!-- QUICK NAVIGATION SHORTCUTS -->
+      <div class="glass-side-card">
+        <div class="side-title-glass">
+          <span><i class="bi bi-grid-fill text-muted me-1"></i> Bo'limlarga O'tish</span>
+        </div>
+        <a href="{% url 'terminal' %}" class="glass-action-btn">
+          <span><i class="bi bi-display me-2 text-primary"></i>POS Kassa Terminali</span>
+          <i class="bi bi-arrow-up-right small text-muted"></i>
         </a>
-        <a href="{% url 'customers' %}" class="qf-btn">
-          <span><i class="bi bi-people me-2" style="color:var(--green);"></i>Mijozlar</span>
+        <a href="{% url 'customers' %}" class="glass-action-btn">
+          <span><i class="bi bi-people-fill me-2 text-success"></i>Mijozlar Bazasi</span>
+          <i class="bi bi-arrow-up-right small text-muted"></i>
         </a>
-        <a href="{% url 'debt_payment' %}" class="qf-btn">
-          <span><i class="bi bi-cash-coin me-2" style="color:var(--orange);"></i>Qarz to'lash</span>
+        <a href="{% url 'debt_notebook' %}" class="glass-action-btn">
+          <span><i class="bi bi-book-half me-2 text-danger"></i>Nasiya Daftari</span>
+          <i class="bi bi-arrow-up-right small text-muted"></i>
         </a>
-        <a href="{% url 'daily_report' %}" class="qf-btn">
-          <span><i class="bi bi-receipt me-2" style="color:var(--purple);"></i>Kunlik hisobot</span>
+        <a href="{% url 'daily_report' %}" class="glass-action-btn">
+          <span><i class="bi bi-receipt me-2 text-warning"></i>Kunlik Z-Hisobot</span>
+          <i class="bi bi-arrow-up-right small text-muted"></i>
         </a>
       </div>
 
@@ -814,10 +911,15 @@
 </div>
 
 <script>
-// ── BAR CHART ──
+// ── REVENUE GRADIENT BAR CHART ──
 const ctx = document.getElementById('revenueChart').getContext('2d');
 const chartLabels = [{% for d, data in grouped_sales.items %}'{{ d|slice:":6" }}'{% if not forloop.last %},{% endif %}{% endfor %}];
 const chartData   = [{% for d, data in grouped_sales.items %}{{ data.day_total|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+// Emerald gradient for bar chart
+const revGradient = ctx.createLinearGradient(0, 0, 0, 200);
+revGradient.addColorStop(0, 'rgba(16, 185, 129, 0.85)');
+revGradient.addColorStop(1, 'rgba(5, 150, 105, 0.2)');
 
 new Chart(ctx, {
   type: 'bar',
@@ -826,10 +928,10 @@ new Chart(ctx, {
     datasets: [{
       label: 'Kunlik tushum',
       data: chartData.reverse(),
-      backgroundColor: 'rgba(27,107,74,0.12)',
-      borderColor: '#1B6B4A',
+      backgroundColor: revGradient,
+      borderColor: '#10B981',
       borderWidth: 1.5,
-      borderRadius: 8,
+      borderRadius: 10,
       borderSkipped: false,
     }]
   },
@@ -839,10 +941,15 @@ new Chart(ctx, {
       legend: { display: false },
       tooltip: {
         backgroundColor: '#FFFFFF',
-        borderColor: 'rgba(0,0,0,0.07)',
+        borderColor: '#E2E8F0',
         borderWidth: 1,
-        titleColor: '#1A1A2E',
-        bodyColor: '#1B6B4A',
+        titleColor: '#0F172A',
+        bodyColor: '#059669',
+        titleFont: { family: 'Plus Jakarta Sans', weight: '700' },
+        bodyFont: { family: 'Outfit', weight: '700', size: 13 },
+        padding: 12,
+        boxPadding: 6,
+        usePointStyle: true,
         callbacks: {
           label: ctx => ' ' + Math.round(ctx.raw).toLocaleString() + ' so\'m'
         }
@@ -850,14 +957,14 @@ new Chart(ctx, {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(0,0,0,0.04)' },
-        ticks: { color: '#6B7280', font: { size: 11 } }
+        grid: { color: 'rgba(226, 232, 240, 0.6)' },
+        ticks: { color: '#64748B', font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' } }
       },
       y: {
-        grid: { color: 'rgba(0,0,0,0.04)' },
+        grid: { color: 'rgba(226, 232, 240, 0.6)' },
         ticks: {
-          color: '#6B7280',
-          font: { size: 11 },
+          color: '#64748B',
+          font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
           callback: v => (v/1000000 >= 1 ? (v/1000000).toFixed(1)+'M' : (v/1000).toFixed(0)+'K')
         }
       }
@@ -865,10 +972,14 @@ new Chart(ctx, {
   }
 });
 
-// ── HOURLY CHART ──
+// ── HOURLY PEAK SALES LINE CHART ──
 const hctx = document.getElementById('hourlyChart').getContext('2d');
 const hourlyLabels = [{% for hr, val in hourly_data.items %}'{{ hr }}'{% if not forloop.last %},{% endif %}{% endfor %}];
 const hourlyData   = [{% for hr, val in hourly_data.items %}{{ val|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+const lineGradient = hctx.createLinearGradient(0, 0, 0, 200);
+lineGradient.addColorStop(0, 'rgba(59, 130, 246, 0.35)');
+lineGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
 
 new Chart(hctx, {
   type: 'line',
@@ -877,13 +988,16 @@ new Chart(hctx, {
     datasets: [{
       label: 'Soatlar bo\'yicha aylanma',
       data: hourlyData,
-      backgroundColor: 'rgba(212,168,83,0.12)',
-      borderColor: '#D4A853',
-      borderWidth: 2,
+      backgroundColor: lineGradient,
+      borderColor: '#3B82F6',
+      borderWidth: 2.5,
       tension: 0.4,
       fill: true,
-      pointBackgroundColor: '#D4A853',
-      pointRadius: 3
+      pointBackgroundColor: '#3B82F6',
+      pointBorderColor: '#FFFFFF',
+      pointBorderWidth: 2,
+      pointRadius: 4,
+      pointHoverRadius: 6
     }]
   },
   options: {
@@ -892,10 +1006,13 @@ new Chart(hctx, {
       legend: { display: false },
       tooltip: {
         backgroundColor: '#FFFFFF',
-        borderColor: 'rgba(0,0,0,0.07)',
+        borderColor: '#E2E8F0',
         borderWidth: 1,
-        titleColor: '#1A1A2E',
-        bodyColor: '#1B6B4A',
+        titleColor: '#0F172A',
+        bodyColor: '#2563EB',
+        titleFont: { family: 'Plus Jakarta Sans', weight: '700' },
+        bodyFont: { family: 'Outfit', weight: '700', size: 13 },
+        padding: 12,
         callbacks: {
           label: ctx => ' ' + Math.round(ctx.raw).toLocaleString() + ' so\'m'
         }
@@ -903,21 +1020,22 @@ new Chart(hctx, {
     },
     scales: {
       y: {
-        grid: { color: 'rgba(0,0,0,0.04)' },
+        grid: { color: 'rgba(226, 232, 240, 0.6)' },
         ticks: {
-          font: { family: 'Inter', size: 10 },
+          color: '#64748B',
+          font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
           callback: value => value >= 1000 ? (value / 1000) + 'k' : value
         }
       },
       x: {
         grid: { display: false },
-        ticks: { font: { family: 'Inter', size: 10 } }
+        ticks: { color: '#64748B', font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' } }
       }
     }
   }
 });
 
-// ── DOUGHNUT CHART ──
+// ── DOUGHNUT PAYMENT CHART ──
 const pctx = document.getElementById('payChart').getContext('2d');
 new Chart(pctx, {
   type: 'doughnut',
@@ -931,26 +1049,30 @@ new Chart(pctx, {
         {{ jami_nasiya|default:0 }}
       ],
       backgroundColor: [
-        'rgba(27,107,74,0.8)',
-        'rgba(59,130,246,0.8)',
-        'rgba(168,85,247,0.8)',
-        'rgba(220,53,69,0.8)',
+        '#10B981',
+        '#3B82F6',
+        '#8B5CF6',
+        '#EF4444'
       ],
-      borderWidth: 0,
-      hoverOffset: 4
+      borderWidth: 2,
+      borderColor: '#FFFFFF',
+      hoverOffset: 6
     }]
   },
   options: {
     responsive: true,
-    cutout: '70%',
+    cutout: '72%',
     plugins: {
       legend: { display: false },
       tooltip: {
         backgroundColor: '#FFFFFF',
-        borderColor: 'rgba(0,0,0,0.07)',
+        borderColor: '#E2E8F0',
         borderWidth: 1,
-        titleColor: '#1A1A2E',
-        bodyColor: '#1B6B4A',
+        titleColor: '#0F172A',
+        bodyColor: '#047857',
+        titleFont: { family: 'Plus Jakarta Sans', weight: '700' },
+        bodyFont: { family: 'Outfit', weight: '700', size: 12 },
+        padding: 10,
         callbacks: {
           label: ctx => ' ' + Math.round(ctx.raw).toLocaleString() + ' so\'m'
         }
@@ -962,8 +1084,8 @@ new Chart(pctx, {
 function loadAICopilot() {
   const container = document.getElementById('ai-advice-container');
   container.innerHTML = `
-    <div class="d-flex align-items-center gap-2 text-muted" style="font-size:0.9rem;">
-      <div class="spinner-border spinner-border-sm text-success" role="status" style="border-color: var(--primary); border-right-color: transparent;"></div>
+    <div class="d-flex align-items-center gap-2 text-success py-2 fw-semibold" style="font-size:0.95rem;">
+      <div class="spinner-border spinner-border-sm text-success" role="status"></div>
       <span>Tizim ko'rsatkichlarini AI orqali tahlil qilmoqdaman, iltimos kuting...</span>
     </div>
   `;
@@ -979,17 +1101,17 @@ function loadAICopilot() {
   .then(data => {
     if (data.advice) {
       let formattedText = data.advice
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-dark">$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/\n/g, '<br>');
       container.innerHTML = `
-        <div style="font-size: 0.95rem; line-height: 1.6; color: #1B6B4A; background: #FFFFFF; padding: 20px; border-radius: 12px; border: 1.5px dashed rgba(27,107,74,0.15); box-shadow: 0 2px 12px rgba(0,0,0,0.02);">
+        <div style="font-size: 0.95rem; line-height: 1.65; color: #047857; background: #FFFFFF; padding: 20px; border-radius: 16px; border: 1.5px solid rgba(16,185,129,0.25); box-shadow: 0 4px 18px rgba(16,185,129,0.08);">
           ${formattedText}
         </div>
       `;
     } else if (data.error) {
       container.innerHTML = `
-        <div class="text-danger" style="font-size:0.9rem; font-weight: 600;">
+        <div class="text-danger p-3 bg-white rounded-3 border border-danger-subtle" style="font-size:0.9rem; font-weight: 600;">
           <i class="bi bi-x-circle-fill me-1"></i> Xatolik yuz berdi: ${data.error}
         </div>
       `;
@@ -997,60 +1119,40 @@ function loadAICopilot() {
   })
   .catch(err => {
     container.innerHTML = `
-      <div class="text-danger" style="font-size:0.9rem; font-weight: 600;">
+      <div class="text-danger p-3 bg-white rounded-3 border border-danger-subtle" style="font-size:0.9rem; font-weight: 600;">
         <i class="bi bi-x-circle-fill me-1"></i> Server bilan bog'lanib bo'lmadi!
       </div>
     `;
   });
 }
 
-// ── TRANSACTIONS SHORTENER (YANA KO'RSATISH TUGMASI) ──
-document.addEventListener("DOMContentLoaded", function() {
-  const container = document.querySelector('.tx-card');
-  if (!container) return;
-  
-  const children = Array.from(container.children);
-  let visibleTxCount = 0;
-  const limit = 10;
-  const hiddenElements = [];
-  
-  children.forEach(el => {
-    if (el.classList.contains('tx-item')) {
-      visibleTxCount++;
-      if (visibleTxCount > limit) {
-        el.style.display = 'none';
-        hiddenElements.push(el);
+function approveProofDash(proofId, custName, amount) {
+  if (!confirm(`${custName} ning ${Number(amount).toLocaleString()} so'mlik to'lovini tasdiqlab, qarzini yopmoqchimisiz?`)) return;
+  const btn = document.getElementById(`btn-dash-appr-${proofId}`);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'; }
+
+  fetch(`/pos/api/payment-proofs/approve/${proofId}/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      const row = document.getElementById(`dash-proof-${proofId}`);
+      if (row) {
+        row.style.background = '#ECFDF5';
+        row.innerHTML = `<td colspan="6" class="text-center text-success py-3 fw-bold"><i class="bi bi-check-circle-fill fs-5 me-1"></i> ${data.message}</td>`;
+        setTimeout(() => row.remove(), 2500);
       }
-    } else if (el.classList.contains('date-group')) {
-      if (visibleTxCount >= limit) {
-        el.style.display = 'none';
-        hiddenElements.push(el);
-      }
+    } else {
+      alert("Xatolik: " + (data.message || 'Xato yuz berdi'));
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Tasdiqlash'; }
     }
+  })
+  .catch(() => {
+    alert("Tarmoq xatoligi!");
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Tasdiqlash'; }
   });
-  
-  if (hiddenElements.length > 0) {
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-outline-primary w-100 py-3 mt-3 fw-bold';
-    btn.style.borderRadius = '14px';
-    btn.style.border = '1.5px dashed var(--primary)';
-    btn.style.color = 'var(--primary)';
-    btn.style.background = 'rgba(27, 107, 74, 0.03)';
-    btn.innerHTML = `<i class="bi bi-chevron-down me-1"></i> Yana ko'rsatish (${hiddenElements.filter(e => e.classList.contains('tx-item')).length} ta)`;
-    
-    btn.addEventListener('click', function() {
-      hiddenElements.forEach(el => {
-        if (el.classList.contains('tx-item')) {
-          el.style.display = 'flex';
-        } else {
-          el.style.display = 'block';
-        }
-      });
-      btn.remove();
-    });
-    
-    container.after(btn);
-  }
-});
+}
 </script>
 {% endblock %}

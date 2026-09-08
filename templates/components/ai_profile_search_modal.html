@@ -1,0 +1,811 @@
+<!-- templates/components/ai_profile_search_modal.html -->
+<div id="aiProfileSearchModal" class="ai-modal-overlay" style="display: none;">
+  <div class="ai-modal-backdrop" onclick="closeAiSearchModal()"></div>
+  
+  <div class="ai-modal-container animate-scale-in">
+    <!-- Modal Header -->
+    <div class="ai-modal-header">
+      <div class="d-flex align-items-center gap-3">
+        <div class="ai-modal-icon-badge">
+          <span class="ai-sparkle-emoji">✨</span>
+          <i class="bi bi-robot"></i>
+        </div>
+        <div>
+          <div class="ai-modal-badge">TELEGRAM BOT KABI SMART TIZIM</div>
+          <h4 class="ai-modal-title mb-0">Daftardan AI Orqali Kirish</h4>
+        </div>
+      </div>
+      <button type="button" class="btn-ai-modal-close" onclick="closeAiSearchModal()" aria-label="Yopish">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="ai-modal-body">
+      <p class="ai-modal-instruction">
+        Do'kon daftarida yozilgan taxminiy ismingiz, familiyangiz, laqabingiz yoki ID raqamingizni yozing. 
+        <strong style="color: #34D399;">AI tizimimiz daftardagi barcha qaydlar orasidan profilingizni bir zumda topib beradi!</strong>
+      </p>
+
+      <!-- Search Input Box -->
+      <div class="ai-search-box-wrapper">
+        <div class="ai-search-input-inner">
+          <i class="bi bi-search ai-search-lens"></i>
+          <input 
+            type="text" 
+            id="aiProfileSearchInput" 
+            class="ai-search-input" 
+            placeholder="Masalan: Jamshid, Abror, 15, Tog'a, Sanjar..." 
+            autocomplete="off"
+            oninput="handleAiSearchInput(this.value)"
+            onkeydown="if(event.key==='Enter') executeAiSearch()"
+          />
+          <button type="button" id="aiSearchClearBtn" class="ai-search-clear-btn" style="display: none;" onclick="clearAiSearchInput()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+          <button type="button" class="btn-ai-search-trigger" onclick="executeAiSearch()">
+            <span>Qidirish</span>
+            <i class="bi bi-arrow-right-short fs-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Chips -->
+      <div class="ai-chips-wrapper">
+        <span class="ai-chips-label"><i class="bi bi-lightbulb-fill text-warning me-1"></i>Tezkor namunalar:</span>
+        <div class="ai-chips-list">
+          <button type="button" class="ai-chip-btn" onclick="applyAiSearchQuery('Jamshid')">Jamshid</button>
+          <button type="button" class="ai-chip-btn" onclick="applyAiSearchQuery('Abror')">Abror</button>
+          <button type="button" class="ai-chip-btn" onclick="applyAiSearchQuery('Sanjar')">Sanjar</button>
+          <button type="button" class="ai-chip-btn" onclick="applyAiSearchQuery('Tog\'a')">Tog'a</button>
+          <button type="button" class="ai-chip-btn" onclick="applyAiSearchQuery('0021')">0021</button>
+          <button type="button" class="ai-chip-btn" onclick="applyAiSearchQuery('8821')">8821</button>
+        </div>
+      </div>
+
+      <!-- Live Results Container -->
+      <div id="aiSearchResultsArea" class="ai-results-area">
+        <!-- Initial helper state -->
+        <div id="aiSearchInitialState" class="ai-state-placeholder text-center py-4">
+          <div class="ai-pulse-radar">
+            <span class="pulse-ring ring-1"></span>
+            <span class="pulse-ring ring-2"></span>
+            <i class="bi bi-person-bounding-box ai-pulse-center-icon"></i>
+          </div>
+          <div class="ai-state-title mt-3">Daftardan qidirishga tayyor</div>
+          <div class="ai-state-desc">Yuqoriga ismingiz yoki ID raqamingizni yozishingiz bilan natijalar bu yerda chiqadi</div>
+        </div>
+
+        <!-- Loading spinner state -->
+        <div id="aiSearchLoadingState" class="ai-state-placeholder text-center py-4" style="display: none;">
+          <div class="spinner-border text-emerald" style="width: 2.5rem; height: 2.5rem; color: #10B981;" role="status">
+            <span class="visually-hidden">Yuklanmoqda...</span>
+          </div>
+          <div class="ai-state-title mt-3">AI daftarni tahlil qilmoqda...</div>
+          <div class="ai-state-desc" id="aiLoadingQueryText">Barcha ro'yxat va nasiya qaydlari tekshirilmoqda</div>
+        </div>
+
+        <!-- Candidates list -->
+        <div id="aiCandidatesList" class="ai-candidates-grid" style="display: none;"></div>
+
+        <!-- Empty state -->
+        <div id="aiSearchEmptyState" class="ai-state-placeholder text-center py-4" style="display: none;">
+          <div class="ai-empty-icon">📂</div>
+          <div class="ai-state-title mt-2">Daftardan profil topilmadi</div>
+          <div class="ai-state-desc mb-3" id="aiEmptyQueryDesc">
+            Kiritilgan so'rov bo'yicha mijoz topilmadi. Ism yoki ID to'g'riligini tekshiring yoki yangi profil oching.
+          </div>
+          <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a href="/accounts/signup/" class="btn-ai-signup-link">
+              <i class="bi bi-person-plus-fill me-1"></i> Yangi profil ochish (+5 ball bonus)
+            </a>
+            <a href="https://t.me/baxmalmeatbot" target="_blank" class="btn-ai-bot-link">
+              <i class="bi bi-telegram me-1"></i> Telegram Botda tekshirish
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="ai-modal-footer">
+      <div class="d-flex align-items-center justify-content-between w-100 flex-wrap gap-2">
+        <span class="ai-modal-footer-note">
+          <i class="bi bi-shield-check text-success me-1"></i> Telefon raqamlari xavfsizlik uchun qisman berkitilgan
+        </span>
+        <a href="/accounts/signup/" class="ai-footer-signup-link">
+          Ro'yxatda yo'qmisiz? <strong>Yangi mijoz bo'lib ulanish</strong> &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ─── AI PROFILE SEARCH MODAL LUXURY STYLES ─── */
+.ai-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.ai-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 15, 10, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.ai-modal-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(165deg, #092B1C 0%, #051A11 60%, #020C07 100%);
+  border: 1.5px solid rgba(52, 211, 153, 0.35);
+  border-radius: 24px;
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  color: #F8FAFC;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Animations */
+.animate-scale-in {
+  animation: modalScaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes modalScaleIn {
+  0% { opacity: 0; transform: scale(0.92) translateY(12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Header */
+.ai-modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ai-modal-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(52, 211, 153, 0.1));
+  border: 1.5px solid rgba(52, 211, 153, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #34D399;
+  position: relative;
+}
+.ai-sparkle-emoji {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 13px;
+}
+.ai-modal-badge {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #FBBF24;
+}
+.ai-modal-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.3px;
+}
+.btn-ai-modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-ai-modal-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #F87171;
+  transform: rotate(90deg);
+}
+
+/* Body */
+.ai-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+.ai-modal-instruction {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #94A3B8;
+  margin-bottom: 18px;
+}
+
+/* Search Box */
+.ai-search-box-wrapper {
+  position: relative;
+  margin-bottom: 14px;
+}
+.ai-search-input-inner {
+  display: flex;
+  align-items: center;
+  background: rgba(10, 37, 24, 0.9);
+  border: 2px solid rgba(52, 211, 153, 0.4);
+  border-radius: 16px;
+  padding: 6px 8px 6px 16px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+.ai-search-input-inner:focus-within {
+  border-color: #34D399;
+  background: rgba(13, 49, 32, 0.95);
+  box-shadow: 0 0 24px rgba(52, 211, 153, 0.35);
+}
+.ai-search-lens {
+  font-size: 18px;
+  color: #34D399;
+  margin-right: 12px;
+}
+.ai-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+  min-width: 0;
+}
+.ai-search-input::placeholder {
+  color: #64748B;
+  font-weight: 400;
+  font-size: 14px;
+}
+.ai-search-clear-btn {
+  border: none;
+  background: transparent;
+  color: #64748B;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: color 0.15s;
+}
+.ai-search-clear-btn:hover {
+  color: #EF4444;
+}
+.btn-ai-search-trigger {
+  border: none;
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #FFFFFF;
+  padding: 8px 18px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+.btn-ai-search-trigger:hover {
+  background: linear-gradient(135deg, #34D399, #10B981);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(52, 211, 153, 0.4);
+}
+
+/* Suggestion Chips */
+.ai-chips-wrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.ai-chips-label {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 600;
+}
+.ai-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ai-chip-btn {
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  background: rgba(52, 211, 153, 0.08);
+  color: #A7F3D0;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ai-chip-btn:hover {
+  background: rgba(52, 211, 153, 0.25);
+  border-color: #34D399;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+/* Results Area */
+.ai-results-area {
+  min-height: 180px;
+}
+.ai-state-placeholder {
+  padding: 30px 16px;
+}
+.ai-state-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #F1F5F9;
+}
+.ai-state-desc {
+  font-size: 13px;
+  color: #64748B;
+  max-width: 380px;
+  margin: 6px auto 0;
+}
+
+/* Pulse radar */
+.ai-pulse-radar {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ai-pulse-center-icon {
+  font-size: 30px;
+  color: #34D399;
+  position: relative;
+  z-index: 2;
+}
+.pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #10B981;
+  opacity: 0.8;
+  animation: radarPulse 2s ease-out infinite;
+}
+.ring-2 {
+  animation-delay: 0.8s;
+}
+@keyframes radarPulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Candidates Grid */
+.ai-candidates-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ai-candidate-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(52, 211, 153, 0.2);
+  border-radius: 18px;
+  padding: 16px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.ai-candidate-card:hover {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.ai-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.ai-cand-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10B981, #047857);
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+}
+.ai-cand-name {
+  font-size: 16.5px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 3px;
+}
+.ai-cand-id-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #6EE7B7;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.ai-cand-details-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.ai-detail-item {
+  display: flex;
+  flex-direction: column;
+}
+.ai-detail-label {
+  font-size: 10.5px;
+  color: #64748B;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.ai-detail-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F1F5F9;
+}
+.ai-debt-val-zero {
+  color: #34D399;
+}
+.ai-debt-val-alert {
+  color: #F87171;
+}
+
+.ai-note-quote {
+  font-size: 12px;
+  color: #94A3B8;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid #FBBF24;
+  padding: 6px 10px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.btn-claim-profile {
+  width: 100%;
+  border: none;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+}
+.btn-claim-profile:hover {
+  background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(52, 211, 153, 0.45);
+}
+
+/* Empty State Actions */
+.ai-empty-icon {
+  font-size: 44px;
+}
+.btn-ai-signup-link {
+  background: #D4A853;
+  color: #03120B;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-ai-signup-link:hover {
+  background: #F59E0B;
+  color: #000;
+  transform: translateY(-1px);
+}
+.btn-ai-bot-link {
+  background: #0088cc;
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-ai-bot-link:hover {
+  background: #0077b5;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Footer */
+.ai-modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid rgba(52, 211, 153, 0.12);
+  background: rgba(2, 12, 7, 0.6);
+}
+.ai-modal-footer-note {
+  font-size: 12px;
+  color: #64748B;
+}
+.ai-footer-signup-link {
+  font-size: 12.5px;
+  color: #34D399;
+  text-decoration: none;
+  font-weight: 600;
+}
+.ai-footer-signup-link:hover {
+  text-decoration: underline;
+  color: #6EE7B7;
+}
+
+@media (max-width: 576px) {
+  .ai-modal-container {
+    border-radius: 20px 20px 0 0;
+    max-height: 94vh;
+    margin-top: auto;
+  }
+  .ai-modal-header {
+    padding: 16px 18px 12px;
+  }
+  .ai-modal-body {
+    padding: 16px 18px;
+  }
+  .ai-modal-footer {
+    padding: 12px 18px;
+  }
+}
+</style>
+
+<script>
+/* ─── AI PROFILE SEARCH INTERACTIVE CONTROLLER ─── */
+let aiSearchDebounceTimer = null;
+let currentAiSearchQuery = '';
+
+function openAiSearchModal(initialQuery = '') {
+  const modal = document.getElementById('aiProfileSearchModal');
+  const input = document.getElementById('aiProfileSearchInput');
+  if (!modal) return;
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  if (initialQuery) {
+    input.value = initialQuery;
+    handleAiSearchInput(initialQuery);
+  } else {
+    setTimeout(() => input.focus(), 150);
+  }
+}
+
+function closeAiSearchModal() {
+  const modal = document.getElementById('aiProfileSearchModal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function clearAiSearchInput() {
+  const input = document.getElementById('aiProfileSearchInput');
+  input.value = '';
+  document.getElementById('aiSearchClearBtn').style.display = 'none';
+  resetAiSearchResults();
+  input.focus();
+}
+
+function applyAiSearchQuery(query) {
+  const input = document.getElementById('aiProfileSearchInput');
+  input.value = query;
+  handleAiSearchInput(query);
+}
+
+function handleAiSearchInput(val) {
+  val = (val || '').trim();
+  const clearBtn = document.getElementById('aiSearchClearBtn');
+  if (clearBtn) {
+    clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+  }
+
+  if (aiSearchDebounceTimer) {
+    clearTimeout(aiSearchDebounceTimer);
+  }
+
+  if (val.length === 0) {
+    resetAiSearchResults();
+    return;
+  }
+
+  // Debounce search by 280ms
+  aiSearchDebounceTimer = setTimeout(() => {
+    executeAiSearch();
+  }, 280);
+}
+
+function resetAiSearchResults() {
+  document.getElementById('aiSearchInitialState').style.display = 'block';
+  document.getElementById('aiSearchLoadingState').style.display = 'none';
+  document.getElementById('aiCandidatesList').style.display = 'none';
+  document.getElementById('aiSearchEmptyState').style.display = 'none';
+}
+
+function executeAiSearch() {
+  const input = document.getElementById('aiProfileSearchInput');
+  const query = (input.value || '').trim();
+  if (!query) {
+    resetAiSearchResults();
+    return;
+  }
+
+  currentAiSearchQuery = query;
+  document.getElementById('aiSearchInitialState').style.display = 'none';
+  document.getElementById('aiCandidatesList').style.display = 'none';
+  document.getElementById('aiSearchEmptyState').style.display = 'none';
+  
+  const loadingEl = document.getElementById('aiSearchLoadingState');
+  loadingEl.style.display = 'block';
+  document.getElementById('aiLoadingQueryText').textContent = `"${query}" bo'yicha daftardan qidirilmoqda...`;
+
+  fetch(`/pos/api/smart-profile-search/?q=${encodeURIComponent(query)}`)
+    .then(res => res.json())
+    .then(data => {
+      loadingEl.style.display = 'none';
+      if (data.status === 'success' && data.candidates && data.candidates.length > 0) {
+        renderAiCandidates(data.candidates);
+      } else {
+        showAiEmptyResults(query);
+      }
+    })
+    .catch(err => {
+      loadingEl.style.display = 'none';
+      console.error('AI Profile Search Error:', err);
+      showAiEmptyResults(query);
+    });
+}
+
+function renderAiCandidates(candidates) {
+  const container = document.getElementById('aiCandidatesList');
+  container.innerHTML = '';
+
+  candidates.forEach(cand => {
+    const initials = (cand.first_name ? cand.first_name[0] : '') + (cand.last_name ? cand.last_name[0] : '');
+    const debtClass = cand.has_debt ? 'ai-debt-val-alert' : 'ai-debt-val-zero';
+    const noteHtml = cand.note_snippet ? `<div class="ai-note-quote"><i class="bi bi-journal-text me-1"></i>"${cand.note_snippet}"</div>` : '';
+
+    const card = document.createElement('div');
+    card.className = 'ai-candidate-card animate-scale-in';
+    card.innerHTML = `
+      <div class="ai-card-top">
+        <div class="d-flex align-items-center gap-3">
+          <div class="ai-cand-avatar">${initials.toUpperCase() || '👤'}</div>
+          <div>
+            <div class="ai-cand-name">${cand.name}</div>
+            <span class="ai-cand-id-badge"><i class="bi bi-person-badge me-1"></i>ID: ${cand.custom_id}</span>
+          </div>
+        </div>
+        <span class="badge" style="background:rgba(212, 168, 83, 0.2); color:#FBBF24; border:1px solid rgba(212,168,83,0.4); font-size:11px; padding:5px 8px; border-radius:8px;">
+          🎁 ${cand.bonus_points} ball
+        </span>
+      </div>
+
+      <div class="ai-cand-details-row">
+        <div class="ai-detail-item">
+          <span class="ai-detail-label">Telefon:</span>
+          <span class="ai-detail-val"><i class="bi bi-telephone me-1 text-muted"></i>${cand.phone_masked}</span>
+        </div>
+        <div class="ai-detail-item">
+          <span class="ai-detail-label">Nasiya / Qarz:</span>
+          <span class="ai-detail-val ${debtClass}"><i class="bi bi-wallet2 me-1"></i>${cand.debt_formatted}</span>
+        </div>
+      </div>
+
+      ${noteHtml}
+
+      <button type="button" class="btn-claim-profile" onclick="claimCustomerProfile(${cand.id}, '${cand.first_name.replace(/'/g, "\\'")}')">
+        <i class="bi bi-check2-circle fs-5"></i>
+        <span>✅ Bu men — Kabinetga kirish</span>
+      </button>
+    `;
+    container.appendChild(card);
+  });
+
+  container.style.display = 'flex';
+}
+
+function showAiEmptyResults(query) {
+  const emptyEl = document.getElementById('aiSearchEmptyState');
+  document.getElementById('aiEmptyQueryDesc').innerHTML = `
+    <strong>"${query}"</strong> bo'yicha daftardan mijoz topilmadi.<br>
+    Ism, familiya yoki ID raqamini to'g'ri kiritganingizni tekshirib qayta yozing yoki yangi profil oching.
+  `;
+  emptyEl.style.display = 'block';
+}
+
+function claimCustomerProfile(customerId, customerName) {
+  // Show quick processing indicator
+  const btn = event.currentTarget;
+  const originalContent = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Kirilmoqda...`;
+
+  fetch('/pos/api/claim-customer-profile/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ customer_id: customerId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+      btn.innerHTML = `<i class="bi bi-check-circle-fill me-1 text-white"></i> Muvaffaqiyatli!`;
+      setTimeout(() => {
+        window.location.href = data.redirect_url;
+      }, 400);
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = originalContent;
+      alert(data.message || "Xatolik yuz berdi");
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = originalContent;
+    console.error('Claim profile error:', err);
+    // Fallback: direct navigate to cabinet
+    window.location.href = `/pos/my-cabinet/?customer_id=${customerId}`;
+  });
+}
+
+// Global open helper
+window.openGlobalAiSearchModal = openAiSearchModal;
+
+// Keyboard shortcut: Escape to close
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeAiSearchModal();
+  }
+});
+</script>

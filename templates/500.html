@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}500 — Tizim Yangilanmoqda | Baxmal Meat Boutique{% endblock title %}
+
+{% block content %}
+<div class="error-page-container">
+    <div class="error-glow-sphere glow-gold"></div>
+    <div class="error-card animate-pop-in">
+        <div class="error-icon-box">
+            <span class="error-emoji">⚙️</span>
+            <span class="error-badge badge-warning">500</span>
+        </div>
+        
+        <h1 class="error-title">Tizim Yangilanmoqda</h1>
+        <p class="error-desc">
+            Texnik xizmat ko'rsatish yoki server yangilanishi ketmoqda. Iltimos, bir necha soniyadan so'ng sahifani qayta yangilang.
+        </p>
+
+        <div class="error-actions">
+            <button onclick="location.reload()" class="btn-error-primary">
+                <i class="bi bi-arrow-clockwise me-2"></i>Qayta Urinib Ko'rish
+            </button>
+            <a href="/" class="btn-error-outline">
+                <i class="bi bi-house-door-fill me-2"></i>Bosh Sahifa
+            </a>
+        </div>
+
+        <div class="error-footer-brand">
+            <span>Baxmal Meat Boutique • 24/7 Avtomatlashtirilgan Kassa Tizimi</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-page-container {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: radial-gradient(circle at 50% 20%, #062417 0%, #03120B 70%, #010805 100%);
+    position: relative;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+.error-glow-sphere.glow-gold {
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 168, 83, 0.25) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+}
+.error-card {
+    background: rgba(7, 31, 20, 0.85);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(212, 168, 83, 0.35);
+    border-radius: 28px;
+    padding: 45px 36px;
+    text-align: center;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+    position: relative;
+    z-index: 1;
+}
+.animate-pop-in {
+    animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0.92) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.error-icon-box {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+.error-emoji {
+    font-size: 54px;
+    display: block;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+}
+.error-badge.badge-warning {
+    position: absolute;
+    bottom: -8px;
+    right: -14px;
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: #FFF;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 2px solid #071F14;
+    letter-spacing: 0.5px;
+}
+.error-title {
+    color: #FFFFFF;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+.error-desc {
+    color: #94A3B8;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+.error-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.btn-error-primary {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+    transition: all 0.25s ease;
+}
+.btn-error-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(16, 185, 129, 0.45);
+}
+.btn-error-outline {
+    background: rgba(212, 168, 83, 0.1);
+    color: #D4A853;
+    border: 1.5px solid rgba(212, 168, 83, 0.4);
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.25s ease;
+}
+.btn-error-outline:hover {
+    background: rgba(212, 168, 83, 0.2);
+    color: #F59E0B;
+    border-color: #D4A853;
+}
+.error-footer-brand {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 12px;
+    color: #64748B;
+}
+</style>
+{% endblock content %}
