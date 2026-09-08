@@ -132,7 +132,7 @@ def query_gemini_ai_qassob(user_prompt="", audio_base64=None, mime_type="audio/o
 
     from django.conf import settings
     key = os.environ.get('GEMINI_API_KEY', '').strip() or getattr(settings, 'GEMINI_API_KEY', '').strip() or GEMINI_API_KEY
-    models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
+    models_to_try = ['gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.5-flash']
     
     for model_name in models_to_try:
         try:

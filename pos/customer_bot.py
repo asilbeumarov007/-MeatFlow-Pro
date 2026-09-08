@@ -208,7 +208,7 @@ def query_gemini_meat_assistant(prompt):
     from django.conf import settings
     api_key = os.environ.get('GEMINI_API_KEY', '').strip() or getattr(settings, 'GEMINI_API_KEY', '').strip() or GEMINI_API_KEY
     if api_key:
-        models_to_try = ['gemini-3-flash-preview', 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.5-flash-lite', 'gemma-4-31b-it']
+        models_to_try = ['gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.5-flash']
         products_str = ", ".join([f"{p.name} ({p.price_per_kg:,.0f} so'm/kg)" for p in products])
         system_instruction = (
             "Siz Baxmal Meat go'sht do'konining professional AI maslahatchisisiz. "
@@ -221,7 +221,7 @@ def query_gemini_meat_assistant(prompt):
                 payload = {
                     "contents": [{"parts": [{"text": f"{system_instruction}\n\nMijoz savoli: {prompt}"}]}]
                 }
-                r = requests.post(url, json=payload, timeout=8)
+                r = requests.post(url, json=payload, timeout=30)
                 if r.status_code == 200:
                     res_data = r.json()
                     text = res_data['candidates'][0]['content']['parts'][0]['text']

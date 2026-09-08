@@ -1723,11 +1723,9 @@ Sizga savdoni oshirish, zaxiralarni to'ldirish yoki nasiya qarzlarini undirish b
     
     if api_key and len(api_key) > 10:
         models_to_try = [
-            "gemini-3-flash-preview",
+            "gemini-3.6-flash",
+            "gemini-3.7-flash",
             "gemini-3.5-flash",
-            "gemini-3.1-flash-lite",
-            "gemini-3.5-flash-lite",
-            "gemma-4-31b-it"
         ]
         
         for model_name in models_to_try:
@@ -1737,7 +1735,7 @@ Sizga savdoni oshirish, zaxiralarni to'ldirish yoki nasiya qarzlarini undirish b
                 payload = {
                     "contents": [{"parts": [{"text": prompt}]}]
                 }
-                response = requests.post(url, headers=headers, json=payload, timeout=10)
+                response = requests.post(url, headers=headers, json=payload, timeout=30)
                 if response.status_code == 200:
                     result = response.json()
                     raw_advice = result['candidates'][0]['content']['parts'][0]['text']
