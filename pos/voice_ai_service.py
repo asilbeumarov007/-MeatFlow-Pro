@@ -132,15 +132,19 @@ def query_gemini_ai_qassob(user_prompt="", audio_base64=None, mime_type="audio/o
 
     from django.conf import settings
     key = os.environ.get('GEMINI_API_KEY', '').strip() or getattr(settings, 'GEMINI_API_KEY', '').strip() or GEMINI_API_KEY
-    models_to_try = ['gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.5-flash']
+    models_to_try = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.1-flash-lite']
     
     for model_name in models_to_try:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
             payload = {
-                'contents': [{'parts': parts}]
+                'contents': [{'parts': parts}],
+                'generationConfig': {
+                    'maxOutputTokens': 500,
+                    'temperature': 0.3
+                }
             }
-            res = requests.post(url, params={'key': key}, json=payload, timeout=20)
+            res = requests.post(url, params={'key': key}, json=payload, timeout=12)
             if res.status_code == 200:
                 data = res.json()
                 reply_text = data['candidates'][0]['content']['parts'][0]['text'].strip()

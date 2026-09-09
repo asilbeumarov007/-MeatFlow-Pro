@@ -388,14 +388,21 @@ function handleFullChatSend(event) {
       question: text
     })
   })
-  .then(res => res.json())
-  .then(data => {
+  .then(async res => {
+    let data;
+    try {
+      data = await res.json();
+    } catch(e) {
+      data = null;
+    }
     loader.remove();
     fullAiTyping = false;
-    if (data.advice) {
+    if (res.ok && data && data.advice) {
       appendFullChatMessage('bot', data.advice);
+    } else if (data && data.error) {
+      appendFullChatMessage('bot', "Xatolik: " + data.error);
     } else {
-      appendFullChatMessage('bot', "Xatolik yuz berdi: " + (data.error || 'Noma\'lum xato'));
+      appendFullChatMessage('bot', "Server javob berishda kechikdi. Iltimos, qayta urinib ko'ring.");
     }
   })
   .catch(err => {
