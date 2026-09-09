@@ -3197,8 +3197,138 @@ def api_stock_transform(request):
     except Exception as e:
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+# ── DEBT REMINDER & VOICE CASH FLOW APIS ──
+from django.shortcuts import get_object_or_404
+
+@csrf_exempt
+def api_preview_debt_reminder(request, customer_id):
+    """Mijozga yuboriladigan qarz eslatmasi matni va ma'lumotlarini olish."""
+    if request.method != 'GET':
+        return json_response({'status': 'error', 'message': "Faqat GET so'rov qabul qilinadi"}, status=405)
+    
+    from .debt_reminder_service import generate_default_reminder_message
+    customer = get_object_or_404(Customer, id=customer_id)
+    
+    suggested_msg = generate_default_reminder_message(customer)
+    return json_response({
+        'status': 'success',
+        'customer': {
+            'id': customer.id,
+            'name': f"{customer.first_name} {customer.last_name or ''}".strip(),
+            'phone': customer.phone,
+            'debt_amount': float(customer.debt_amount),
+            'debt_formatted': f"{customer.debt_amount:,.0f} so'm".replace(",", " "),
+            'has_telegram': bool(customer.telegram_chat_id),
+            'telegram_chat_id': customer.telegram_chat_id,
+            'last_reminder_sent_at': customer.last_reminder_sent_at.strftime('%d.%m.%Y %H:%M') if customer.last_reminder_sent_at else None,
+            'reminder_count': customer.reminder_count or 0
+        },
+        'suggested_message': suggested_msg
+    })
 
 
+@csrf_exempt
+def api_send_debt_reminder(request):
+    """Mijozga 1-tugma bilan Telegram yoki SMS orqali qarz eslatmasi yuborish."""
+    if request.method != 'POST':
+        return json_response({'status': 'error', 'message': "Faqat POST so'rov qabul qilinadi"}, status=405)
+
+    from .debt_reminder_service import send_debt_reminder
+    
+    data = {}
+    if request.body:
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            data = request.POST.dict()
+    else:
+        data = request.POST.dict()
+
+    customer_id = data.get('customer_id')
+    custom_text = data.get('message_text') or data.get('custom_text', '')
+    channel = data.get('channel', 'auto') # 'auto', 'telegram', 'sms', 'both'
+
+    if not customer_id:
+        return json_response({'status': 'error', 'message': "customer_id ko'rsatilmadi!"}, status=400)
+
+    customer = get_object_or_404(Customer, id=customer_id)
+    result = send_debt_reminder(customer, custom_text=custom_text, channel=channel, sent_by=request.user)
+
+    if result.get('success'):
+        return json_response({
+            'status': 'success',
+            'message': result.get('message'),
+            'channel': result.get('channel'),
+            'sent_at': result.get('sent_at'),
+            'reminder_count': result.get('reminder_count')
+        })
+    else:
+        return json_response({
+            'status': 'error',
+            'message': result.get('message', "Xabarni yetkazib bo'lmadi")
+        }, status=400)
 
 
+@csrf_exempt
+def api_voice_cash_transaction(request):
+    """
+    Ovozli matnni qabul qilish, tahlil qilish va kassa kirim/chiqimini amalga oshirish.
+    Input: { "text": "Tushlikka 45 ming chiqim", "preview_only": false }
+    """
+    if request.method != 'POST':
+        return json_response({'status': 'error', 'message': "Faqat POST so'rov qabul qilinadi"}, status=405)
+
+    from .voice_cash_service import parse_voice_cash_intent, execute_voice_cash_transaction
+    
+    data = {}
+    if request.body:
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            data = request.POST.dict()
+    else:
+        data = request.POST.dict()
+
+    raw_text = data.get('text', '').strip()
+    preview_only = data.get('preview_only', False)
+
+    if not raw_text:
+        return json_response({'status': 'error', 'message': "Ovozli matn yuborilmadi!"}, status=400)
+
+    if preview_only:
+        parsed = parse_voice_cash_intent(raw_text)
+        sup = parsed.get('supplier')
+        return json_response({
+            'status': 'success',
+            'parsed': {
+                'transaction_type': parsed['transaction_type'],
+                'amount': float(parsed['amount']),
+                'category': parsed['category'],
+                'supplier_id': sup.id if sup else None,
+                'supplier_name': f"{sup.first_name} {sup.last_name or ''}".strip() if sup else None,
+                'description': parsed['description'],
+                'raw_text': raw_text
+            }
+        })
+
+    # Haqiqiy ijro
+    result = execute_voice_cash_transaction(request.user, raw_text)
+    if result.get('success'):
+        return json_response({
+            'status': 'success',
+            'message': result.get('message'),
+            'transaction_id': result.get('transaction_id'),
+            'transaction_type': result.get('transaction_type'),
+            'amount': result.get('amount'),
+            'category': result.get('category'),
+            'supplier_name': result.get('supplier_name'),
+            'description': result.get('description'),
+            'expected_drawer': result.get('expected_drawer'),
+            'created_at': result.get('created_at')
+        })
+    else:
+        return json_response({
+            'status': 'error',
+            'message': result.get('message')
+        }, status=400)
 

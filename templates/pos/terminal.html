@@ -703,6 +703,7 @@ body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', san
       <button id="scale-btn-1" class="scale-tab on" onclick="changeActiveScale('1')">⚡ Kassa</button>
       <button id="scale-btn-2" class="scale-tab" onclick="changeActiveScale('2')" ondblclick="configureWifiScale(event)" title="Sozlash uchun ikki marta bosing">📶 Wi-Fi</button>
       <button id="btn-usb-connect" class="scale-tab" onclick="connectUSBScale()">🔌 USB Ulanish</button>
+      <button id="btn-terminal-voice-exp" class="scale-tab" style="background:#DC2626; color:#fff; font-weight:700; border-color:#B91C1C;" onclick="openTerminalVoiceModal()" title="Ovozli chiqim va xarajat kiritish">🎙️ Chiqim</button>
     </div>
 
     <div class="weight-block" id="weightBlock" onclick="openNumpad()">
@@ -1025,6 +1026,172 @@ body { background: var(--bg-main, #F5F1EB) !important; font-family: 'Inter', san
     </button>
   </div>
 </div>
+
+<!-- ════ TERMINAL VOICE EXPENSE MODAL ════ -->
+<div id="terminalVoiceModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(5px);">
+  <div style="background:#FFFFFF; border-radius:24px; width:100%; max-width:440px; box-shadow:0 25px 60px rgba(0,0,0,0.3); overflow:hidden; border:1.5px solid rgba(220,38,38,0.3); color:#1A1A2E;">
+    <div style="background:linear-gradient(135deg, #991B1B, #DC2626); padding:18px 22px; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:24px;">🎙️</span>
+        <div>
+          <h5 style="margin:0; font-weight:800; font-size:16px;">Ovozli Chiqim / Xarajat</h5>
+          <small style="opacity:0.85; font-size:11px;">Kassadan bir zumda chiqim kiritish</small>
+        </div>
+      </div>
+      <button onclick="closeTerminalVoiceModal()" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer; line-height:1;">&times;</button>
+    </div>
+
+    <div style="padding:24px; text-align:center;">
+      <!-- MIC BUTTON -->
+      <div style="margin:10px 0 20px;">
+        <button type="button" id="btnTermMic" onclick="toggleTermVoiceMic()" style="width:84px; height:84px; border-radius:50%; background:linear-gradient(135deg, #DC2626, #EF4444); color:#fff; border:none; font-size:36px; box-shadow:0 0 25px rgba(220,38,38,0.45); cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; justify-content:center;">
+          <i class="bi bi-mic-fill" id="termMicIcon"></i>
+        </button>
+        <div id="termMicHint" style="font-size:13.5px; font-weight:800; color:#DC2626; margin-top:12px;">Gapirish uchun bosing</div>
+        <small style="color:#6B7280; font-size:11px; display:block; margin-top:4px;">Masalan: "Tushlikka 45 ming chiqim", "Sanjar jiyanga 5 million berildi"</small>
+      </div>
+
+      <!-- Transcript Box -->
+      <div id="termTranscriptBox" style="display:none; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:14px; margin-bottom:16px; text-align:left;">
+        <div style="font-size:11px; color:#64748B; font-weight:700; text-transform:uppercase; margin-bottom:4px;">Eshitilgan jumla:</div>
+        <div id="termTranscriptText" style="font-size:14px; font-weight:700; color:#0F172A; min-height:20px;">...</div>
+        <div id="termResultMsg" style="margin-top:10px; font-size:12.5px; font-weight:600;"></div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="button" onclick="closeTerminalVoiceModal()" style="flex:1; padding:11px; border-radius:12px; border:1px solid #E2E8F0; background:#fff; font-weight:700; color:#64748B; cursor:pointer;">Yopish</button>
+        <button type="button" id="btnTermManualWrite" onclick="termManualExpensePrompt()" style="flex:1; padding:11px; border-radius:12px; border:none; background:#F1F5F9; font-weight:700; color:#0F172A; cursor:pointer;">⌨️ Yozib kiritish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let termVoiceRec = null;
+let isTermVoiceRecording = false;
+
+function openTerminalVoiceModal() {
+  const modal = document.getElementById('terminalVoiceModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.getElementById('termTranscriptBox').style.display = 'none';
+    document.getElementById('termResultMsg').innerHTML = '';
+    document.getElementById('termMicHint').innerText = "Gapirish uchun bosing";
+    document.getElementById('btnTermMic').style.background = 'linear-gradient(135deg, #DC2626, #EF4444)';
+  }
+}
+
+function closeTerminalVoiceModal() {
+  if (termVoiceRec && isTermVoiceRecording) {
+    termVoiceRec.stop();
+  }
+  const modal = document.getElementById('terminalVoiceModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function toggleTermVoiceMic() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    termManualExpensePrompt();
+    return;
+  }
+
+  if (!termVoiceRec) {
+    termVoiceRec = new SpeechRecognition();
+    termVoiceRec.lang = 'uz-UZ';
+    termVoiceRec.interimResults = true;
+    termVoiceRec.continuous = false;
+
+    termVoiceRec.onstart = function() {
+      isTermVoiceRecording = true;
+      document.getElementById('termMicHint').innerText = "🎙️ Tinglanmoqda... Gapiring!";
+      document.getElementById('btnTermMic').style.background = 'linear-gradient(135deg, #10B981, #059669)';
+      document.getElementById('termTranscriptBox').style.display = 'block';
+      document.getElementById('termTranscriptText').innerText = '...';
+      document.getElementById('termResultMsg').innerHTML = '';
+    };
+
+    termVoiceRec.onresult = function(e) {
+      let t = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        t += e.results[i][0].transcript;
+      }
+      document.getElementById('termTranscriptText').innerText = t;
+      if (e.results[0].isFinal) {
+        sendTerminalVoiceExpense(t);
+      }
+    };
+
+    termVoiceRec.onerror = function() {
+      isTermVoiceRecording = false;
+      document.getElementById('termMicHint').innerText = "Gapirish uchun bosing";
+      document.getElementById('btnTermMic').style.background = 'linear-gradient(135deg, #DC2626, #EF4444)';
+    };
+
+    termVoiceRec.onend = function() {
+      isTermVoiceRecording = false;
+      document.getElementById('termMicHint').innerText = "Gapirish uchun bosing";
+      document.getElementById('btnTermMic').style.background = 'linear-gradient(135deg, #DC2626, #EF4444)';
+    };
+  }
+
+  if (isTermVoiceRecording) {
+    termVoiceRec.stop();
+  } else {
+    try {
+      termVoiceRec.start();
+    } catch(e) {
+      termVoiceRec.stop();
+      setTimeout(() => { try { termVoiceRec.start(); } catch(err){} }, 250);
+    }
+  }
+}
+
+function termManualExpensePrompt() {
+  const text = prompt("Chiqim yoki kirimni yozing (masalan: 'Tushlikka 45 ming chiqim'):");
+  if (text) {
+    document.getElementById('termTranscriptBox').style.display = 'block';
+    document.getElementById('termTranscriptText').innerText = text;
+    sendTerminalVoiceExpense(text);
+  }
+}
+
+function sendTerminalVoiceExpense(rawText) {
+  if (!rawText || !rawText.trim()) return;
+  const resMsg = document.getElementById('termResultMsg');
+  resMsg.innerHTML = '<span style="color:#D97706;">⏳ Kiritilmoqda...</span>';
+
+  fetch('/pos/api/voice/cash-transaction/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrfToken()
+    },
+    body: JSON.stringify({ text: rawText })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      resMsg.innerHTML = `<span style="color:#16A34A;">✅ ${data.message}</span>`;
+      if ('speechSynthesis' in window) {
+        try {
+          const utter = new SpeechSynthesisUtterance(`${data.description} ${Math.round(data.amount)} so'm kiritildi`);
+          utter.lang = 'uz-UZ';
+          window.speechSynthesis.speak(utter);
+        } catch(e) {}
+      }
+      setTimeout(() => {
+        closeTerminalVoiceModal();
+      }, 2000);
+    } else {
+      resMsg.innerHTML = `<span style="color:#DC2626;">❌ ${data.message || 'Xatolik yuz berdi'}</span>`;
+    }
+  })
+  .catch(err => {
+    resMsg.innerHTML = `<span style="color:#DC2626;">❌ Tarmoq xatosi!</span>`;
+  });
+}
+</script>
 
 <!-- Z-Report (Shiftni Yopish) Modal -->
 <div id="z-report-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99999; justify-content:center; align-items:center;">

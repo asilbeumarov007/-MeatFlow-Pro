@@ -143,4 +143,7 @@ urlpatterns = [
     path('api/stock/transform/', views_api.api_stock_transform, name='api_stock_transform'),
     path('api/broadcast/', views.api_broadcast_message, name='api_broadcast_message'),
     path('api/send-daily-digest/', views_api.api_send_daily_digest, name='api_send_daily_digest'),
+    path('api/debt/preview-reminder/<int:customer_id>/', views_api.api_preview_debt_reminder, name='api_preview_debt_reminder'),
+    path('api/debt/send-reminder/', views_api.api_send_debt_reminder, name='api_send_debt_reminder'),
+    path('api/voice/cash-transaction/', views_api.api_voice_cash_transaction, name='api_voice_cash_transaction'),
 ]

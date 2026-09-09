@@ -477,6 +477,55 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
     touch-action: manipulation;
   }
 }
+
+/* ── Voice Cash Flow Button & Wave Styles ── */
+.btn-voice-glow {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 13px 20px;
+  font-weight: 800;
+  font-size: 14.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.45);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+.btn-voice-glow:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.7);
+}
+.btn-voice-glow.recording {
+  background: linear-gradient(135deg, #EF4444, #DC2626) !important;
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.75) !important;
+  animation: pulse-red 1.2s infinite;
+}
+@keyframes pulse-red {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.voice-wave-bar {
+  width: 4px;
+  height: 100%;
+  background: #34D399;
+  border-radius: 3px;
+  animation: wave-bounce 1s infinite ease-in-out;
+}
+.voice-wave-bar:nth-child(1) { animation-delay: 0.0s; }
+.voice-wave-bar:nth-child(2) { animation-delay: 0.2s; }
+.voice-wave-bar:nth-child(3) { animation-delay: 0.4s; }
+.voice-wave-bar:nth-child(4) { animation-delay: 0.15s; }
+
+@keyframes wave-bounce {
+  0%, 100% { height: 6px; }
+  50% { height: 26px; }
+}
 </style>
 
 <div class="cf-shell">
@@ -503,6 +552,60 @@ body { background: #F5F1EB !important; font-family: 'Inter', sans-serif !importa
         <div class="cf-card-lbl">Karta Hisobidagi Qoldiq</div>
         <div class="cf-card-val" id="card-drawer-bal">{{ card_in_hand|floatformat:0 }} so'm</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       🎙️ OVOZLI KIRIM VA CHIQIM AI BANNERI (VOICE CASH FLOW)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="voice-cash-hero mb-4 p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #0A192F 0%, #0F2D24 55%, #1B6B4A 100%); border: 1.5px solid rgba(52, 211, 153, 0.4); position: relative; overflow: hidden; color: #fff;">
+    <!-- Ambient glowing circle -->
+    <div style="position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; background: rgba(52, 211, 153, 0.2); border-radius: 50%; filter: blur(50px); pointer-events: none;"></div>
+
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 position-relative" style="z-index: 2;">
+      <div style="max-width: 600px;">
+        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+          <span class="badge" style="background: rgba(52, 211, 153, 0.25); color: #6EE7B7; font-weight: 800; border: 1px solid rgba(52, 211, 153, 0.5); font-size: 11px; padding: 5px 10px; border-radius: 8px;">
+            🎙️ OVOZLI KASSA AI
+          </span>
+          <span class="badge" style="background: rgba(255,255,255,0.12); color: #F1F5F9; font-size: 11px; padding: 5px 10px; border-radius: 8px;">
+            ⚡ 1-Soniya ichida kiritish
+          </span>
+        </div>
+        <h3 class="fw-bold mb-1" style="font-family: 'DM Serif Display', serif; font-size: 1.55rem; letter-spacing: -0.3px;">
+          Ovoz orqali Chiqim va Kirim kiritish
+        </h3>
+        <p class="small text-white-50 mb-0" style="line-height: 1.5;">
+          Qo'lda yozib o'tirmang! Mikrofonni bosing va ayting: 
+          <span class="text-white fw-semibold">"Tushlikka 45 ming chiqim yoz"</span>, 
+          <span class="text-white fw-semibold">"Sanjar jiyanga 5 million naqd berildi"</span> yoki 
+          <span class="text-white fw-semibold">"Kassaga 200 ming mayda pul kiritildi"</span>.
+        </p>
+      </div>
+
+      <!-- Action Button & Wave -->
+      <div class="d-flex align-items-center gap-3">
+        <div id="voiceWaveAnimation" style="display: none; align-items: center; gap: 4px; height: 28px;">
+          <span class="voice-wave-bar"></span>
+          <span class="voice-wave-bar"></span>
+          <span class="voice-wave-bar"></span>
+          <span class="voice-wave-bar"></span>
+        </div>
+        <button type="button" id="btnVoiceCashRecord" class="btn-voice-glow" onclick="toggleVoiceCashRecording()">
+          <i class="bi bi-mic-fill fs-5" id="voiceMicIcon"></i>
+          <span id="voiceMicStatusText">Gapirish uchun bosing</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Transcript & Result Box -->
+    <div id="voiceTranscriptBox" class="mt-3 p-3 rounded-3" style="display: none; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <span class="small text-warning fw-bold" id="voiceTranscriptStatus">🎙️ Tinglanmoqda...</span>
+        <button type="button" class="btn btn-sm btn-link text-white-50 p-0 text-decoration-none" onclick="document.getElementById('voiceTranscriptBox').style.display='none'">✕ Yopish</button>
+      </div>
+      <div class="fw-semibold fs-6 text-white" id="voiceTranscriptText" style="min-height: 24px;">...</div>
+      <div id="voiceExecutionResult" class="mt-2" style="display: none;"></div>
     </div>
   </div>
 
@@ -894,5 +997,149 @@ function handleTransactionSubmit(event, formType) {
     btn.innerText = formType === 'in' ? "Kirimni Saqlash" : "Chiqimni Saqlash";
   });
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// 🎙️ VOICE CASH FLOW (SPEECH TO TEXT & DIRECT PROCESSING)
+// ═══════════════════════════════════════════════════════════════════
+let voiceRecognition = null;
+let isVoiceRecording = false;
+
+function initVoiceCash() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    console.warn("SpeechRecognition ushbu brauzerda qo'llab-quvvatlanmaydi");
+    return;
+  }
+  voiceRecognition = new SpeechRecognition();
+  voiceRecognition.lang = 'uz-UZ';
+  voiceRecognition.interimResults = true;
+  voiceRecognition.continuous = false;
+
+  voiceRecognition.onstart = function() {
+    isVoiceRecording = true;
+    const btn = document.getElementById('btnVoiceCashRecord');
+    if (btn) btn.classList.add('recording');
+    document.getElementById('voiceMicStatusText').innerText = "Tinglanmoqda... (Gapiring)";
+    document.getElementById('voiceTranscriptBox').style.display = 'block';
+    document.getElementById('voiceTranscriptStatus').innerText = "🎙️ Ovoz tinglanmoqda...";
+    document.getElementById('voiceWaveAnimation').style.display = 'flex';
+    document.getElementById('voiceExecutionResult').style.display = 'none';
+  };
+
+  voiceRecognition.onresult = function(event) {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    document.getElementById('voiceTranscriptText').innerText = transcript;
+    if (event.results[0].isFinal) {
+      processVoiceCashText(transcript);
+    }
+  };
+
+  voiceRecognition.onerror = function(event) {
+    console.error("Voice recognition error:", event.error);
+    stopVoiceRecording();
+    document.getElementById('voiceTranscriptStatus').innerText = "❌ Ovoz aniqlanmadi yoki mikrofon ruxsati berilmadi";
+  };
+
+  voiceRecognition.onend = function() {
+    stopVoiceRecording();
+  };
+}
+
+function toggleVoiceCashRecording() {
+  if (!voiceRecognition) initVoiceCash();
+  if (!voiceRecognition) {
+    const manual = prompt("Ovozli kassa buyrug'ini yozing (masalan: 'Tushlikka 45 ming chiqim yoz'):");
+    if (manual) processVoiceCashText(manual);
+    return;
+  }
+  if (isVoiceRecording) {
+    voiceRecognition.stop();
+  } else {
+    try {
+      voiceRecognition.start();
+    } catch(e) {
+      voiceRecognition.stop();
+      setTimeout(() => {
+        try { voiceRecognition.start(); } catch(err){}
+      }, 250);
+    }
+  }
+}
+
+function stopVoiceRecording() {
+  isVoiceRecording = false;
+  const btn = document.getElementById('btnVoiceCashRecord');
+  if (btn) {
+    btn.classList.remove('recording');
+    document.getElementById('voiceMicStatusText').innerText = "Gapirish uchun bosing";
+  }
+  const wave = document.getElementById('voiceWaveAnimation');
+  if (wave) wave.style.display = 'none';
+}
+
+function processVoiceCashText(rawText) {
+  if (!rawText || !rawText.trim()) return;
+  document.getElementById('voiceTranscriptStatus').innerText = "⏳ AI tahlil qilmoqda va kiritmoqda...";
+
+  fetch('/pos/api/voice/cash-transaction/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({ text: rawText })
+  })
+  .then(r => r.json())
+  .then(data => {
+    const resBox = document.getElementById('voiceExecutionResult');
+    resBox.style.display = 'block';
+
+    if (data.status === 'success') {
+      document.getElementById('voiceTranscriptStatus').innerText = "✅ Muvaffaqiyatli saqlandi!";
+      resBox.className = "alert alert-success py-2 px-3 small mt-2 fw-bold";
+      resBox.innerHTML = `
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <span>${data.message}</span>
+          <span class="badge bg-success fs-6">${data.amount.toLocaleString()} so'm</span>
+        </div>
+      `;
+
+      // Kassadagi naqd pul balansini darhol yangilash
+      if (data.expected_drawer !== undefined) {
+        const balEl = document.getElementById('naqd-drawer-bal');
+        if (balEl) balEl.innerText = Math.round(data.expected_drawer).toLocaleString('fr-FR') + " so'm";
+      }
+
+      // Ovoz bilan qayta tasdiqlash
+      if ('speechSynthesis' in window) {
+        try {
+          const utter = new SpeechSynthesisUtterance(`${data.description} ${Math.round(data.amount)} so'm kiritildi`);
+          utter.lang = 'uz-UZ';
+          window.speechSynthesis.speak(utter);
+        } catch(e) {}
+      }
+
+      // 2.5 soniyadan so'ng sahifani yangilash
+      setTimeout(() => {
+        window.location.reload();
+      }, 2500);
+
+    } else {
+      document.getElementById('voiceTranscriptStatus').innerText = "⚠️ Tushunilmadi";
+      resBox.className = "alert alert-warning py-2 px-3 small mt-2";
+      resBox.innerHTML = `❌ ${data.message || 'Summa yoki yo\'nalish aniqlanmadi'}`;
+    }
+  })
+  .catch(err => {
+    document.getElementById('voiceTranscriptStatus').innerText = "❌ Tarmoq xatosi";
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initVoiceCash();
+});
 </script>
 {% endblock %}

@@ -519,12 +519,17 @@
       <div class="debtors-card">
         <div class="debtors-header">🔴 Eng ko'p qarzlilar</div>
         {% for c in top_debtors %}
-        <div class="debtor-row">
+        <div class="debtor-row" style="display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div class="debtor-name">{{ c.first_name }} {{ c.last_name|default:"" }}</div>
-            <div class="debtor-meta">ID: {{ c.custom_id }}</div>
+            <div class="debtor-meta">ID: {{ c.custom_id }}{% if c.telegram_chat_id %} &bull; <span style="color:#0284C7;">✈️ TG</span>{% endif %}</div>
           </div>
-          <div class="debtor-debt">{{ c.debt_amount|floatformat:0 }} so'm</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="debtor-debt">{{ c.debt_amount|floatformat:0 }} so'm</div>
+            <button class="btn btn-sm btn-outline-danger py-1 px-2" style="border-radius:8px; font-size:11px;" title="Qarz eslatmasi (SMS/TG)" onclick="openDebtReminderModal({{ c.id }})">
+              <i class="bi bi-bell-fill"></i>
+            </button>
+          </div>
         </div>
         {% empty %}
         <div style="padding:16px;text-align:center;color:#6B7280;font-size:13px;">Qarzli mijoz yo'q 🎉</div>
@@ -581,6 +586,9 @@
             <div class="bonus-val">⭐ {{ c.bonus_points }} ball</div>
           </div>
           <div class="action-pill-group">
+            {% if c.debt_amount > 0 %}
+            <button class="action-pill-btn" style="background:#FEF2F2; color:#DC2626; border-color:#FECACA;" title="Qarz eslatmasi yuborish (SMS/TG)" onclick="openDebtReminderModal({{ c.id }})"><i class="bi bi-bell-fill"></i></button>
+            {% endif %}
             <button class="action-pill-btn btn-profile" title="Mijoz 360° Profili" onclick="showCustomerQuickInfo({{ c.id }}, '{{ c.first_name|escapejs }} {{ c.last_name|default:''|escapejs }}')"><i class="bi bi-person-badge-fill"></i></button>
             <button class="action-pill-btn btn-history" title="Qarzlar tarixi va tafsilotlari" onclick="openCustomerDebtHistoryModal({{ c.id }},'{{ c.first_name }} {{ c.last_name|default:'' }}')"><i class="bi bi-clock-history"></i></button>
             <button class="action-pill-btn btn-special" title="Maxsus / Choyxona narxlari" onclick="openSpecialPricesModal({{ c.id }},'{{ c.first_name }} {{ c.last_name|default:'' }}')"><i class="bi bi-tags-fill"></i></button>

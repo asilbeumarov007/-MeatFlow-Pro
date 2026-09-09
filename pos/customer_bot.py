@@ -525,6 +525,8 @@ def handle_customer_update(update):
             )
             try:
                 edit_message(chat_id, cb['message']['message_id'], msg)
+            except Exception:
+                pass
         elif data == 'create_new_guest_profile':
             st = USER_STATES.pop(chat_id, None)
             phone_val = st.get('phone') if isinstance(st, dict) else None

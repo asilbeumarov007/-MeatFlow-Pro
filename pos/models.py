@@ -164,6 +164,8 @@ class Customer(models.Model):
         verbose_name="Kuryerlik statusi"
     )
     courier_vehicle = models.CharField(max_length=100, blank=True, null=True, verbose_name="Transport turi")
+    last_reminder_sent_at = models.DateTimeField(null=True, blank=True, verbose_name="Oxirgi eslatma yuborilgan vaqt")
+    reminder_count = models.PositiveIntegerField(default=0, verbose_name="Eslatmalar soni")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Qo'shilgan vaqti")
 
     @property
@@ -300,6 +302,7 @@ class CustomerLog(models.Model):
         ('debt_add', "Qarz ko'payishi"),
         ('debt_pay', "Qarz to'lashi"),
         ('bonus', "Bonus o'zgarishi"),
+        ('reminder', "Qarz eslatmasi yuborildi"),
     ]
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='logs', verbose_name="Mijoz")
     log_type = models.CharField(max_length=20, choices=LOG_TYPES, db_index=True, verbose_name="Amal turi")
@@ -379,7 +382,6 @@ class StockBatch(models.Model):
         return f"{self.product.name} Partiya #{self.id} ({self.current_quantity} kg)"
 
 
-
 class CashTransaction(models.Model):
     TRANSACTION_TYPES = [
         ('in', 'Kirim (Cash In)'),
@@ -402,6 +404,7 @@ class CashTransaction(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORIES, default='other', db_index=True, verbose_name="Kategoriya")
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default='naqd', verbose_name="To'lov turi")
     description = models.TextField(blank=True, null=True, verbose_name="Izoh / Maqsad")
+    voice_raw_text = models.CharField(max_length=255, blank=True, null=True, verbose_name="Ovozli xom matn")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="Vaqti")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Mas'ul")
     customer = models.ForeignKey('Customer', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Mijoz (Xaridor)")
