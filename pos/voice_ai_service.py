@@ -56,10 +56,31 @@ def get_live_store_context():
     top_debtors = Customer.objects.filter(debt_amount__gt=0).order_by('-debt_amount')[:5]
     top_debtors_str = ", ".join([f"{d.first_name}: {int(d.debt_amount):,} so'm" for d in top_debtors])
 
-    # Ta'minotchi / Chorvadorlarga qarzimiz
+    # Kassa va G'aladondagi kutilayotgan naqd pul
+    shift = CashierShift.objects.filter(is_open=True).order_by('-opened_at').first()
+    shift_status = "Ochiq" if shift else "Yopilgan"
+    cashier_name = (shift.cashier.get_full_name() or shift.cashier.username) if shift else "Biriktirilmagan"
+    opening_cash = shift.opening_cash if shift else Decimal('0.00')
+
+    aralash_naqd = today_sales.filter(payment_method='aralash').aggregate(s=Sum('paid_naqd'))['s'] or Decimal('0.00')
+    total_cash_from_sales = naqd_total + aralash_naqd
+
+    today_cash_tx = CashTransaction.objects.filter(created_at__date=today, payment_method='naqd')
+    cash_in = today_cash_tx.filter(transaction_type='in').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
+    cash_out = today_cash_tx.filter(transaction_type='out').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
+    expected_cash_drawer = opening_cash + total_cash_from_sales + cash_in - cash_out
+
+    # Ta'minotchi va Chorvadorlar ro'yxati
+    suppliers_qs = Supplier.objects.all().order_by('-our_debt')
+    supp_debt = suppliers_qs.filter(our_debt__gt=0).aggregate(s=Sum('our_debt'))['s'] or Decimal('0.00')
     unpaid_slaughters = Slaughter.objects.filter(is_paid=False).aggregate(s=Sum('total_cost'))['s'] or Decimal('0.00')
-    supp_debt = Supplier.objects.aggregate(s=Sum('our_debt'))['s'] or Decimal('0.00')
     total_supplier_debt = unpaid_slaughters + supp_debt
+
+    suppliers_list_str = []
+    for s in suppliers_qs:
+        debt_txt = f"{s.our_debt:,.0f} so'm qarzimiz bor" if s.our_debt > 0 else (f"Haqimiz bor: {abs(s.our_debt):,.0f} so'm" if s.our_debt < 0 else "0")
+        suppliers_list_str.append(f"• {s.first_name} {s.last_name or ''} ({s.phone}): {debt_txt}")
+    suppliers_detailed_summary = "\n       ".join(suppliers_list_str) if suppliers_list_str else "Ta'minotchilar ro'yxati bo'sh"
 
     # 6. Bugungi so'yimlar
     slaughters = Slaughter.objects.filter(created_at__date=today)
@@ -74,6 +95,14 @@ def get_live_store_context():
     context_text = f"""
     BU VAQTDAGI JONLI DO'KON MA'LUMOTLARI ({local_now.strftime('%d.%m.%Y %H:%M')}):
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    💵 KASSA VA G'ALADONDAGI NAQD PUL:
+       - Smena: {shift_status} (Kassir: {cashier_name})
+       - Kassa boshlang'ich naqd puli: {int(opening_cash):,} so'm
+       - Bugungi naqd tushum: {int(total_cash_from_sales):,} so'm
+       - Kassaga qo'shimcha kirim: {int(cash_in):,} so'm
+       - Kassadan chiqim (xarajat): {int(cash_out):,} so'm
+       - 👉 G'ALADONDA KUTILAYOTGAN JORIY NAQD PUL: {int(expected_cash_drawer):,} so'm
+
     💰 BUGUNGI JAMI SAVDO: {int(total_revenue):,} so'm ({total_sales_count} ta chek)
        - 💵 Naqd to'lov: {int(naqd_total):,} so'm
        - 💳 Plastik karta: {int(karta_total):,} so'm
@@ -85,19 +114,17 @@ def get_live_store_context():
     🥩 BUGUN SOTILGAN GO'SHT: {total_weight_sold:.2f} kg
        - Mahsulotlar bo'yicha: {items_breakdown or 'Hali savdo qilinmadi'}
 
-    💵 BUGUN UNDIRILGAN QARZLAR (Tushum): {int(total_debt_collected):,} so'm ({debt_collected_count} ta to'lov)
-
-    📦 OMBOR QOLDIG'I: {total_stock_weight:.2f} kg
-       - Go'sht turlari: {stock_breakdown}
+    🏢 BIZNING CHORVADORLARGA BO'LGAN QARZIMIZ: {int(total_supplier_debt):,} so'm
+       Ta'minotchilar ro'yxati:
+       {suppliers_detailed_summary}
 
     📋 MIJOZLARNING DO'KONGA NASIYA QARZI: {int(total_customer_debt):,} so'm ({debtor_count} ta mijoz bizga pul berishi kerak)
        - Top qarzdor mijozlar: {top_debtors_str or 'Qarz yo`q'}
 
-    🏢 BIZNING CHORVADORLARGA BO'LGAN QARZIMIZ: {int(total_supplier_debt):,} so'm (Biz to'lashimiz kerak bo'lgan go'sht/so'yim haqqi)
+    📦 OMBOR QOLDIG'I: {total_stock_weight:.2f} kg
+       - Go'sht turlari: {stock_breakdown}
 
     🐂 BUGUNGI SO'YIM: {slaughter_count} ta hayvon ({slaughter_weight:.2f} kg toza go'sht)
-
-    📅 KECHAGI SAVDO: {int(yesterday_revenue):,} so'm ({yesterday_weight:.2f} kg go'sht)
     """
     return context_text.strip()
 

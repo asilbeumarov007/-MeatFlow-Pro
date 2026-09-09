@@ -1612,58 +1612,120 @@ def api_ai_copilot(request):
         except Exception:
             pass
 
-    # 1. Bazadan barcha kerakli statistikani jamlaymiz
+    # 1. Bazadan barcha kerakli statistikani to'liq jamlaymiz
     today = timezone.localtime(timezone.now()).date()
     
+    from .models import CashierShift, CashTransaction, Supplier, Slaughter, StockBatch, B2BOrder, Stock, Customer, Sale, AIChatMessage
+
     # Mahsulot qoldiqlari
     stocks = Stock.objects.all().select_related('product')
     stock_summary = ", ".join([f"{s.product.name}: {s.quantity} kg" for s in stocks])
 
-    # Umumiy qarzlar (To'g'ri ajratilgan: Mijozlar qarzi vs Ta'minotchi qarzimiz)
-    from .models import Slaughter
-    total_customer_debts = Customer.objects.filter(debt_amount__gt=0).aggregate(Sum('debt_amount'))['debt_amount__sum'] or Decimal('0.00')
-    
-    unpaid_slaughters = Slaughter.objects.filter(is_paid=False).aggregate(Sum('total_cost'))['total_cost__sum'] or Decimal('0.00')
-    supplier_model_debts = Supplier.objects.aggregate(Sum('our_debt'))['our_debt__sum'] or Decimal('0.00')
-    customer_suppliers_debt = abs(Customer.objects.filter(debt_amount__lt=0).aggregate(Sum('debt_amount'))['debt_amount__sum'] or Decimal('0.00'))
-    total_supplier_debts = max(unpaid_slaughters + supplier_model_debts, customer_suppliers_debt)
+    # Kassa va Smena holati
+    shift = CashierShift.objects.filter(is_open=True).order_by('-opened_at').first()
+    shift_status = "Ochiq" if shift else "Yopilgan"
+    cashier_name = (shift.cashier.get_full_name() or shift.cashier.username) if shift else "Biriktirilmagan"
+    opening_cash = shift.opening_cash if shift else Decimal('0.00')
 
-    # Oxirgi savdolar (Bugungi)
+    # Bugungi savdolar
     today_sales = Sale.objects.filter(created_at__date=today)
     total_revenue = today_sales.aggregate(Sum('final_paid'))['final_paid__sum'] or Decimal('0.00')
-    total_debt_added = today_sales.aggregate(Sum('debt_added'))['debt_added__sum'] or Decimal('0.00')
     total_discounts = today_sales.aggregate(Sum('discount_amount'))['discount_amount__sum'] or Decimal('0.00')
 
-    # Eng katta qarzdor xaridorlar (Bizga pul berishi kerak bo'lganlar)
-    debtors = Customer.objects.filter(debt_amount__gt=0).order_by('-debt_amount')[:3]
+    cash_sales = today_sales.filter(payment_method='naqd').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    card_sales = today_sales.filter(payment_method='karta').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    qr_sales = today_sales.filter(payment_method='qr').aggregate(s=Sum('final_paid'))['s'] or Decimal('0.00')
+    debt_sales = today_sales.filter(payment_method='nasiya').aggregate(s=Sum('debt_added'))['s'] or Decimal('0.00')
+
+    aralash_sales = today_sales.filter(payment_method='aralash')
+    aralash_naqd = aralash_sales.aggregate(s=Sum('paid_naqd'))['s'] or Decimal('0.00')
+    aralash_karta = aralash_sales.aggregate(s=Sum('paid_karta'))['s'] or Decimal('0.00')
+    aralash_qr = aralash_sales.aggregate(s=Sum('paid_qr'))['s'] or Decimal('0.00')
+    aralash_debt = aralash_sales.aggregate(s=Sum('debt_added'))['s'] or Decimal('0.00')
+
+    total_cash_from_sales = cash_sales + aralash_naqd
+    total_card_from_sales = card_sales + aralash_karta
+    total_qr_from_sales = qr_sales + aralash_qr
+    total_debt_added = debt_sales + aralash_debt
+
+    # Kassadagi naqd pul harakati (Cash Transactions)
+    today_cash_tx = CashTransaction.objects.filter(created_at__date=today, payment_method='naqd')
+    cash_in = today_cash_tx.filter(transaction_type='in').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
+    cash_out = today_cash_tx.filter(transaction_type='out').aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
+    expected_cash_drawer = opening_cash + total_cash_from_sales + cash_in - cash_out
+
+    # Ta'minotchilar va Chorvadorlar oldidagi qarzlarimiz
+    suppliers_qs = Supplier.objects.all().order_by('-our_debt')
+    total_supplier_model_debt = suppliers_qs.filter(our_debt__gt=0).aggregate(Sum('our_debt'))['our_debt__sum'] or Decimal('0.00')
+    unpaid_slaughters = Slaughter.objects.filter(is_paid=False)
+    total_unpaid_slaughter_cost = unpaid_slaughters.aggregate(Sum('total_cost'))['total_cost__sum'] or Decimal('0.00')
+    total_supplier_debts = total_supplier_model_debt + total_unpaid_slaughter_cost
+
+    suppliers_list_str = []
+    for s in suppliers_qs:
+        debt_txt = f"{s.our_debt:,.0f} so'm qarzimiz bor" if s.our_debt > 0 else (f"Haqimiz bor: {abs(s.our_debt):,.0f} so'm" if s.our_debt < 0 else "Hisob-kitob 0")
+        suppliers_list_str.append(f"• {s.first_name} {s.last_name or ''} ({s.phone}): {debt_txt}")
+    suppliers_detailed_summary = "\n       ".join(suppliers_list_str) if suppliers_list_str else "Ta'minotchilar ro'yxati bo'sh"
+
+    # Xaridorlar (Mijozlar) nasiyalari (Bizga to'lashi kerak bo'lgan pul)
+    total_customer_debts = Customer.objects.filter(debt_amount__gt=0).aggregate(Sum('debt_amount'))['debt_amount__sum'] or Decimal('0.00')
+    debtors = Customer.objects.filter(debt_amount__gt=0).order_by('-debt_amount')[:5]
     debtors_summary = ", ".join([f"{d.first_name} ({d.phone}): {d.debt_amount:,.0f} so'm" for d in debtors]) or "Mijozlardan nasiya qarzlar yo'q"
 
-    # Eng katta ta'minotchilar (Biz pul to'lashimiz kerak bo'lgan chorvadorlar)
-    unpaid_slaughters_qs = Slaughter.objects.filter(is_paid=False).select_related('supplier', 'customer')[:3]
-    suppliers_summary = ", ".join([f"{s.customer.first_name if s.customer else (s.supplier.name if s.supplier else 'Chorvador')}: {s.total_cost:,.0f} so'm" for s in unpaid_slaughters_qs]) or "Chorvadorlar ro'yxati toza"
+    # Bugungi chiqimlar (Xarajatlar)
+    recent_expenses = CashTransaction.objects.filter(created_at__date=today, transaction_type='out')
+    expense_details = [f"• {ex.get_category_display()}: {ex.amount:,.0f} so'm ({ex.description or 'Izohsiz'})" for ex in recent_expenses[:5]]
+    expenses_summary = "\n       ".join(expense_details) if expense_details else "Bugun xarajatlar qayd etilmagan"
+
+    # Sovuqxonadagi go'shtning tabiiy qurishi (Yield Decay)
+    aging_batches = StockBatch.objects.filter(current_quantity__gt=Decimal('0.05')).select_related('product').order_by('created_at')[:5]
+    aging_str_list = [f"• {b.product.name} (Partiya #{b.id}): {b.current_quantity:.1f} kg, {b.get_days_passed()} kun turibdi" for b in aging_batches]
+    aging_summary = "\n       ".join(aging_str_list) if aging_str_list else "Sovuqxonada eski partiyalar yo'q"
+
+    # Online / B2B Kuryerlik buyurtmalari
+    active_b2b_orders = B2BOrder.objects.filter(status__in=['pending', 'payment_uploaded', 'accepted', 'in_delivery'])
+    b2b_count = active_b2b_orders.count()
 
     # Prompt yaratish
     prompt = f"""
-    Siz "Baxmal Meat" go'sht do'konining aqlli sun'iy intellekt biznes maslahatchisisiz. Qassob va do'kon egasi (Islom aka)ga do'kondagi hozirgi moliyaviy va ombor holati bo'yicha o'zbek tilida (oddiy, tushunarli, samimiy va do'konchilik uslubida) hisobotlar, tahlil va maslahatlar bering.
+    Siz "Baxmal Meat" go'sht do'konining aqlli sun'iy intellekt boshqaruv maslahatchisisiz. Do'kon egasi va qassoblarga butun tizim ko'rsatkichlari (Kassa, Ta'minotchilar, Nasiyalar, Ombor, Xarajatlar) asosida o'zbek tilida qisqa, aniq, amaliy va samimiy javob bering.
     
-    Hozirgi do'konning haqiqiy ko'rsatkichlari:
-    1. Ombordagi go'sht qoldiqlari: {stock_summary}
-    2. Mijozlarimizning do'kondan olgan nasiya qarzi (Bizga qaytishi kerak bo'lgan pul): {total_customer_debts:,.0f} so'm.
-       Asosiy qarzdor mijozlar: {debtors_summary}
-    3. Bizning (do'konning) chorvador va ta'minotchilarga bo'lgan qarzimiz (Biz to'lashimiz kerak bo'lgan go'sht/so'yim haqqi): {total_supplier_debts:,.0f} so'm.
-       Asosiy ta'minotchilarimiz: {suppliers_summary}
-    4. Bugungi kassa tushumi (naqd/karta): {total_revenue:,.0f} so'm.
-    5. Bugun yangi berilgan nasiya: {total_debt_added:,.0f} so'm.
-    6. Bugun chegirmalarga ketgan summa: {total_discounts:,.0f} so'm.
+    Hozirgi do'konning haqiqiy to'liq ko'rsatkichlari:
     
-    DIQQAT MUHIM FARQLAR:
-    - Mijozlar qarzi ({total_customer_debts:,.0f} so'm) — bu xaridorlar go'sht olib ketib bizga to'lashi kerak bo'lgan summa (Biz undirib olishimiz kerak).
-    - Ta'minotchi/chorvadorlar qarzi ({total_supplier_debts:,.0f} so'm) — bu biz tirik mol yoki go'sht olib, chorvadorga to'lashimiz kerak bo'lgan qarz (Biz to'lashimiz kerak).
-    
-    Islom akaga do'kondagi aylanmani yaxshilash, chorvador oldidagi qarzni uzish va mijozlardan nasiyani undirish bo'yicha aniq, amaliy tavsiyalar bering.
-    """
+    💰 1. KASSA VA G'ALADONDAGI NAQD PUL:
+       - Smena holati: {shift_status} (Kassir: {cashier_name})
+       - Boshlang'ich kassa naqd puli (Float): {opening_cash:,.0f} so'm
+       - Bugungi savdo tushumi: {total_revenue:,.0f} so'm
+         * 💵 Naqd savdo tushumi: {total_cash_from_sales:,.0f} so'm
+         * 💳 Plastik karta tushumi: {total_card_from_sales:,.0f} so'm
+         * 📱 QR (Click/Payme) tushumi: {total_qr_from_sales:,.0f} so'm
+         * 📋 Yangi berilgan nasiya: {total_debt_added:,.0f} so'm
+       - Kassaga qo'shimcha naqd kirim: {cash_in:,.0f} so'm
+       - Kassadan naqd chiqim (Xarajat/to'lov): {cash_out:,.0f} so'm
+       - 👉 KASSADAGI G'ALADONDA HOZIR BO'LISHI KERAK BO'LGAN NAQD PUL: {expected_cash_drawer:,.0f} so'm
 
-    from pos.models import AIChatMessage
+    🏢 2. TA'MINOTCHILAR VA CHORVADORLAR (Bizning qarzlarimiz):
+       - Chorvadorlar oldidagi jami qarzimiz: {total_supplier_debts:,.0f} so'm
+       - Barcha ta'minotchilar ro'yxati:
+       {suppliers_detailed_summary}
+
+    👥 3. XARIDORLARNING NASIYA QARZLARI (Bizga to'lashi kerak bo'lgan pul):
+       - Mijozlar nasiya qarzi: {total_customer_debts:,.0f} so'm
+       - Asosiy qarzdorlar: {debtors_summary}
+
+    🥩 4. OMBOR VA GO'SHT QOLDIQLARI:
+       - Qoldiqlar: {stock_summary}
+       - Sovuqxona go'shtlari (Yield decay):
+       {aging_summary}
+
+    💸 5. BUGUNGI XARAJATLAR:
+       {expenses_summary}
+
+    🚚 6. ONLINE VA B2B BUYURTMALAR:
+       - Faol buyurtmalar: {b2b_count} ta
+
+    Savolga javob berayotganda ushbu aniq raqamlardan foydalaning va qassobxona ishini yaxshilash bo'yicha aniq tavsiyalar bering.
+    """
 
     if user_question:
         prompt += f"\nFoydalanuvchi savoli: \"{user_question}\"\nIltimos, ushbu savolga do'kon ko'rsatkichlaridan foydalanib qisqa, tushunarli va aniq javob bering."
@@ -1683,19 +1745,38 @@ def api_ai_copilot(request):
     # Smart Local AI Analysis fallback function
     def get_smart_local_ai_advice(q_text):
         q_lower = (q_text or "").lower()
-        if "savdo" in q_lower or "oshirish" in q_lower or "z-report" in q_lower or "tushum" in q_lower or "marja" in q_lower:
+        if "kassa" in q_lower or "naqd" in q_lower or "g'aladon" in q_lower or "pul" in q_lower:
+            return f"""💵 <strong>MeatFlow Pro AI Kassa & Naqd Pul Tahlili:</strong>
+
+1. 🟢 <strong>Smena:</strong> {shift_status} (Kassir: {cashier_name})
+2. 💰 <strong>G'aladondagi Kutilayotgan Naqd Pul:</strong> <strong>{expected_cash_drawer:,.0f} so'm</strong>
+   • Boshlang'ich kassa (Float): {opening_cash:,.0f} so'm
+   • Bugungi naqd savdo tushumi: {total_cash_from_sales:,.0f} so'm
+   • Kassaga qo'shimcha kirim: {cash_in:,.0f} so'm
+   • Kassadan chiqim (xarajatlar): {cash_out:,.0f} so'm
+3. 💳 <strong>Boshqa To'lovlar:</strong> Karta: {total_card_from_sales:,.0f} so'm | QR: {total_qr_from_sales:,.0f} so'm | Nasiya: {total_debt_added:,.0f} so'm."""
+
+        elif "taminotchi" in q_lower or "ta'minotchi" in q_lower or "chorvador" in q_lower or "molchi" in q_lower:
+            return f"""🏢 <strong>MeatFlow Pro AI Ta'minotchilar & Chorvadorlar Tahlili:</strong>
+
+1. 🔴 <strong>Chorvadorlar Oldidagi Jami Qarzimiz:</strong> <strong>{total_supplier_debts:,.0f} so'm</strong>
+2. 📋 <strong>Ta'minotchilar Bo'yicha Qarzlar:</strong>
+{suppliers_detailed_summary}
+3. 💡 <strong>Amaliy Tavsiya:</strong> Eng yirik qarzlarni yopish uchun avval mijozlardan nasiyalarni ({total_customer_debts:,.0f} so'm) undirish lozim."""
+
+        elif "savdo" in q_lower or "oshirish" in q_lower or "z-report" in q_lower or "tushum" in q_lower or "marja" in q_lower:
             return f"""💡 <strong>MeatFlow Pro AI Savdo Tahlili:</strong>
 
-1. 📊 <strong>Bugungi Kassa Tushumi:</strong> {total_revenue:,.0f} so'm tushum va {total_debt_added:,.0f} so'm yangi nasiya berildi. Bugun chegirmalarga {total_discounts:,.0f} so'm kechildi.
-2. 🥩 <strong>Zaxira Holati:</strong> Omborda {stock_summary}. Saralangan premium go'sht turlari aylanmasi yuqori.
-3. 📈 <strong>Tavsiya:</strong> Aylanmani oshirish uchun sovuqxonadagi saqlash muddati 3 kundan oshgan partiyalarga 5-10% chegirma e'lon qiling. Yirik B2B mijozlarga to'liq naqd/plastik to'lov evaziga bepul yetkazib berish xizmatini taklif qiling."""
+1. 📊 <strong>Bugungi Kassa Tushumi:</strong> {total_revenue:,.0f} so'm (Naqd: {total_cash_from_sales:,.0f} so'm, Karta: {total_card_from_sales:,.0f} so'm). Yangi nasiya: {total_debt_added:,.0f} so'm.
+2. 🥩 <strong>Zaxira Holati:</strong> Omborda {stock_summary}.
+3. 📈 <strong>Tavsiya:</strong> Aylanmani oshirish uchun sovuqxonadagi turib qolgan go'shtlarga chegirma bering yoki qiymaga aylantiring. Yirik xaridorlar bilan naqd to'lovga kelishing."""
 
         elif "zaxira" in q_lower or "ombor" in q_lower or "go'sht" in q_lower or "partiya" in q_lower:
             return f"""🥩 <strong>MeatFlow Pro AI Ombor & Zaxira Tahlili:</strong>
 
 1. 📦 <strong>Hozirgi Zaxira Balansi:</strong> {stock_summary}.
-2. ⚠️ <strong>Xavf va Zarar Nazorati (Yield Decay):</strong> Zaxirasi 20 kg dan kamaygan go'sht turlari uchun darhol yangi so'yim buyurtma berish lozim.
-3. 💡 <strong>Tavsiya:</strong> So'yim chiqimini (Yield %) 78% dan yuqori ushlash uchun suyak va yog' ajratishni standartlashtiring va so'yim sexida ma'lumotlarni o'z vaqtida kiriting."""
+2. ⚠️ <strong>Sovuqxona Holati:</strong> {aging_summary}
+3. 💡 <strong>Tavsiya:</strong> Zaxirasi 20 kg dan kamaygan go'sht turlari uchun darhol yangi so'yim buyurtma berish lozim."""
 
         elif "qarz" in q_lower or "nasiya" in q_lower or "qarzdor" in q_lower:
             return f"""💸 <strong>MeatFlow Pro AI Nasiya & Qarz Risk Tahlili:</strong>
@@ -1703,19 +1784,19 @@ def api_ai_copilot(request):
 1. 🔴 <strong>Mijozlar Nasiyasi (Bizga berishi kerak bo'lgan pul):</strong> <strong>{total_customer_debts:,.0f} so'm</strong>.
 2. 🏢 <strong>Chorvadorlar Oldidagi Qarzimiz (Biz to'lashimiz kerak bo'lgan pul):</strong> <strong>{total_supplier_debts:,.0f} so'm</strong>.
 3. 🚨 <strong>Top Qarzdor Mijozlar:</strong> {debtors_summary or "Mavjud emas"}.
-4. 💡 <strong>Amaliy Tavsiya:</strong> Chorvadorlar oldidagi qarzni uzish uchun avval mijozlardan nasiyalarni undirib olish va yangi nasiyalarni qat'iy cheklash lozim."""
+4. 💡 <strong>Amaliy Tavsiya:</strong> Chorvadorlar oldidagi qarzni uzish uchun avval mijozlardan nasiyalarni undirib olish zarur."""
 
         else:
             return f"""🤖 <strong>MeatFlow Pro AI Tizim Tahlili:</strong>
 
-Assalomu alaykum! Do'koningizning joriy ko'rsatkichlari:
+Assalomu alaykum! Do'koningizning to'liq ko'rsatkichlari:
+• 💵 <strong>Kassa G'aladonidagi Naqd Pul:</strong> {expected_cash_drawer:,.0f} so'm
 • 📊 <strong>Bugungi Tushum:</strong> {total_revenue:,.0f} so'm
 • 🥩 <strong>Ombor Zaxiralari:</strong> {stock_summary}
 • 💸 <strong>Mijozlar Nasiya Qarzi:</strong> {total_customer_debts:,.0f} so'm
 • 🏢 <strong>Chorvadorlarga Qarzimiz:</strong> {total_supplier_debts:,.0f} so'm
-• 🔴 <strong>Top Qarzdor Mijozlar:</strong> {debtors_summary or "Yo'q"}
 
-Sizga savdoni oshirish, zaxiralarni to'ldirish yoki nasiya qarzlarini undirish bo'yicha batafsil tavsiyalar berishim mumkin."""
+Kassa, ta'minotchilar, savdo yoki go'sht zaxiralari bo'yicha savollaringizga to'liq javob bera olaman."""
 
     # Gemini API ga ulanishga urinamiz
     from django.conf import settings
