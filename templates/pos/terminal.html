@@ -2579,11 +2579,11 @@ function showThermalReceipt(data) {
 }
 </style>
 
-<div id="aiFaceCamModal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.82); backdrop-filter:blur(10px); z-index:99999; justify-content:center; align-items:center; padding:16px;">
-  <div style="background:#FFFFFF; border-radius:24px; width:100%; max-width:540px; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(0,0,0,0.4); overflow:hidden; border:1px solid rgba(255,255,255,0.25); animation:popInModal 0.22s ease-out;">
+<div id="aiFaceCamModal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.86); backdrop-filter:blur(12px); z-index:99999; justify-content:center; align-items:center; padding:16px;">
+  <div style="background:#FFFFFF; border-radius:24px; width:100%; max-width:600px; max-height:94vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(0,0,0,0.45); overflow:hidden; border:1px solid rgba(255,255,255,0.25); animation:popInModal 0.22s ease-out;">
     
     <!-- Modal Header -->
-    <div style="background:linear-gradient(135deg, #1B6B4A 0%, #0F3D2A 100%); padding:16px 20px; color:#fff; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+    <div style="background:linear-gradient(135deg, #1B6B4A 0%, #0F3D2A 100%); padding:14px 18px; color:#fff; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
       <div style="display:flex; align-items:center; gap:10px;">
         <div style="width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">🤖</div>
         <div>
@@ -2592,17 +2592,66 @@ function showThermalReceipt(data) {
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
-        <button type="button" onclick="switchCameraFacing()" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); color:#fff; padding:6px 12px; border-radius:10px; font-size:11.5px; font-weight:700; cursor:pointer;" title="Kamerani almashtirish">
+        <button type="button" onclick="closeFaceCamModal()" style="background:rgba(255,255,255,0.18); border:none; color:#fff; width:34px; height:34px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">&times;</button>
+      </div>
+    </div>
+
+    <!-- 🎛️ NEW CAMERA CONTROL & DEVICE SELECTOR TOOLBAR -->
+    <div style="background:#0F172A; padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; flex-shrink:0;">
+      <!-- Device Selector -->
+      <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:180px;">
+        <span style="font-size:11px; color:#94A3B8; font-weight:700; white-space:nowrap;">📷 Qurilma:</span>
+        <select id="aiCameraDeviceSelect" onchange="changeCameraDevice(this.value)" style="flex:1; background:#1E293B; color:#F8FAFC; border:1px solid #334155; border-radius:8px; padding:4px 8px; font-size:11px; font-weight:600; outline:none; cursor:pointer; max-width:240px;">
+          <option value="">Qidirilmoqda...</option>
+        </select>
+      </div>
+
+      <!-- Quick Toggles -->
+      <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+        <!-- Facing Switch -->
+        <button type="button" id="btnFacingSwitch" onclick="switchCameraFacing()" style="background:#1E293B; border:1px solid #334155; color:#F1F5F9; padding:4px 8px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;" title="Oldi yoki orqa kameraga o'tkazish">
           🔄 <span id="cameraFacingLabel">Oldi</span>
         </button>
-        <button type="button" onclick="closeFaceCamModal()" style="background:rgba(255,255,255,0.18); border:none; color:#fff; width:34px; height:34px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1;">&times;</button>
+        <!-- Mirror Toggle -->
+        <button type="button" id="btnMirrorToggle" onclick="toggleCameraMirror()" style="background:#1E293B; border:1px solid #334155; color:#38BDF8; padding:4px 8px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;" title="Ko'zgu rejimini yoqish/o'chirish">
+          🪞 <span id="cameraMirrorLabel">Ko'zgu</span>
+        </button>
+        <!-- Light Booster -->
+        <button type="button" id="btnLightBoost" onclick="toggleLightBoost()" style="background:#1E293B; border:1px solid #334155; color:#FBBF24; padding:4px 8px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;" title="Kam yorug'likda tasvirni yaxshilash">
+          ☀️ <span id="lightBoostLabel">Yorug'lik</span>
+        </button>
+        <!-- Zoom -->
+        <button type="button" id="btnZoomToggle" onclick="cycleCameraZoom()" style="background:#1E293B; border:1px solid #334155; color:#A78BFA; padding:4px 8px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer;" title="Kamerani yaqinlashtirish">
+          🔍 <span id="cameraZoomLabel">1x</span>
+        </button>
+        <!-- Precision -->
+        <select id="aiResolutionSelect" onchange="changeAiPrecision(this.value)" style="background:#1E293B; color:#34D399; border:1px solid #334155; border-radius:8px; padding:4px 6px; font-size:11px; font-weight:700; outline:none; cursor:pointer;" title="Neyrotarmoq qidiruv chuqurligi">
+          <option value="320">⚡ 320</option>
+          <option value="416" selected>🎯 416 (Ideal)</option>
+          <option value="512">🧠 512 (Chuqur)</option>
+        </select>
       </div>
     </div>
 
     <!-- Video & Canvas Viewport -->
-    <div style="position:relative; background:#080D0A; height:270px; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-      <video id="aiFaceVideo" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; transform:scaleX(-1);"></video>
-      <canvas id="aiFaceCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; transform:scaleX(-1);"></canvas>
+    <div id="aiVideoViewport" style="position:relative; background:#080D0A; height:290px; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; transition:all 0.3s ease;">
+      <video id="aiFaceVideo" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; transform:scaleX(-1); transition:filter 0.25s ease, transform 0.2s ease;"></video>
+      <canvas id="aiFaceCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; transition:transform 0.2s ease;"></canvas>
+
+      <!-- Connection Error / Permission Prompt Overlay -->
+      <div id="aiCameraErrorOverlay" style="display:none; position:absolute; inset:0; background:rgba(15, 23, 42, 0.94); flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; z-index:30;">
+        <div style="font-size:38px; margin-bottom:8px;">📷⚠️</div>
+        <div style="font-size:14px; font-weight:800; color:#F87171; margin-bottom:6px;" id="aiCameraErrorTitle">Kameraga ulanib bo'lmadi</div>
+        <div style="font-size:12px; color:#CBD5E1; max-width:340px; margin-bottom:14px; line-height:1.4;" id="aiCameraErrorMsg">Brauzer ruxsatini yoqing yoki boshqa kamerani tanlang.</div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" onclick="startFaceCamera()" style="background:#10B981; color:#fff; border:none; padding:8px 18px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.3);">
+            🔄 Qayta Ulanish
+          </button>
+          <button type="button" onclick="switchCameraFacing()" style="background:#334155; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
+            🔄 Kamerani Almashtirish
+          </button>
+        </div>
+      </div>
 
       <!-- Target Laser HUD Overlay -->
       <div id="aiLaserTargetBox" style="position:absolute; width:170px; height:190px; border:2px dashed #81EFBB; border-radius:18px; box-shadow:0 0 24px rgba(129,239,187,0.25); pointer-events:none; display:flex; flex-direction:column; justify-content:space-between; padding:8px;">
@@ -2620,7 +2669,10 @@ function showThermalReceipt(data) {
       <!-- Live 128-D Vector Stream Strip (HUD Top) -->
       <div style="position:absolute; top:10px; left:12px; right:12px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); padding:5px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.25);">
         <div class="ai-vector-ticker" id="aiVectorTicker">🧠 128-D Vektor: Yuz qidirilmoqda...</div>
-        <span style="font-size:10px; font-weight:800; color:#38BDF8; background:rgba(56,189,248,0.15); padding:1px 6px; border-radius:4px; margin-left:8px; flex-shrink:0;" id="aiMeshBadge">68 Mesh</span>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <span style="font-size:10px; font-weight:800; color:#F59E0B; background:rgba(245,158,11,0.15); padding:1px 6px; border-radius:4px;" id="aiDistanceBadge">Masofa: Kutilmoqda</span>
+          <span style="font-size:10px; font-weight:800; color:#38BDF8; background:rgba(56,189,248,0.15); padding:1px 6px; border-radius:4px; flex-shrink:0;" id="aiMeshBadge">68 Mesh</span>
+        </div>
       </div>
 
       <!-- Live Scanner HUD Bottom Strip -->
@@ -2629,7 +2681,7 @@ function showThermalReceipt(data) {
           <span id="aiFacePulseDot" style="width:8px; height:8px; border-radius:50%; background:#10B981; animation:pulseDotLive 1.5s infinite;"></span>
           <span id="aiFaceStatusText" style="font-size:12px; font-weight:700; color:#FFFFFF;">Yuz qidirilmoqda...</span>
         </div>
-        <span id="aiConfidenceBadge" style="font-size:11px; font-weight:800; color:#81EFBB; background:rgba(129,239,187,0.18); padding:2px 8px; border-radius:6px;">Auto 1.2s</span>
+        <span id="aiConfidenceBadge" style="font-size:11px; font-weight:800; color:#81EFBB; background:rgba(129,239,187,0.18); padding:2px 8px; border-radius:6px;">Auto 350ms</span>
       </div>
     </div>
 
@@ -2746,12 +2798,20 @@ function showThermalReceipt(data) {
 <script>
 // ── AI SMART FACE RECOGNITION & NEURAL BIOMETRICS ENGINE ──
 let faceVideoStream = null;
-let faceScanInterval = null;
+let faceScanTimeout = null;
+let isFaceScanning = false;
 let faceCameraFacing = 'user'; // 'user' (front) or 'environment' (back)
+let selectedCameraDeviceId = localStorage.getItem('meatflow_pos_camera_id') || '';
+let isCameraMirrored = localStorage.getItem('meatflow_pos_cam_mirror') !== 'false';
+let isLightBoostActive = localStorage.getItem('meatflow_pos_cam_light') === 'true';
+let cameraZoomLevel = parseFloat(localStorage.getItem('meatflow_pos_cam_zoom') || '1.0');
+let aiInputSize = parseInt(localStorage.getItem('meatflow_pos_cam_precision') || '416', 10);
+
 let isFaceApiLoaded = false;
 let faceMatcher = null;
 let cachedFaceCustomers = [];
 let allDbCustomers = [];
+let availableCamerasList = [];
 let selectedAssignCustId = null;
 let lastGreetedCustId = null;
 let lastGreetingTimestamp = 0;
@@ -2771,7 +2831,6 @@ async function initFaceApiModels() {
     ]);
     isFaceApiLoaded = true;
     if (statusEl) statusEl.innerText = "✅ AI Neyrotarmoq Tayyor (68 Nuqta • 128-D Vektor)";
-    console.log("FaceAPI models loaded successfully!");
     await loadServerFaceDescriptors();
     await fetchAllCustomersForSearch();
   } catch (e) {
@@ -2812,7 +2871,6 @@ async function loadServerFaceDescriptors() {
       if (labeledDescriptors.length > 0) {
         // Optimal Euclidean threshold 0.60 allows natural poses & angles
         faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.60);
-        console.log(`FaceMatcher loaded with ${labeledDescriptors.length} customer profiles`);
       } else {
         faceMatcher = null;
       }
@@ -2838,6 +2896,7 @@ function toggleFaceCamModal() {
   if (modal.style.display === 'none' || !modal.style.display) {
     modal.style.display = 'flex';
     initFaceApiModels();
+    updateCameraViewTransforms();
     startFaceCamera();
   } else {
     closeFaceCamModal();
@@ -2849,73 +2908,247 @@ function closeFaceCamModal() {
   stopFaceCamera();
 }
 
-function switchCameraFacing() {
-  faceCameraFacing = faceCameraFacing === 'user' ? 'environment' : 'user';
-  document.getElementById('cameraFacingLabel').innerText = faceCameraFacing === 'user' ? 'Oldi' : 'Orqa';
-  const video = document.getElementById('aiFaceVideo');
-  const canvas = document.getElementById('aiFaceCanvas');
-  if (video) video.style.transform = faceCameraFacing === 'user' ? 'scaleX(-1)' : 'none';
-  if (canvas) canvas.style.transform = faceCameraFacing === 'user' ? 'scaleX(-1)' : 'none';
-  stopFaceCamera();
-  startFaceCamera();
-}
-
-async function startFaceCamera() {
-  const video = document.getElementById('aiFaceVideo');
-  const statusEl = document.getElementById('aiFaceStatusText');
-  const dot = document.getElementById('faceCamStatusDot');
-
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert("Kameraga ulanish imkoni bo'lmadi (Brauzer kamera ruxsatini yoqing)");
+// ── HARDWARE CAMERA ENUMERATION & SELECTION ──
+async function loadAvailableCameraDevices() {
+  const select = document.getElementById('aiCameraDeviceSelect');
+  if (!select) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+    select.innerHTML = '<option value="">Standart Kamera</option>';
     return;
   }
 
   try {
-    if (faceVideoStream) {
-      faceVideoStream.getTracks().forEach(t => t.stop());
-      faceVideoStream = null;
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoInputs = devices.filter(d => d.kind === 'videoinput');
+    availableCamerasList = videoInputs;
+
+    if (videoInputs.length === 0) {
+      select.innerHTML = '<option value="">Kamera topilmadi</option>';
+      return;
     }
 
-    faceVideoStream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: faceCameraFacing },
-      audio: false
+    let html = '';
+    let foundSaved = false;
+    videoInputs.forEach((cam, idx) => {
+      const label = cam.label ? cam.label : `Kamera #${idx + 1} (${cam.deviceId.slice(0, 6)}...)`;
+      const isSelected = selectedCameraDeviceId && cam.deviceId === selectedCameraDeviceId;
+      if (isSelected) foundSaved = true;
+      html += `<option value="${cam.deviceId}" ${isSelected ? 'selected' : ''}>${label}</option>`;
     });
-    video.srcObject = faceVideoStream;
-    if (dot) dot.style.background = '#81EFBB';
-    if (statusEl) statusEl.innerText = "👀 AI Kamera faol — Yuz skanerlanmoqda...";
 
-    // Run rapid scan every 800ms
-    if (!faceScanInterval) {
-      faceScanInterval = setInterval(() => {
-        scanFaceNow(true);
-      }, 800);
+    if (!foundSaved && videoInputs.length > 0) {
+      selectedCameraDeviceId = videoInputs[0].deviceId;
     }
-  } catch (err) {
-    console.error("Camera error:", err);
-    if (statusEl) statusEl.innerText = "Kameraga ulanib bo'lmadi";
-    if (dot) dot.style.background = '#EF4444';
+
+    select.innerHTML = html;
+  } catch (e) {
+    console.warn("enumerateDevices error:", e);
+    select.innerHTML = '<option value="">Standart Kamera</option>';
   }
 }
 
-function stopFaceCamera() {
-  if (faceScanInterval) {
-    clearInterval(faceScanInterval);
-    faceScanInterval = null;
+async function changeCameraDevice(deviceId) {
+  selectedCameraDeviceId = deviceId;
+  localStorage.setItem('meatflow_pos_camera_id', deviceId);
+  await startFaceCamera();
+}
+
+function switchCameraFacing() {
+  faceCameraFacing = faceCameraFacing === 'user' ? 'environment' : 'user';
+  document.getElementById('cameraFacingLabel').innerText = faceCameraFacing === 'user' ? 'Oldi' : 'Orqa';
+  isCameraMirrored = (faceCameraFacing === 'user');
+  updateCameraViewTransforms();
+  startFaceCamera();
+}
+
+function toggleCameraMirror() {
+  isCameraMirrored = !isCameraMirrored;
+  localStorage.setItem('meatflow_pos_cam_mirror', String(isCameraMirrored));
+  updateCameraViewTransforms();
+}
+
+function toggleLightBoost() {
+  isLightBoostActive = !isLightBoostActive;
+  localStorage.setItem('meatflow_pos_cam_light', String(isLightBoostActive));
+  updateCameraViewTransforms();
+}
+
+function cycleCameraZoom() {
+  if (cameraZoomLevel === 1.0) cameraZoomLevel = 1.35;
+  else if (cameraZoomLevel === 1.35) cameraZoomLevel = 1.75;
+  else cameraZoomLevel = 1.0;
+  
+  localStorage.setItem('meatflow_pos_cam_zoom', String(cameraZoomLevel));
+  updateCameraViewTransforms();
+}
+
+function changeAiPrecision(val) {
+  aiInputSize = parseInt(val, 10) || 416;
+  localStorage.setItem('meatflow_pos_cam_precision', String(aiInputSize));
+}
+
+function updateCameraViewTransforms() {
+  const video = document.getElementById('aiFaceVideo');
+  const canvas = document.getElementById('aiFaceCanvas');
+  const mirrorLabel = document.getElementById('cameraMirrorLabel');
+  const lightLabel = document.getElementById('lightBoostLabel');
+  const zoomLabel = document.getElementById('cameraZoomLabel');
+  const btnMirror = document.getElementById('btnMirrorToggle');
+  const btnLight = document.getElementById('btnLightBoost');
+
+  if (mirrorLabel) mirrorLabel.innerText = isCameraMirrored ? "Ko'zgu: Yoqilgan" : "Ko'zgu: O'chiq";
+  if (btnMirror) {
+    btnMirror.style.borderColor = isCameraMirrored ? '#38BDF8' : '#334155';
+    btnMirror.style.background = isCameraMirrored ? 'rgba(56,189,248,0.15)' : '#1E293B';
   }
+
+  if (lightLabel) lightLabel.innerText = isLightBoostActive ? "Yorug'lik: +28%" : "Yorug'lik: Oddiy";
+  if (btnLight) {
+    btnLight.style.borderColor = isLightBoostActive ? '#FBBF24' : '#334155';
+    btnLight.style.background = isLightBoostActive ? 'rgba(251,191,36,0.18)' : '#1E293B';
+  }
+
+  if (zoomLabel) zoomLabel.innerText = `${cameraZoomLevel}x`;
+
+  if (video) {
+    const mirrorStr = isCameraMirrored ? 'scaleX(-1) ' : '';
+    const zoomStr = `scale(${cameraZoomLevel})`;
+    video.style.transform = mirrorStr + zoomStr;
+    video.style.filter = isLightBoostActive ? 'brightness(1.28) contrast(1.18) saturate(1.1)' : 'none';
+  }
+
+  if (canvas) {
+    // Canvas always normal for correct non-mirrored text, but zoom applies
+    canvas.style.transform = `scale(${cameraZoomLevel})`;
+  }
+}
+
+// ── MULTI-TIER ULTRA-ROBUST CAMERA CONNECTION ENGINE ──
+async function startFaceCamera() {
+  const video = document.getElementById('aiFaceVideo');
+  const statusEl = document.getElementById('aiFaceStatusText');
+  const dot = document.getElementById('faceCamStatusDot');
+  const errOverlay = document.getElementById('aiCameraErrorOverlay');
+
+  if (errOverlay) errOverlay.style.display = 'none';
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showCameraError("Brauzer xatosi", "Brauzeringiz kameraga kirishni qo'llab-quvvatlamaydi.");
+    return;
+  }
+
+  // Stop previous stream
+  stopFaceCamera(false);
+
+  // Progressive Fallback Tiers
+  const attempts = [];
+
+  // Tier 1: User-selected device + Ideal HD 720p
+  if (selectedCameraDeviceId) {
+    attempts.push({
+      video: {
+        deviceId: { exact: selectedCameraDeviceId },
+        width: { ideal: 1280, max: 1920 },
+        height: { ideal: 720, max: 1080 }
+      },
+      audio: false
+    });
+  }
+
+  // Tier 2: Ideal HD with facingMode
+  attempts.push({
+    video: {
+      facingMode: faceCameraFacing,
+      width: { ideal: 1280 },
+      height: { ideal: 720 }
+    },
+    audio: false
+  });
+
+  // Tier 3: Standard 480p VGA
+  attempts.push({
+    video: {
+      width: { ideal: 640 },
+      height: { ideal: 480 }
+    },
+    audio: false
+  });
+
+  // Tier 4: Minimal constraint fallback
+  attempts.push({
+    video: true,
+    audio: false
+  });
+
+  let acquiredStream = null;
+  let lastErr = null;
+
+  for (let i = 0; i < attempts.length; i++) {
+    try {
+      acquiredStream = await navigator.mediaDevices.getUserMedia(attempts[i]);
+      if (acquiredStream) break;
+    } catch (err) {
+      lastErr = err;
+      console.warn(`Camera tier ${i + 1} attempt failed:`, err.name, err.message);
+    }
+  }
+
+  if (!acquiredStream) {
+    console.error("All camera tiers failed:", lastErr);
+    if (dot) dot.style.background = '#EF4444';
+    if (statusEl) statusEl.innerText = "Kameraga ulanib bo'lmadi";
+
+    let errMsg = "Kamera ulanganligini yoki brauzer ruxsatini (qulf belgisidan) tekshiring.";
+    if (lastErr && lastErr.name === 'NotAllowedError') {
+      errMsg = "Kameraga ruxsat berilmadi. Iltimos, brauzer qidiruv qatoridagi qulf belgisini bosing va kameraga ruxsat bering.";
+    } else if (lastErr && lastErr.name === 'NotReadableError') {
+      errMsg = "Kamera boshqa dastur tomonidan band qilingan bo'lishi mumkin (Zoom, OBS yoki boshqa sahifa).";
+    }
+    showCameraError("Kamera ochilmadi", errMsg);
+    return;
+  }
+
+  faceVideoStream = acquiredStream;
+  video.srcObject = acquiredStream;
+  if (dot) dot.style.background = '#81EFBB';
+  if (statusEl) statusEl.innerText = "👀 AI Kamera faol — Yuz skanerlanmoqda...";
+
+  updateCameraViewTransforms();
+  await loadAvailableCameraDevices();
+
+  // Start butter-smooth non-overlapping scan loop
+  startFaceScanLoop();
+}
+
+function showCameraError(title, msg) {
+  const errOverlay = document.getElementById('aiCameraErrorOverlay');
+  const tEl = document.getElementById('aiCameraErrorTitle');
+  const mEl = document.getElementById('aiCameraErrorMsg');
+  if (errOverlay) {
+    if (tEl) tEl.innerText = title;
+    if (mEl) mEl.innerText = msg;
+    errOverlay.style.display = 'flex';
+  }
+}
+
+function stopFaceCamera(clearVideoSrc = true) {
+  stopFaceScanLoop();
+
   if (faceVideoStream) {
     faceVideoStream.getTracks().forEach(t => t.stop());
     faceVideoStream = null;
   }
   const video = document.getElementById('aiFaceVideo');
-  if (video) video.srcObject = null;
+  if (video && clearVideoSrc) video.srcObject = null;
   const canvas = document.getElementById('aiFaceCanvas');
   if (canvas) {
     const ctx = canvas.getContext('2d');
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
   const dot = document.getElementById('faceCamStatusDot');
-  if (dot) dot.style.background = '#94A3B8';
-  document.getElementById('aiFaceStatusText').innerText = "Kamera o'chirilgan";
+  if (dot && clearVideoSrc) dot.style.background = '#94A3B8';
+  const statusEl = document.getElementById('aiFaceStatusText');
+  if (statusEl && clearVideoSrc) statusEl.innerText = "Kamera o'chirilgan";
 }
 
 function toggleCameraStream() {
@@ -2933,13 +3166,44 @@ function toggleCameraStream() {
   }
 }
 
-// ── REAL-TIME NEURAL SCANNING & 68-LANDMARK MESH DRAWING ──
+// ── ADAPTIVE NON-OVERLAPPING SCANNING LOOP (ANTI-LAG 60 FPS) ──
+function startFaceScanLoop() {
+  stopFaceScanLoop();
+  async function scanLoop() {
+    if (!faceVideoStream) return;
+    if (!isFaceScanning) {
+      isFaceScanning = true;
+      try {
+        await scanFaceNow(true);
+      } catch (e) {
+        console.warn("Scan loop error:", e);
+      } finally {
+        isFaceScanning = false;
+      }
+    }
+    if (faceVideoStream) {
+      faceScanTimeout = setTimeout(scanLoop, 350); // 350ms smooth interval
+    }
+  }
+  scanLoop();
+}
+
+function stopFaceScanLoop() {
+  if (faceScanTimeout) {
+    clearTimeout(faceScanTimeout);
+    faceScanTimeout = null;
+  }
+  isFaceScanning = false;
+}
+
+// ── REAL-TIME NEURAL SCANNING & REVERSED-TEXT-FIXED CANVAS DRAWING ──
 async function scanFaceNow(isAuto = false) {
   const video = document.getElementById('aiFaceVideo');
   const canvas = document.getElementById('aiFaceCanvas');
   const statusEl = document.getElementById('aiFaceStatusText');
   const confBadge = document.getElementById('aiConfidenceBadge');
   const vectorTicker = document.getElementById('aiVectorTicker');
+  const distBadge = document.getElementById('aiDistanceBadge');
 
   if (!video || !video.videoWidth || !canvas) return;
 
@@ -2949,14 +3213,14 @@ async function scanFaceNow(isAuto = false) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (!isFaceApiLoaded || !faceapi.nets.tinyFaceDetector.isLoaded) {
-    if (!isAuto) statusEl.innerText = "AI Neyrotarmoq yuklanmoqda...";
+    if (!isAuto && statusEl) statusEl.innerText = "AI Neyrotarmoq yuklanmoqda...";
     return;
   }
 
   try {
-    // Detect face + 68 landmarks + 128-d descriptor
+    // Dynamic input size (320 / 416 / 512) and sensitive threshold (0.3)
     const detection = await faceapi
-      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.4 }))
+      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: aiInputSize, scoreThreshold: 0.3 }))
       .withFaceLandmarks()
       .withFaceDescriptor();
 
@@ -2965,6 +3229,7 @@ async function scanFaceNow(isAuto = false) {
         statusEl.innerText = "👀 Kamera oldida yuz topilmadi";
         confBadge.innerText = "Yuz yo'q";
       }
+      if (distBadge) distBadge.innerText = "Yuz qidirilmoqda";
       return;
     }
 
@@ -2972,28 +3237,47 @@ async function scanFaceNow(isAuto = false) {
     const box = detBox.box;
     lastExtractedDescriptor = Array.from(descriptor);
 
+    // Coordinate mapping if camera is mirrored
+    const mapX = (x) => isCameraMirrored ? (canvas.width - x) : x;
+    const drawBoxX = isCameraMirrored ? (canvas.width - box.x - box.width) : box.x;
+
+    // Distance Guide
+    const ratio = box.width / canvas.width;
+    if (distBadge) {
+      if (ratio < 0.16) {
+        distBadge.innerText = "Uzoqroq";
+        distBadge.style.color = "#F59E0B";
+      } else if (ratio > 0.50) {
+        distBadge.innerText = "Juda yaqin";
+        distBadge.style.color = "#F59E0B";
+      } else {
+        distBadge.innerText = "Optimal ✨";
+        distBadge.style.color = "#81EFBB";
+      }
+    }
+
     // 1. Draw 68 Facial Landmarks Mesh Points
     const positions = landmarks.positions;
     ctx.fillStyle = '#38BDF8';
     positions.forEach(pt => {
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, 2.2, 0, 2 * Math.PI);
+      ctx.arc(mapX(pt.x), pt.y, 2.2, 0, 2 * Math.PI);
       ctx.fill();
     });
 
     // 2. Draw Cyber Bounding Box
     ctx.strokeStyle = '#10B981';
     ctx.lineWidth = 3;
-    ctx.strokeRect(box.x, box.y, box.width, box.height);
+    ctx.strokeRect(drawBoxX, box.y, box.width, box.height);
 
     // Corner Reticles
     const cl = Math.min(22, box.width / 4);
     ctx.strokeStyle = '#38BDF8';
     ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.moveTo(box.x, box.y + cl); ctx.lineTo(box.x, box.y); ctx.lineTo(box.x + cl, box.y); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(box.right - cl, box.y); ctx.lineTo(box.right, box.y); ctx.lineTo(box.right, box.y + cl); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(box.x, box.bottom - cl); ctx.lineTo(box.x, box.bottom); ctx.lineTo(box.x + cl, box.bottom); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(box.right - cl, box.bottom); ctx.lineTo(box.right, box.bottom); ctx.lineTo(box.right, box.bottom - cl); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(drawBoxX, box.y + cl); ctx.lineTo(drawBoxX, box.y); ctx.lineTo(drawBoxX + cl, box.y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(drawBoxX + box.width - cl, box.y); ctx.lineTo(drawBoxX + box.width, box.y); ctx.lineTo(drawBoxX + box.width, box.y + cl); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(drawBoxX, box.y + box.height - cl); ctx.lineTo(drawBoxX, box.y + box.height); ctx.lineTo(drawBoxX + cl, box.y + box.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(drawBoxX + box.width - cl, box.y + box.height); ctx.lineTo(drawBoxX + box.width, box.y + box.height); ctx.lineTo(drawBoxX + box.width, box.y + box.height - cl); ctx.stroke();
 
     // 3. Update 128-D Vector Stream Ticker
     if (descriptor) {
@@ -3022,14 +3306,14 @@ async function scanFaceNow(isAuto = false) {
       statusEl.innerHTML = `<span style="color:#81EFBB;">✨ Tanildi: ${c.name}</span>`;
       confBadge.innerText = `${confidence}% Moslik`;
 
-      // Draw Name Tag on Canvas
+      // Draw Name Tag on Canvas (Un-mirrored, perfectly legible!)
       const tagText = `✨ ${c.name} (${confidence}%)`;
       ctx.font = 'bold 13px sans-serif';
       const tw = ctx.measureText(tagText).width + 16;
-      ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
-      ctx.fillRect(box.x, Math.max(0, box.y - 28), tw, 26);
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.92)';
+      ctx.fillRect(drawBoxX, Math.max(0, box.y - 28), tw, 26);
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(tagText, box.x + 8, Math.max(16, box.y - 10));
+      ctx.fillText(tagText, drawBoxX + 8, Math.max(16, box.y - 10));
 
       // Show Matched Card
       const card = document.getElementById('aiMatchedCard');
@@ -3040,8 +3324,11 @@ async function scanFaceNow(isAuto = false) {
         document.getElementById('aiMatchDetails').innerText = `Qarz: ${Math.round(c.debt_amount || 0).toLocaleString()} so'm | Bonus: ${c.bonus_points || 0} ball`;
       }
 
-      // Voice greeting with 20s cooldown
+      // Visual Glow and Sound Ping on Recognition
       if (lastGreetedCustId !== c.id || (now - lastGreetingTimestamp) > 20000) {
+        flashVideoRecognitionSuccess();
+        playRecognitionSuccessChime();
+
         lastGreetedCustId = c.id;
         lastGreetingTimestamp = now;
         let greeting = `Assalomu alaykum, ${c.first_name}! Baxmal Meat sarxil go'shtlar do'koniga xush kelibsiz!`;
@@ -3054,11 +3341,11 @@ async function scanFaceNow(isAuto = false) {
       }
     } else {
       // General visitor
-      ctx.fillStyle = 'rgba(14, 165, 233, 0.85)';
-      ctx.fillRect(box.x, Math.max(0, box.y - 26), 130, 24);
+      ctx.fillStyle = 'rgba(14, 165, 233, 0.88)';
+      ctx.fillRect(drawBoxX, Math.max(0, box.y - 26), 130, 24);
       ctx.fillStyle = '#FFFFFF';
       ctx.font = 'bold 12px sans-serif';
-      ctx.fillText("👋 Yangi Xaridor", box.x + 6, Math.max(15, box.y - 9));
+      ctx.fillText("👋 Yangi Xaridor", drawBoxX + 6, Math.max(15, box.y - 9));
 
       if (!isAuto) {
         statusEl.innerText = "👋 Yangi Xaridor (Face ID da ro'yxatdan o'tmagan)";
@@ -3081,6 +3368,40 @@ async function scanFaceNow(isAuto = false) {
     console.error("Face scan error:", err);
   }
 }
+
+// ── RECOGNITION VISUAL FLASH & CHIME PING ──
+function flashVideoRecognitionSuccess() {
+  const vp = document.getElementById('aiVideoViewport');
+  if (vp) {
+    vp.style.boxShadow = '0 0 35px rgba(16, 185, 129, 0.9)';
+    vp.style.outline = '3px solid #10B981';
+    setTimeout(() => {
+      vp.style.boxShadow = 'none';
+      vp.style.outline = 'none';
+    }, 1200);
+  }
+}
+
+function playRecognitionSuccessChime() {
+  try {
+    const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtxClass) {
+      const actx = new AudioCtxClass();
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, actx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, actx.currentTime + 0.08); // A5
+      gain.gain.setValueAtTime(0.08, actx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.26);
+      osc.connect(gain);
+      gain.connect(actx.destination);
+      osc.start();
+      osc.stop(actx.currentTime + 0.26);
+    }
+  } catch (e) {}
+}
+
 
 function selectAiMatchedCustomer() {
   if (!recognizedCustomerData) return;
